@@ -1,0 +1,12 @@
+:host { display: block; max-width: 56rem; margin-inline: auto; }
+
+.card { border-radius: 1rem; }
+dl { background: #f8f9fa; border-radius: .75rem; padding: 1rem; }
+dt { color: var(--bs-secondary-color); }
+.card {
+  max-width: 850px;
+}
+
+dl dt {
+  color: #667085;
+}

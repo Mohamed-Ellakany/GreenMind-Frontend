@@ -1,0 +1,23 @@
+:host { display: block; }
+
+main { background: linear-gradient(135deg, #edf7ef 0%, #f8fafc 52%, #e6f4ea 100%); }
+.card { border-radius: 1rem; }
+.card-body { border-top: 4px solid #198754; }
+.form-control { min-height: 2.8rem; }
+.btn-primary { min-height: 2.9rem; font-weight: 600; }
+a { text-underline-offset: 0.2rem; }
+:host {
+  display: block;
+}
+
+.min-vh-100 {
+  background: radial-gradient(circle at top right, #d9f1e3 0, transparent 36%), #f5f8f6 !important;
+}
+
+.card {
+  overflow: hidden;
+}
+
+.card-body {
+  border-top: 5px solid #198754;
+}

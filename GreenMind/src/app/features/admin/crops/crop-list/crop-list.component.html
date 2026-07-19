@@ -1,0 +1,61 @@
+<section aria-labelledby="crops-title">
+  <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+    <h1 class="h3 mb-0" id="crops-title">إدارة المحاصيل</h1>
+    <button class="btn btn-primary" type="button" (click)="openCreateForm()">إضافة محصول</button>
+  </div>
+
+  @if (formError(); as message) {
+    <div class="alert alert-danger" role="alert">{{ message }}</div>
+  }
+
+  @if (isFormOpen()) {
+    <form class="card border-0 shadow-sm mb-4" [formGroup]="form" (ngSubmit)="save()" novalidate>
+      <div class="card-body p-4">
+        <h2 class="h5 mb-3">{{ selectedCrop() ? 'تعديل محصول' : 'إضافة محصول' }}</h2>
+        <div class="row g-3">
+          <div class="col-12 col-md-5">
+            <label class="form-label" for="cropName">اسم المحصول</label>
+            <input
+              class="form-control"
+              [class.is-invalid]="form.controls.name.invalid && form.controls.name.touched"
+              formControlName="name"
+              id="cropName"
+              type="text"
+            />
+          </div>
+          <div class="col-12 col-md-7">
+            <label class="form-label" for="cropDescription">الوصف</label>
+            <textarea class="form-control" formControlName="description" id="cropDescription" rows="2"></textarea>
+          </div>
+        </div>
+      </div>
+      <div class="card-footer bg-white border-0 p-4 pt-0 d-flex gap-2">
+        <button class="btn btn-primary" type="submit" [disabled]="isSaving()">
+          @if (isSaving()) { جارٍ الحفظ... } @else { حفظ }
+        </button>
+        <button class="btn btn-outline-secondary" type="button" (click)="closeForm()">إلغاء</button>
+      </div>
+    </form>
+  }
+
+  @if (isLoading()) {
+    <div class="d-flex justify-content-center py-5" role="status"><span class="spinner-border text-primary" aria-hidden="true"></span><span class="visually-hidden">جارٍ تحميل المحاصيل</span></div>
+  } @else if (hasError()) {
+    <div class="alert alert-danger" role="alert">تعذر تحميل المحاصيل.</div>
+  } @else {
+    <div class="table-responsive">
+      <table class="table table-hover align-middle">
+        <thead><tr><th scope="col">الاسم</th><th scope="col">الوصف</th><th scope="col">الحالة</th><th scope="col">الإجراءات</th></tr></thead>
+        <tbody>
+          @for (crop of crops(); track crop.id) {
+            <tr>
+              <td>{{ crop.name }}</td><td>{{ crop.description }}</td>
+              <td>@if (crop.isActive) { <span class="badge bg-success">نشط</span> } @else { <span class="badge bg-secondary">غير نشط</span> }</td>
+              <td class="text-nowrap"><button class="btn btn-outline-primary btn-sm" type="button" [disabled]="pendingDeactivateId() === crop.id" (click)="openEditForm(crop)">تعديل</button>@if (crop.isActive) { <button class="btn btn-outline-danger btn-sm me-1" type="button" [disabled]="pendingDeactivateId() === crop.id" (click)="deactivate(crop)">@if (pendingDeactivateId() === crop.id) { جارٍ الإيقاف... } @else { إيقاف }</button> }</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</section>

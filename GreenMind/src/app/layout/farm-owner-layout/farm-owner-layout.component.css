@@ -1,0 +1,51 @@
+:host { display: block; min-height: 100vh; background: var(--gm-page); }
+
+.navbar {
+  background: linear-gradient(120deg, #0d5d3c, #198754) !important;
+  box-shadow: 0 0.9rem 2rem rgba(8, 65, 43, 0.14);
+}
+
+.navbar-brand {
+  font-weight: 800;
+  letter-spacing: -0.03em;
+}
+
+.navbar .container {
+  gap: 1rem;
+}
+
+.nav-link {
+  color: rgba(255, 255, 255, 0.92);
+  border-radius: 0.65rem;
+  padding-inline: 0.85rem !important;
+  transition: background-color 140ms ease, color 140ms ease;
+}
+
+.nav-link:hover,
+.nav-link:focus {
+  background-color: rgba(255, 255, 255, 0.16);
+  color: #fff;
+}
+
+.btn-outline-light {
+  border-color: rgba(255, 255, 255, 0.78);
+  color: #fff;
+}
+
+.btn-outline-light:hover,
+.btn-outline-light:focus {
+  background-color: rgba(255, 255, 255, 0.16);
+  color: #fff;
+}
+
+main {
+  min-height: calc(100vh - 5.5rem);
+  padding-top: 1.5rem;
+  padding-bottom: 2rem;
+}
+
+@media (max-width: 575.98px) {
+  .navbar .container {
+    align-items: flex-start;
+  }
+}

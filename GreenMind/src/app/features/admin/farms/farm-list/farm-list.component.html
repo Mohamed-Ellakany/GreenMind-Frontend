@@ -1,0 +1,65 @@
+<section aria-labelledby="farms-title">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="h3 mb-0" id="farms-title">إدارة المزارع</h1>
+  </div>
+
+  @if (toastMessage(); as message) {
+    <div class="toast show align-items-center text-bg-danger border-0 mb-3" role="alert" aria-live="assertive">
+      <div class="d-flex">
+        <div class="toast-body">{{ message }}</div>
+        <button class="btn-close btn-close-white me-2 m-auto" type="button" aria-label="إغلاق" (click)="toastMessage.set(null)"></button>
+      </div>
+    </div>
+  }
+
+  @if (isLoading()) {
+    <div class="d-flex justify-content-center py-5" role="status">
+      <span class="spinner-border text-primary" aria-hidden="true"></span>
+      <span class="visually-hidden">جارٍ تحميل المزارع</span>
+    </div>
+  } @else if (hasError()) {
+    <div class="alert alert-danger" role="alert">تعذر تحميل المزارع.</div>
+  } @else if (farms().length === 0) {
+    <div class="alert alert-info" role="status">لا توجد مزارع مسجلة.</div>
+  } @else {
+    <div class="table-responsive">
+      <table class="table table-hover align-middle">
+        <thead>
+          <tr>
+            <th scope="col">اسم المزرعة</th>
+            <th scope="col">المالك</th>
+            <th scope="col">تاريخ الإنشاء</th>
+            <th scope="col">الحالة</th>
+            <th scope="col">الإجراءات</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (farm of farms(); track farm.id) {
+            <tr role="link" tabindex="0" style="cursor: pointer" (click)="openFarm(farm.id)" (keydown.enter)="openFarm(farm.id)">
+              <td>{{ farm.name }}</td>
+              <td>{{ farm.ownerUserId }}</td>
+              <td>{{ formatDate(farm.createdAt) }}</td>
+              <td>
+                @if (farm.isActive) {
+                  <span class="badge bg-success">نشطة</span>
+                } @else {
+                  <span class="badge bg-secondary">غير نشطة</span>
+                }
+              </td>
+              <td class="text-nowrap">
+                @if (pendingFarmId() === farm.id) {
+                  <span class="small text-body-secondary" role="status">جارٍ التنفيذ...</span>
+                } @else if (!farm.isActive) {
+                  <button class="btn btn-success btn-sm" type="button" (click)="performAction($event, farm, 'approve')">موافقة</button>
+                  <button class="btn btn-outline-primary btn-sm me-1" type="button" (click)="performAction($event, farm, 'activate')">تفعيل</button>
+                } @else {
+                  <button class="btn btn-outline-danger btn-sm" type="button" (click)="performAction($event, farm, 'deactivate')">إيقاف</button>
+                }
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</section>

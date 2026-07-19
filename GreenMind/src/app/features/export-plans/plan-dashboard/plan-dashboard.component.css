@@ -1,0 +1,21 @@
+:host { display: block; }
+
+.card { border-radius: .9rem; }
+.progress { height: .75rem; border-radius: 999px; background-color: #e8f2ea; }
+.progress-bar { border-radius: inherit; }
+.list-group-item { border-inline-start: 3px solid #d7eadc; }
+.badge { font-size: .8rem; }
+.progress {
+  height: 0.75rem;
+  border-radius: 999px;
+  background-color: #e2ece5;
+}
+
+.progress-bar {
+  border-radius: inherit;
+}
+
+.list-group-item {
+  border-inline: 0;
+  padding-inline: 0;
+}

@@ -1,0 +1,12 @@
+:host { display: block; }
+
+.card { border-radius: 1rem; overflow: hidden; }
+.card-body { padding: clamp(1.5rem, 4vw, 2.5rem); }
+.card::before { content: ''; display: block; height: 0.35rem; background: #198754; }
+.card {
+  max-width: 700px;
+}
+
+.card-body {
+  padding: 1.75rem;
+}

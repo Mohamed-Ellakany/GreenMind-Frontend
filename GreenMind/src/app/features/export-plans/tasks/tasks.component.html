@@ -1,0 +1,155 @@
+<section aria-labelledby="tasks-title">
+  <h2 class="h4 mb-4" id="tasks-title">المهام</h2>
+
+  <form class="card border-0 shadow-sm mb-4" [formGroup]="filterForm">
+    <div class="card-body p-3">
+      <div class="row g-3">
+        <div class="col-12 col-md-6 col-lg">
+          <label class="form-label" for="statusFilter">الحالة</label>
+          <select class="form-select" formControlName="status" id="statusFilter">
+            <option value="">كل الحالات</option>
+            <option value="Pending">قيد الانتظار</option>
+            <option value="InProgress">قيد التنفيذ</option>
+            <option value="Completed">مكتملة</option>
+            <option value="Skipped">تم تخطيها</option>
+          </select>
+        </div>
+
+        <div class="col-12 col-md-6 col-lg">
+          <label class="form-label" for="priorityFilter">الأولوية</label>
+          <select class="form-select" formControlName="priority" id="priorityFilter">
+            <option value="">كل الأولويات</option>
+            <option value="Low">منخفضة</option>
+            <option value="Medium">متوسطة</option>
+            <option value="High">عالية</option>
+            <option value="Critical">حرجة</option>
+          </select>
+        </div>
+
+        <div class="col-12 col-md-6 col-lg">
+          <label class="form-label" for="taskTypeFilter">نوع المهمة</label>
+          <select class="form-select" formControlName="taskTypeId" id="taskTypeFilter">
+            <option value="">كل الأنواع</option>
+            @for (taskType of taskTypes(); track taskType.id) {
+              <option [value]="taskType.id">{{ taskType.name }}</option>
+            }
+          </select>
+        </div>
+
+        <div class="col-12 col-md-6 col-lg">
+          <label class="form-label" for="fromFilter">من تاريخ</label>
+          <input class="form-control" formControlName="from" id="fromFilter" type="date" />
+        </div>
+
+        <div class="col-12 col-md-6 col-lg">
+          <label class="form-label" for="toFilter">إلى تاريخ</label>
+          <input class="form-control" formControlName="to" id="toFilter" type="date" />
+        </div>
+      </div>
+    </div>
+  </form>
+
+  @if (isLoading()) {
+    <div class="d-flex justify-content-center py-5" role="status">
+      <span class="spinner-border text-primary" aria-hidden="true"></span>
+      <span class="visually-hidden">جارٍ تحميل المهام</span>
+    </div>
+  } @else if (hasError()) {
+    <div class="alert alert-danger" role="alert">تعذر تحميل المهام.</div>
+  } @else if (tasks().length === 0) {
+    <div class="alert alert-info" role="status">لا توجد مهام مطابقة للفلاتر المحددة.</div>
+  } @else {
+    <div class="vstack gap-3">
+      @for (task of tasks(); track task.id) {
+        <article class="card border-0 shadow-sm">
+          <div class="card-body p-4">
+            <div class="d-flex flex-wrap justify-content-between align-items-start gap-3 mb-3">
+              <div>
+                <h3 class="h5 mb-1">{{ task.title }}</h3>
+                <p class="text-body-secondary mb-0">{{ task.taskTypeName }}</p>
+              </div>
+              <div class="d-flex flex-wrap gap-2">
+                <app-task-status-badge [status]="task.status" />
+                <app-task-priority-badge [priority]="task.priority" />
+              </div>
+            </div>
+
+            <p class="mb-3">{{ task.description }}</p>
+
+            <dl class="row small mb-3">
+              <dt class="col-sm-3">التاريخ المخطط</dt>
+              <dd class="col-sm-9">{{ formatDate(task.plannedDate) }}</dd>
+              <dt class="col-sm-3">التاريخ الفعلي</dt>
+              <dd class="col-sm-9">{{ formatDate(task.actualDate) }}</dd>
+              <dt class="col-sm-3">الملاحظات</dt>
+              <dd class="col-sm-9">
+                {{ displayNotes(task) }}
+                @if (hasLongNotes(task.notes)) {
+                  <button class="btn btn-link btn-sm p-0 me-1" type="button" (click)="toggleNotes(task.id)">
+                    {{ isNotesExpanded(task.id) ? 'عرض أقل' : 'عرض المزيد' }}
+                  </button>
+                }
+              </dd>
+            </dl>
+
+            <button class="btn btn-outline-primary btn-sm" type="button" (click)="openStatusUpdate(task)">
+              تحديث الحالة
+            </button>
+
+            @if (selectedTask()?.id === task.id) {
+              <form class="border-top mt-4 pt-4" [formGroup]="updateForm" (ngSubmit)="submitStatusUpdate()" novalidate>
+                <h4 class="h6 mb-3">تحديث حالة المهمة</h4>
+
+                @if (updateError(); as message) {
+                  <div class="alert alert-danger" role="alert">{{ message }}</div>
+                }
+
+                <div class="row g-3">
+                  <div class="col-12 col-md-4">
+                    <label class="form-label" for="updateStatus">الحالة</label>
+                    <select class="form-select" formControlName="status" id="updateStatus" (change)="onStatusChange()">
+                      <option value="Pending">قيد الانتظار</option>
+                      <option value="InProgress">قيد التنفيذ</option>
+                      <option value="Completed">مكتملة</option>
+                      <option value="Skipped">تم تخطيها</option>
+                    </select>
+                  </div>
+
+                  <div class="col-12 col-md-4">
+                    <label class="form-label" for="actualDate">
+                      التاريخ الفعلي@if (updateForm.controls.status.value === 'Completed') { <span class="text-danger">*</span> }
+                    </label>
+                    <input
+                      class="form-control"
+                      [class.is-invalid]="updateForm.controls.actualDate.invalid && updateForm.controls.actualDate.touched"
+                      formControlName="actualDate"
+                      id="actualDate"
+                      type="date"
+                    />
+                    @if (updateForm.controls.actualDate.invalid && updateForm.controls.actualDate.touched) {
+                      <div class="invalid-feedback">التاريخ الفعلي مطلوب عند إكمال المهمة.</div>
+                    }
+                  </div>
+
+                  <div class="col-12 col-md-4">
+                    <label class="form-label" for="updateNotes">ملاحظات التنفيذ</label>
+                    <textarea class="form-control" formControlName="notes" id="updateNotes" rows="1"></textarea>
+                  </div>
+                </div>
+
+                <div class="d-flex gap-2 mt-3">
+                  <button class="btn btn-primary btn-sm" type="submit" [disabled]="isUpdating()">
+                    @if (isUpdating()) { جارٍ الحفظ... } @else { حفظ التحديث }
+                  </button>
+                  <button class="btn btn-outline-secondary btn-sm" type="button" (click)="closeStatusUpdate()">
+                    إلغاء
+                  </button>
+                </div>
+              </form>
+            }
+          </div>
+        </article>
+      }
+    </div>
+  }
+</section>

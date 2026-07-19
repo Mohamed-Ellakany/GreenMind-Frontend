@@ -1,0 +1,148 @@
+@if (isLoading()) {
+  <div class="d-flex justify-content-center py-5" role="status">
+    <span class="spinner-border text-primary" aria-hidden="true"></span>
+    <span class="visually-hidden">جارٍ تحميل لوحة المتابعة</span>
+  </div>
+} @else if (plan()?.status === 'Draft') {
+  <div class="alert alert-warning" role="alert">
+    تعذر إنشاء المهام الأولية لهذه الخطة
+  </div>
+}
+
+@if (!isLoading() && hasError()) {
+  <div class="alert alert-danger" role="alert">تعذر تحميل بيانات لوحة المتابعة.</div>
+} @else if (dashboard(); as dashboard) {
+  <section aria-labelledby="dashboard-title">
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+      <div>
+        <h2 class="h4 mb-1" id="dashboard-title">لوحة المتابعة</h2>
+        <p class="text-body-secondary mb-0">{{ dashboard.cropName }} · {{ dashboard.destinationName }}</p>
+      </div>
+      <app-growth-stage-badge [growthStage]="dashboard.growthStage" />
+    </div>
+
+    <div class="card border-0 shadow-sm mb-4">
+      <div class="card-body p-4">
+        <div class="d-flex justify-content-between gap-3 mb-2">
+          <span>تقدم الموسم</span>
+          <strong>{{ dashboard.seasonProgressPercent }}%</strong>
+        </div>
+        <div
+          class="progress"
+          role="progressbar"
+          aria-label="تقدم الموسم"
+          [attr.aria-valuenow]="dashboard.seasonProgressPercent"
+          aria-valuemin="0"
+          aria-valuemax="100"
+        >
+          <div
+            class="progress-bar bg-success"
+            [style.width.%]="dashboard.seasonProgressPercent"
+          ></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row g-4 mb-4">
+      <div class="col-12 col-lg-5">
+        <article class="card h-100 border-0 shadow-sm">
+          <div class="card-body p-4">
+            <h3 class="h5 mb-3">أحدث قياس للتربة</h3>
+            @if (dashboard.latestSoilMeasurement; as measurement) {
+              <dl class="row mb-0">
+                <dt class="col-6">تاريخ القياس</dt>
+                <dd class="col-6">{{ formatDate(measurement.measurementDate) }}</dd>
+                <dt class="col-6">درجة الحموضة</dt>
+                <dd class="col-6">{{ measurement.ph }}</dd>
+                <dt class="col-6">التوصيل الكهربائي</dt>
+                <dd class="col-6">{{ measurement.ec }}</dd>
+                <dt class="col-6">الرطوبة</dt>
+                <dd class="col-6">{{ measurement.moisture }}</dd>
+                <dt class="col-6">النيتروجين</dt>
+                <dd class="col-6">{{ measurement.nitrogen }}</dd>
+                <dt class="col-6">الفوسفور</dt>
+                <dd class="col-6">{{ measurement.phosphorus }}</dd>
+                <dt class="col-6">البوتاسيوم</dt>
+                <dd class="col-6">{{ measurement.potassium }}</dd>
+                @if (measurement.notes) {
+                  <dt class="col-6">ملاحظات</dt>
+                  <dd class="col-6">{{ measurement.notes }}</dd>
+                }
+              </dl>
+            } @else {
+              <p class="text-body-secondary mb-0">لا توجد قياسات بعد</p>
+            }
+          </div>
+        </article>
+      </div>
+
+      <div class="col-12 col-lg-7">
+        <article class="card h-100 border-0 shadow-sm">
+          <div class="card-body p-4">
+            <h3 class="h5 mb-3">ملخص المهام</h3>
+            <div class="d-flex flex-wrap gap-3">
+              <span class="d-inline-flex align-items-center gap-2">
+                <app-task-status-badge status="Pending" />
+                <strong>{{ dashboard.taskSummary.pending }}</strong>
+              </span>
+              <span class="d-inline-flex align-items-center gap-2">
+                <app-task-status-badge status="InProgress" />
+                <strong>{{ dashboard.taskSummary.inProgress }}</strong>
+              </span>
+              <span class="d-inline-flex align-items-center gap-2">
+                <app-task-status-badge status="Completed" />
+                <strong>{{ dashboard.taskSummary.completed }}</strong>
+              </span>
+              <span class="d-inline-flex align-items-center gap-2">
+                <app-task-status-badge status="Skipped" />
+                <strong>{{ dashboard.taskSummary.skipped }}</strong>
+              </span>
+            </div>
+          </div>
+        </article>
+      </div>
+    </div>
+
+    <div class="row g-4">
+      <div class="col-12 col-lg-6">
+        <article class="card h-100 border-0 shadow-sm">
+          <div class="card-body p-4">
+            <h3 class="h5 mb-3">المهام القادمة</h3>
+            @if (dashboard.upcomingTasks.length > 0) {
+              <ul class="list-group list-group-flush">
+                @for (task of dashboard.upcomingTasks; track task.id) {
+                  <li class="list-group-item px-0">
+                    <a class="text-decoration-none" [routerLink]="['../tasks']">{{ task.title }}</a>
+                    <span class="d-block small text-body-secondary">{{ formatDate(task.plannedDate) }}</span>
+                  </li>
+                }
+              </ul>
+            } @else {
+              <p class="text-body-secondary mb-0">لا توجد مهام قادمة.</p>
+            }
+          </div>
+        </article>
+      </div>
+
+      <div class="col-12 col-lg-6">
+        <article class="card h-100 border-0 shadow-sm">
+          <div class="card-body p-4">
+            <h3 class="h5 mb-3">المهام المكتملة</h3>
+            @if (dashboard.completedTasks.length > 0) {
+              <ul class="list-group list-group-flush">
+                @for (task of dashboard.completedTasks; track task.id) {
+                  <li class="list-group-item px-0">
+                    <a class="text-decoration-none" [routerLink]="['../tasks']">{{ task.title }}</a>
+                    <span class="d-block small text-body-secondary">{{ formatDate(task.plannedDate) }}</span>
+                  </li>
+                }
+              </ul>
+            } @else {
+              <p class="text-body-secondary mb-0">لا توجد مهام مكتملة.</p>
+            }
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+}

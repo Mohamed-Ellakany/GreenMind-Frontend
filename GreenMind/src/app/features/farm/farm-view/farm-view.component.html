@@ -1,0 +1,22 @@
+<section aria-labelledby="farm-title">
+  <h1 class="h3 mb-4" id="farm-title">مزرعتي</h1>
+
+  @if (isLoading()) {
+    <div class="d-flex justify-content-center py-5" role="status">
+      <span class="spinner-border text-success" aria-hidden="true"></span>
+      <span class="visually-hidden">جارٍ تحميل بيانات المزرعة</span>
+    </div>
+  } @else if (hasError()) {
+    <div class="alert alert-danger" role="alert">تعذر تحميل بيانات المزرعة</div>
+  } @else if (farm(); as farm) {
+    <article class="card border-0 shadow-sm">
+      <div class="card-body p-4">
+        <h2 class="h4 card-title mb-4">{{ farm.name }}</h2>
+        <dl class="row mb-0">
+          <dt class="col-sm-4">تاريخ الإنشاء</dt>
+          <dd class="col-sm-8">{{ formatDate(farm.createdAt) }}</dd>
+        </dl>
+      </div>
+    </article>
+  }
+</section>

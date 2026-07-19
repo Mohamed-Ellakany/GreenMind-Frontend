@@ -1,0 +1,160 @@
+<section aria-labelledby="create-plan-title">
+  <h1 class="h3 mb-4 text-decoration-none" id="create-plan-title">إنشاء خطة تصدير جديدة</h1>
+
+  @if (loadError()) {
+    <div class="alert alert-danger" role="alert">تعذر تحميل المحاصيل ووجهات التصدير.</div>
+  }
+
+  @if (submitError(); as message) {
+    <div class="alert alert-danger" role="alert">{{ message }}</div>
+  }
+
+  @if (isLoadingOptions()) {
+    <div class="d-flex justify-content-center py-4" role="status">
+      <span class="spinner-border text-primary" aria-hidden="true"></span>
+      <span class="visually-hidden">جارٍ تحميل بيانات النموذج</span>
+    </div>
+  }
+
+  <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+    <div class="card border-0 shadow-sm">
+      <div class="card-body p-4">
+        <div class="row g-3">
+          <div class="col-12">
+            <label class="form-label" for="name">اسم الخطة</label>
+            <input
+              class="form-control"
+              [class.is-invalid]="form.controls.name.invalid && form.controls.name.touched"
+              formControlName="name"
+              id="name"
+              type="text"
+            />
+            @if (form.controls.name.invalid && form.controls.name.touched) {
+              <div class="invalid-feedback">اسم الخطة مطلوب.</div>
+            }
+          </div>
+
+          <div class="col-12 col-md-6">
+            <label class="form-label" for="cropId">المحصول</label>
+            <select
+              class="form-select"
+              [class.is-invalid]="form.controls.cropId.invalid && form.controls.cropId.touched"
+              [disabled]="isLoadingOptions()"
+              formControlName="cropId"
+              id="cropId"
+            >
+              <option value="">اختر المحصول</option>
+              @for (crop of crops(); track crop.id) {
+                <option [value]="crop.id">{{ crop.name }}</option>
+              }
+            </select>
+          </div>
+
+          <div class="col-12 col-md-6">
+            <label class="form-label" for="destinationId">وجهة التصدير</label>
+            <select
+              class="form-select"
+              [class.is-invalid]="form.controls.destinationId.invalid && form.controls.destinationId.touched"
+              [disabled]="isLoadingOptions()"
+              formControlName="destinationId"
+              id="destinationId"
+            >
+              <option value="">اختر الوجهة</option>
+              @for (destination of destinations(); track destination.id) {
+                <option [value]="destination.id">{{ destination.name }}</option>
+              }
+            </select>
+          </div>
+
+          <div class="col-12 col-md-6">
+            <label class="form-label" for="governorate">المحافظة</label>
+            <input class="form-control" formControlName="governorate" id="governorate" type="text" />
+          </div>
+
+          <div class="col-12 col-md-6">
+            <label class="form-label" for="city">المدينة</label>
+            <input class="form-control" formControlName="city" id="city" type="text" />
+          </div>
+
+          <div class="col-12 col-md-4">
+            <label class="form-label" for="latitude">خط العرض</label>
+            <input class="form-control" formControlName="latitude" id="latitude" type="number" step="any" />
+          </div>
+
+          <div class="col-12 col-md-4">
+            <label class="form-label" for="longitude">خط الطول</label>
+            <input class="form-control" formControlName="longitude" id="longitude" type="number" step="any" />
+          </div>
+
+          <div class="col-12 col-md-4">
+            <label class="form-label" for="areaInFeddan">المساحة بالفدان</label>
+            <input
+              class="form-control"
+              [class.is-invalid]="form.controls.areaInFeddan.invalid && form.controls.areaInFeddan.touched"
+              formControlName="areaInFeddan"
+              id="areaInFeddan"
+              type="number"
+              min="0"
+              step="any"
+            />
+            @if (form.controls.areaInFeddan.invalid && form.controls.areaInFeddan.touched) {
+              <div class="invalid-feedback">يجب أن تكون المساحة أكبر من صفر.</div>
+            }
+          </div>
+
+          <div class="col-12 col-md-4">
+            <label class="form-label" for="plantingDate">تاريخ الزراعة</label>
+            <input class="form-control" formControlName="plantingDate" id="plantingDate" type="date" />
+          </div>
+
+          <div class="col-12 col-md-4">
+            <label class="form-label" for="expectedHarvestDate">تاريخ الحصاد المتوقع</label>
+            <input
+              class="form-control"
+              formControlName="expectedHarvestDate"
+              id="expectedHarvestDate"
+              type="date"
+            />
+          </div>
+
+          <div class="col-12 col-md-4">
+            <label class="form-label" for="expectedExportDate">تاريخ التصدير المتوقع</label>
+            <input
+              class="form-control"
+              formControlName="expectedExportDate"
+              id="expectedExportDate"
+              type="date"
+            />
+          </div>
+
+          @if (form.hasError('dateAfter') && (form.touched || form.dirty)) {
+            <div class="col-12">
+              <div class="alert alert-danger mb-0" role="alert">
+                يجب أن يكون الحصاد بعد الزراعة، وأن يكون التصدير في أو بعد تاريخ الحصاد.
+              </div>
+            </div>
+          }
+
+          <div class="col-12">
+            <label class="form-label" for="notes">ملاحظات</label>
+            <textarea class="form-control" formControlName="notes" id="notes" rows="3"></textarea>
+          </div>
+        </div>
+      </div>
+
+      <div class="card-footer bg-white border-0 p-4 pt-0">
+        <button
+          class="btn btn-primary"
+          type="submit"
+          [disabled]="isSubmitting() || isLoadingOptions() || loadError()"
+        >
+          @if (isSubmitting()) {
+            جارٍ حفظ الخطة وتجهيز مهام الأسبوع الأول
+          } @else {
+            حفظ الخطة
+          }
+        </button>
+      </div>
+    </div>
+  </form>
+</section>

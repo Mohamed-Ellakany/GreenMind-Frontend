@@ -1,0 +1,22 @@
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark" aria-label="التنقل الإداري">
+  <div class="container">
+    <a class="navbar-brand text-decoration-none" routerLink="/admin/farms">جرين مايند - الإدارة</a>
+
+    <div class="d-flex flex-wrap align-items-center gap-2">
+      <a class="nav-link text-white" routerLink="/admin/farms">المزارع</a>
+      <a class="nav-link text-white" routerLink="/admin/crops">المحاصيل</a>
+      <a class="nav-link text-white" routerLink="/admin/destinations">وجهات التصدير</a>
+      <a class="nav-link text-white" routerLink="/admin/statistics">الإحصاءات</a>
+      @if (authService.currentUser(); as user) {
+        <span class="text-white-50 small">{{ user.fullName }}</span>
+      }
+      <button class="btn btn-outline-light btn-sm" type="button" (click)="logout()">
+        تسجيل الخروج
+      </button>
+    </div>
+  </div>
+</nav>
+
+<main class="container py-4">
+  <router-outlet />
+</main>

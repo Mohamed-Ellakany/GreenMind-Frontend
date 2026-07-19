@@ -1,0 +1,41 @@
+<section aria-labelledby="statistics-title">
+  <h1 class="h3 mb-4" id="statistics-title">إحصاءات المنصة</h1>
+
+  @if (isLoading()) {
+    <div class="d-flex justify-content-center py-5" role="status">
+      <span class="spinner-border text-primary" aria-hidden="true"></span>
+      <span class="visually-hidden">جارٍ تحميل الإحصاءات</span>
+    </div>
+  } @else if (hasError()) {
+    <div class="alert alert-danger" role="alert">تعذر تحميل إحصاءات المنصة.</div>
+  } @else if (statistics(); as statistics) {
+    <div class="row g-4 mb-4">
+      <div class="col-12 col-sm-6 col-xl-3"><article class="card h-100 border-0 shadow-sm"><div class="card-body"><p class="text-body-secondary mb-2">إجمالي المزارع</p><strong class="display-6">{{ statistics.totalFarms }}</strong></div></article></div>
+      <div class="col-12 col-sm-6 col-xl-3"><article class="card h-100 border-0 shadow-sm"><div class="card-body"><p class="text-body-secondary mb-2">المزارع النشطة</p><strong class="display-6 text-success">{{ statistics.activeFarms }}</strong></div></article></div>
+      <div class="col-12 col-sm-6 col-xl-3"><article class="card h-100 border-0 shadow-sm"><div class="card-body"><p class="text-body-secondary mb-2">المزارع غير النشطة</p><strong class="display-6 text-secondary">{{ statistics.inactiveFarms }}</strong></div></article></div>
+      <div class="col-12 col-sm-6 col-xl-3"><article class="card h-100 border-0 shadow-sm"><div class="card-body"><p class="text-body-secondary mb-2">إجمالي خطط التصدير</p><strong class="display-6 text-primary">{{ statistics.totalExportPlans }}</strong></div></article></div>
+    </div>
+
+    <div class="row g-4">
+      <div class="col-12 col-lg-6">
+        <article class="card h-100 border-0 shadow-sm">
+          <div class="card-body p-4"><h2 class="h5 mb-3">خطط التصدير حسب المحصول</h2>
+            @if (statistics.plansByCrop.length > 0) {
+              <div class="table-responsive"><table class="table mb-0"><thead><tr><th scope="col">المحصول</th><th scope="col">عدد الخطط</th></tr></thead><tbody>@for (item of statistics.plansByCrop; track item.cropName) { <tr><td>{{ item.cropName }}</td><td>{{ item.count }}</td></tr> }</tbody></table></div>
+            } @else { <p class="text-body-secondary mb-0">لا توجد بيانات متاحة.</p> }
+          </div>
+        </article>
+      </div>
+
+      <div class="col-12 col-lg-6">
+        <article class="card h-100 border-0 shadow-sm">
+          <div class="card-body p-4"><h2 class="h5 mb-3">خطط التصدير حسب الوجهة</h2>
+            @if (statistics.plansByDestination.length > 0) {
+              <div class="table-responsive"><table class="table mb-0"><thead><tr><th scope="col">الوجهة</th><th scope="col">عدد الخطط</th></tr></thead><tbody>@for (item of statistics.plansByDestination; track item.destinationName) { <tr><td>{{ item.destinationName }}</td><td>{{ item.count }}</td></tr> }</tbody></table></div>
+            } @else { <p class="text-body-secondary mb-0">لا توجد بيانات متاحة.</p> }
+          </div>
+        </article>
+      </div>
+    </div>
+  }
+</section>
