@@ -1,0 +1,115 @@
+<section class="mx-auto flex min-h-[calc(100dvh-102px)] w-full max-w-[1440px] flex-col gap-6 pb-4 text-[#001c37]" dir="rtl">
+  <div class="flex flex-col justify-between gap-3 md:flex-row md:items-center">
+    <div>
+      <h1 class="text-2xl font-bold tracking-tight md:text-[32px] md:leading-10">واجهة الذكاء الاصطناعي</h1>
+      <p class="mt-1 text-sm leading-6 text-slate-600">اسأل عن اللوائح، العلاجات، أو جاهزية قطع الأراضي للتصدير.</p>
+    </div>
+    <div class="flex items-center gap-3">
+      <button type="button" class="rounded-lg border border-slate-200 bg-white px-4 py-2 text-xs font-bold text-slate-700 transition hover:bg-slate-50">تحليل جديد</button>
+      <span class="rounded-full bg-green-100 px-3 py-1.5 text-xs font-bold text-[#087c35]">مباشر</span>
+    </div>
+  </div>
+
+  <div class="grid min-h-0 flex-1 gap-6 lg:grid-cols-[260px_1fr]">
+    <aside class="hidden flex-col gap-6 overflow-y-auto lg:flex">
+      <section>
+        <h2 class="mb-3 text-xs font-bold uppercase tracking-wide text-slate-500">استفسارات سياقية</h2>
+        <div class="space-y-2">
+          @for (suggestion of suggestions(); track suggestion.text) {
+            <button type="button" class="w-full rounded-lg border border-slate-200 bg-white p-3 text-right text-sm leading-6 text-[#001c37] shadow-[0_4px_20px_rgba(10,37,64,.05)] transition hover:border-[#006b2c] hover:bg-white hover:shadow-[0_8px_30px_rgba(10,37,64,.08)]">
+              <span class="flex items-start gap-2">
+                <span class="pt-0.5 text-[#006b2c]" aria-hidden="true">{{ suggestion.icon }}</span>
+                <span>{{ suggestion.text }}</span>
+              </span>
+            </button>
+          }
+        </div>
+      </section>
+
+      <section>
+        <h2 class="mb-3 text-xs font-bold uppercase tracking-wide text-slate-500">التحليلات الأخيرة</h2>
+        <div class="space-y-1">
+          @for (analysis of recentAnalyses(); track analysis) {
+            <a href="#" class="block truncate rounded-md px-3 py-2 text-sm text-slate-600 transition hover:bg-white hover:text-[#001c37]">
+              {{ analysis }}
+            </a>
+          }
+        </div>
+      </section>
+    </aside>
+
+    <section class="flex min-h-[660px] flex-col overflow-hidden rounded-xl border border-slate-200 bg-white shadow-[0_4px_20px_rgba(10,37,64,.05)]">
+      <div class="flex-1 overflow-y-auto p-4 sm:p-6">
+        <div class="space-y-8">
+          <div class="flex justify-start gap-4">
+            <div class="max-w-[82%] rounded-2xl rounded-tl-sm bg-slate-100 px-5 py-3 text-base leading-7 text-[#001c37]">
+              هل يمكنني حصاد القطعة 4B الأسبوع القادم؟ لقد استخدمت "سويتش" (سايبرودينيل + فلو ديوكسونيل) قبل 3 أيام. السوق المستهدف هو الاتحاد الأوروبي.
+            </div>
+            <div class="grid size-8 shrink-0 place-items-center rounded-full bg-green-100 text-xs font-bold text-[#087c35]">JD</div>
+          </div>
+
+          <div class="flex gap-4">
+            <div class="grid size-8 shrink-0 place-items-center rounded-full bg-[#006b2c] text-sm font-bold text-white">AI</div>
+            <div class="max-w-[88%] flex-1 space-y-4">
+              <div class="inline-flex items-center gap-2 rounded-full bg-red-50 px-3 py-1 text-xs font-bold text-red-700">
+                <span aria-hidden="true">!</span>
+                لا ينصح بالحصاد
+              </div>
+
+              <p class="text-base leading-8 text-[#001c37]">
+                بناء على لوائح الاتحاد الأوروبي الحالية وتاريخ الاستخدام، يجب عليك <strong>تأجيل الحصاد</strong>. لم يتم استيفاء فترة ما قبل الحصاد (PHI) لمبيد "سويتش" على الفراولة الموجهة للاتحاد الأوروبي.
+              </p>
+
+              <div class="rounded-lg border border-slate-200 bg-slate-50 p-4">
+                <div class="mb-3 flex flex-col justify-between gap-3 border-b border-slate-200 pb-3 sm:flex-row sm:items-center">
+                  <h2 class="flex items-center gap-2 text-lg font-bold text-[#001c37]">
+                    <span class="text-[#006b2c]" aria-hidden="true">✓</span>
+                    تفاصيل الامتثال
+                  </h2>
+                  <span class="inline-flex w-fit items-center gap-1 rounded bg-green-100 px-2 py-1 font-mono text-sm text-[#006b2c]">
+                    الثقة: 98%
+                  </span>
+                </div>
+
+                <div class="grid gap-4 md:grid-cols-2">
+                  @for (point of compliancePoints(); track point.name) {
+                    <article class="rounded border border-slate-200 bg-white p-3">
+                      <p class="mb-1 text-xs font-bold uppercase tracking-wide text-slate-500">{{ point.name }}</p>
+                      <strong class="block text-lg text-[#001c37]">{{ point.value }}</strong>
+                      <p class="mt-2 text-xs text-slate-500">{{ point.period }}</p>
+                    </article>
+                  }
+                </div>
+
+                <p class="mt-4 border-r-2 border-amber-500 pr-3 text-sm leading-7 text-slate-600">
+                  <strong>الحساب:</strong> تم الرش قبل 3 أيام. يتطلب سايبرودينيل 7 أيام كحد أدنى. يجب الانتظار 4 أيام إضافية على الأقل قبل الحصاد للامتثال لمعايير الاتحاد الأوروبي.
+                </p>
+              </div>
+
+              <div class="flex flex-wrap gap-2">
+                <span class="rounded border border-slate-200 bg-slate-50 px-2 py-1 text-xs font-bold text-slate-600">قاعدة بيانات مبيدات الاتحاد الأوروبي (Reg. 396/2005)</span>
+                <span class="rounded border border-slate-200 bg-slate-50 px-2 py-1 text-xs font-bold text-slate-600">سجل رش القطعة 4B</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="flex flex-wrap gap-2 pr-0 lg:pr-12">
+            <button type="button" class="rounded-full border border-slate-300 bg-white px-3 py-1.5 text-sm text-[#001c37] transition hover:bg-slate-50">ماذا لو حولت للسوق المحلي؟</button>
+            <button type="button" class="rounded-full border border-slate-300 bg-white px-3 py-1.5 text-sm text-[#001c37] transition hover:bg-slate-50">عرض منحنى التحلل</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="border-t border-slate-200 bg-white p-4">
+        <div class="relative flex items-center">
+          <button type="button" class="absolute right-3 text-slate-500 transition hover:text-[#006b2c]" aria-label="إرفاق ملف">⌕</button>
+          <input class="w-full rounded-lg border border-slate-200 bg-slate-50 py-4 pl-12 pr-12 text-sm outline-none transition placeholder:text-slate-400 focus:border-[#006b2c] focus:ring-2 focus:ring-[#006b2c]/20" placeholder="اسأل عن اللوائح، العلاجات، أو قطع أراضي محددة..." type="text" />
+          <button type="button" class="absolute left-3 grid size-8 place-items-center rounded bg-[#006b2c] text-white transition hover:bg-[#006e2f]" aria-label="إرسال">‹</button>
+        </div>
+        <p class="mt-2 text-center text-xs text-slate-500">
+          يمكن لذكاء جرين مايند ارتكاب الأخطاء. تحقق دائما من الامتثال قبل التصدير.
+        </p>
+      </div>
+    </section>
+  </div>
+</section>

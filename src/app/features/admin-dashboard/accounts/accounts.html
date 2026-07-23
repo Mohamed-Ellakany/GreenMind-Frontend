@@ -1,0 +1,46 @@
+<section class="mx-auto max-w-[1440px] text-[#001c37]" dir="rtl">
+  <header class="mb-8 flex flex-col justify-between gap-4 md:flex-row md:items-center">
+    <div>
+      <h2 class="text-2xl font-black md:text-[32px]">الحسابات</h2>
+      <p class="mt-1 text-sm text-slate-600">إدارة حسابات المزارعين والمصدرين وصلاحيات الوصول.</p>
+    </div>
+    <button class="inline-flex items-center justify-center gap-2 rounded-xl bg-[#16A34A] px-5 py-3 text-sm font-bold text-white transition hover:bg-[#12863e]"><fa-icon [icon]="icons.add" /> إضافة حساب</button>
+  </header>
+
+  <section class="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-[0_4px_20px_rgba(10,37,64,.05)]">
+    <div class="hidden grid-cols-[1.4fr_1.4fr_0.8fr_0.8fr_1fr_0.7fr] gap-4 bg-slate-50 px-6 py-4 text-xs font-bold text-slate-500 lg:grid">
+      <span>اسم الحساب</span><span>البريد</span><span>النوع</span><span>الحالة</span><span>تاريخ الانضمام</span><span class="text-left">الإجراءات</span>
+    </div>
+
+    <div class="divide-y divide-slate-100">
+      @for (account of accounts(); track account.email) {
+        <article class="grid gap-4 p-5 transition hover:bg-slate-50 lg:grid-cols-[1.4fr_1.4fr_0.8fr_0.8fr_1fr_0.7fr] lg:items-center lg:px-6">
+          <div>
+            <p class="text-xs font-bold text-slate-500 lg:hidden">اسم الحساب</p>
+            <h3 class="font-bold">{{ account.name }}</h3>
+          </div>
+          <div>
+            <p class="text-xs font-bold text-slate-500 lg:hidden">البريد</p>
+            <p class="break-all text-sm text-slate-500">{{ account.email }}</p>
+          </div>
+          <div>
+            <p class="text-xs font-bold text-slate-500 lg:hidden">النوع</p>
+            <p>{{ account.type }}</p>
+          </div>
+          <div>
+            <p class="mb-1 text-xs font-bold text-slate-500 lg:hidden">الحالة</p>
+            <span class="inline-flex rounded-full px-3 py-1 text-xs font-bold" [class.bg-green-50]="account.status === 'نشط'" [class.text-green-800]="account.status === 'نشط'" [class.bg-amber-50]="account.status === 'معلق'" [class.text-amber-700]="account.status === 'معلق'" [class.bg-red-50]="account.status === 'موقوف'" [class.text-red-700]="account.status === 'موقوف'">{{ account.status }}</span>
+          </div>
+          <div>
+            <p class="text-xs font-bold text-slate-500 lg:hidden">تاريخ الانضمام</p>
+            <p class="text-slate-500">{{ account.joinedAt }}</p>
+          </div>
+          <div class="flex justify-end gap-2">
+            <button class="rounded-lg p-2 text-blue-600 transition hover:bg-blue-50" aria-label="تعديل"><fa-icon [icon]="icons.edit" /></button>
+            <button class="rounded-lg p-2 text-red-600 transition hover:bg-red-50" aria-label="حذف"><fa-icon [icon]="icons.delete" /></button>
+          </div>
+        </article>
+      }
+    </div>
+  </section>
+</section>

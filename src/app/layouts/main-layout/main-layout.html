@@ -1,0 +1,54 @@
+﻿<div class="min-h-dvh bg-[#f5f8fb] font-[Arial,Tahoma,sans-serif] text-[#102038]" dir="rtl">
+  @if (mobileMenuOpen()) {
+    <button class="fixed inset-0 z-30 bg-slate-950/25 lg:hidden" aria-label="إغلاق القائمة" (click)="closeMobileMenu()"></button>
+  }
+
+  <aside class="floating-aside fixed bottom-0 right-0 top-0 z-40 flex min-h-0 w-64 flex-col border-l border-slate-200 bg-white px-4 py-6 shadow-2xl shadow-slate-900/10 lg:bottom-4 lg:right-4 lg:top-4 lg:h-[calc(100dvh-2rem)] lg:rounded-2xl lg:border lg:border-slate-200 lg:shadow-[0_20px_50px_rgba(15,23,42,0.10)]" [class.is-open]="mobileMenuOpen()" [class.floating-aside-collapsed]="asideCollapsed()">
+    <button class="aside-collapse-button hidden lg:grid" type="button" aria-label="تصغير القائمة" [attr.aria-expanded]="!asideCollapsed()" (click)="toggleAside()">
+      <fa-icon [icon]="icons.collapse" />
+    </button>
+
+    <a routerLink="/dashboard" class="brand-link mb-7 flex items-center gap-2 px-3" title="جرين مايند" (click)="closeMobileMenu()">
+      <span class="grid size-9 shrink-0 place-items-center rounded-xl bg-green-50 text-[#16a34a]" aria-hidden="true">
+        <fa-icon [icon]="icons.leaf" />
+      </span>
+      <span class="aside-text text-xl font-extrabold text-[#087c35]">جرين مايند</span>
+    </a>
+    <p class="aside-text mb-7 px-3 text-xs text-slate-500">دليل المزارع</p>
+    <a routerLink="/export-plans" class="nav-link mb-5 flex h-11 items-center justify-center gap-2 rounded-lg bg-[#12a347] text-sm font-bold text-white shadow-sm" title="خطة تصدير جديدة" (click)="closeMobileMenu()"><fa-icon class="nav-fa text-base" [icon]="icons.plus" /> <span class="aside-text">خطة تصدير جديدة</span></a>
+    <nav class="aside-scroll min-h-0 flex-1 space-y-1.5 overflow-y-auto overflow-x-hidden text-sm">
+      <a routerLink="/dashboard" routerLinkActive="bg-[#5ff28c] font-bold text-[#075b2b]" [routerLinkActiveOptions]="{ exact: true }" class="nav-link flex items-center gap-3 rounded-lg px-3 py-3 transition hover:bg-green-50" title="لوحة التحكم" (click)="closeMobileMenu()"><fa-icon class="nav-fa" [icon]="icons.dashboard" /> <span class="aside-text">لوحة التحكم</span></a>
+      <a routerLink="/export-plans" routerLinkActive="bg-[#5ff28c] font-bold text-[#075b2b]" class="nav-link flex items-center gap-3 rounded-lg px-3 py-3 hover:bg-green-50" title="خطط التصدير" (click)="closeMobileMenu()"><fa-icon class="nav-fa" [icon]="icons.exportPlans" /> <span class="aside-text">خطط التصدير</span></a>
+      <a routerLink="/activities" routerLinkActive="bg-[#5ff28c] font-bold text-[#075b2b]" class="nav-link flex items-center gap-3 rounded-lg px-3 py-3 hover:bg-green-50" title="الأنشطة" (click)="closeMobileMenu()"><fa-icon class="nav-fa" [icon]="icons.activities" /> <span class="aside-text">الأنشطة</span></a>
+      <a href="#diseases" class="nav-link flex items-center gap-3 rounded-lg px-3 py-3 hover:bg-green-50" title="كشف الأمراض"><fa-icon class="nav-fa" [icon]="icons.disease" /> <span class="aside-text">كشف الأمراض</span></a>
+      <a routerLink="/ai-agent" routerLinkActive="bg-[#5ff28c] font-bold text-[#075b2b]" class="nav-link flex items-center gap-3 rounded-lg px-3 py-3 hover:bg-green-50" title="المساعد الذكي" (click)="closeMobileMenu()"><fa-icon class="nav-fa" [icon]="icons.ai" /> <span class="aside-text">المساعد الذكي</span></a>
+      <a href="#compliance" class="nav-link flex items-center gap-3 rounded-lg px-3 py-3 hover:bg-green-50" title="مركز الامتثال"><fa-icon class="nav-fa" [icon]="icons.compliance" /> <span class="aside-text">مركز الامتثال</span></a>
+      <a routerLink="/market-comparison" routerLinkActive="bg-[#5ff28c] font-bold text-[#075b2b]" class="nav-link flex items-center gap-3 rounded-lg px-3 py-3 hover:bg-green-50" title="مقارنة الأسواق" (click)="closeMobileMenu()"><fa-icon class="nav-fa" [icon]="icons.market" /> <span class="aside-text">مقارنة الأسواق</span></a>
+      <a href="#reports" class="nav-link flex items-center gap-3 rounded-lg px-3 py-3 hover:bg-green-50" title="التقارير"><fa-icon class="nav-fa" [icon]="icons.reports" /> <span class="aside-text">التقارير</span></a>
+      <a href="#settings" class="nav-link flex items-center gap-3 rounded-lg px-3 py-3 hover:bg-green-50" title="الإعدادات"><fa-icon class="nav-fa" [icon]="icons.settings" /> <span class="aside-text">الإعدادات</span></a>
+    </nav>
+    <div class="mt-auto border-t border-slate-200 pt-4 text-sm">
+      <a href="#help" class="nav-link mb-2 flex items-center gap-3 rounded-lg px-3 py-3 hover:bg-slate-50" title="مركز المساعدة"><fa-icon class="nav-fa" [icon]="icons.help" /> <span class="aside-text">مركز المساعدة</span></a>
+      <a routerLink="/auth/login" class="nav-link flex items-center gap-3 rounded-lg px-3 py-3 hover:bg-slate-50" title="تسجيل الخروج"><fa-icon class="nav-fa" [icon]="icons.logout" /> <span class="aside-text">تسجيل الخروج</span></a>
+    </div>
+  </aside>
+
+  <div class="layout-content min-h-dvh transition-[margin] duration-200" [class.layout-content-collapsed]="asideCollapsed()">
+    <header class="sticky top-0 z-20 flex h-[54px] items-center gap-4 border-b border-slate-200 bg-white px-4 sm:px-6">
+      <button class="text-xl lg:hidden" aria-label="فتح القائمة" [attr.aria-expanded]="mobileMenuOpen()" (click)="openMobileMenu()"><fa-icon [icon]="icons.burger" /></button>
+      <div class="relative hidden max-w-[400px] flex-1 md:block">
+        <fa-icon class="absolute right-4 top-1/2 -translate-y-1/2 text-sm text-slate-400" [icon]="icons.search" />
+        <input class="h-10 w-full rounded-full border border-slate-200 bg-[#f8fafc] pr-11 pl-4 text-sm outline-none placeholder:text-slate-400 focus:border-[#15a64a]" placeholder="ابحث عن الصادرات، الأمراض، المهام..." />
+      </div>
+      <div class="mr-auto flex items-center gap-4 text-slate-700">
+        <span class="inline-flex items-center gap-2 rounded-full bg-[#eef4ff] px-3 py-1.5 text-xs font-medium text-[#168142]">
+          <fa-icon class="text-[7px]" [icon]="icons.circle" />
+          الذكاء الاصطناعي نشط
+        </span>
+        <button class="relative text-lg" aria-label="الإشعارات"><fa-icon [icon]="icons.bell" /><i class="absolute right-0 top-0 size-1.5 rounded-full bg-red-500"></i></button>
+        <button class="text-lg" aria-label="الحساب"><fa-icon [icon]="icons.user" /></button>
+      </div>
+    </header>
+    <main class="p-4 sm:p-6"><router-outlet /></main>
+  </div>
+</div>
