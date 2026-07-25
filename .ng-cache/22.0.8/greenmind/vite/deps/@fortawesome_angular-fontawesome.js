@@ -1,8 +1,10 @@
 import {
   DomSanitizer
-} from "./chunk-MWGOUEJY.js";
-import "./chunk-6Y3SNT53.js";
+} from "./chunk-GWQL5SXF.js";
+import "./chunk-Z4LDN6Q6.js";
+import "./chunk-JCPW674M.js";
 import {
+  CSP_NONCE,
   ChangeDetectionStrategy,
   Component,
   DOCUMENT,
@@ -30,7 +32,8 @@ import {
   ɵɵprojection,
   ɵɵprojectionDef,
   ɵɵsanitizeHtml
-} from "./chunk-E745MC37.js";
+} from "./chunk-7MNJDBXD.js";
+import "./chunk-7VCUJCO2.js";
 import {
   __spreadProps,
   __spreadValues
@@ -3720,17 +3723,17 @@ var faClassList = (props) => {
     "fa-layers-counter": props.counter,
     "fa-flip-horizontal": props.flip === "horizontal" || props.flip === "both",
     "fa-flip-vertical": props.flip === "vertical" || props.flip === "both",
-    [`fa-${props.size}`]: props.size !== null,
+    [`fa-${props.size}`]: props.size != null,
     [`fa-rotate-${props.rotate}`]: knownRotateValue,
     "fa-rotate-by": props.rotate != null && !knownRotateValue,
-    [`fa-pull-${props.pull}`]: props.pull !== null,
+    [`fa-pull-${props.pull}`]: props.pull != null,
     [`fa-stack-${props.stackItemSize}`]: props.stackItemSize != null
   };
   return Object.keys(classes).map((key) => classes[key] ? key : null).filter((key) => key != null);
 };
 var cssInserted = /* @__PURE__ */ new WeakSet();
 var autoCssId = "fa-auto-css";
-function ensureCss2(document2, config2) {
+function ensureCss2(document2, config2, nonce) {
   if (!config2.autoAddCss) {
     return;
   }
@@ -3745,6 +3748,9 @@ function ensureCss2(document2, config2) {
   const style = document2.createElement("style");
   style.setAttribute("type", "text/css");
   style.setAttribute("id", autoCssId);
+  if (nonce) {
+    style.setAttribute("nonce", nonce);
+  }
   style.innerHTML = dom$1.css();
   const headChildren = document2.head.childNodes;
   let beforeChild = null;
@@ -3780,23 +3786,40 @@ var FaStackItemSizeDirective = class _FaStackItemSizeDirective {
    * Specify whether icon inside {@link FaStackComponent} should be rendered in
    * regular size (1x) or as a larger icon (2x).
    */
-  stackItemSize = input("1x", ...ngDevMode ? [{
-    debugName: "stackItemSize"
-  }] : []);
+  stackItemSize = input(
+    "1x",
+    ...ngDevMode ? [{
+      debugName: "stackItemSize"
+    }] : (
+      /* istanbul ignore next */
+      []
+    )
+  );
   /**
    * @internal
    */
-  size = input(...ngDevMode ? [void 0, {
-    debugName: "size"
-  }] : []);
-  _effect = effect(() => {
-    const size = this.size();
-    if (size) {
-      throw new Error('fa-icon is not allowed to customize size when used inside fa-stack. Set size on the enclosing fa-stack instead: <fa-stack size="4x">...</fa-stack>.');
-    }
-  }, ...ngDevMode ? [{
-    debugName: "_effect"
-  }] : []);
+  size = input(
+    ...ngDevMode ? [void 0, {
+      debugName: "size"
+    }] : (
+      /* istanbul ignore next */
+      []
+    )
+  );
+  _effect = effect(
+    () => {
+      const size = this.size();
+      if (size) {
+        throw new Error('fa-icon is not allowed to customize size when used inside fa-stack. Set size on the enclosing fa-stack instead: <fa-stack size="4x">...</fa-stack>.');
+      }
+    },
+    ...ngDevMode ? [{
+      debugName: "_effect"
+    }] : (
+      /* istanbul ignore next */
+      []
+    )
+  );
   static ɵfac = function FaStackItemSizeDirective_Factory(__ngFactoryType__) {
     return new (__ngFactoryType__ || _FaStackItemSizeDirective)();
   };
@@ -3842,20 +3865,31 @@ var FaStackComponent = class _FaStackComponent {
    * You'll need to set size using custom CSS to align stacked icon with a
    * simple one. E.g. `fa-stack { font-size: 0.5em; }`.
    */
-  size = input(...ngDevMode ? [void 0, {
-    debugName: "size"
-  }] : []);
-  classes = computed(() => {
-    const sizeValue = this.size();
-    const sizeClass = sizeValue ? {
-      [`fa-${sizeValue}`]: true
-    } : {};
-    return __spreadProps(__spreadValues({}, sizeClass), {
-      "fa-stack": true
-    });
-  }, ...ngDevMode ? [{
-    debugName: "classes"
-  }] : []);
+  size = input(
+    ...ngDevMode ? [void 0, {
+      debugName: "size"
+    }] : (
+      /* istanbul ignore next */
+      []
+    )
+  );
+  classes = computed(
+    () => {
+      const sizeValue = this.size();
+      const sizeClass = sizeValue ? {
+        [`fa-${sizeValue}`]: true
+      } : {};
+      return __spreadProps(__spreadValues({}, sizeClass), {
+        "fa-stack": true
+      });
+    },
+    ...ngDevMode ? [{
+      debugName: "classes"
+    }] : (
+      /* istanbul ignore next */
+      []
+    )
+  );
   static ɵfac = function FaStackComponent_Factory(__ngFactoryType__) {
     return new (__ngFactoryType__ || _FaStackComponent)();
   };
@@ -3880,8 +3914,7 @@ var FaStackComponent = class _FaStackComponent {
         ɵɵprojection(0);
       }
     },
-    encapsulation: 2,
-    changeDetection: 0
+    encapsulation: 2
   });
 };
 (() => {
@@ -3907,82 +3940,159 @@ var FaStackComponent = class _FaStackComponent {
   });
 })();
 var FaIconComponent = class _FaIconComponent {
-  icon = model(...ngDevMode ? [void 0, {
-    debugName: "icon"
-  }] : []);
+  icon = model(
+    ...ngDevMode ? [void 0, {
+      debugName: "icon"
+    }] : (
+      /* istanbul ignore next */
+      []
+    )
+  );
   /**
    * Specify a title for the icon.
    *
    * This text will be displayed in a tooltip on hover and presented to the
    * screen readers.
    */
-  title = model(...ngDevMode ? [void 0, {
-    debugName: "title"
-  }] : []);
+  title = model(
+    ...ngDevMode ? [void 0, {
+      debugName: "title"
+    }] : (
+      /* istanbul ignore next */
+      []
+    )
+  );
   /**
    * Icon animation.
    *
    * Most of the animations are only available when using Font Awesome 6. With
    * Font Awesome 5, only 'spin' and 'spin-pulse' are supported.
    */
-  animation = model(...ngDevMode ? [void 0, {
-    debugName: "animation"
-  }] : []);
-  mask = model(...ngDevMode ? [void 0, {
-    debugName: "mask"
-  }] : []);
-  flip = model(...ngDevMode ? [void 0, {
-    debugName: "flip"
-  }] : []);
-  size = model(...ngDevMode ? [void 0, {
-    debugName: "size"
-  }] : []);
-  pull = model(...ngDevMode ? [void 0, {
-    debugName: "pull"
-  }] : []);
-  border = model(...ngDevMode ? [void 0, {
-    debugName: "border"
-  }] : []);
-  inverse = model(...ngDevMode ? [void 0, {
-    debugName: "inverse"
-  }] : []);
-  symbol = model(...ngDevMode ? [void 0, {
-    debugName: "symbol"
-  }] : []);
-  rotate = model(...ngDevMode ? [void 0, {
-    debugName: "rotate"
-  }] : []);
-  fixedWidth = model(...ngDevMode ? [void 0, {
-    debugName: "fixedWidth"
-  }] : []);
-  transform = model(...ngDevMode ? [void 0, {
-    debugName: "transform"
-  }] : []);
+  animation = model(
+    ...ngDevMode ? [void 0, {
+      debugName: "animation"
+    }] : (
+      /* istanbul ignore next */
+      []
+    )
+  );
+  mask = model(
+    ...ngDevMode ? [void 0, {
+      debugName: "mask"
+    }] : (
+      /* istanbul ignore next */
+      []
+    )
+  );
+  flip = model(
+    ...ngDevMode ? [void 0, {
+      debugName: "flip"
+    }] : (
+      /* istanbul ignore next */
+      []
+    )
+  );
+  size = model(
+    ...ngDevMode ? [void 0, {
+      debugName: "size"
+    }] : (
+      /* istanbul ignore next */
+      []
+    )
+  );
+  pull = model(
+    ...ngDevMode ? [void 0, {
+      debugName: "pull"
+    }] : (
+      /* istanbul ignore next */
+      []
+    )
+  );
+  border = model(
+    ...ngDevMode ? [void 0, {
+      debugName: "border"
+    }] : (
+      /* istanbul ignore next */
+      []
+    )
+  );
+  inverse = model(
+    ...ngDevMode ? [void 0, {
+      debugName: "inverse"
+    }] : (
+      /* istanbul ignore next */
+      []
+    )
+  );
+  symbol = model(
+    ...ngDevMode ? [void 0, {
+      debugName: "symbol"
+    }] : (
+      /* istanbul ignore next */
+      []
+    )
+  );
+  rotate = model(
+    ...ngDevMode ? [void 0, {
+      debugName: "rotate"
+    }] : (
+      /* istanbul ignore next */
+      []
+    )
+  );
+  fixedWidth = model(
+    ...ngDevMode ? [void 0, {
+      debugName: "fixedWidth"
+    }] : (
+      /* istanbul ignore next */
+      []
+    )
+  );
+  transform = model(
+    ...ngDevMode ? [void 0, {
+      debugName: "transform"
+    }] : (
+      /* istanbul ignore next */
+      []
+    )
+  );
   /**
    * Specify the `role` attribute for the rendered <svg> element.
    *
    * @default 'img'
    */
-  a11yRole = model(...ngDevMode ? [void 0, {
-    debugName: "a11yRole"
-  }] : []);
-  renderedIconHTML = computed(() => {
-    const iconValue = this.icon() ?? this.config.fallbackIcon;
-    if (!iconValue) {
-      faWarnIfIconSpecMissing();
-      return "";
-    }
-    const iconDefinition = this.findIconDefinition(iconValue);
-    if (!iconDefinition) {
-      return "";
-    }
-    const params = this.buildParams();
-    ensureCss2(this.document, this.config);
-    const renderedIcon = icon2(iconDefinition, params);
-    return this.sanitizer.bypassSecurityTrustHtml(renderedIcon.html.join("\n"));
-  }, ...ngDevMode ? [{
-    debugName: "renderedIconHTML"
-  }] : []);
+  a11yRole = model(
+    ...ngDevMode ? [void 0, {
+      debugName: "a11yRole"
+    }] : (
+      /* istanbul ignore next */
+      []
+    )
+  );
+  renderedIconHTML = computed(
+    () => {
+      const iconValue = this.icon() ?? this.config.fallbackIcon;
+      if (!iconValue) {
+        faWarnIfIconSpecMissing();
+        return "";
+      }
+      const iconDefinition = this.findIconDefinition(iconValue);
+      if (!iconDefinition) {
+        return "";
+      }
+      const params = this.buildParams();
+      ensureCss2(this.document, this.config, this.cspNonce);
+      const renderedIcon = icon2(iconDefinition, params);
+      return this.sanitizer.bypassSecurityTrustHtml(renderedIcon.html.join("\n"));
+    },
+    ...ngDevMode ? [{
+      debugName: "renderedIconHTML"
+    }] : (
+      /* istanbul ignore next */
+      []
+    )
+  );
+  cspNonce = inject(CSP_NONCE);
   document = inject(DOCUMENT);
   sanitizer = inject(DomSanitizer);
   config = inject(FaConfig);
@@ -4096,8 +4206,7 @@ var FaIconComponent = class _FaIconComponent {
     vars: 0,
     template: function FaIconComponent_Template(rf, ctx) {
     },
-    encapsulation: 2,
-    changeDetection: 0
+    encapsulation: 2
   });
 };
 (() => {
@@ -4278,45 +4387,70 @@ var FaDuotoneIconComponent = class _FaDuotoneIconComponent extends FaIconCompone
    *
    * @default false
    */
-  swapOpacity = input(...ngDevMode ? [void 0, {
-    debugName: "swapOpacity"
-  }] : []);
+  swapOpacity = input(
+    ...ngDevMode ? [void 0, {
+      debugName: "swapOpacity"
+    }] : (
+      /* istanbul ignore next */
+      []
+    )
+  );
   /**
    * Customize the opacity of the primary icon layer.
    * Valid values are in range [0, 1.0].
    *
    * @default 1.0
    */
-  primaryOpacity = input(...ngDevMode ? [void 0, {
-    debugName: "primaryOpacity"
-  }] : []);
+  primaryOpacity = input(
+    ...ngDevMode ? [void 0, {
+      debugName: "primaryOpacity"
+    }] : (
+      /* istanbul ignore next */
+      []
+    )
+  );
   /**
    * Customize the opacity of the secondary icon layer.
    * Valid values are in range [0, 1.0].
    *
    * @default 0.4
    */
-  secondaryOpacity = input(...ngDevMode ? [void 0, {
-    debugName: "secondaryOpacity"
-  }] : []);
+  secondaryOpacity = input(
+    ...ngDevMode ? [void 0, {
+      debugName: "secondaryOpacity"
+    }] : (
+      /* istanbul ignore next */
+      []
+    )
+  );
   /**
    * Customize the color of the primary icon layer.
    * Accepts any valid CSS color value.
    *
    * @default CSS inherited color
    */
-  primaryColor = input(...ngDevMode ? [void 0, {
-    debugName: "primaryColor"
-  }] : []);
+  primaryColor = input(
+    ...ngDevMode ? [void 0, {
+      debugName: "primaryColor"
+    }] : (
+      /* istanbul ignore next */
+      []
+    )
+  );
   /**
    * Customize the color of the secondary icon layer.
    * Accepts any valid CSS color value.
    *
    * @default CSS inherited color
    */
-  secondaryColor = input(...ngDevMode ? [void 0, {
-    debugName: "secondaryColor"
-  }] : []);
+  secondaryColor = input(
+    ...ngDevMode ? [void 0, {
+      debugName: "secondaryColor"
+    }] : (
+      /* istanbul ignore next */
+      []
+    )
+  );
   findIconDefinition(i2) {
     const definition = super.findIconDefinition(i2);
     if (definition != null && !Array.isArray(definition.icon[4])) {
@@ -4378,8 +4512,7 @@ var FaDuotoneIconComponent = class _FaDuotoneIconComponent extends FaIconCompone
     vars: 0,
     template: function FaDuotoneIconComponent_Template(rf, ctx) {
     },
-    encapsulation: 2,
-    changeDetection: 0
+    encapsulation: 2
   });
 };
 (() => {
@@ -4439,34 +4572,57 @@ var faWarnIfParentNotExist = (parent, parentName, childName) => {
   }
 };
 var FaLayersComponent = class _FaLayersComponent {
-  size = input(...ngDevMode ? [void 0, {
-    debugName: "size"
-  }] : []);
-  fixedWidth = input(...ngDevMode ? [void 0, {
-    debugName: "fixedWidth"
-  }] : []);
-  faFw = computed(() => {
-    const fixedWidth = this.fixedWidth();
-    return typeof fixedWidth === "boolean" ? fixedWidth : this.config.fixedWidth;
-  }, ...ngDevMode ? [{
-    debugName: "faFw"
-  }] : []);
-  classes = computed(() => {
-    const sizeValue = this.size();
-    const sizeClass = sizeValue ? {
-      [`fa-${sizeValue}`]: true
-    } : {};
-    return __spreadProps(__spreadValues({}, sizeClass), {
-      "fa-fw": this.faFw(),
-      "fa-layers": true
-    });
-  }, ...ngDevMode ? [{
-    debugName: "classes"
-  }] : []);
+  size = input(
+    ...ngDevMode ? [void 0, {
+      debugName: "size"
+    }] : (
+      /* istanbul ignore next */
+      []
+    )
+  );
+  fixedWidth = input(
+    ...ngDevMode ? [void 0, {
+      debugName: "fixedWidth"
+    }] : (
+      /* istanbul ignore next */
+      []
+    )
+  );
+  faFw = computed(
+    () => {
+      const fixedWidth = this.fixedWidth();
+      return typeof fixedWidth === "boolean" ? fixedWidth : this.config.fixedWidth;
+    },
+    ...ngDevMode ? [{
+      debugName: "faFw"
+    }] : (
+      /* istanbul ignore next */
+      []
+    )
+  );
+  classes = computed(
+    () => {
+      const sizeValue = this.size();
+      const sizeClass = sizeValue ? {
+        [`fa-${sizeValue}`]: true
+      } : {};
+      return __spreadProps(__spreadValues({}, sizeClass), {
+        "fa-fw": this.faFw(),
+        "fa-layers": true
+      });
+    },
+    ...ngDevMode ? [{
+      debugName: "classes"
+    }] : (
+      /* istanbul ignore next */
+      []
+    )
+  );
+  cspNonce = inject(CSP_NONCE);
   document = inject(DOCUMENT);
   config = inject(FaConfig);
   ngOnInit() {
-    ensureCss2(this.document, this.config);
+    ensureCss2(this.document, this.config, this.cspNonce);
   }
   static ɵfac = function FaLayersComponent_Factory(__ngFactoryType__) {
     return new (__ngFactoryType__ || _FaLayersComponent)();
@@ -4493,8 +4649,7 @@ var FaLayersComponent = class _FaLayersComponent {
         ɵɵprojection(0);
       }
     },
-    encapsulation: 2,
-    changeDetection: 0
+    encapsulation: 2
   });
 };
 (() => {
@@ -4528,21 +4683,43 @@ var FaLayersComponent = class _FaLayersComponent {
   });
 })();
 var FaLayersCounterComponent = class _FaLayersCounterComponent {
-  content = input.required(...ngDevMode ? [{
-    debugName: "content"
-  }] : []);
-  title = input(...ngDevMode ? [void 0, {
-    debugName: "title"
-  }] : []);
-  position = input(...ngDevMode ? [void 0, {
-    debugName: "position"
-  }] : []);
-  renderedHTML = computed(() => {
-    const params = this.buildParams();
-    return this.updateContent(params);
-  }, ...ngDevMode ? [{
-    debugName: "renderedHTML"
-  }] : []);
+  content = input.required(
+    ...ngDevMode ? [{
+      debugName: "content"
+    }] : (
+      /* istanbul ignore next */
+      []
+    )
+  );
+  title = input(
+    ...ngDevMode ? [void 0, {
+      debugName: "title"
+    }] : (
+      /* istanbul ignore next */
+      []
+    )
+  );
+  position = input(
+    ...ngDevMode ? [void 0, {
+      debugName: "position"
+    }] : (
+      /* istanbul ignore next */
+      []
+    )
+  );
+  renderedHTML = computed(
+    () => {
+      const params = this.buildParams();
+      return this.updateContent(params);
+    },
+    ...ngDevMode ? [{
+      debugName: "renderedHTML"
+    }] : (
+      /* istanbul ignore next */
+      []
+    )
+  );
+  cspNonce = inject(CSP_NONCE);
   document = inject(DOCUMENT);
   config = inject(FaConfig);
   parent = inject(FaLayersComponent, {
@@ -4560,7 +4737,7 @@ var FaLayersCounterComponent = class _FaLayersCounterComponent {
     };
   }
   updateContent(params) {
-    ensureCss2(this.document, this.config);
+    ensureCss2(this.document, this.config, this.cspNonce);
     return this.sanitizer.bypassSecurityTrustHtml(counter(this.content() || "", params).html.join(""));
   }
   static ɵfac = function FaLayersCounterComponent_Factory(__ngFactoryType__) {
@@ -4585,8 +4762,7 @@ var FaLayersCounterComponent = class _FaLayersCounterComponent {
     vars: 0,
     template: function FaLayersCounterComponent_Template(rf, ctx) {
     },
-    encapsulation: 2,
-    changeDetection: 0
+    encapsulation: 2
   });
 };
 (() => {
@@ -4629,42 +4805,99 @@ var FaLayersCounterComponent = class _FaLayersCounterComponent {
   });
 })();
 var FaLayersTextComponent = class _FaLayersTextComponent {
-  content = input.required(...ngDevMode ? [{
-    debugName: "content"
-  }] : []);
-  title = input(...ngDevMode ? [void 0, {
-    debugName: "title"
-  }] : []);
-  flip = input(...ngDevMode ? [void 0, {
-    debugName: "flip"
-  }] : []);
-  size = input(...ngDevMode ? [void 0, {
-    debugName: "size"
-  }] : []);
-  pull = input(...ngDevMode ? [void 0, {
-    debugName: "pull"
-  }] : []);
-  border = input(...ngDevMode ? [void 0, {
-    debugName: "border"
-  }] : []);
-  inverse = input(...ngDevMode ? [void 0, {
-    debugName: "inverse"
-  }] : []);
-  rotate = input(...ngDevMode ? [void 0, {
-    debugName: "rotate"
-  }] : []);
-  fixedWidth = input(...ngDevMode ? [void 0, {
-    debugName: "fixedWidth"
-  }] : []);
-  transform = input(...ngDevMode ? [void 0, {
-    debugName: "transform"
-  }] : []);
-  renderedHTML = computed(() => {
-    const params = this.buildParams();
-    return this.updateContent(params);
-  }, ...ngDevMode ? [{
-    debugName: "renderedHTML"
-  }] : []);
+  content = input.required(
+    ...ngDevMode ? [{
+      debugName: "content"
+    }] : (
+      /* istanbul ignore next */
+      []
+    )
+  );
+  title = input(
+    ...ngDevMode ? [void 0, {
+      debugName: "title"
+    }] : (
+      /* istanbul ignore next */
+      []
+    )
+  );
+  flip = input(
+    ...ngDevMode ? [void 0, {
+      debugName: "flip"
+    }] : (
+      /* istanbul ignore next */
+      []
+    )
+  );
+  size = input(
+    ...ngDevMode ? [void 0, {
+      debugName: "size"
+    }] : (
+      /* istanbul ignore next */
+      []
+    )
+  );
+  pull = input(
+    ...ngDevMode ? [void 0, {
+      debugName: "pull"
+    }] : (
+      /* istanbul ignore next */
+      []
+    )
+  );
+  border = input(
+    ...ngDevMode ? [void 0, {
+      debugName: "border"
+    }] : (
+      /* istanbul ignore next */
+      []
+    )
+  );
+  inverse = input(
+    ...ngDevMode ? [void 0, {
+      debugName: "inverse"
+    }] : (
+      /* istanbul ignore next */
+      []
+    )
+  );
+  rotate = input(
+    ...ngDevMode ? [void 0, {
+      debugName: "rotate"
+    }] : (
+      /* istanbul ignore next */
+      []
+    )
+  );
+  fixedWidth = input(
+    ...ngDevMode ? [void 0, {
+      debugName: "fixedWidth"
+    }] : (
+      /* istanbul ignore next */
+      []
+    )
+  );
+  transform = input(
+    ...ngDevMode ? [void 0, {
+      debugName: "transform"
+    }] : (
+      /* istanbul ignore next */
+      []
+    )
+  );
+  renderedHTML = computed(
+    () => {
+      const params = this.buildParams();
+      return this.updateContent(params);
+    },
+    ...ngDevMode ? [{
+      debugName: "renderedHTML"
+    }] : (
+      /* istanbul ignore next */
+      []
+    )
+  );
+  cspNonce = inject(CSP_NONCE);
   document = inject(DOCUMENT);
   config = inject(FaConfig);
   parent = inject(FaLayersComponent, {
@@ -4701,7 +4934,7 @@ var FaLayersTextComponent = class _FaLayersTextComponent {
     };
   }
   updateContent(params) {
-    ensureCss2(this.document, this.config);
+    ensureCss2(this.document, this.config, this.cspNonce);
     return this.sanitizer.bypassSecurityTrustHtml(text(this.content() || "", params).html.join("\n"));
   }
   static ɵfac = function FaLayersTextComponent_Factory(__ngFactoryType__) {
@@ -4733,8 +4966,7 @@ var FaLayersTextComponent = class _FaLayersTextComponent {
     vars: 0,
     template: function FaLayersTextComponent_Template(rf, ctx) {
     },
-    encapsulation: 2,
-    changeDetection: 0
+    encapsulation: 2
   });
 };
 (() => {

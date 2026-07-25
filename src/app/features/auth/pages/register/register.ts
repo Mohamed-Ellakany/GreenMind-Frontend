@@ -1,52 +1,64 @@
-import { Component, signal } from '@angular/core';
-import { AbstractControl, ReactiveFormsModule, ValidationErrors, ValidatorFn, Validators, FormBuilder } from '@angular/forms';
+import { Component, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
-
-const passwordsMatch: ValidatorFn = (control: AbstractControl): ValidationErrors | null => {
-  const password = control.get('password')?.value;
-  const confirmPassword = control.get('confirmPassword')?.value;
-
-  return password && confirmPassword && password !== confirmPassword
-    ? { passwordMismatch: true }
-    : null;
-};
+import { FormField, email as emailValidator, form, minLength, required, submit, validate } from '@angular/forms/signals';
+import { firstValueFrom } from 'rxjs';
+import { AuthService } from '@features/auth/services/AuthService';
 
 @Component({
   selector: 'app-register',
-  imports: [ReactiveFormsModule, RouterLink],
+  imports: [FormField, RouterLink],
   templateUrl: './register.html',
   styleUrl: './register.css',
 })
 export class Register {
-  public readonly submitted = signal(false);
-  public readonly registerForm;
+  private readonly authService = inject(AuthService);
 
-  constructor(private readonly formBuilder: FormBuilder) {
-    this.registerForm = this.formBuilder.nonNullable.group(
-      {
-        fullName: ['', [Validators.required, Validators.minLength(3)]],
-        email: ['', [Validators.required, Validators.email]],
-        phone: ['', [Validators.required, Validators.pattern(/^01[0-9]{9}$/)]],
-        password: ['', [Validators.required, Validators.minLength(8)]],
-        confirmPassword: ['', Validators.required],
-        terms: [false, Validators.requiredTrue],
-      },
-      { validators: passwordsMatch },
+  protected readonly auth = this.authService;
+  protected readonly submitted = signal(false);
+
+  protected readonly registerModel = signal({
+    fullName: '',
+    email: '',
+    password: '',
+    confirmPassword: '',
+    farmName: '',
+    terms: false,
+  });
+
+  protected readonly registerForm = form(this.registerModel, (path) => {
+    required(path.fullName, { message: 'أدخل اسماً كاملاً لا يقل عن 3 أحرف.' });
+    minLength(path.fullName, 3, { message: 'أدخل اسماً كاملاً لا يقل عن 3 أحرف.' });
+
+    required(path.email, { message: 'أدخل بريداً إلكترونياً صحيحاً.' });
+    emailValidator(path.email, { message: 'أدخل بريداً إلكترونياً صحيحاً.' });
+
+    required(path.password, { message: 'كلمة المرور يجب أن تكون 8 أحرف على الأقل.' });
+    minLength(path.password, 8, { message: 'كلمة المرور يجب أن تكون 8 أحرف على الأقل.' });
+
+    required(path.confirmPassword, { message: 'تأكيد كلمة المرور مطلوبة.' });
+    validate(path.confirmPassword, ({ value, valueOf }) =>
+      value() === valueOf(path.password)
+        ? undefined
+        : { kind: 'passwordMismatch', message: 'كلمتا المرور غير متطابقتين.' },
     );
-  }
 
-  public hasError(controlName: keyof typeof this.registerForm.controls, error: string): boolean {
-    const control = this.registerForm.controls[controlName];
-    return control.touched && control.hasError(error);
-  }
+    required(path.farmName, { message: 'أدخل اسم المزرعة.' });
+    minLength(path.farmName, 2, { message: 'اسم المزرعة قصير جداً.' });
 
-  public submit(): void {
-    this.submitted.set(true);
-    this.registerForm.markAllAsTouched();
+    validate(path.terms, ({ value }) =>
+      value() ? undefined : { kind: 'termsRequired', message: 'يجب الموافقة على الشروط والأحكام.' },
+    );
+  });
 
-    if (this.registerForm.invalid) return;
-
-    // The authentication API is not connected yet. This confirms the valid form submission locally.
-    this.registerForm.disable();
+  protected async onSubmit(): Promise<void> {
+    await submit(this.registerForm, async () => {
+      try {
+        const { confirmPassword, terms, ...payload } = this.registerModel();
+        await firstValueFrom(this.authService.register(payload));
+        this.submitted.set(true);
+      } catch {
+        // authService.error() already surfaces the message in the template.
+      }
+    });
   }
 }

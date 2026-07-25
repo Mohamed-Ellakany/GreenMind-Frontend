@@ -1,35 +1,45 @@
-import { Component, signal } from '@angular/core';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { RouterLink } from '@angular/router';
+import { Component, inject, signal } from '@angular/core';
+import { Router, RouterLink } from '@angular/router';
+import { FormField, email as emailValidator, form, minLength, required, submit } from '@angular/forms/signals';
+import { firstValueFrom } from 'rxjs';
+import { AuthService } from '@features/auth/services/AuthService';
 
 @Component({
   selector: 'app-login',
-  imports: [ReactiveFormsModule, RouterLink],
+  imports: [FormField, RouterLink],
   templateUrl: './login.html',
   styleUrl: './login.css',
 })
 export class Login {
-  private readonly formBuilder = new FormBuilder();
+  private readonly authService = inject(AuthService);
+  private readonly router = inject(Router);
 
-  public readonly submitted = signal(false);
-  public readonly loginForm = this.formBuilder.nonNullable.group({
-    email: ['', [Validators.required, Validators.email]],
-    password: ['', [Validators.required, Validators.minLength(8)]],
-    rememberMe: [false],
+  protected readonly auth = this.authService;
+  protected readonly submitted = signal(false);
+
+  protected readonly loginModel = signal({
+    email: '',
+    password: '',
+    rememberMe: false,
   });
 
-  public hasError(controlName: 'email' | 'password', error: string): boolean {
-    const control = this.loginForm.controls[controlName];
-    return control.touched && control.hasError(error);
-  }
+  protected readonly loginForm = form(this.loginModel, (path) => {
+    required(path.email, { message: 'البريد الإلكتروني مطلوب.' });
+    emailValidator(path.email, { message: 'أدخل بريداً إلكترونياً صحيحاً.' });
 
-  public submit(): void {
-    this.submitted.set(true);
-    this.loginForm.markAllAsTouched();
+    required(path.password, { message: 'كلمة المرور مطلوبة.' });
+    minLength(path.password, 8, { message: 'كلمة المرور يجب أن تكون 8 أحرف على الأقل.' });
+  });
 
-    if (this.loginForm.invalid) return;
-
-    // Authentication API will be connected here. Keep the valid submission state local for now.
-    this.loginForm.disable();
+  protected async onSubmit(): Promise<void> {
+    await submit(this.loginForm, async () => {
+      try {
+        await firstValueFrom(this.authService.login(this.loginModel()));
+        this.submitted.set(true);
+        this.router.navigateByUrl('/dashboard');
+      } catch {
+        // authService.error() already surfaces the message in the template.
+      }
+    });
   }
 }

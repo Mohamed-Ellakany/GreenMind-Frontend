@@ -4,60 +4,95 @@
       <img src="/greenmind-leaf.svg" alt="" />
     </div>
 
-    @if (submitted() && registerForm.disabled) {
-      <div class="success-state" role="status">
-        <span class="success-icon">✓</span>
-        <h1>تم إنشاء الحساب</h1>
-        <p>تم استلام بياناتك بنجاح. يمكنك تسجيل الدخول عند تفعيل الخدمة.</p>
-        <a routerLink="/auth/login">الانتقال لتسجيل الدخول</a>
-      </div>
+    @if (submitted()) {
+    <div class="success-state" role="status">
+      <span class="success-icon">✓</span>
+      <h1>تم إنشاء الحساب</h1>
+      <p>تم استلام بياناتك بنجاح. يمكنك تسجيل الدخول عند تفعيل الخدمة.</p>
+      <a routerLink="/auth/login">الانتقال لتسجيل الدخول</a>
+    </div>
     } @else {
-      <header class="page-heading">
-        <h1 id="register-heading">إنشاء حساب</h1>
-        <p>أنشئ حساباً جديداً للبدء.</p>
-      </header>
+    <header class="page-heading">
+      <h1 id="register-heading">إنشاء حساب</h1>
+      <p>أنشئ حساباً جديداً للبدء.</p>
+    </header>
 
-      <form [formGroup]="registerForm" (ngSubmit)="submit()" novalidate>
-        <div class="field">
-          <label for="fullName">الاسم الكامل</label>
-          <input id="fullName" type="text" formControlName="fullName" placeholder="محمد أحمد" autocomplete="name" />
-          @if (hasError('fullName', 'required') || hasError('fullName', 'minlength')) { <small>أدخل اسماً كاملاً لا يقل عن 3 أحرف.</small> }
-        </div>
+    <form (ngSubmit)="onSubmit()" method="post">
+      <div class="field">
+        <label for="fullName">الاسم الكامل</label>
+        <input id="fullName" type="text" [formField]="registerForm.fullName" placeholder="محمد أحمد"
+          autocomplete="name" />
+        @if (registerForm.fullName().touched() && registerForm.fullName().invalid()) {
+        @for (err of registerForm.fullName().errors(); track err.kind) {
+        <small>{{ err.message }}</small>
+        }
+        }
+      </div>
 
-        <div class="field">
-          <label for="email">البريد الإلكتروني</label>
-          <input id="email" type="email" formControlName="email" placeholder="name@email.com" autocomplete="email" dir="ltr" />
-          @if (hasError('email', 'required') || hasError('email', 'email')) { <small>أدخل بريداً إلكترونياً صحيحاً.</small> }
-        </div>
+      <div class="field">
+        <label for="email">البريد الإلكتروني</label>
+        <input id="email" type="email" [formField]="registerForm.email" placeholder="name@email.com"
+          autocomplete="email" dir="ltr" />
+        @if (registerForm.email().touched() && registerForm.email().invalid()) {
+        @for (err of registerForm.email().errors(); track err.kind) {
+        <small>{{ err.message }}</small>
+        }
+        }
+      </div>
 
-        <div class="field">
-          <label for="phone">رقم الهاتف</label>
-          <input id="phone" type="tel" formControlName="phone" placeholder="01000000000" autocomplete="tel" inputmode="numeric" dir="ltr" />
-          @if (hasError('phone', 'required') || hasError('phone', 'pattern')) { <small>أدخل رقم هاتف مصرياً صحيحاً من 11 رقماً.</small> }
-        </div>
+      <div class="field">
+        <label for="farmName">اسم المزرعة</label>
+        <input id="farmName" type="text" [formField]="registerForm.farmName" placeholder="مزرعة الأمل"
+          autocomplete="organization" />
+        @if (registerForm.farmName().touched() && registerForm.farmName().invalid()) {
+        @for (err of registerForm.farmName().errors(); track err.kind) {
+        <small>{{ err.message }}</small>
+        }
+        }
+      </div>
 
-        <div class="field">
-          <label for="password">كلمة المرور</label>
-          <input id="password" type="password" formControlName="password" placeholder="********" autocomplete="new-password" />
-          @if (hasError('password', 'required') || hasError('password', 'minlength')) { <small>كلمة المرور يجب أن تكون 8 أحرف على الأقل.</small> }
-        </div>
+      <div class="field">
+        <label for="password">كلمة المرور</label>
+        <input id="password" type="password" [formField]="registerForm.password" placeholder="********"
+          autocomplete="new-password" />
+        @if (registerForm.password().touched() && registerForm.password().invalid()) {
+        @for (err of registerForm.password().errors(); track err.kind) {
+        <small>{{ err.message }}</small>
+        }
+        }
+      </div>
 
-        <div class="field">
-          <label for="confirmPassword">تأكيد كلمة المرور</label>
-          <input id="confirmPassword" type="password" formControlName="confirmPassword" placeholder="********" autocomplete="new-password" />
-          @if (hasError('confirmPassword', 'required')) { <small>تأكيد كلمة المرور مطلوبة.</small> }
-          @else if (registerForm.touched && registerForm.hasError('passwordMismatch')) { <small>كلمتا المرور غير متطابقتين.</small> }
-        </div>
+      <div class="field">
+        <label for="confirmPassword">تأكيد كلمة المرور</label>
+        <input id="confirmPassword" type="password" [formField]="registerForm.confirmPassword" placeholder="********"
+          autocomplete="new-password" />
+        @if (registerForm.confirmPassword().touched() && registerForm.confirmPassword().invalid()) {
+        @for (err of registerForm.confirmPassword().errors(); track err.kind) {
+        <small>{{ err.message }}</small>
+        }
+        }
+      </div>
 
-        <label class="terms">
-          <input type="checkbox" formControlName="terms" />
-          <span>أوافق على <a href="#terms">الشروط والأحكام</a></span>
-        </label>
+      <label class="terms">
+        <input type="checkbox" [formField]="registerForm.terms" />
+        <span>أوافق على <a href="#terms">الشروط والأحكام</a></span>
+      </label>
+      @if (registerForm.terms().touched() && registerForm.terms().invalid()) {
+      @for (err of registerForm.terms().errors(); track err.kind) {
+      <small>{{ err.message }}</small>
+      }
+      }
 
-        <button type="submit" [disabled]="registerForm.invalid">إنشاء الحساب</button>
-      </form>
+      @if (auth.error()) {
+      <small class="text-red-600">{{ auth.error() }}</small>
+      }
 
-      <p class="login-link">لديك حساب بالفعل؟ <a routerLink="/auth/login">تسجيل الدخول</a></p>
+      <button type="submit" [disabled]="registerForm().invalid() || auth.loading()">
+        @if (auth.loading()) { جارى إنشاء الحساب... } @else { إنشاء الحساب }
+      </button>
+    </form>
+
+    <p class="login-link">لديك حساب بالفعل؟ <a routerLink="/auth/login">تسجيل الدخول</a></p>
     }
   </section>
 </main>
