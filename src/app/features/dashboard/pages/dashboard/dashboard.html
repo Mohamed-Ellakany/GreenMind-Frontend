@@ -1,0 +1,35 @@
+<section class="mx-auto max-w-[1120px]">
+  <div class="mb-5 flex flex-wrap items-start justify-between gap-3">
+    <div>
+      <h1 class="text-2xl font-extrabold sm:text-3xl">نظرة عامة</h1>
+      <p class="mt-1 text-sm text-slate-600">حالة المزرعة وجاهزية التصدير لموقع الإسماعيلية.</p>
+    </div>
+    <div class="flex gap-2">
+      <button class="rounded-lg bg-[#13a346] px-4 py-2 text-sm font-bold text-white">＋ إنشاء خطة</button>
+      <button class="rounded-lg bg-slate-100 px-4 py-2 text-sm font-medium">♧ فحص الأمراض</button>
+    </div>
+  </div>
+
+  <div class="mb-5 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+    <article class="rounded-2xl bg-white p-5 shadow-[0_5px_17px_rgba(15,23,42,0.06)]"><div class="flex items-center justify-between"><span class="rounded-lg bg-green-50 p-2 text-xl text-[#159447]">♡</span><span class="text-sm text-slate-500">صحة المزرعة</span></div><div class="mt-4 flex items-end gap-2"><b class="text-4xl">98%</b><span class="mb-1 text-xs font-bold text-[#159447]">+2%↑</span></div></article>
+    <article class="rounded-2xl bg-white p-5 shadow-[0_5px_17px_rgba(15,23,42,0.06)]"><div class="flex items-center justify-between"><span class="rounded-lg bg-green-50 p-2 text-xl text-[#159447]">⌁</span><span class="text-sm text-slate-500">جاهزية التصدير</span></div><b class="mt-5 block text-4xl text-[#14a64a]">مرتفعة</b><span class="mt-1 block text-xs text-slate-500">•••</span></article>
+    <article class="rounded-2xl bg-white p-5 shadow-[0_5px_17px_rgba(15,23,42,0.06)]"><div class="flex items-center justify-between"><span class="rounded-lg bg-blue-50 p-2 text-xl text-blue-600">✿</span><span class="text-sm text-slate-500">درجة الامتثال</span></div><b class="mt-5 block text-4xl">+A</b><span class="mt-1 block text-xs text-slate-600">GlobalGAP</span></article>
+    <article class="rounded-2xl bg-white p-5 shadow-[0_5px_17px_rgba(15,23,42,0.06)]"><div class="flex items-center justify-between"><span class="rounded-lg bg-orange-50 p-2 text-xl text-orange-500">◴</span><span class="text-sm text-slate-500">الحصاد القادم</span></div><div class="mt-4 flex items-end gap-2"><b class="text-4xl">12</b><span class="mb-1 text-xs">يوم</span></div></article>
+  </div>
+
+  <div class="grid gap-5 xl:grid-cols-[280px_1fr]">
+    <aside class="space-y-5">
+      <article class="rounded-2xl bg-white p-5 shadow-[0_5px_17px_rgba(15,23,42,0.06)]"><div class="flex items-center justify-between"><div><h2 class="font-bold">الإسماعيلية، مصر</h2><p class="text-xs text-slate-500">أحوال الجوية الحالية</p></div><span class="text-3xl text-orange-400">☀</span></div><div class="mt-4 flex items-end gap-2"><b class="text-4xl">32°</b><span class="mb-1 text-sm">مشمس</span></div><div class="mt-5 grid grid-cols-2 border-t border-slate-100 pt-4 text-center text-xs"><div><p class="text-slate-500">الرطوبة</p><b>42%</b></div><div><p class="text-slate-500">الرياح</p><b>14 كم/س</b></div></div></article>
+      <article class="rounded-2xl bg-white p-5 shadow-[0_5px_17px_rgba(15,23,42,0.06)]"><div class="mb-4 flex items-center justify-between"><h2 class="text-lg font-bold">المهام</h2><button class="text-sm text-[#159447]" (click)="search.set('')">عرض الكل</button></div><input class="mb-3 w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-[#15a64a]" [value]="search()" (input)="search.set($any($event.target).value)" placeholder="بحث في المهام" />
+        @for (task of filteredTasks(); track task.title) {<label class="flex cursor-pointer items-start gap-3 border-b border-slate-100 py-3 last:border-0"><input class="mt-1 size-4 accent-[#15a64a]" type="checkbox" [checked]="task.completed" (change)="toggleTask(task.title)" /><span [class.line-through]="task.completed" class="flex-1 text-sm"><b class="block font-medium">{{ task.title }}</b><small class="text-xs text-slate-500">{{ task.time }}</small></span><em class="rounded bg-green-50 px-2 py-0.5 text-[10px] not-italic text-[#168142]">{{ task.tag }}</em></label>}
+      </article>
+    </aside>
+    <div class="space-y-5">
+      <article class="overflow-hidden rounded-2xl bg-white shadow-[0_5px_17px_rgba(15,23,42,0.06)]"><div class="flex items-center justify-between border-b border-slate-100 bg-[#f3f7ff] px-5 py-4"><b>♙ ذكاء اصطناعي</b><span class="rounded bg-green-100 px-2 py-1 text-[10px] text-[#168142]">مباشر</span></div>
+        @if (alertVisible()) {<div class="m-5 rounded-xl border border-orange-200 bg-orange-50/60 p-5"><div class="flex items-center justify-between gap-3"><h2 class="font-bold">♨ تنبيه موجة حر: زيادة الري</h2><button class="text-slate-500" aria-label="إغلاق التنبيه" (click)="alertVisible.set(false)">×</button></div><p class="mt-2 text-sm leading-6 text-slate-600">درجات حرارة متوقعة تتجاوز 35 درجة مئوية في الإسماعيلية خلال الـ 48 ساعة القادمة. نوصي بزيادة دورات الري بنسبة 20% لتجنب الإجهاد الحراري.</p><div class="mt-3 flex gap-2"><button class="rounded-md bg-[#13a346] px-3 py-1.5 text-xs font-bold text-white" (click)="applySchedule()">تطبيق الجدول</button><button class="rounded-md bg-white px-3 py-1.5 text-xs" (click)="alertVisible.set(false)">تجاهل</button></div></div>}
+        @if (scheduleApplied()) {<p class="mx-5 mb-5 rounded-lg bg-green-50 p-3 text-sm text-[#168142]">تم تطبيق تعديل جدول الري بنجاح.</p>}
+      </article>
+      <article class="rounded-2xl bg-white p-5 shadow-[0_5px_17px_rgba(15,23,42,0.06)]"><h2 class="text-lg font-bold">دورة التصدير الحالية</h2><ol class="relative mt-5 mr-3 border-r-2 border-green-100 pr-7"><li class="relative pb-6 before:absolute before:-right-[35px] before:grid before:size-6 before:place-items-center before:rounded-full before:bg-[#15a64a] before:text-xs before:text-white before:content-['✓']"><b class="text-sm">تجهيز التعبئة</b><p class="mt-1 text-xs text-slate-500">تم - 12 أكتوبر</p></li><li class="relative pb-6 before:absolute before:-right-[35px] before:size-6 before:rounded-full before:border-[7px] before:border-green-100 before:bg-[#168142]"><b class="text-sm">مرحلة النمو</b><p class="mt-1 text-xs text-slate-500">تم التقدير المتوقع 28 نوفمبر</p></li><li class="relative before:absolute before:-right-[35px] before:grid before:size-6 before:place-items-center before:rounded-full before:bg-slate-100 before:text-xs before:text-slate-500 before:content-['→']"><b class="text-sm text-slate-500">جاهز للتصدير</b><p class="mt-1 text-xs text-slate-400">قيد الانتظار - المتوقع 05 ديسمبر</p></li></ol></article>
+    </div>
+  </div>
+</section>

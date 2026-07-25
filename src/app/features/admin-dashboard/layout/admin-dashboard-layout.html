@@ -1,0 +1,27 @@
+<div class="admin-shell min-h-dvh bg-[#f6f9fc] text-[#001c37]" dir="rtl">
+  @if (mobileMenuOpen()) {
+    <button class="fixed inset-0 z-30 bg-slate-950/25 lg:hidden" aria-label="إغلاق القائمة" (click)="closeMobileMenu()"></button>
+  }
+
+  <aside class="admin-aside fixed bottom-0 right-0 top-0 z-40 flex w-[280px] flex-col border-l border-[#e2e8f0] bg-white py-8 transition-[width,transform] duration-200" [class.is-open]="mobileMenuOpen()" [class.admin-aside-collapsed]="asideCollapsed()">
+    <button class="admin-collapse-button grid" type="button" aria-label="تصغير القائمة" [attr.aria-expanded]="!asideCollapsed()" (click)="toggleAside()">
+      <fa-icon [icon]="icons.collapse" />
+    </button>
+
+    <nav class="admin-nav flex-1 space-y-5 overflow-y-auto px-3 pt-10">
+      <a routerLink="/admin-dashboard/control-panel" routerLinkActive="admin-nav-link-active" class="admin-nav-link" title="لوحة القيادة" (click)="closeMobileMenu()"><fa-icon class="admin-nav-icon" [icon]="icons.dashboard" /><span class="admin-nav-text">لوحة القيادة</span></a>
+      <a routerLink="/admin-dashboard/accounts" routerLinkActive="admin-nav-link-active" class="admin-nav-link" title="الحسابات" (click)="closeMobileMenu()"><fa-icon class="admin-nav-icon" [icon]="icons.accounts" /><span class="admin-nav-text">الحسابات</span></a>
+      <a routerLink="/admin-dashboard/destinations" routerLinkActive="admin-nav-link-active" class="admin-nav-link" title="الوجهات" (click)="closeMobileMenu()"><fa-icon class="admin-nav-icon" [icon]="icons.destinations" /><span class="admin-nav-text">الوجهات</span></a>
+      <a routerLink="/admin-dashboard/products" routerLinkActive="admin-nav-link-active" class="admin-nav-link" title="المنتجات" (click)="closeMobileMenu()"><fa-icon class="admin-nav-icon" [icon]="icons.products" /><span class="admin-nav-text">المنتجات</span></a>
+      <a routerLink="/auth/login" class="admin-nav-link admin-nav-danger mt-4" title="تسجيل الخروج" (click)="closeMobileMenu()"><fa-icon class="admin-nav-icon" [icon]="icons.logout" /><span class="admin-nav-text">تسجيل الخروج</span></a>
+    </nav>
+  </aside>
+
+  @if (!mobileMenuOpen()) {
+    <button class="admin-mobile-burger grid size-11 place-items-center rounded-xl border border-[#e2e8f0] bg-white text-lg shadow-sm lg:hidden" aria-label="فتح القائمة" [attr.aria-expanded]="mobileMenuOpen()" (click)="openMobileMenu()"><fa-icon [icon]="icons.burger" /></button>
+  }
+
+  <main class="admin-main min-h-dvh p-4 pt-20 transition-[margin] duration-200 sm:p-6 sm:pt-20 lg:p-10" [class.admin-main-collapsed]="asideCollapsed()">
+    <router-outlet />
+  </main>
+</div>

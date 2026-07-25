@@ -1,0 +1,90 @@
+<section class="mx-auto w-full max-w-[1440px] pb-16 text-[#001c37]" dir="rtl">
+  <header class="mb-8 flex flex-col justify-between gap-4 md:flex-row md:items-center">
+    <div>
+      <h1 class="text-2xl font-bold tracking-tight md:text-[32px] md:leading-10">مقارنة الأسواق</h1>
+      <p class="mt-1 text-sm leading-6 text-slate-600">تحليل جدوى تصدير الفراولة حسب متطلبات كل سوق.</p>
+    </div>
+
+    <div class="flex flex-wrap items-center gap-3 rounded-lg border border-slate-200 bg-slate-100 p-1">
+      <button type="button" class="rounded-md bg-white px-4 py-2 text-xs font-bold text-[#001c37] shadow-sm">
+        {{ selectedMarkets()[0] }}
+      </button>
+      <span class="text-sm text-slate-500">مقابل</span>
+      <button type="button" class="rounded-md px-4 py-2 text-xs font-bold text-slate-600 transition hover:bg-white">
+        {{ selectedMarkets()[1] }}
+      </button>
+    </div>
+  </header>
+
+  <div class="mb-8 grid gap-6 lg:grid-cols-2">
+    @for (market of markets(); track market.country) {
+      <article class="rounded-2xl border border-slate-200 bg-white p-6 shadow-[0_4px_20px_rgba(10,37,64,.05)] transition hover:shadow-[0_8px_30px_rgba(10,37,64,.08)]">
+        <div class="mb-6 flex flex-col justify-between gap-3 border-b border-slate-100 pb-4 sm:flex-row sm:items-center">
+          <div class="flex items-center gap-3">
+            <span class="grid size-9 place-items-center rounded-full bg-green-100 text-sm font-bold text-[#006b2c]">GM</span>
+            <h2 class="text-lg font-bold text-[#001c37]">{{ market.country }}</h2>
+          </div>
+          <span class="w-fit rounded-full bg-green-50 px-3 py-1 text-xs font-bold text-[#006b2c]">{{ market.authority }}</span>
+        </div>
+
+        <div class="space-y-6">
+          <section>
+            <p class="mb-2 text-xs font-bold uppercase tracking-wide text-slate-500">جاهزية التصدير</p>
+            <div class="flex items-center gap-2">
+              <span class="size-2.5 rounded-full" [class.bg-[#006b2c]]="market.readinessTone === 'success'" [class.bg-amber-500]="market.readinessTone === 'warning'"></span>
+              <span class="text-sm font-bold" [class.text-[#006b2c]]="market.readinessTone === 'success'">{{ market.readiness }}</span>
+            </div>
+          </section>
+
+          <section>
+            <p class="mb-2 text-xs font-bold uppercase tracking-wide text-slate-500">الشهادات المطلوبة</p>
+            <ul class="space-y-2">
+              @for (certificate of market.certificates; track certificate.label) {
+                <li class="flex items-center gap-2 rounded border border-slate-200 bg-slate-50 p-2 text-sm">
+                  <span class="font-bold" [class.text-[#006b2c]]="certificate.state === 'ready'" [class.text-amber-500]="certificate.state === 'pending'">
+                    {{ certificate.state === 'ready' ? '✓' : '…' }}
+                  </span>
+                  {{ certificate.label }}
+                </li>
+              }
+            </ul>
+          </section>
+
+          <section>
+            <p class="mb-2 text-xs font-bold uppercase tracking-wide text-slate-500">حدود متبقيات المبيدات (PHI)</p>
+            <div class="rounded border border-slate-200 bg-slate-50 p-3">
+              <div class="mb-2 flex items-center justify-between gap-3">
+                <span class="text-sm text-[#001c37]">{{ market.residueTitle }}</span>
+                <span class="font-mono text-sm font-bold" [class.text-[#006b2c]]="market.residueTone === 'success'" [class.text-red-600]="market.residueTone === 'danger'">{{ market.residueStatus }}</span>
+              </div>
+              <div class="h-1.5 overflow-hidden rounded-full bg-slate-200">
+                <i class="block h-full rounded-full" [class.bg-[#006b2c]]="market.residueTone === 'success'" [class.bg-red-600]="market.residueTone === 'danger'" [style.width.%]="market.residueProgress"></i>
+              </div>
+            </div>
+          </section>
+
+          <section>
+            <p class="mb-2 text-xs font-bold uppercase tracking-wide text-slate-500">إرشادات التغليف</p>
+            <p class="text-sm leading-7 text-[#001c37]">{{ market.packaging }}</p>
+          </section>
+        </div>
+      </article>
+    }
+  </div>
+
+  <section class="relative overflow-hidden rounded-2xl border border-[#006b2c]/20 bg-green-50 p-6 shadow-sm">
+    <div class="flex flex-col gap-5 md:flex-row md:items-start">
+      <div class="grid size-12 shrink-0 place-items-center rounded-full border border-slate-200 bg-white text-sm font-bold text-[#006b2c]">AI</div>
+      <div class="flex-1">
+        <h2 class="mb-2 text-lg font-bold text-[#001c37]">توصية جرين مايند بالذكاء الاصطناعي</h2>
+        <p class="max-w-4xl text-sm leading-7 text-slate-700">
+          بناء على ملف الامتثال الحالي الخاص بك، تعد <strong class="text-[#001c37]">المملكة العربية السعودية</strong> هي السوق الأمثل الفوري. أنت تستوفي جميع متطلبات هيئة الغذاء والدواء وحدود PHI. لفتح السوق الألمانية، قم بتسريع تدقيق BRCGS ومراجعة تطبيق مبيدات الفطريات في المراحل المتأخرة لتلبية الحد الأقصى للمتبقيات الافتراضي الصارم البالغ 0.01 ملغ/كغ.
+        </p>
+        <div class="mt-4 flex flex-wrap gap-3">
+          <button type="button" class="rounded bg-[#006b2c] px-4 py-2 text-xs font-bold text-white transition hover:bg-[#006e2f]">بدء خطة تصدير السعودية</button>
+          <button type="button" class="rounded border border-slate-200 bg-white px-4 py-2 text-xs font-bold text-[#001c37] transition hover:bg-slate-50">عرض بنود العمل للاتحاد الأوروبي</button>
+        </div>
+      </div>
+    </div>
+  </section>
+</section>

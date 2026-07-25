@@ -1,0 +1,78 @@
+<section class="mx-auto flex w-full max-w-[1440px] flex-col pb-16 text-[#001c37]" dir="rtl">
+  <div class="mb-8 flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
+    <div>
+      <h1 class="text-2xl font-bold tracking-tight md:text-[32px] md:leading-10">سجل الأنشطة</h1>
+      <p class="mt-1 max-w-3xl text-sm leading-6 text-slate-600">
+        تتبع وإدارة شحنات تصدير الفراولة الخاصة بك في الوقت الفعلي.
+      </p>
+    </div>
+
+    <div class="flex gap-2">
+      <button type="button" class="rounded-lg border border-slate-200 bg-white px-4 py-2 text-xs font-bold text-[#001c37] transition hover:bg-slate-50">
+        تصفية
+      </button>
+      <button type="button" class="rounded-lg border border-slate-200 bg-white px-4 py-2 text-xs font-bold text-[#001c37] transition hover:bg-slate-50">
+        تصدير CSV
+      </button>
+    </div>
+  </div>
+
+  <div class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-[0_4px_20px_rgba(10,37,64,.05)] transition hover:shadow-[0_8px_30px_rgba(10,37,64,.08)]">
+    <div class="overflow-x-auto">
+      <table class="w-full min-w-[860px] border-collapse text-right">
+        <thead>
+          <tr class="border-b border-slate-200 bg-slate-50/80">
+            <th class="px-6 py-4 text-xs font-bold text-slate-500">الحالة</th>
+            <th class="px-6 py-4 text-xs font-bold text-slate-500">الحدث</th>
+            <th class="px-6 py-4 text-xs font-bold text-slate-500">التاريخ والوقت</th>
+            <th class="px-6 py-4 text-xs font-bold text-slate-500">الموقع</th>
+            <th class="px-6 py-4 text-left text-xs font-bold text-slate-500">الإجراءات</th>
+          </tr>
+        </thead>
+        <tbody class="text-sm">
+          @for (activity of activities(); track activity.title) {
+            <tr class="border-b border-slate-100 transition last:border-0 hover:bg-[#F8FAFC]">
+              <td class="px-6 py-4">
+                <span class="inline-grid size-8 place-items-center rounded-full text-sm font-black" [class]="statusClasses(activity.status)">
+                  {{ statusIcon(activity.status) }}
+                </span>
+              </td>
+              <td class="px-6 py-4">
+                <div class="font-bold text-[#001c37]">{{ activity.title }}</div>
+                <div class="mt-1 text-sm" [class.text-red-600]="activity.status === 'issue'" [class.text-slate-500]="activity.status !== 'issue'">
+                  {{ activity.description }}
+                </div>
+              </td>
+              <td class="px-6 py-4 font-mono text-sm text-slate-500" dir="ltr">
+                {{ activity.dateTime }}
+              </td>
+              <td class="px-6 py-4 text-slate-500">
+                {{ activity.location }}
+              </td>
+              <td class="px-6 py-4">
+                <div class="flex justify-end gap-2">
+                  @if (activity.action === 'resolve') {
+                    <button type="button" class="rounded bg-red-600 px-3 py-1.5 text-sm font-bold text-white transition hover:bg-red-700">
+                      حل
+                    </button>
+                  }
+                  <button type="button" class="rounded bg-slate-100 px-3 py-1.5 text-sm font-bold text-slate-900 transition hover:bg-slate-200">
+                    عرض التفاصيل
+                  </button>
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="mt-6 flex flex-col justify-between gap-3 text-sm text-slate-500 sm:flex-row sm:items-center">
+    <span>عرض 1-4 من 128 حدث</span>
+    <div class="flex gap-1">
+      <button type="button" class="rounded border border-slate-200 bg-white px-3 py-1 transition hover:bg-slate-50">السابق</button>
+      <button type="button" class="rounded border border-slate-200 bg-white px-3 py-1 transition hover:bg-slate-50">التالي</button>
+    </div>
+  </div>
+</section>
