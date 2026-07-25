@@ -1,6 +1,6 @@
 export interface RegisterRequest {
-    fullName: string;
-    email: string;
-    phone: string;
-    password: string;
+  fullName: string;
+  email: string;
+  password: string;
+  farmName: string;
 }

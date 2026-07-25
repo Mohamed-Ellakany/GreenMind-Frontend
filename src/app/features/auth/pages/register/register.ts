@@ -1,140 +1,64 @@
 import { Component, inject, signal } from '@angular/core';
-
-import {
-  FormBuilder,
-  ReactiveFormsModule,
-  Validators
-} from '@angular/forms';
-
 import { RouterLink } from '@angular/router';
-import { AuthFacade } from '@features/auth/facade/auth.facade';
-
+import { FormField, email as emailValidator, form, minLength, required, submit, validate } from '@angular/forms/signals';
+import { firstValueFrom } from 'rxjs';
+import { AuthService } from '@features/auth/services/AuthService';
 
 @Component({
   selector: 'app-register',
-  standalone: true,
-  imports: [
-    ReactiveFormsModule,
-    RouterLink
-  ],
-  providers: [
-    AuthFacade
-  ],
+  imports: [FormField, RouterLink],
   templateUrl: './register.html',
-  styleUrl: './register.css'
+  styleUrl: './register.css',
 })
 export class Register {
+  private readonly authService = inject(AuthService);
 
-  private readonly fb = inject(FormBuilder);
+  protected readonly auth = this.authService;
+  protected readonly submitted = signal(false);
 
-  readonly facade = inject(AuthFacade);
-
-  readonly submitted = signal(false);
-
-  readonly registerForm = this.fb.nonNullable.group({
-
-    fullName: [
-      '',
-      [
-        Validators.required,
-        Validators.minLength(3)
-      ]
-    ],
-
-    email: [
-      '',
-      [
-        Validators.required,
-        Validators.email
-      ]
-    ],
-
-    phone: [
-      '',
-      [
-        Validators.required,
-        Validators.pattern(/^01[0-9]{9}$/)
-      ]
-    ],
-
-    password: [
-      '',
-      [
-        Validators.required,
-        Validators.minLength(8)
-      ]
-    ],
-
-    confirmPassword: [
-      '',
-      Validators.required
-    ],
-
-    terms: [
-      false,
-      Validators.requiredTrue
-    ]
-
+  protected readonly registerModel = signal({
+    fullName: '',
+    email: '',
+    password: '',
+    confirmPassword: '',
+    farmName: '',
+    terms: false,
   });
 
-  hasError(control: keyof typeof this.registerForm.controls, error: string) {
+  protected readonly registerForm = form(this.registerModel, (path) => {
+    required(path.fullName, { message: 'أدخل اسماً كاملاً لا يقل عن 3 أحرف.' });
+    minLength(path.fullName, 3, { message: 'أدخل اسماً كاملاً لا يقل عن 3 أحرف.' });
 
-    const c = this.registerForm.controls[control];
+    required(path.email, { message: 'أدخل بريداً إلكترونياً صحيحاً.' });
+    emailValidator(path.email, { message: 'أدخل بريداً إلكترونياً صحيحاً.' });
 
-    return c.touched && c.hasError(error);
+    required(path.password, { message: 'كلمة المرور يجب أن تكون 8 أحرف على الأقل.' });
+    minLength(path.password, 8, { message: 'كلمة المرور يجب أن تكون 8 أحرف على الأقل.' });
 
-  }
+    required(path.confirmPassword, { message: 'تأكيد كلمة المرور مطلوبة.' });
+    validate(path.confirmPassword, ({ value, valueOf }) =>
+      value() === valueOf(path.password)
+        ? undefined
+        : { kind: 'passwordMismatch', message: 'كلمتا المرور غير متطابقتين.' },
+    );
 
-  submit() {
+    required(path.farmName, { message: 'أدخل اسم المزرعة.' });
+    minLength(path.farmName, 2, { message: 'اسم المزرعة قصير جداً.' });
 
-    this.submitted.set(true);
+    validate(path.terms, ({ value }) =>
+      value() ? undefined : { kind: 'termsRequired', message: 'يجب الموافقة على الشروط والأحكام.' },
+    );
+  });
 
-    this.registerForm.markAllAsTouched();
-
-    if (this.registerForm.invalid) {
-
-      return;
-
-    }
-
-    if (
-      this.registerForm.value.password !==
-      this.registerForm.value.confirmPassword
-    ) {
-
-      return;
-
-    }
-
-    this.facade.register({
-
-      fullName: this.registerForm.value.fullName!,
-
-      email: this.registerForm.value.email!,
-
-      phone: this.registerForm.value.phone!,
-
-      password: this.registerForm.value.password!
-
-    }).subscribe({
-
-      next: () => {
-
-        this.facade.success.set(true);
-
-      },
-
-      error: err => {
-
-        this.facade.error.set(
-          err.error?.message ??
-          'حدث خطأ أثناء إنشاء الحساب'
-        );
-
+  protected async onSubmit(): Promise<void> {
+    await submit(this.registerForm, async () => {
+      try {
+        const { confirmPassword, terms, ...payload } = this.registerModel();
+        await firstValueFrom(this.authService.register(payload));
+        this.submitted.set(true);
+      } catch {
+        // authService.error() already surfaces the message in the template.
       }
-
     });
-
   }
-
 }

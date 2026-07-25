@@ -1,4 +1,7 @@
 import {
+  PlatformLocation
+} from "./chunk-JCPW674M.js";
+import {
   ApplicationRef,
   Attribute,
   ChangeDetectorRef,
@@ -28,7 +31,7 @@ import {
   Renderer2,
   RendererStyleFlags2,
   RuntimeError,
-  Subject,
+  Service,
   TemplateRef,
   Version,
   ViewContainerRef,
@@ -53,132 +56,20 @@ import {
   ɵɵdefineInjector,
   ɵɵdefineNgModule,
   ɵɵdefinePipe,
+  ɵɵdefineService,
   ɵɵdirectiveInject,
   ɵɵgetInheritedFactory,
   ɵɵinject,
   ɵɵinjectAttribute,
   ɵɵstyleProp
-} from "./chunk-E745MC37.js";
+} from "./chunk-7MNJDBXD.js";
+import {
+  Subject
+} from "./chunk-7VCUJCO2.js";
 import {
   __spreadProps,
   __spreadValues
 } from "./chunk-GOMI4DH3.js";
-
-// node_modules/@angular/common/fesm2022/_platform_location-chunk.mjs
-var _DOM = null;
-function getDOM() {
-  return _DOM;
-}
-function setRootDomAdapter(adapter) {
-  _DOM ??= adapter;
-}
-var DomAdapter = class {
-};
-var PlatformLocation = class _PlatformLocation {
-  historyGo(relativePosition) {
-    throw new Error(ngDevMode ? "Not implemented" : "");
-  }
-  static ɵfac = function PlatformLocation_Factory(__ngFactoryType__) {
-    return new (__ngFactoryType__ || _PlatformLocation)();
-  };
-  static ɵprov = ɵɵdefineInjectable({
-    token: _PlatformLocation,
-    factory: () => (() => inject(BrowserPlatformLocation))(),
-    providedIn: "platform"
-  });
-};
-(() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(PlatformLocation, [{
-    type: Injectable,
-    args: [{
-      providedIn: "platform",
-      useFactory: () => inject(BrowserPlatformLocation)
-    }]
-  }], null, null);
-})();
-var LOCATION_INITIALIZED = new InjectionToken(typeof ngDevMode !== "undefined" && ngDevMode ? "Location Initialized" : "");
-var BrowserPlatformLocation = class _BrowserPlatformLocation extends PlatformLocation {
-  _location;
-  _history;
-  _doc = inject(DOCUMENT);
-  constructor() {
-    super();
-    this._location = window.location;
-    this._history = window.history;
-  }
-  getBaseHrefFromDOM() {
-    return getDOM().getBaseHref(this._doc);
-  }
-  onPopState(fn) {
-    const window2 = getDOM().getGlobalEventTarget(this._doc, "window");
-    window2.addEventListener("popstate", fn, false);
-    return () => window2.removeEventListener("popstate", fn);
-  }
-  onHashChange(fn) {
-    const window2 = getDOM().getGlobalEventTarget(this._doc, "window");
-    window2.addEventListener("hashchange", fn, false);
-    return () => window2.removeEventListener("hashchange", fn);
-  }
-  get href() {
-    return this._location.href;
-  }
-  get protocol() {
-    return this._location.protocol;
-  }
-  get hostname() {
-    return this._location.hostname;
-  }
-  get port() {
-    return this._location.port;
-  }
-  get pathname() {
-    return this._location.pathname;
-  }
-  get search() {
-    return this._location.search;
-  }
-  get hash() {
-    return this._location.hash;
-  }
-  set pathname(newPath) {
-    this._location.pathname = newPath;
-  }
-  pushState(state, title, url) {
-    this._history.pushState(state, title, url);
-  }
-  replaceState(state, title, url) {
-    this._history.replaceState(state, title, url);
-  }
-  forward() {
-    this._history.forward();
-  }
-  back() {
-    this._history.back();
-  }
-  historyGo(relativePosition = 0) {
-    this._history.go(relativePosition);
-  }
-  getState() {
-    return this._history.state;
-  }
-  static ɵfac = function BrowserPlatformLocation_Factory(__ngFactoryType__) {
-    return new (__ngFactoryType__ || _BrowserPlatformLocation)();
-  };
-  static ɵprov = ɵɵdefineInjectable({
-    token: _BrowserPlatformLocation,
-    factory: () => (() => new _BrowserPlatformLocation())(),
-    providedIn: "platform"
-  });
-};
-(() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(BrowserPlatformLocation, [{
-    type: Injectable,
-    args: [{
-      providedIn: "platform",
-      useFactory: () => new BrowserPlatformLocation()
-    }]
-  }], () => [], null);
-})();
 
 // node_modules/@angular/common/fesm2022/_location-chunk.mjs
 function joinWithSlash(start, end) {
@@ -880,7 +771,7 @@ function getNumberOfCurrencyDigits(code) {
   return typeof digits === "number" ? digits : DEFAULT_NB_OF_CURRENCY_DIGITS;
 }
 var ISO8601_DATE_REGEX = /^(\d{4,})-?(\d\d)-?(\d\d)(?:T(\d\d)(?::?(\d\d)(?::?(\d\d)(?:\.(\d+))?)?)?(Z|([+-])(\d\d):?(\d\d))?)?$/;
-var NAMED_FORMATS = {};
+var NAMED_FORMATS = /* @__PURE__ */ Object.create(null);
 var DATE_FORMATS_SPLIT = /((?:[^BEGHLMOSWYZabcdhmswyz']+)|(?:'(?:[^']|'')*')|(?:G{1,5}|y{1,4}|Y{1,4}|M{1,5}|L{1,5}|w{1,2}|W{1}|d{1,2}|E{1,6}|c{1,6}|a{1,5}|b{1,5}|B{1,5}|h{1,2}|H{1,2}|m{1,2}|s{1,2}|S{1,3}|z{1,4}|Z{1,5}|O{1,4}))([\s\S]*)/;
 var MAX_DATE_FORMAT_LENGTH = 256;
 function formatDate(value, format, locale, timezone) {
@@ -942,7 +833,7 @@ function createDate(year, month, date) {
 }
 function getNamedFormat(locale, format) {
   const localeId = getLocaleId(locale);
-  NAMED_FORMATS[localeId] ??= {};
+  NAMED_FORMATS[localeId] ??= /* @__PURE__ */ Object.create(null);
   if (NAMED_FORMATS[localeId][format]) {
     return NAMED_FORMATS[localeId][format];
   }
@@ -1001,7 +892,7 @@ function getNamedFormat(locale, format) {
 function formatDateTime(str, opt_values) {
   if (opt_values) {
     str = str.replace(/\{([^}]+)}/g, function(match, key) {
-      return opt_values != null && key in opt_values ? opt_values[key] : match;
+      return Object.hasOwn(opt_values, key) ? opt_values[key] : match;
     });
   }
   return str;
@@ -1173,7 +1064,7 @@ function weekNumberingYearGetter(size, trim = false) {
     return padNumber(weekNumberingYear, size, getLocaleNumberSymbol(locale, NumberSymbol.MinusSign), trim);
   };
 }
-var DATE_FORMATS = {};
+var DATE_FORMATS = /* @__PURE__ */ Object.create(null);
 function getDateFormatter(format) {
   if (DATE_FORMATS[format]) {
     return DATE_FORMATS[format];
@@ -1712,18 +1603,16 @@ var NgLocalization = class _NgLocalization {
   static ɵfac = function NgLocalization_Factory(__ngFactoryType__) {
     return new (__ngFactoryType__ || _NgLocalization)();
   };
-  static ɵprov = ɵɵdefineInjectable({
+  static ɵprov = ɵɵdefineService({
     token: _NgLocalization,
-    factory: () => (() => new NgLocaleLocalization(inject(LOCALE_ID)))(),
-    providedIn: "root"
+    factory: () => (() => new NgLocaleLocalization(inject(LOCALE_ID)))()
   });
 };
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(NgLocalization, [{
-    type: Injectable,
+    type: Service,
     args: [{
-      providedIn: "root",
-      useFactory: () => new NgLocaleLocalization(inject(LOCALE_ID))
+      factory: () => new NgLocaleLocalization(inject(LOCALE_ID))
     }]
   }], null, null);
 })();
@@ -2978,10 +2867,10 @@ var I18nSelectPipe = class _I18nSelectPipe {
     if (typeof mapping !== "object" || typeof value !== "string") {
       throw invalidPipeArgumentError(_I18nSelectPipe, mapping);
     }
-    if (mapping.hasOwnProperty(value)) {
+    if (Object.hasOwn(mapping, value)) {
       return mapping[value];
     }
-    if (mapping.hasOwnProperty("other")) {
+    if (Object.hasOwn(mapping, "other")) {
       return mapping["other"];
     }
     return "";
@@ -3324,21 +3213,6 @@ var PlatformNavigation = class _PlatformNavigation {
   }], null, null);
 })();
 
-// node_modules/@angular/common/fesm2022/_xhr-chunk.mjs
-function parseCookieValue(cookieStr, name) {
-  name = encodeURIComponent(name);
-  for (const cookie of cookieStr.split(";")) {
-    const eqIndex = cookie.indexOf("=");
-    const [cookieName, cookieValue] = eqIndex == -1 ? [cookie, ""] : [cookie.slice(0, eqIndex), cookie.slice(eqIndex + 1)];
-    if (cookieName.trim() === name) {
-      return decodeURIComponent(cookieValue);
-    }
-  }
-  return null;
-}
-var XhrFactory = class {
-};
-
 // node_modules/@angular/common/fesm2022/common.mjs
 var NavigationAdapterForLocation = class _NavigationAdapterForLocation extends Location {
   navigation = inject(PlatformNavigation);
@@ -3400,7 +3274,7 @@ var NavigationAdapterForLocation = class _NavigationAdapterForLocation extends L
   }], () => [], null);
 })();
 var PLATFORM_BROWSER_ID = "browser";
-var VERSION = new Version("21.2.18");
+var VERSION = new Version("22.0.8");
 var ViewportScroller = class _ViewportScroller {
   static ɵprov = ɵɵdefineInjectable({
     token: _ViewportScroller,
@@ -3470,7 +3344,7 @@ function findAnchorFromDocument(document, target) {
     while (currentNode) {
       const shadowRoot = currentNode.shadowRoot;
       if (shadowRoot) {
-        const result = shadowRoot.getElementById(target) || shadowRoot.querySelector(`[name="${target}"]`);
+        const result = shadowRoot.getElementById(target) || shadowRoot.querySelector(`[name="${CSS.escape(target)}"]`);
         if (result) {
           return result;
         }
@@ -3507,6 +3381,9 @@ function normalizePath(path) {
 }
 function normalizeSrc(src) {
   return src.startsWith("/") ? src.slice(1) : src;
+}
+function escapeCssUrl(input) {
+  return input.replace(/\\/g, "\\\\").replace(/[\n\r\f\0]/g, "").replace(/"/g, '\\"');
 }
 var noopImageLoader = (config) => config.src;
 var IMAGE_LOADER = new InjectionToken(typeof ngDevMode !== "undefined" && ngDevMode ? "ImageLoader" : "", {
@@ -3767,18 +3644,14 @@ var LCPImageObserver = class _LCPImageObserver {
   static ɵfac = function LCPImageObserver_Factory(__ngFactoryType__) {
     return new (__ngFactoryType__ || _LCPImageObserver)();
   };
-  static ɵprov = ɵɵdefineInjectable({
+  static ɵprov = ɵɵdefineService({
     token: _LCPImageObserver,
-    factory: _LCPImageObserver.ɵfac,
-    providedIn: "root"
+    factory: _LCPImageObserver.ɵfac
   });
 };
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(LCPImageObserver, [{
-    type: Injectable,
-    args: [{
-      providedIn: "root"
-    }]
+    type: Service
   }], () => [], null);
 })();
 function logMissingPriorityError(ngSrc) {
@@ -3842,18 +3715,14 @@ var PreconnectLinkChecker = class _PreconnectLinkChecker {
   static ɵfac = function PreconnectLinkChecker_Factory(__ngFactoryType__) {
     return new (__ngFactoryType__ || _PreconnectLinkChecker)();
   };
-  static ɵprov = ɵɵdefineInjectable({
+  static ɵprov = ɵɵdefineService({
     token: _PreconnectLinkChecker,
-    factory: _PreconnectLinkChecker.ɵfac,
-    providedIn: "root"
+    factory: _PreconnectLinkChecker.ɵfac
   });
 };
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(PreconnectLinkChecker, [{
-    type: Injectable,
-    args: [{
-      providedIn: "root"
-    }]
+    type: Service
   }], () => [], null);
 })();
 function deepForEach(input, fn) {
@@ -3869,20 +3738,24 @@ var PreloadLinkCreator = class _PreloadLinkCreator {
   preloadedImages = inject(PRELOADED_IMAGES);
   document = inject(DOCUMENT);
   errorShown = false;
-  createPreloadLinkTag(renderer, src, srcset, sizes) {
+  createPreloadLinkTag(renderer, src, srcset, sizes, crossOrigin) {
+    const preloadKey = `${src}:${getCrossOriginMode(crossOrigin)}`;
     if (ngDevMode && !this.errorShown && this.preloadedImages.size >= DEFAULT_PRELOADED_IMAGES_LIMIT) {
       this.errorShown = true;
       console.warn(formatRuntimeError(2961, `The \`NgOptimizedImage\` directive has detected that more than ${DEFAULT_PRELOADED_IMAGES_LIMIT} images were marked as priority. This might negatively affect an overall performance of the page. To fix this, remove the "priority" attribute from images with less priority.`));
     }
-    if (this.preloadedImages.has(src)) {
+    if (this.preloadedImages.has(preloadKey)) {
       return;
     }
-    this.preloadedImages.add(src);
+    this.preloadedImages.add(preloadKey);
     const preload = renderer.createElement("link");
     renderer.setAttribute(preload, "as", "image");
     renderer.setAttribute(preload, "href", src);
     renderer.setAttribute(preload, "rel", "preload");
     renderer.setAttribute(preload, "fetchpriority", "high");
+    if (crossOrigin != null) {
+      renderer.setAttribute(preload, "crossorigin", crossOrigin);
+    }
     if (sizes) {
       renderer.setAttribute(preload, "imageSizes", sizes);
     }
@@ -3894,20 +3767,22 @@ var PreloadLinkCreator = class _PreloadLinkCreator {
   static ɵfac = function PreloadLinkCreator_Factory(__ngFactoryType__) {
     return new (__ngFactoryType__ || _PreloadLinkCreator)();
   };
-  static ɵprov = ɵɵdefineInjectable({
+  static ɵprov = ɵɵdefineService({
     token: _PreloadLinkCreator,
-    factory: _PreloadLinkCreator.ɵfac,
-    providedIn: "root"
+    factory: _PreloadLinkCreator.ɵfac
   });
 };
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(PreloadLinkCreator, [{
-    type: Injectable,
-    args: [{
-      providedIn: "root"
-    }]
+    type: Service
   }], null, null);
 })();
+function getCrossOriginMode(crossOrigin) {
+  if (crossOrigin == null) {
+    return null;
+  }
+  return crossOrigin.toLowerCase() === "use-credentials" ? "use-credentials" : "anonymous";
+}
 var BASE64_IMG_MAX_LENGTH_IN_ERROR = 50;
 var VALID_WIDTH_DESCRIPTOR_SRCSET = /^((\s*\d+w\s*(,|$)){1,})$/;
 var VALID_DENSITY_DESCRIPTOR_SRCSET = /^((\s*\d+(\.\d+)?x\s*(,|$)){1,})$/;
@@ -4038,7 +3913,7 @@ var NgOptimizedImage = class _NgOptimizedImage {
     }
     if (false) {
       const preloadLinkCreator = this.injector.get(PreloadLinkCreator);
-      preloadLinkCreator.createPreloadLinkTag(this.renderer, this.getRewrittenSrc(), rewrittenSrcset, this.sizes);
+      preloadLinkCreator.createPreloadLinkTag(this.renderer, this.getRewrittenSrc(), rewrittenSrcset, this.sizes, this.imgElement.getAttribute("crossorigin"));
     }
   }
   ngOnChanges(changes) {
@@ -4611,9 +4486,6 @@ function unwrapSafeUrl(value) {
   }
   return unwrapSafeValue(value);
 }
-function escapeCssUrl(input) {
-  return input.replace(/\\/g, "\\\\").replace(/"/g, '\\"');
-}
 function booleanOrUrlAttribute(value) {
   if (typeof value === "string" && value !== "true" && value !== "false" && value !== "") {
     return value;
@@ -4622,11 +4494,6 @@ function booleanOrUrlAttribute(value) {
 }
 
 export {
-  getDOM,
-  setRootDomAdapter,
-  DomAdapter,
-  PlatformLocation,
-  LOCATION_INITIALIZED,
   LocationStrategy,
   PathLocationStrategy,
   Location,
@@ -4634,10 +4501,8 @@ export {
   CommonModule,
   PRECOMMIT_HANDLER_SUPPORTED,
   PlatformNavigation,
-  parseCookieValue,
-  XhrFactory,
   NavigationAdapterForLocation,
   PLATFORM_BROWSER_ID,
   ViewportScroller
 };
-//# sourceMappingURL=chunk-6Y3SNT53.js.map
+//# sourceMappingURL=chunk-Z4LDN6Q6.js.map

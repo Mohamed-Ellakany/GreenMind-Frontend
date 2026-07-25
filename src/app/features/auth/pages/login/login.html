@@ -4,7 +4,7 @@
       <img class="size-full" src="/greenmind-leaf.svg" alt="" />
     </div>
 
-    @if (submitted() && loginForm.disabled) {
+    @if (submitted()) {
       <div class="py-12 text-center" role="status">
         <span class="mx-auto mb-4 grid size-14 place-items-center rounded-full bg-green-100 text-3xl font-bold text-[#159447]">✓</span>
         <h1 id="login-heading" class="text-[25px] font-bold">تم تسجيل الدخول</h1>
@@ -16,32 +16,62 @@
         <p class="mt-1 text-[14px] text-slate-500">أدخل بيانات حسابك.</p>
       </header>
 
-      <form class="mt-8" [formGroup]="loginForm" (ngSubmit)="submit()" novalidate>
+      <form class="mt-8" (submit)="onSubmit()" novalidate>
         <div class="mb-5">
           <label class="mb-2 block text-[14px] font-semibold" for="email">البريد الإلكتروني</label>
-          <input class="h-11 w-full rounded-xl border border-slate-200 px-3 text-left text-sm text-slate-800 outline-none placeholder:text-slate-400 focus:border-[#15a64a] focus:ring-3 focus:ring-green-600/15" id="email" type="email" formControlName="email" placeholder="name@email.com" autocomplete="email" dir="ltr" />
-          @if (hasError('email', 'required') || hasError('email', 'email')) {
-            <small class="mt-1 block text-xs text-red-600">أدخل بريداً إلكترونياً صحيحاً.</small>
+          <input
+            class="h-11 w-full rounded-xl border border-slate-200 px-3 text-left text-sm text-slate-800 outline-none placeholder:text-slate-400 focus:border-[#15a64a] focus:ring-3 focus:ring-green-600/15"
+            id="email"
+            type="email"
+            [formField]="loginForm.email"
+            placeholder="name@email.com"
+            autocomplete="email"
+            dir="ltr"
+          />
+          @if (loginForm.email().touched() && loginForm.email().invalid()) {
+            @for (err of loginForm.email().errors(); track err.kind) {
+              <small class="mt-1 block text-xs text-red-600">{{ err.message }}</small>
+            }
           }
         </div>
 
         <div>
           <label class="mb-2 block text-[14px] font-semibold" for="password">كلمة المرور</label>
-          <input class="h-11 w-full rounded-xl border border-slate-200 px-3 text-left text-sm text-slate-800 outline-none placeholder:text-slate-400 focus:border-[#15a64a] focus:ring-3 focus:ring-green-600/15" id="password" type="password" formControlName="password" placeholder="********" autocomplete="current-password" dir="ltr" />
-          @if (hasError('password', 'required') || hasError('password', 'minlength')) {
-            <small class="mt-1 block text-xs text-red-600">كلمة المرور يجب أن تكون 8 أحرف على الأقل.</small>
+          <input
+            class="h-11 w-full rounded-xl border border-slate-200 px-3 text-left text-sm text-slate-800 outline-none placeholder:text-slate-400 focus:border-[#15a64a] focus:ring-3 focus:ring-green-600/15"
+            id="password"
+            type="password"
+            [formField]="loginForm.password"
+            placeholder="********"
+            autocomplete="current-password"
+            dir="ltr"
+          />
+          @if (loginForm.password().touched() && loginForm.password().invalid()) {
+            @for (err of loginForm.password().errors(); track err.kind) {
+              <small class="mt-1 block text-xs text-red-600">{{ err.message }}</small>
+            }
           }
         </div>
 
         <div class="mt-5 flex items-center justify-between text-sm">
           <label class="flex cursor-pointer items-center gap-2 text-slate-600" for="rememberMe">
-            <input class="size-3.5 accent-[#15a64a]" id="rememberMe" type="checkbox" formControlName="rememberMe" />
+            <input class="size-3.5 accent-[#15a64a]" id="rememberMe" type="checkbox" [formField]="loginForm.rememberMe" />
             تذكرني
           </label>
           <a class="font-medium text-[#15a64a] hover:underline" href="#forgot-password">نسيت كلمة المرور؟</a>
         </div>
 
-        <button class="mt-5 h-11 w-full cursor-pointer rounded-xl bg-[#15a64a] text-[15px] font-bold text-white transition hover:bg-[#108c3d] active:translate-y-px disabled:cursor-not-allowed disabled:bg-green-300" type="submit">تسجيل الدخول</button>
+        @if (auth.error()) {
+          <small class="mt-4 block text-center text-xs text-red-600">{{ auth.error() }}</small>
+        }
+
+        <button
+          class="mt-5 h-11 w-full cursor-pointer rounded-xl bg-[#15a64a] text-[15px] font-bold text-white transition hover:bg-[#108c3d] active:translate-y-px disabled:cursor-not-allowed disabled:bg-green-300"
+          type="submit"
+          [disabled]="loginForm().invalid() || auth.loading()"
+        >
+          @if (auth.loading()) { جارٍ تسجيل الدخول... } @else { تسجيل الدخول }
+        </button>
       </form>
 
       <p class="mt-6 text-center text-sm text-slate-600">ليس لديك حساب؟ <a class="font-bold text-[#15a64a] hover:underline" routerLink="/auth/register">إنشاء حساب</a></p>
