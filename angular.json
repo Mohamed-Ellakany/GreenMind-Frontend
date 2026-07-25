@@ -5,7 +5,8 @@
     "packageManager": "npm",
     "cache": {
       "path": ".ng-cache"
-    }
+    },
+    "analytics": "a5d17039-59eb-4a20-94f0-999c1378a1a8"
   },
   "newProjectRoot": "projects",
   "projects": {

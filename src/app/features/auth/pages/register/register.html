@@ -54,7 +54,33 @@
           <span>أوافق على <a href="#terms">الشروط والأحكام</a></span>
         </label>
 
-        <button type="submit" [disabled]="registerForm.invalid">إنشاء الحساب</button>
+      @if(facade.error()){
+
+<small class="text-red-600">
+
+{{ facade.error() }}
+
+</small>
+
+}
+
+<button
+    type="submit"
+    [disabled]="registerForm.invalid || facade.loading()">
+
+@if(facade.loading()){
+
+جارى إنشاء الحساب...
+
+}
+
+@else{
+
+إنشاء الحساب
+
+}
+
+</button>
       </form>
 
       <p class="login-link">لديك حساب بالفعل؟ <a routerLink="/auth/login">تسجيل الدخول</a></p>

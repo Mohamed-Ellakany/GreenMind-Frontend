@@ -1,52 +1,140 @@
-import { Component, signal } from '@angular/core';
-import { AbstractControl, ReactiveFormsModule, ValidationErrors, ValidatorFn, Validators, FormBuilder } from '@angular/forms';
+import { Component, inject, signal } from '@angular/core';
+
+import {
+  FormBuilder,
+  ReactiveFormsModule,
+  Validators
+} from '@angular/forms';
+
 import { RouterLink } from '@angular/router';
+import { AuthFacade } from '@features/auth/facade/auth.facade';
 
-const passwordsMatch: ValidatorFn = (control: AbstractControl): ValidationErrors | null => {
-  const password = control.get('password')?.value;
-  const confirmPassword = control.get('confirmPassword')?.value;
-
-  return password && confirmPassword && password !== confirmPassword
-    ? { passwordMismatch: true }
-    : null;
-};
 
 @Component({
   selector: 'app-register',
-  imports: [ReactiveFormsModule, RouterLink],
+  standalone: true,
+  imports: [
+    ReactiveFormsModule,
+    RouterLink
+  ],
+  providers: [
+    AuthFacade
+  ],
   templateUrl: './register.html',
-  styleUrl: './register.css',
+  styleUrl: './register.css'
 })
 export class Register {
-  public readonly submitted = signal(false);
-  public readonly registerForm;
 
-  constructor(private readonly formBuilder: FormBuilder) {
-    this.registerForm = this.formBuilder.nonNullable.group(
-      {
-        fullName: ['', [Validators.required, Validators.minLength(3)]],
-        email: ['', [Validators.required, Validators.email]],
-        phone: ['', [Validators.required, Validators.pattern(/^01[0-9]{9}$/)]],
-        password: ['', [Validators.required, Validators.minLength(8)]],
-        confirmPassword: ['', Validators.required],
-        terms: [false, Validators.requiredTrue],
-      },
-      { validators: passwordsMatch },
-    );
+  private readonly fb = inject(FormBuilder);
+
+  readonly facade = inject(AuthFacade);
+
+  readonly submitted = signal(false);
+
+  readonly registerForm = this.fb.nonNullable.group({
+
+    fullName: [
+      '',
+      [
+        Validators.required,
+        Validators.minLength(3)
+      ]
+    ],
+
+    email: [
+      '',
+      [
+        Validators.required,
+        Validators.email
+      ]
+    ],
+
+    phone: [
+      '',
+      [
+        Validators.required,
+        Validators.pattern(/^01[0-9]{9}$/)
+      ]
+    ],
+
+    password: [
+      '',
+      [
+        Validators.required,
+        Validators.minLength(8)
+      ]
+    ],
+
+    confirmPassword: [
+      '',
+      Validators.required
+    ],
+
+    terms: [
+      false,
+      Validators.requiredTrue
+    ]
+
+  });
+
+  hasError(control: keyof typeof this.registerForm.controls, error: string) {
+
+    const c = this.registerForm.controls[control];
+
+    return c.touched && c.hasError(error);
+
   }
 
-  public hasError(controlName: keyof typeof this.registerForm.controls, error: string): boolean {
-    const control = this.registerForm.controls[controlName];
-    return control.touched && control.hasError(error);
-  }
+  submit() {
 
-  public submit(): void {
     this.submitted.set(true);
+
     this.registerForm.markAllAsTouched();
 
-    if (this.registerForm.invalid) return;
+    if (this.registerForm.invalid) {
 
-    // The authentication API is not connected yet. This confirms the valid form submission locally.
-    this.registerForm.disable();
+      return;
+
+    }
+
+    if (
+      this.registerForm.value.password !==
+      this.registerForm.value.confirmPassword
+    ) {
+
+      return;
+
+    }
+
+    this.facade.register({
+
+      fullName: this.registerForm.value.fullName!,
+
+      email: this.registerForm.value.email!,
+
+      phone: this.registerForm.value.phone!,
+
+      password: this.registerForm.value.password!
+
+    }).subscribe({
+
+      next: () => {
+
+        this.facade.success.set(true);
+
+      },
+
+      error: err => {
+
+        this.facade.error.set(
+          err.error?.message ??
+          'حدث خطأ أثناء إنشاء الحساب'
+        );
+
+      }
+
+    });
+
   }
+
 }
