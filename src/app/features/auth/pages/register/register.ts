@@ -3,10 +3,11 @@ import { RouterLink } from '@angular/router';
 import { FormField, email as emailValidator, form, minLength, required, submit, validate } from '@angular/forms/signals';
 import { firstValueFrom } from 'rxjs';
 import { AuthService } from '@features/auth/services/AuthService';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-register',
-  imports: [FormField, RouterLink],
+  imports: [FormField, RouterLink, FormsModule],
   templateUrl: './register.html',
   styleUrl: './register.css',
 })
@@ -51,8 +52,11 @@ export class Register {
   });
 
   protected async onSubmit(): Promise<void> {
+    console.log('Submitting register form...');
+
     await submit(this.registerForm, async () => {
       try {
+        console.log('Submitting register form...222');
         const { confirmPassword, terms, ...payload } = this.registerModel();
         await firstValueFrom(this.authService.register(payload));
         this.submitted.set(true);

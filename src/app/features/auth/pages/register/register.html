@@ -17,7 +17,7 @@
       <p>أنشئ حساباً جديداً للبدء.</p>
     </header>
 
-    <form (ngSubmit)="onSubmit()" method="post">
+    <form (ngSubmit)="onSubmit()" novalidate>
       <div class="field">
         <label for="fullName">الاسم الكامل</label>
         <input id="fullName" type="text" [formField]="registerForm.fullName" placeholder="محمد أحمد"
