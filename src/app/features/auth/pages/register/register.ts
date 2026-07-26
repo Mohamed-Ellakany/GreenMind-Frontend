@@ -3,10 +3,11 @@ import { RouterLink } from '@angular/router';
 import { FormField, email as emailValidator, form, minLength, required, submit, validate } from '@angular/forms/signals';
 import { firstValueFrom } from 'rxjs';
 import { AuthService } from '@features/auth/services/AuthService';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-register',
-  imports: [FormField, RouterLink],
+  imports: [FormField, RouterLink, FormsModule],
   templateUrl: './register.html',
   styleUrl: './register.css',
 })
