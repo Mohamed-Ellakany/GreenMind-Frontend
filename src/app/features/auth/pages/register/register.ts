@@ -52,11 +52,8 @@ export class Register {
   });
 
   protected async onSubmit(): Promise<void> {
-    console.log('Submitting register form...');
-
     await submit(this.registerForm, async () => {
       try {
-        console.log('Submitting register form...222');
         const { confirmPassword, terms, ...payload } = this.registerModel();
         await firstValueFrom(this.authService.register(payload));
         this.submitted.set(true);
