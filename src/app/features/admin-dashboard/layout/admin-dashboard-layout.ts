@@ -1,4 +1,5 @@
-import { Component, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
+import { AuthService } from '@features/auth/services/AuthService';
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import {
@@ -18,6 +19,7 @@ import {
   styleUrl: './admin-dashboard-layout.css',
 })
 export class AdminDashboardLayout {
+  private readonly auth = inject(AuthService);
   public readonly mobileMenuOpen = signal(false);
   public readonly asideCollapsed = signal(false);
   public readonly icons = {
@@ -41,4 +43,6 @@ export class AdminDashboardLayout {
   public toggleAside(): void {
     this.asideCollapsed.update((collapsed) => !collapsed);
   }
+
+  public logout(): void { this.auth.logout(); }
 }

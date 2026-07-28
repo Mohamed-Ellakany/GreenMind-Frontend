@@ -1,30 +1,14 @@
-import { Component, signal } from '@angular/core';
-import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { faPen, faPlus, faTrash } from '@fortawesome/free-solid-svg-icons';
+import { Component, DestroyRef, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { GreenmindApi } from '@core/api/greenmind-api.service';
+import { FarmAccount } from '@core/api/api.models';
 
-type Account = {
-  name: string;
-  email: string;
-  type: string;
-  status: 'نشط' | 'معلق' | 'موقوف';
-  joinedAt: string;
-};
-
-@Component({
-  selector: 'app-accounts',
-  imports: [FontAwesomeModule],
-  templateUrl: './accounts.html',
-})
+@Component({ selector: 'app-accounts', templateUrl: './accounts.html' })
 export class Accounts {
-  public readonly icons = {
-    add: faPlus,
-    edit: faPen,
-    delete: faTrash,
-  };
-
-  public readonly accounts = signal<Account[]>([
-    { name: 'شركة النيل للتصدير', email: 'ops@nile-exports.com', type: 'مصدر', status: 'نشط', joinedAt: '2026/07/01' },
-    { name: 'مزارع الفيوم الذكية', email: 'hello@fayoum-farms.eg', type: 'مزارع', status: 'معلق', joinedAt: '2026/07/10' },
-    { name: 'دلتا بيري', email: 'admin@delta-berry.eg', type: 'مزارع', status: 'موقوف', joinedAt: '2026/06/18' },
-  ]);
+  private readonly api = inject(GreenmindApi); private readonly destroyRef = inject(DestroyRef);
+  public readonly farms = signal<FarmAccount[]>([]); public readonly error = signal<string | null>(null);
+  public constructor() { this.load(); }
+  public load(): void { this.api.farms().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({ next: (result) => this.farms.set(result.items), error: () => this.error.set('تعذر تحميل حسابات المزارع.') }); }
+  public approve(id: number): void { this.api.approveFarm(id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({ next: () => this.load(), error: (e) => this.error.set(e.error?.error?.message ?? 'تعذرت الموافقة على المزرعة.') }); }
+  public toggle(farm: FarmAccount): void { this.api.setFarmStatus(farm.id, !farm.isActive).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({ next: () => this.load(), error: () => this.error.set('تعذر تغيير حالة الحساب.') }); }
 }

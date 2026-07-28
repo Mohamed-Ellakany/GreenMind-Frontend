@@ -1,0 +1,177 @@
+:host {
+  display: block;
+}
+
+.detail-stat-card {
+  display: flex;
+  min-height: 128px;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  border: 1px solid #dce6de;
+  border-radius: 1.25rem;
+  background: #fff;
+  padding: 1.25rem;
+  box-shadow: 0 8px 24px rgb(16 35 27 / 0.045);
+}
+
+.detail-stat-card div > span,
+.detail-stat-card div > small {
+  display: block;
+  color: #738078;
+  font-size: 0.72rem;
+}
+
+.detail-stat-card div > strong {
+  display: block;
+  margin-block: 0.4rem 0.25rem;
+  color: #10231b;
+  font-size: 1rem;
+  line-height: 1.4;
+}
+
+.detail-stat-card > i {
+  display: grid;
+  width: 2.6rem;
+  height: 2.6rem;
+  flex: 0 0 auto;
+  place-items: center;
+  border-radius: 0.9rem;
+  font-size: 1.1rem;
+  font-style: normal;
+  font-weight: 900;
+}
+
+.task-timeline {
+  position: relative;
+  display: grid;
+  gap: 0;
+  padding-right: 0.25rem;
+}
+
+.task-timeline::before {
+  content: '';
+  position: absolute;
+  top: 1.2rem;
+  right: 1.1rem;
+  bottom: 1.2rem;
+  width: 2px;
+  background: #e2e9e4;
+}
+
+.task-timeline li {
+  position: relative;
+  display: grid;
+  grid-template-columns: 2.25rem minmax(0, 1fr);
+  gap: 1rem;
+  align-items: start;
+  padding-bottom: 1.1rem;
+}
+
+.task-timeline li:last-child {
+  padding-bottom: 0;
+}
+
+.task-dot {
+  z-index: 1;
+  display: grid;
+  width: 2.25rem;
+  height: 2.25rem;
+  place-items: center;
+  border: 2px solid #d8e2da;
+  border-radius: 50%;
+  background: #fff;
+  color: #78847c;
+  font-size: 0.72rem;
+  font-weight: 900;
+}
+
+.task-content {
+  border: 1px solid #e3e9e4;
+  border-radius: 1rem;
+  background: #fbfcfb;
+  padding: 1rem;
+}
+
+.task-timeline li.is-complete .task-dot {
+  border-color: #0f7a3d;
+  background: #0f7a3d;
+  color: #fff;
+}
+
+.task-timeline li.is-current .task-dot {
+  border-color: #0f7a3d;
+  color: #0f7a3d;
+  box-shadow: 0 0 0 5px rgb(15 122 61 / 0.1);
+}
+
+.task-timeline li.is-current .task-content {
+  border-color: #8cc69a;
+  background: #f5fbf6;
+  box-shadow: 0 8px 20px rgb(15 122 61 / 0.07);
+}
+
+.soil-metrics {
+  display: grid;
+  gap: 1rem;
+}
+
+.soil-metrics > div > span {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  font-size: 0.75rem;
+}
+
+.soil-metrics > div > span strong {
+  color: #0f7a3d;
+  font-size: 0.9rem;
+}
+
+.soil-metrics > div > i {
+  display: block;
+  height: 0.45rem;
+  margin-block: 0.45rem;
+  overflow: hidden;
+  border-radius: 99px;
+  background: #e9efea;
+}
+
+.soil-metrics > div > i > em {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #62bd76, #0f7a3d);
+}
+
+.soil-metrics > div > small {
+  color: #879189;
+  font-size: 0.65rem;
+}
+
+.field-unit {
+  position: absolute;
+  top: 50%;
+  left: 0.9rem;
+  color: #8a968f;
+  font-size: 0.65rem;
+  font-weight: 700;
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
+table small {
+  color: #95a098;
+  font-size: 0.6rem;
+}
+
+@media (max-width: 639px) {
+  .task-timeline li {
+    gap: 0.7rem;
+  }
+
+  .task-content {
+    padding: 0.85rem;
+  }
+}

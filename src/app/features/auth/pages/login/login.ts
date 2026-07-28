@@ -31,14 +31,34 @@ export class Login {
     minLength(path.password, 8, { message: 'كلمة المرور يجب أن تكون 8 أحرف على الأقل.' });
   });
 
-  protected async onSubmit(): Promise<void> {
+  protected async onSubmit(event: SubmitEvent): Promise<void> {
+    // Signal Forms does not install the FormsModule submit directive, so a
+    // plain `(submit)` listener must cancel the browser's native GET request.
+    event.preventDefault();
+
     await submit(this.loginForm, async () => {
       try {
         await firstValueFrom(this.authService.login(this.loginModel()));
-        this.submitted.set(true);
-        this.router.navigateByUrl('/dashboard');
       } catch {
         // authService.error() already surfaces the message in the template.
+        return;
+      }
+
+      const destination = this.authService.homeUrl();
+      this.submitted.set(true);
+
+      try {
+        const navigated = await this.router.navigateByUrl(destination, { replaceUrl: true });
+
+        // A guard or a stale lazy-loaded route can cancel navigation without
+        // throwing. Reloading from the authenticated URL gives the router a
+        // clean initial navigation and prevents the success screen from
+        // remaining indefinitely on /auth/login.
+        if (!navigated || this.router.url.startsWith('/auth/')) {
+          globalThis.location.replace(destination);
+        }
+      } catch {
+        globalThis.location.replace(destination);
       }
     });
   }

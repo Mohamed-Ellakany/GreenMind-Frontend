@@ -1,59 +1,37 @@
-# Greenmind
+# GreenMind frontend
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 21.2.9.
+Angular frontend for the GreenMind API. Authentication, farmer export plans/tasks/dashboards, planning progress, and administrator master-data screens use the backend API through the development proxy.
 
-## Development server
+## Prerequisites
 
-To start a local development server, run:
+- Node.js 22.12 or newer in the supported 22.x line (verified with 22.22.3)
+- npm 11
+- The backend running at `https://localhost:7132`
 
-```bash
-ng serve
+## Install and run
+
+Run these commands from `GreenMind-Frontend`:
+
+```powershell
+npm ci
+npm start
 ```
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+Open `http://localhost:4200`. Requests beginning with `/api` are proxied to the HTTPS backend configured in `proxy.conf.json`, so no browser CORS configuration is needed during local development.
 
-## Code scaffolding
+## Test the full flow
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+1. Register a new farm owner in the frontend.
+2. Log in as `admin@local` with `ChangeMe!P@ssw0rd` and approve the new farm in Accounts.
+3. Log out, then log in as the farm owner.
+4. Open Export Plans and create a plan whose expected export date is in the future.
+5. The plan appears immediately. Its AI planning badge moves through Pending and In Progress to Succeeded.
+6. Open Dashboard or Activities to view and complete the generated tasks.
+7. If external AI or weather configuration fails, the plan shows Failed and exposes a Retry action.
 
-```bash
-ng generate component component-name
+## Build and test
+
+```powershell
+npm run build
+npm test -- --watch=false
 ```
-
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
-
-```bash
-ng generate --help
-```
-
-## Building
-
-To build the project run:
-
-```bash
-ng build
-```
-
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
-
-## Running unit tests
-
-To execute unit tests with the [Vitest](https://vitest.dev/) test runner, use the following command:
-
-```bash
-ng test
-```
-
-## Running end-to-end tests
-
-For end-to-end (e2e) testing, run:
-
-```bash
-ng e2e
-```
-
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
-
-## Additional Resources
-
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.

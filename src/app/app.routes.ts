@@ -1,4 +1,5 @@
 import { Routes } from '@angular/router';
+import { authGuard, roleGuard } from '@core/auth/auth.guards';
 
 export const routes: Routes = [
   {
@@ -13,6 +14,7 @@ export const routes: Routes = [
   },
   {
     path: 'admin-dashboard',
+    canActivate: [authGuard, roleGuard('Admin')],
     loadComponent: () => import('@features/admin-dashboard/layout/admin-dashboard-layout').then((m) => m.AdminDashboardLayout),
     children: [
       { path: 'control-panel', loadComponent: () => import('@features/admin-dashboard/control-panel/control-panel').then((m) => m.ControlPanel) },
@@ -24,9 +26,11 @@ export const routes: Routes = [
   },
   {
     path: '',
+    canActivate: [authGuard, roleGuard('FarmOwner')],
     loadComponent: () => import('./layouts/main-layout/main-layout').then((m) => m.MainLayout),
     children: [
       { path: 'dashboard', loadComponent: () => import('@features/dashboard/pages/dashboard/dashboard').then((m) => m.Dashboard) },
+      { path: 'export-plans/:id', loadComponent: () => import('@features/dashboard/pages/export-plan-details/export-plan-details').then((m) => m.ExportPlanDetailsPage) },
       { path: 'export-plans', loadComponent: () => import('@features/dashboard/pages/export-plan/export-plans').then((m) => m.ExportPlans) },
       { path: 'activities', loadComponent: () => import('@features/dashboard/pages/dashboard/activities/activities').then((m) => m.Activities) },
       { path: 'ai-agent', loadComponent: () => import('@features/dashboard/pages/Ai-Agent/ai-agent').then((m) => m.AiAgent) },

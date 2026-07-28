@@ -1,27 +1,20 @@
-<div class="admin-shell min-h-dvh bg-[#f6f9fc] text-[#001c37]" dir="rtl">
-  @if (mobileMenuOpen()) {
-    <button class="fixed inset-0 z-30 bg-slate-950/25 lg:hidden" aria-label="إغلاق القائمة" (click)="closeMobileMenu()"></button>
-  }
-
-  <aside class="admin-aside fixed bottom-0 right-0 top-0 z-40 flex w-[280px] flex-col border-l border-[#e2e8f0] bg-white py-8 transition-[width,transform] duration-200" [class.is-open]="mobileMenuOpen()" [class.admin-aside-collapsed]="asideCollapsed()">
-    <button class="admin-collapse-button grid" type="button" aria-label="تصغير القائمة" [attr.aria-expanded]="!asideCollapsed()" (click)="toggleAside()">
-      <fa-icon [icon]="icons.collapse" />
-    </button>
-
-    <nav class="admin-nav flex-1 space-y-5 overflow-y-auto px-3 pt-10">
+<div class="admin-shell min-h-dvh bg-[#f4f7f4] text-[#10231b]" dir="rtl">
+  @if (mobileMenuOpen()) {<button class="fixed inset-0 z-40 bg-[#10231b]/45 backdrop-blur-[2px] lg:hidden" aria-label="إغلاق القائمة" (click)="closeMobileMenu()"></button>}
+  <aside class="admin-aside fixed inset-y-0 right-0 z-50 flex w-[278px] flex-col border-l border-[#dde6df] bg-[#10231b] text-white" [class.is-open]="mobileMenuOpen()" [class.admin-aside-collapsed]="asideCollapsed()">
+    <button class="admin-collapse-button hidden lg:grid" type="button" aria-label="تصغير القائمة" [attr.aria-expanded]="!asideCollapsed()" (click)="toggleAside()"><fa-icon [icon]="icons.collapse" /></button>
+    <div class="border-b border-white/10 px-5 py-5"><a routerLink="/admin-dashboard/control-panel" class="admin-brand flex items-center gap-3"><span class="grid size-11 shrink-0 place-items-center rounded-2xl bg-white"><img class="size-7" src="/greenmind-leaf.svg" alt="" /></span><span class="admin-nav-text"><strong class="block text-lg font-black">جرين مايند</strong><small class="text-xs text-white/50">مركز إدارة المنصة</small></span></a></div>
+    <div class="admin-nav-text mx-4 mt-4 rounded-2xl border border-white/10 bg-white/5 p-3"><p class="text-[10px] font-bold text-white/45">بيئة التشغيل</p><div class="mt-2 flex items-center gap-2 text-xs font-bold"><i class="size-2 rounded-full bg-[#d8f36a]"></i> جميع الأنظمة تعمل</div></div>
+    <nav class="admin-nav flex-1 space-y-1 overflow-y-auto px-3 py-6" aria-label="إدارة المنصة">
+      <p class="admin-nav-text mb-2 px-3 text-[10px] font-bold text-white/35">مساحة الإدارة</p>
       <a routerLink="/admin-dashboard/control-panel" routerLinkActive="admin-nav-link-active" class="admin-nav-link" title="لوحة القيادة" (click)="closeMobileMenu()"><fa-icon class="admin-nav-icon" [icon]="icons.dashboard" /><span class="admin-nav-text">لوحة القيادة</span></a>
-      <a routerLink="/admin-dashboard/accounts" routerLinkActive="admin-nav-link-active" class="admin-nav-link" title="الحسابات" (click)="closeMobileMenu()"><fa-icon class="admin-nav-icon" [icon]="icons.accounts" /><span class="admin-nav-text">الحسابات</span></a>
-      <a routerLink="/admin-dashboard/destinations" routerLinkActive="admin-nav-link-active" class="admin-nav-link" title="الوجهات" (click)="closeMobileMenu()"><fa-icon class="admin-nav-icon" [icon]="icons.destinations" /><span class="admin-nav-text">الوجهات</span></a>
-      <a routerLink="/admin-dashboard/products" routerLinkActive="admin-nav-link-active" class="admin-nav-link" title="المنتجات" (click)="closeMobileMenu()"><fa-icon class="admin-nav-icon" [icon]="icons.products" /><span class="admin-nav-text">المنتجات</span></a>
-      <a routerLink="/auth/login" class="admin-nav-link admin-nav-danger mt-4" title="تسجيل الخروج" (click)="closeMobileMenu()"><fa-icon class="admin-nav-icon" [icon]="icons.logout" /><span class="admin-nav-text">تسجيل الخروج</span></a>
+      <a routerLink="/admin-dashboard/accounts" routerLinkActive="admin-nav-link-active" class="admin-nav-link" title="حسابات المزارع" (click)="closeMobileMenu()"><fa-icon class="admin-nav-icon" [icon]="icons.accounts" /><span class="admin-nav-text">حسابات المزارع</span></a>
+      <a routerLink="/admin-dashboard/destinations" routerLinkActive="admin-nav-link-active" class="admin-nav-link" title="وجهات التصدير" (click)="closeMobileMenu()"><fa-icon class="admin-nav-icon" [icon]="icons.destinations" /><span class="admin-nav-text">وجهات التصدير</span></a>
+      <a routerLink="/admin-dashboard/products" routerLinkActive="admin-nav-link-active" class="admin-nav-link" title="المحاصيل" (click)="closeMobileMenu()"><fa-icon class="admin-nav-icon" [icon]="icons.products" /><span class="admin-nav-text">المحاصيل</span></a>
     </nav>
+    <div class="border-t border-white/10 p-3"><div class="admin-nav-text mb-2 flex items-center gap-3 rounded-xl bg-white/5 p-3"><span class="grid size-9 place-items-center rounded-xl bg-[#d8f36a] text-xs font-black text-[#31430b]">م</span><div><strong class="block text-xs">مدير المنصة</strong><small class="text-[10px] text-white/45">صلاحية كاملة</small></div></div><button type="button" class="admin-nav-link admin-nav-danger w-full" title="تسجيل الخروج" (click)="logout()"><fa-icon class="admin-nav-icon" [icon]="icons.logout" /><span class="admin-nav-text">تسجيل الخروج</span></button></div>
   </aside>
-
-  @if (!mobileMenuOpen()) {
-    <button class="admin-mobile-burger grid size-11 place-items-center rounded-xl border border-[#e2e8f0] bg-white text-lg shadow-sm lg:hidden" aria-label="فتح القائمة" [attr.aria-expanded]="mobileMenuOpen()" (click)="openMobileMenu()"><fa-icon [icon]="icons.burger" /></button>
-  }
-
-  <main class="admin-main min-h-dvh p-4 pt-20 transition-[margin] duration-200 sm:p-6 sm:pt-20 lg:p-10" [class.admin-main-collapsed]="asideCollapsed()">
-    <router-outlet />
-  </main>
+  <div class="admin-content" [class.admin-content-collapsed]="asideCollapsed()">
+    <header class="sticky top-0 z-30 flex h-[72px] items-center justify-between border-b border-[#dde6df] bg-white/90 px-4 backdrop-blur-xl sm:px-7"><div class="flex items-center gap-3"><button class="grid size-10 place-items-center rounded-xl border border-[#dde6df] lg:hidden" aria-label="فتح القائمة" [attr.aria-expanded]="mobileMenuOpen()" (click)="openMobileMenu()"><fa-icon [icon]="icons.burger" /></button><div><p class="text-[10px] font-bold text-[#8a968f]">جرين مايند</p><p class="text-sm font-black">إدارة المنصة</p></div></div><span class="rounded-full border border-[#dbe9de] bg-[#f3faf5] px-3 py-2 text-xs font-bold text-[#0f7a3d]">نسخة الإنتاج</span></header>
+    <main class="min-h-[calc(100dvh-72px)] p-4 sm:p-7 lg:p-8"><router-outlet /></main>
+  </div>
 </div>

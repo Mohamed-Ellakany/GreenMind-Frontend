@@ -1,45 +1,58 @@
-import { Component, computed, signal } from '@angular/core';
-
-type Task = { title: string; time: string; tag: string; completed: boolean };
-type PlanStatus = 'قيد التنفيذ' | 'قيد التخطيط' | 'مكتملة';
-type ExportPlan = { code: string; title: string; market: string; status: PlanStatus; progress: number; crop: string; dateLabel: string; date: string; image: string };
+import { Component, DestroyRef, inject, signal } from '@angular/core';
+import { RouterLink } from '@angular/router';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { finalize, switchMap } from 'rxjs';
+import { GreenmindApi } from '@core/api/greenmind-api.service';
+import { DashboardTask, ExportPlan, ExportPlanDashboard } from '@core/api/api.models';
 
 @Component({
   selector: 'app-dashboard',
+  imports: [RouterLink],
   templateUrl: './dashboard-view.html',
 })
 export class Dashboard {
-  public readonly search = signal('');
-  public readonly alertVisible = signal(true);
-  public readonly scheduleApplied = signal(false);
-  public readonly tasks = signal<Task[]>([
-    { title: 'دورة الري C', time: 'اليوم، 14:00', tag: 'روتينية', completed: false },
-    { title: 'فحص مكافحة الآفات', time: 'غداً، 08:00', tag: 'مهمة', completed: false },
-  ]);
-  public readonly filteredTasks = computed(() => {
-    const term = this.search().trim();
-    return term ? this.tasks().filter((task) => task.title.includes(term)) : this.tasks();
-  });
-  public readonly selectedTab = signal<'الكل' | 'نشطة' | 'مكتملة' | 'قيد التخطيط'>('الكل');
-  public readonly plans = signal<ExportPlan[]>([
-    { code: 'EX-2023-A', title: 'إكسبريس أوروبا - الربع الرابع', market: 'سوق ألمانيا', status: 'قيد التنفيذ', progress: 72, crop: 'فراولة', dateLabel: 'النهاية المتوقعة', date: '24 أكتوبر 2023', image: 'https://images.unsplash.com/photo-1464965911861-746a04b4bca6?auto=format&fit=crop&w=900&q=85' },
-    { code: 'EX-2023-B', title: 'لوجستيات الخليج الممتازة', market: 'المملكة العربية السعودية', status: 'قيد التخطيط', progress: 15, crop: 'فراولة', dateLabel: 'تاريخ الانطلاق', date: '05 نوفمبر 2023', image: 'https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?auto=format&fit=crop&w=900&q=85' },
-    { code: 'EX-2023-C', title: 'بافاريا الموسمية بالجملة', market: 'سوق ألمانيا', status: 'مكتملة', progress: 100, crop: 'فراولة', dateLabel: 'تاريخ الأرشفة', date: '12 سبتمبر 2023', image: 'https://images.unsplash.com/photo-1567306226416-28f0efdc88ce?auto=format&fit=crop&w=900&q=85' },
-    { code: 'EX-2023-D', title: 'دورة تجزئة الرياض', market: 'المملكة العربية السعودية', status: 'قيد التنفيذ', progress: 45, crop: 'فراولة', dateLabel: 'النهاية المتوقعة', date: '30 نوفمبر 2023', image: 'https://images.unsplash.com/photo-1518977822534-7049a61ee0c2?auto=format&fit=crop&w=900&q=85' },
-  ]);
-  public readonly filteredPlans = computed(() => {
-    const term = this.search().trim(); const tab = this.selectedTab();
-    return this.plans().filter(plan => (!term || [plan.title, plan.market, plan.code, plan.crop].some(value => value.includes(term))) && (tab === 'الكل' || (tab === 'نشطة' ? plan.status === 'قيد التنفيذ' : plan.status === tab)));
-  });
+  private readonly api = inject(GreenmindApi);
+  private readonly destroyRef = inject(DestroyRef);
 
-  public applySchedule(): void {
-    this.scheduleApplied.set(true);
-    this.alertVisible.set(false);
+  public readonly plans = signal<ExportPlan[]>([]);
+  public readonly selectedPlanId = signal<number | null>(null);
+  public readonly data = signal<ExportPlanDashboard | null>(null);
+  public readonly loading = signal(true);
+  public readonly error = signal<string | null>(null);
+  public readonly updatingTaskId = signal<number | null>(null);
+
+  public constructor() {
+    this.api.exportPlans().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      next: (plans) => {
+        this.plans.set(plans);
+        const selected = plans.find((plan) => plan.planningStatus === 'Succeeded') ?? plans[0];
+        if (selected) this.selectPlan(selected.id);
+        else this.loading.set(false);
+      },
+      error: () => { this.error.set('تعذر تحميل خطط التصدير.'); this.loading.set(false); },
+    });
   }
 
-  public toggleTask(title: string): void {
-    this.tasks.update((tasks) => tasks.map((task) => task.title === title ? { ...task, completed: !task.completed } : task));
+  public selectPlan(id: number): void {
+    this.selectedPlanId.set(id);
+    this.loading.set(true);
+    this.error.set(null);
+    this.api.dashboard(id).pipe(
+      finalize(() => this.loading.set(false)),
+      takeUntilDestroyed(this.destroyRef),
+    ).subscribe({ next: (data) => this.data.set(data), error: () => this.error.set('تعذر تحميل لوحة الخطة.') });
   }
 
-  public selectTab(tab: 'الكل' | 'نشطة' | 'مكتملة' | 'قيد التخطيط'): void { this.selectedTab.set(tab); }
+  public toggleTask(task: DashboardTask): void {
+    this.updatingTaskId.set(task.id);
+    const completed = task.status === 'Completed';
+    const body = completed
+      ? { status: 'Pending' }
+      : { status: 'Completed', actualDate: new Date().toISOString().slice(0, 10) };
+    this.api.updateTask(task.id, body).pipe(
+      switchMap(() => this.api.dashboard(this.selectedPlanId()!)),
+      finalize(() => this.updatingTaskId.set(null)),
+      takeUntilDestroyed(this.destroyRef),
+    ).subscribe({ next: (data) => this.data.set(data), error: () => this.error.set('تعذر تحديث المهمة.') });
+  }
 }

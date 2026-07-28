@@ -1,123 +1,91 @@
-<div class="min-h-dvh bg-[#f8f9ff] text-[#001c37]" dir="rtl">
-  <nav class="sticky top-0 z-50 border-b border-slate-200 bg-white/85 px-4 backdrop-blur md:px-10">
-    <div class="mx-auto flex h-16 max-w-[1440px] items-center justify-between gap-6">
-      <a class="flex items-center gap-2 text-xl font-black text-[#16A34A]" href="#">
-        <img class="size-9 rounded-xl bg-green-100 p-1.5" src="/greenmind-leaf.svg" alt="GreenMind" />
-        GreenMind
+<div class="min-h-dvh overflow-hidden bg-[#f6f8f5] text-[#10231b]" dir="rtl">
+  <nav class="fixed inset-x-0 top-0 z-50 px-3 pt-3 sm:px-6">
+    <div class="mx-auto flex h-16 max-w-[1240px] items-center justify-between rounded-2xl border border-white/70 bg-white/90 px-4 shadow-[0_10px_40px_rgba(16,35,27,.08)] backdrop-blur-xl sm:px-5">
+      <a class="flex items-center gap-2.5" href="#top" aria-label="جرين مايند - الرئيسية">
+        <span class="grid size-10 place-items-center rounded-xl bg-[#e7f5eb]"><img class="size-7" src="/greenmind-leaf.svg" alt="" /></span>
+        <span><strong class="block text-base font-black leading-4">جرين مايند</strong><small class="text-[10px] font-semibold text-[#738078]">زراعة أذكى. تصدير أقوى.</small></span>
       </a>
-
-      <div class="hidden items-center gap-6 text-sm font-semibold text-slate-600 md:flex">
-        <a class="text-[#16A34A]" href="#">الرئيسية</a>
-        <a class="transition hover:text-[#16A34A]" href="#features">المميزات</a>
-        <a class="transition hover:text-[#16A34A]" href="#platform">المنصة</a>
-        <a class="transition hover:text-[#16A34A]" href="#contact">تواصل معنا</a>
+      <div class="hidden items-center gap-1 rounded-full bg-[#f3f6f3] p-1 text-sm font-bold text-[#65736c] md:flex">
+        <a class="rounded-full bg-white px-4 py-2 text-[#0f7a3d] shadow-sm" href="#top">الرئيسية</a>
+        <a class="rounded-full px-4 py-2 transition hover:bg-white hover:text-[#10231b]" href="#features">الحلول</a>
+        <a class="rounded-full px-4 py-2 transition hover:bg-white hover:text-[#10231b]" href="#platform">كيف تعمل؟</a>
+        <a class="rounded-full px-4 py-2 transition hover:bg-white hover:text-[#10231b]" href="#contact">تواصل معنا</a>
       </div>
-
-      <div class="flex items-center gap-3">
-        <a routerLink="/auth/login" class="hidden rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-bold text-slate-700 transition hover:bg-slate-50 sm:inline-flex">تسجيل الدخول</a>
-        <a routerLink="/dashboard" class="rounded-full bg-[#16A34A] px-5 py-2.5 text-sm font-bold text-white shadow-sm transition hover:bg-[#12863e]">ابدأ الآن</a>
+      <div class="flex items-center gap-2">
+        <a routerLink="/auth/login" class="hidden rounded-xl px-4 py-2.5 text-sm font-bold text-[#526158] transition hover:bg-[#f3f6f3] sm:inline-flex">تسجيل الدخول</a>
+        <a routerLink="/auth/register" class="rounded-xl bg-[#10231b] px-4 py-2.5 text-sm font-bold text-white shadow-lg shadow-[#10231b]/15 transition hover:-translate-y-0.5 hover:bg-[#0f7a3d] sm:px-5">ابدأ مجاناً</a>
       </div>
     </div>
   </nav>
 
-  <header class="relative flex min-h-[calc(100dvh-4rem)] items-center overflow-hidden">
-    <img class="absolute inset-0 size-full object-cover" src="/landing-page/hero-farm.png" alt="مزرعة فراولة ذكية بتقنيات حديثة" />
-    <div class="absolute inset-0 bg-gradient-to-l from-black/75 via-black/45 to-black/20"></div>
+  <main id="top">
+    <header class="relative px-4 pb-16 pt-28 sm:px-6 sm:pb-24 sm:pt-32">
+      <div class="pointer-events-none absolute -right-32 top-20 size-[420px] rounded-full bg-[#d8f36a]/25 blur-3xl"></div>
+      <div class="mx-auto grid max-w-[1240px] items-center gap-10 lg:grid-cols-[.86fr_1.14fr] lg:gap-14">
+        <div class="relative z-10">
+          <span class="inline-flex items-center gap-2 rounded-full border border-[#cfe0d2] bg-white px-3 py-2 text-xs font-bold text-[#0f7a3d] shadow-sm"><i class="size-2 rounded-full bg-[#20a958]"></i> منصة التصدير الزراعي الأولى المدعومة بالذكاء الاصطناعي</span>
+          <h1 class="mt-7 max-w-xl text-4xl font-black leading-[1.2] tracking-[-.035em] sm:text-5xl lg:text-[64px]">من المزرعة إلى الأسواق العالمية، <span class="text-[#0f7a3d]">بثقة.</span></h1>
+          <p class="mt-6 max-w-xl text-base leading-8 text-[#65736c] sm:text-lg">خطط موسمك، راقب متطلبات الجودة، واتخذ قرارات تصدير أفضل من مساحة عمل واحدة مصممة للمزارع المصري.</p>
+          <div class="mt-8 flex flex-col gap-3 sm:flex-row">
+            <a routerLink="/auth/register" class="inline-flex min-h-13 items-center justify-center rounded-2xl bg-[#0f7a3d] px-7 py-3.5 text-sm font-black text-white shadow-[0_12px_30px_rgba(15,122,61,.22)] transition hover:-translate-y-0.5 hover:bg-[#075d2d]">أنشئ حسابك مجاناً <span class="mr-3 text-lg">←</span></a>
+            <a href="#platform" class="inline-flex min-h-13 items-center justify-center rounded-2xl border border-[#d3ddd5] bg-white px-7 py-3.5 text-sm font-black text-[#10231b] transition hover:border-[#a9bbaa] hover:bg-[#fbfdfb]">اكتشف طريقة العمل</a>
+          </div>
+          <div class="mt-9 flex flex-wrap items-center gap-x-6 gap-y-3 text-xs font-bold text-[#65736c]"><span class="flex items-center gap-2"><b class="grid size-5 place-items-center rounded-full bg-[#e7f5eb] text-[#0f7a3d]">✓</b> إعداد سريع</span><span class="flex items-center gap-2"><b class="grid size-5 place-items-center rounded-full bg-[#e7f5eb] text-[#0f7a3d]">✓</b> قرارات مبنية على البيانات</span><span class="flex items-center gap-2"><b class="grid size-5 place-items-center rounded-full bg-[#e7f5eb] text-[#0f7a3d]">✓</b> دعم باللغة العربية</span></div>
+        </div>
 
-    <div class="relative z-10 mx-auto w-full max-w-[1440px] px-4 py-20 md:px-10">
-      <div class="max-w-3xl text-white">
-        <span class="mb-5 inline-flex rounded-full border border-white/25 bg-white/10 px-4 py-2 text-xs font-bold backdrop-blur">من البذرة إلى التصدير</span>
-        <h1 class="text-4xl font-black leading-tight md:text-6xl">
-          ثورة الفراولة الذكية في مصر
-        </h1>
-        <p class="mt-6 max-w-2xl text-base leading-8 text-white/90 md:text-lg">
-          منصة مدعومة بالذكاء الاصطناعي تساعد المزارعين المصريين على التخطيط، المراقبة، وإتقان معايير التصدير العالمية لزيادة الربحية والاستدامة.
-        </p>
-        <div class="mt-9 flex flex-col gap-3 sm:flex-row">
-          <a routerLink="/dashboard" class="inline-flex items-center justify-center rounded-full bg-[#16A34A] px-8 py-4 text-base font-bold text-white shadow-lg transition hover:bg-[#12863e]">ابدأ الآن</a>
-          <a href="#platform" class="inline-flex items-center justify-center rounded-full border border-white/30 bg-white/10 px-8 py-4 text-base font-bold text-white backdrop-blur transition hover:bg-white/20">شاهد المنصة</a>
+        <div class="relative lg:pl-4">
+          <div class="overflow-hidden rounded-[32px] border-[6px] border-white bg-white shadow-[0_30px_80px_rgba(16,35,27,.2)]">
+            <img class="aspect-[4/3] size-full object-cover" src="/landing-page/hero-farm.png" alt="مزرعة فراولة ذكية تستخدم تقنيات الري والمراقبة الحديثة" />
+            <div class="absolute inset-x-8 bottom-8 flex items-center justify-between rounded-2xl border border-white/40 bg-[#10231b]/80 p-4 text-white shadow-xl backdrop-blur-xl sm:inset-x-auto sm:right-8 sm:w-[330px]">
+              <div><p class="text-xs text-white/65">جاهزية التصدير</p><strong class="mt-1 block text-lg">الموسم يسير بثبات</strong></div><div class="relative grid size-14 place-items-center rounded-full bg-white/10 text-sm font-black"><span>86%</span><i class="absolute inset-1 rounded-full border-2 border-[#d8f36a] border-r-transparent"></i></div>
+            </div>
+          </div>
+          <div class="absolute -left-3 top-8 hidden rounded-2xl border border-[#dbe5dd] bg-white p-3 shadow-[0_14px_35px_rgba(16,35,27,.12)] sm:flex sm:items-center sm:gap-3"><span class="grid size-10 place-items-center rounded-xl bg-[#fff3df] text-lg">☀</span><div><small class="text-[#738078]">طقس اليوم</small><strong class="block">28° · مناسب للري</strong></div></div>
         </div>
       </div>
-    </div>
-  </header>
+    </header>
 
-  <section id="features" class="px-4 py-24 md:px-10">
-    <div class="mx-auto max-w-[1440px]">
-      <div class="mb-14 text-center">
-        <span class="text-xs font-black tracking-widest text-[#16A34A]">الذكاء الزراعي</span>
-        <h2 class="mt-3 text-3xl font-black md:text-4xl">حلول تقنية لمستقبل الزراعة</h2>
+    <section class="border-y border-[#e2e9e3] bg-white px-4 py-7 sm:px-6">
+      <div class="mx-auto grid max-w-[1120px] grid-cols-2 gap-6 text-center md:grid-cols-4">
+        <div><strong class="text-2xl font-black text-[#0f7a3d] sm:text-3xl">24/7</strong><p class="mt-1 text-xs text-[#738078]">مراقبة مستمرة</p></div>
+        <div class="border-r border-[#e2e9e3]"><strong class="text-2xl font-black sm:text-3xl">+30%</strong><p class="mt-1 text-xs text-[#738078]">وضوح في التخطيط</p></div>
+        <div class="border-r border-[#e2e9e3] md:border-r"><strong class="text-2xl font-black sm:text-3xl">3</strong><p class="mt-1 text-xs text-[#738078]">أسواق تصدير مستهدفة</p></div>
+        <div class="border-r border-[#e2e9e3]"><strong class="text-2xl font-black sm:text-3xl">AI</strong><p class="mt-1 text-xs text-[#738078]">مستشار زراعي سياقي</p></div>
       </div>
+    </section>
 
-      <div class="grid gap-6 md:grid-cols-3">
-        @for (feature of features; track feature.title) {
-          <article class="rounded-2xl bg-white p-8 shadow-[0_4px_20px_rgba(10,37,64,.05)] transition hover:shadow-[0_8px_30px_rgba(10,37,64,.08)]">
-            <span class="mb-6 grid size-14 place-items-center rounded-xl bg-green-100 text-2xl font-black text-[#16A34A]">{{ feature.icon }}</span>
-            <h3 class="mb-4 text-xl font-black">{{ feature.title }}</h3>
-            <p class="leading-7 text-slate-600">{{ feature.description }}</p>
-          </article>
-        }
-      </div>
-    </div>
-  </section>
-
-  <section class="bg-white px-4 py-24 md:px-10">
-    <div class="mx-auto grid max-w-[1440px] gap-10 lg:grid-cols-[.9fr_1.1fr] lg:items-center">
-      <div>
-        <span class="text-xs font-black tracking-widest text-[#16A34A]">لماذا جرين مايند؟</span>
-        <h2 class="mt-3 text-3xl font-black md:text-4xl">منصة واحدة لإدارة الموسم والتصدير</h2>
-        <div class="mt-8 grid gap-5 sm:grid-cols-2">
-          @for (benefit of benefits; track benefit.title) {
-            <article class="flex gap-4">
-              <span class="grid size-11 shrink-0 place-items-center rounded-full bg-[#16A34A] text-lg font-black text-white">{{ benefit.icon }}</span>
-              <div>
-                <h3 class="font-black">{{ benefit.title }}</h3>
-                <p class="mt-1 text-sm leading-6 text-slate-600">{{ benefit.description }}</p>
-              </div>
+    <section id="features" class="px-4 py-20 sm:px-6 sm:py-28">
+      <div class="mx-auto max-w-[1240px]">
+        <div class="mx-auto mb-12 max-w-2xl text-center"><span class="text-xs font-black text-[#0f7a3d]">قرارات أذكى في كل مرحلة</span><h2 class="mt-3 text-3xl font-black tracking-tight sm:text-4xl">كل ما تحتاجه لإدارة موسم ناجح</h2><p class="mt-4 leading-7 text-[#65736c]">أدوات عملية تحول البيانات الزراعية ومتطلبات الأسواق إلى خطوات واضحة قابلة للتنفيذ.</p></div>
+        <div class="grid gap-5 md:grid-cols-3">
+          @for (feature of features; track feature.title; let i = $index) {
+            <article class="group rounded-[24px] border border-[#dde6df] bg-white p-7 shadow-[0_10px_35px_rgba(16,35,27,.045)] transition hover:-translate-y-1 hover:border-[#bdd2c1] hover:shadow-[0_18px_45px_rgba(16,35,27,.09)]">
+              <div class="mb-8 flex items-center justify-between"><span class="grid size-13 place-items-center rounded-2xl text-xl font-black" [class.bg-[#e7f5eb]]="i === 0" [class.text-[#0f7a3d]]="i === 0" [class.bg-[#edf2ff]]="i === 1" [class.text-[#4664a6]]="i === 1" [class.bg-[#fff3df]]="i === 2" [class.text-[#b26414]]="i === 2">{{ feature.icon }}</span><span class="text-xs font-black text-[#c1cbc3]">0{{ i + 1 }}</span></div>
+              <h3 class="text-xl font-black">{{ feature.title }}</h3><p class="mt-3 text-sm leading-7 text-[#65736c]">{{ feature.description }}</p><span class="mt-6 inline-flex text-sm font-black text-[#0f7a3d]">اعرف المزيد <b class="mr-2 transition group-hover:-translate-x-1">←</b></span>
             </article>
           }
         </div>
       </div>
-      <img class="min-h-[360px] rounded-2xl object-cover shadow-[0_20px_60px_rgba(15,23,42,.15)]" src="/landing-page/greenhouse.png" alt="بيوت زجاجية زراعية حديثة" />
-    </div>
-  </section>
+    </section>
 
-  <section id="platform" class="px-4 py-24 md:px-10">
-    <div class="mx-auto grid max-w-[1440px] gap-6 md:grid-cols-12">
-      <article class="relative overflow-hidden rounded-2xl bg-slate-100 p-8 md:col-span-8 md:min-h-[420px]">
-        <div class="relative z-10 max-w-md">
-          <h2 class="text-2xl font-black">لوحة تحكم ذكية وشاملة</h2>
-          <p class="mt-3 leading-7 text-slate-600">راقب كل فدان، كل شتلة، وكل عملية تصدير من واجهة واحدة سهلة الاستخدام.</p>
-          <a routerLink="/dashboard" class="mt-6 inline-flex font-black text-[#16A34A]">استكشف النظام ←</a>
+    <section id="platform" class="bg-[#10231b] px-4 py-20 text-white sm:px-6 sm:py-28">
+      <div class="mx-auto grid max-w-[1240px] items-center gap-12 lg:grid-cols-2 lg:gap-20">
+        <div class="relative">
+          <img class="aspect-[5/4] w-full rounded-[28px] object-cover opacity-90 shadow-2xl" src="/landing-page/greenhouse.png" alt="صوبة زراعية حديثة تديرها تقنيات جرين مايند" />
+          <div class="absolute -bottom-5 left-4 right-4 grid grid-cols-3 rounded-2xl border border-white/15 bg-white/95 p-4 text-center text-[#10231b] shadow-xl sm:left-8 sm:right-8"><div><b class="block text-lg text-[#0f7a3d]">98%</b><small class="text-[10px] text-[#738078]">صحة المحصول</small></div><div class="border-x border-[#dde6df]"><b class="block text-lg">A+</b><small class="text-[10px] text-[#738078]">الامتثال</small></div><div><b class="block text-lg">12</b><small class="text-[10px] text-[#738078]">يوماً للحصاد</small></div></div>
         </div>
-        <div class="absolute -bottom-12 -left-8 w-[68%] rotate-3 rounded-xl border border-slate-200 bg-white p-3 shadow-2xl transition hover:rotate-0">
-          <img class="aspect-video rounded-lg object-cover" src="/landing-page/hero-farm.png" alt="واجهة متابعة زراعية" />
-        </div>
-      </article>
-
-      <article class="flex flex-col items-center justify-center rounded-2xl bg-[#16A34A] p-8 text-center text-white md:col-span-4">
-        <span class="mb-5 text-6xl">▦</span>
-        <h2 class="text-2xl font-black">ابدأ رحلة التصدير اليوم</h2>
-        <p class="mt-3 leading-7 text-white/85">انضم إلى مزارع رائدة تستخدم جرين مايند لإدارة الجودة والأسواق.</p>
-        <a routerLink="/auth/register" class="mt-7 rounded-full bg-white px-7 py-3 font-black text-[#16A34A] transition hover:bg-green-50">تواصل معنا</a>
-      </article>
-    </div>
-  </section>
-
-  <footer id="contact" class="bg-[#001c37] px-4 py-14 text-white md:px-10">
-    <div class="mx-auto flex max-w-[1440px] flex-col justify-between gap-8 border-b border-white/10 pb-10 md:flex-row">
-      <div class="max-w-md">
-        <div class="mb-4 flex items-center gap-2 text-2xl font-black text-[#62df7d]">
-          <img class="size-9 rounded-xl bg-white/10 p-1.5" src="/greenmind-leaf.svg" alt="GreenMind" />
-          GreenMind
-        </div>
-        <p class="leading-7 text-white/65">نقود التحول الرقمي في قطاع تصدير الفراولة المصري باستخدام أحدث تقنيات الذكاء الاصطناعي.</p>
+        <div><span class="inline-flex rounded-full bg-white/10 px-3 py-2 text-xs font-black text-[#d8f36a]">منصة واحدة، رؤية كاملة</span><h2 class="mt-5 text-3xl font-black leading-tight sm:text-4xl">من التخطيط إلى الشحنة، نرتب لك الصورة كاملة.</h2><p class="mt-5 leading-8 text-white/65">بدلاً من التنقل بين جداول وملفات متفرقة، تجمع جرين مايند الموسم والمهام والامتثال والأسواق في تجربة واحدة واضحة.</p><div class="mt-8 space-y-5">@for (benefit of benefits; track benefit.title; let i = $index) {<article class="flex gap-4"><span class="grid size-10 shrink-0 place-items-center rounded-xl bg-white/10 font-black text-[#d8f36a]">{{ i + 1 }}</span><div><h3 class="font-black">{{ benefit.title }}</h3><p class="mt-1 text-sm leading-6 text-white/55">{{ benefit.description }}</p></div></article>}</div></div>
       </div>
-      <div class="grid gap-8 text-sm sm:grid-cols-3">
-        <div><h3 class="mb-3 font-black">الروابط</h3><p class="space-y-2 text-white/60">المميزات<br />عن المنصة<br />قصص النجاح</p></div>
-        <div><h3 class="mb-3 font-black">المصادر</h3><p class="space-y-2 text-white/60">مركز المساعدة<br />الدليل الزراعي<br />الأمان والخصوصية</p></div>
-        <div><h3 class="mb-3 font-black">ابدأ</h3><a routerLink="/dashboard" class="text-[#62df7d]">الدخول إلى المنصة</a></div>
+    </section>
+
+    <section class="px-4 py-20 sm:px-6 sm:py-28">
+      <div class="mx-auto max-w-[1240px] rounded-[32px] bg-[#d8f36a] px-6 py-12 text-center shadow-[0_24px_60px_rgba(82,109,17,.16)] sm:px-12 sm:py-16">
+        <span class="text-xs font-black text-[#526d11]">موسمك القادم يبدأ بقرار</span><h2 class="mx-auto mt-3 max-w-3xl text-3xl font-black leading-tight tracking-tight sm:text-5xl">حوّل بيانات مزرعتك إلى خطة تصدير قابلة للتنفيذ.</h2><p class="mx-auto mt-5 max-w-xl leading-7 text-[#41530f]">ابدأ بخطوات بسيطة، واترك للمنصة ترتيب المهام والمواعيد ومتطلبات السوق.</p><a routerLink="/auth/register" class="mt-8 inline-flex min-h-13 items-center rounded-2xl bg-[#10231b] px-8 py-3.5 text-sm font-black text-white transition hover:-translate-y-0.5 hover:bg-[#0f7a3d]">ابدأ الآن مجاناً <span class="mr-3 text-lg">←</span></a>
       </div>
-    </div>
-    <div class="mx-auto mt-8 max-w-[1440px] text-sm text-white/45">© 2026 جرين مايند. جميع الحقوق محفوظة.</div>
+    </section>
+  </main>
+
+  <footer id="contact" class="border-t border-[#dde6df] bg-white px-4 py-12 sm:px-6">
+    <div class="mx-auto max-w-[1240px]"><div class="flex flex-col justify-between gap-8 md:flex-row md:items-center"><div class="max-w-md"><div class="flex items-center gap-2.5"><span class="grid size-10 place-items-center rounded-xl bg-[#e7f5eb]"><img class="size-7" src="/greenmind-leaf.svg" alt="" /></span><strong class="text-lg font-black">جرين مايند</strong></div><p class="mt-4 text-sm leading-7 text-[#65736c]">نبني مستقبلاً أوضح وأكثر استدامة لصادرات المحاصيل المصرية.</p></div><div class="flex flex-wrap gap-x-7 gap-y-3 text-sm font-bold text-[#526158]"><a href="#features" class="hover:text-[#0f7a3d]">الحلول</a><a href="#platform" class="hover:text-[#0f7a3d]">المنصة</a><a routerLink="/auth/login" class="hover:text-[#0f7a3d]">تسجيل الدخول</a><a href="mailto:hello@greenmind.ag" class="hover:text-[#0f7a3d]">hello@greenmind.ag</a></div></div><div class="mt-10 flex flex-col justify-between gap-3 border-t border-[#edf1ee] pt-5 text-xs text-[#8a968f] sm:flex-row"><span>© 2026 جرين مايند. جميع الحقوق محفوظة.</span><span>صُنع للمزارع المصري</span></div></div>
   </footer>
 </div>

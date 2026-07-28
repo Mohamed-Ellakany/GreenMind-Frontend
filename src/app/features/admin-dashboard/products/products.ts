@@ -1,30 +1,18 @@
-import { Component, signal } from '@angular/core';
-import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { faPen, faPlus, faTrash } from '@fortawesome/free-solid-svg-icons';
+import { Component, DestroyRef, inject, signal } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { GreenmindApi } from '@core/api/greenmind-api.service';
+import { MasterDataItem } from '@core/api/api.models';
 
-type Product = {
-  name: string;
-  category: string;
-  season: string;
-  markets: number;
-  status: 'نشط' | 'غير نشط';
-};
-
-@Component({
-  selector: 'app-products',
-  imports: [FontAwesomeModule],
-  templateUrl: './products.html',
-})
+@Component({ selector: 'app-products', imports: [FormsModule], templateUrl: './products.html' })
 export class Products {
-  public readonly icons = {
-    add: faPlus,
-    edit: faPen,
-    delete: faTrash,
-  };
-
-  public readonly products = signal<Product[]>([
-    { name: 'فراولة طازجة', category: 'فاكهة', season: 'ديسمبر - أبريل', markets: 8, status: 'نشط' },
-    { name: 'بطاطس', category: 'خضروات', season: 'يناير - يونيو', markets: 12, status: 'نشط' },
-    { name: 'عنب أحمر', category: 'فاكهة', season: 'مايو - أغسطس', markets: 6, status: 'غير نشط' },
-  ]);
+  private readonly api = inject(GreenmindApi); private readonly destroyRef = inject(DestroyRef);
+  public readonly items = signal<MasterDataItem[]>([]); public readonly error = signal<string | null>(null);
+  public name = ''; public description = ''; public editingId: number | null = null;
+  public constructor() { this.load(); }
+  public load(): void { this.api.crops(true).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({ next: (items) => this.items.set(items), error: () => this.error.set('تعذر تحميل المحاصيل.') }); }
+  public edit(item: MasterDataItem): void { this.editingId = item.id; this.name = item.name; this.description = item.description ?? ''; }
+  public cancel(): void { this.editingId = null; this.name = ''; this.description = ''; }
+  public save(): void { const request = { name: this.name.trim(), description: this.description.trim() || null }; const source = this.editingId ? this.api.updateCrop(this.editingId, request) : this.api.createCrop(request); source.pipe(takeUntilDestroyed(this.destroyRef)).subscribe({ next: () => { this.cancel(); this.load(); }, error: (e) => this.error.set(e.error?.error?.message ?? 'تعذر حفظ المحصول.') }); }
+  public toggle(item: MasterDataItem): void { this.api.setCropStatus(item.id, !item.isActive).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({ next: () => this.load(), error: () => this.error.set('تعذر تغيير الحالة.') }); }
 }
