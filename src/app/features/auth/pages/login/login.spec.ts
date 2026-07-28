@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { provideHttpClient } from '@angular/common/http';
 import { provideRouter } from '@angular/router';
 
 import { Login } from './login';
@@ -10,7 +11,7 @@ describe('Login', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [Login],
-      providers: [provideRouter([])],
+      providers: [provideHttpClient(), provideRouter([])],
     }).compileComponents();
 
     fixture = TestBed.createComponent(Login);
@@ -20,5 +21,14 @@ describe('Login', () => {
 
   it('should create', () => {
     expect(component).toBeTruthy();
+  });
+
+  it('prevents the browser native GET submission', () => {
+    const form = fixture.nativeElement.querySelector('form') as HTMLFormElement;
+    const event = new SubmitEvent('submit', { bubbles: true, cancelable: true });
+
+    form.dispatchEvent(event);
+
+    expect(event.defaultPrevented).toBe(true);
   });
 });

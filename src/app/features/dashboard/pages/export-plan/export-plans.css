@@ -1,0 +1,106 @@
+:host {
+  display: block;
+}
+
+.farm-map {
+  position: relative;
+  height: 390px;
+  overflow: hidden;
+  border: 1px solid #d7e2d9;
+  border-radius: 1.25rem;
+  background:
+    radial-gradient(circle at 35% 30%, rgb(219 239 221 / 0.9), transparent 36%),
+    #e9f0ea;
+  cursor: crosshair;
+  touch-action: none;
+  user-select: none;
+  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.5);
+}
+
+.farm-map:active {
+  cursor: grabbing;
+}
+
+.farm-map:focus-visible {
+  outline: 3px solid rgb(15 122 61 / 0.24);
+  outline-offset: 3px;
+}
+
+.location-select {
+  min-height: 50px;
+  background-color: #fff;
+  cursor: pointer;
+}
+
+.location-select:focus {
+  border-color: #0f7a3d;
+  outline: 3px solid rgb(15 122 61 / 0.1);
+}
+
+.map-tile {
+  position: absolute;
+  z-index: 1;
+  width: 256px;
+  height: 256px;
+  max-width: none;
+  pointer-events: none;
+  user-select: none;
+}
+
+.map-shade {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  pointer-events: none;
+  background: linear-gradient(180deg, rgb(6 45 25 / 0.04), transparent 24%, transparent 72%, rgb(6 45 25 / 0.1));
+}
+
+.map-marker {
+  position: absolute;
+  z-index: 15;
+  width: 38px;
+  height: 48px;
+  pointer-events: none;
+  transform: translate(-50%, -100%);
+  filter: drop-shadow(0 7px 8px rgb(6 45 25 / 0.3));
+  animation: marker-in 220ms ease-out;
+}
+
+.map-marker::before {
+  content: '';
+  position: absolute;
+  inset: 0 2px 7px;
+  border: 4px solid #fff;
+  border-radius: 50% 50% 50% 7px;
+  background: #0f7a3d;
+  transform: rotate(-45deg);
+  box-shadow: 0 0 0 1px rgb(0 55 27 / 0.08);
+}
+
+.map-marker--approximate::before {
+  background: #d97706;
+}
+
+.map-marker span {
+  position: absolute;
+  top: 11px;
+  left: 50%;
+  z-index: 1;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #fff;
+  transform: translateX(-50%);
+}
+
+@keyframes marker-in {
+  from { opacity: 0; transform: translate(-50%, -75%) scale(0.7); }
+  to { opacity: 1; transform: translate(-50%, -100%) scale(1); }
+}
+
+@media (max-width: 639px) {
+  .farm-map {
+    height: 330px;
+    border-radius: 1rem;
+  }
+}

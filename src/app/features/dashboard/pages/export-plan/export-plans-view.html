@@ -1,137 +1,187 @@
 <section class="mx-auto max-w-[1440px] pb-16 text-[#001c37]" dir="rtl">
-  <div class="mb-8 flex flex-col justify-between gap-4 md:flex-row md:items-end">
-    <div>
-      <nav class="mb-2 flex items-center gap-2 text-xs text-slate-500">
-        <span>الإدارة</span>
-        <span aria-hidden="true">‹</span>
-        <strong class="text-[#006b2c]">خطط التصدير</strong>
-      </nav>
-      <h1 class="text-2xl font-bold tracking-tight md:text-[32px] md:leading-10">خطط التصدير</h1>
+  <header class="mb-8 flex flex-col justify-between gap-4 md:flex-row md:items-end">
+    <div><p class="text-xs font-bold text-[#006b2c]">الإدارة</p><h1 class="text-3xl font-black">خطط التصدير</h1><p class="mt-2 text-sm text-slate-500">أنشئ الخطة أولاً، ثم يتولى مخطط الذكاء الاصطناعي إعداد مهام الأيام السبعة التالية.</p></div>
+    <button type="button" class="rounded-xl bg-[#006b2c] px-5 py-3 text-sm font-bold text-white" (click)="openForm()">+ خطة تصدير جديدة</button>
+  </header>
+
+  @if (error()) { <p class="mb-5 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">{{ error() }}</p> }
+  @if (planning(); as status) {
+    <div class="mb-6 rounded-xl border p-5" [class.border-green-200]="status.status === 'Succeeded'" [class.bg-green-50]="status.status === 'Succeeded'" [class.border-red-200]="status.status === 'Failed'" [class.bg-red-50]="status.status === 'Failed'" [class.border-blue-200]="status.status === 'Pending' || status.status === 'InProgress'" [class.bg-blue-50]="status.status === 'Pending' || status.status === 'InProgress'">
+      <div class="flex flex-wrap items-center justify-between gap-3"><div><strong>{{ planningLabel(status.status) }}</strong><p class="mt-1 text-sm text-slate-600">المحاولة {{ status.attemptCount }} · {{ status.generatedTaskCount }} مهمة محفوظة</p></div>@if (status.status === 'Failed') { <button class="rounded-lg bg-red-700 px-4 py-2 text-sm font-bold text-white" (click)="retry(status.exportPlanId)">إعادة المحاولة</button> }</div>
+      @if (status.failureMessage) { <p class="mt-3 text-sm text-red-700">{{ status.failureMessage }}</p> }
     </div>
+  }
 
-    <button type="button" class="inline-flex items-center justify-center gap-2 rounded-xl bg-[#006b2c] px-5 py-3 text-sm font-bold text-white shadow-sm transition hover:bg-[#00873a] active:opacity-90">
-      <span class="text-lg leading-none" aria-hidden="true">+</span>
-      خطة تصدير جديدة
-    </button>
+  <div class="mb-7 flex flex-col gap-3 rounded-xl bg-white p-4 shadow-sm lg:flex-row lg:items-center lg:justify-between">
+    <div class="flex flex-wrap gap-2">@for (tab of tabs; track tab.value) { <button class="rounded-lg px-4 py-2 text-xs font-bold" [class.bg-[#006b2c]]="selectedTab() === tab.value" [class.text-white]="selectedTab() === tab.value" [class.bg-slate-100]="selectedTab() !== tab.value" (click)="selectedTab.set(tab.value)">{{ tab.label }}</button> }</div>
+    <input class="rounded-lg border border-slate-200 px-4 py-2 text-sm lg:w-80" placeholder="ابحث بالاسم أو المحصول أو الوجهة" [value]="search()" (input)="search.set($any($event.target).value)" />
   </div>
 
-  <div class="mb-8 grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
-    <article class="rounded-xl bg-white p-6 shadow-[0_4px_20px_rgba(10,37,64,.05)] transition hover:shadow-[0_8px_30px_rgba(10,37,64,.08)]">
-      <div class="flex items-start justify-between gap-4">
-        <div>
-          <p class="text-xs font-medium text-slate-500">الخطط النشطة</p>
-          <b class="mt-1 block text-2xl">24</b>
-          <p class="mt-2 text-[11px] font-bold text-[#006b2c]">↗ +12% هذا الشهر</p>
-        </div>
-        <span class="grid size-10 place-items-center rounded-lg bg-green-100 text-xl text-[#006e2f]" aria-hidden="true">▣</span>
-      </div>
-    </article>
-
-    <article class="rounded-xl bg-white p-6 shadow-[0_4px_20px_rgba(10,37,64,.05)] transition hover:shadow-[0_8px_30px_rgba(10,37,64,.08)]">
-      <div class="flex items-start justify-between gap-4">
-        <div>
-          <p class="text-xs font-medium text-slate-500">متوسط التقدم</p>
-          <b class="mt-1 block text-2xl">68%</b>
-          <div class="mt-3 h-1.5 w-24 overflow-hidden rounded-full bg-slate-100">
-            <i class="block h-full w-[68%] bg-[#006b2c]"></i>
-          </div>
-        </div>
-        <span class="grid size-10 place-items-center rounded-lg bg-green-50 text-xl text-[#006b2c]" aria-hidden="true">◔</span>
-      </div>
-    </article>
-
-    <article class="rounded-xl bg-white p-6 shadow-[0_4px_20px_rgba(10,37,64,.05)] transition hover:shadow-[0_8px_30px_rgba(10,37,64,.08)]">
-      <div class="flex items-start justify-between gap-4">
-        <div>
-          <p class="text-xs font-medium text-slate-500">في انتظار التدقيق</p>
-          <b class="mt-1 block text-2xl">04</b>
-          <p class="mt-2 text-[11px] font-bold text-amber-500">مطلوب اهتمام</p>
-        </div>
-        <span class="grid size-10 place-items-center rounded-lg bg-amber-50 text-xl text-amber-500" aria-hidden="true">✓</span>
-      </div>
-    </article>
-
-    <article class="rounded-xl bg-white p-6 shadow-[0_4px_20px_rgba(10,37,64,.05)] transition hover:shadow-[0_8px_30px_rgba(10,37,64,.08)]">
-      <div class="flex items-start justify-between gap-4">
-        <div>
-          <p class="text-xs font-medium text-slate-500">توقعات المحصول</p>
-          <b class="mt-1 block text-2xl">1,240 طن</b>
-          <p class="mt-2 text-[11px] text-slate-500">نهاية الموسم</p>
-        </div>
-        <span class="grid size-10 place-items-center rounded-lg bg-rose-50 text-xl text-rose-600" aria-hidden="true">▥</span>
-      </div>
-    </article>
-  </div>
-
-  <div class="mb-8 flex flex-col gap-4 rounded-xl bg-white p-4 shadow-[0_4px_20px_rgba(10,37,64,.05)] lg:flex-row lg:items-center lg:justify-between">
-    <div class="flex flex-wrap gap-1 rounded-lg bg-slate-50 p-1" role="tablist" aria-label="تصفية خطط التصدير">
-      @for (tab of tabs; track tab) {
-        <button type="button" class="rounded-md px-4 py-2 text-xs font-bold transition sm:px-6" role="tab" [attr.aria-selected]="selectedTab() === tab" [class.bg-white]="selectedTab() === tab" [class.shadow-sm]="selectedTab() === tab" [class.text-slate-900]="selectedTab() === tab" [class.text-slate-500]="selectedTab() !== tab" (click)="selectTab(tab)">
-          {{ tab }}
-        </button>
+  @if (loading()) { <p class="rounded-xl bg-white p-8 text-center text-slate-500">جارٍ تحميل الخطط...</p> }
+  @else if (filteredPlans().length === 0) { <button class="w-full rounded-2xl border-2 border-dashed border-slate-200 p-14 text-center" (click)="openForm()"><strong>لا توجد خطط بعد</strong><span class="mt-2 block text-sm text-slate-500">أنشئ أول خطة تصدير لبدء التخطيط الذكي.</span></button> }
+  @else {
+    <div class="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+      @for (plan of filteredPlans(); track plan.id) {
+        <article class="cursor-pointer rounded-2xl bg-white p-6 shadow-[0_4px_20px_rgba(10,37,64,.06)] transition hover:-translate-y-0.5 hover:border-[#0f7a3d]/30 hover:shadow-[0_12px_35px_rgba(16,35,27,.1)]" [routerLink]="['/export-plans', plan.id]" role="link" tabindex="0" (keydown.enter)="$any($event.currentTarget).click()">
+          <div class="flex items-start justify-between gap-3"><div><span class="text-xs font-bold text-[#006b2c]">EX-{{ plan.id }}</span><h2 class="mt-1 text-lg font-black">{{ plan.name }}</h2><p class="mt-2 text-sm text-slate-500">{{ plan.crop }} · {{ plan.destination }}</p></div><span class="rounded-full bg-slate-100 px-3 py-1 text-xs font-bold">{{ statusLabel(plan.status) }}</span></div>
+          <div class="mt-5"><div class="mb-2 flex justify-between text-xs text-slate-500"><span>تقدم الموسم</span><b>{{ progress(plan) }}%</b></div><div class="h-2 overflow-hidden rounded-full bg-slate-100"><i class="block h-full bg-[#16a34a]" [style.width.%]="progress(plan)"></i></div></div>
+          <div class="mt-5 rounded-xl p-3 text-sm" [class.bg-green-50]="plan.planningStatus === 'Succeeded'" [class.text-green-800]="plan.planningStatus === 'Succeeded'" [class.bg-blue-50]="plan.planningStatus === 'Pending' || plan.planningStatus === 'InProgress'" [class.text-blue-800]="plan.planningStatus === 'Pending' || plan.planningStatus === 'InProgress'" [class.bg-red-50]="plan.planningStatus === 'Failed'" [class.text-red-800]="plan.planningStatus === 'Failed'"><b>{{ planningLabel(plan.planningStatus) }}</b><span class="mr-2">{{ plan.generatedTaskCount }} مهمة</span>@if (plan.planningStatus === 'Failed') { <button class="mr-3 underline" (click)="$event.stopPropagation(); retry(plan.id)">إعادة المحاولة</button> }</div>
+          <div class="mt-5 grid grid-cols-2 gap-4 border-t pt-4 text-xs"><div><span class="text-slate-500">الزراعة</span><b class="mt-1 block">{{ plan.plantingDate }}</b></div><div><span class="text-slate-500">التصدير المتوقع</span><b class="mt-1 block">{{ plan.expectedExportDate }}</b></div></div>
+        </article>
       }
     </div>
+  }
 
-    <div class="flex flex-col gap-2 sm:flex-row sm:items-center">
-      <label class="flex h-10 min-w-0 items-center gap-2 rounded-lg border border-slate-200 bg-slate-50 px-3 sm:w-80">
-        <span class="text-slate-400" aria-hidden="true">⌕</span>
-        <input class="w-full bg-transparent text-sm outline-none placeholder:text-slate-400" [value]="search()" (input)="search.set($any($event.target).value)" placeholder="ابحث في خطط التصدير..." />
-      </label>
-      <div class="flex gap-2">
-        <button type="button" class="h-10 rounded-lg border border-slate-200 px-3 text-xs font-medium text-slate-600 transition hover:bg-slate-50">تصفية</button>
-        <button type="button" class="h-10 rounded-lg border border-slate-200 px-3 text-xs font-medium text-slate-600 transition hover:bg-slate-50">ترتيب</button>
-      </div>
+  @if (formOpen()) {
+    <div class="fixed inset-0 z-50 grid place-items-center bg-[#071710]/65 p-0 backdrop-blur-sm sm:p-4" (click)="closeForm()">
+      <form class="flex h-[100dvh] w-full max-w-5xl flex-col overflow-hidden bg-white shadow-2xl sm:h-auto sm:max-h-[94dvh] sm:rounded-[1.75rem]" (click)="$event.stopPropagation()" (ngSubmit)="create()">
+        <header class="flex shrink-0 items-start justify-between gap-4 border-b border-slate-100 px-5 py-4 sm:px-8 sm:py-5">
+          <div>
+            <div class="mb-1 flex items-center gap-2 text-xs font-bold text-[#0f7a3d]"><span class="inline-block size-2 rounded-full bg-[#0f7a3d]"></span> مخطط التصدير الذكي</div>
+            <h2 class="text-xl font-black tracking-tight sm:text-2xl">إنشاء خطة تصدير جديدة</h2>
+            <p class="mt-1 text-xs leading-5 text-slate-500 sm:text-sm">ثلاث خطوات قصيرة، ثم يبدأ الذكاء الاصطناعي في بناء المهام.</p>
+          </div>
+          <button type="button" class="grid size-10 shrink-0 place-items-center rounded-full border border-slate-200 text-xl text-slate-500 hover:border-slate-300 hover:bg-slate-50 hover:text-slate-900" aria-label="إغلاق" (click)="closeForm()">×</button>
+        </header>
+
+        <nav class="shrink-0 border-b border-slate-100 bg-[#fbfdfb] px-4 py-4 sm:px-8" aria-label="خطوات إنشاء الخطة">
+          <ol class="mx-auto grid max-w-3xl grid-cols-3">
+            @for (step of formSteps; track step.number) {
+              <li class="relative">
+                @if (!$last) { <span class="absolute top-4 right-1/2 h-px w-full" [class.bg-[#0f7a3d]]="formStep() > step.number" [class.bg-slate-200]="formStep() <= step.number"></span> }
+                <button type="button" class="relative z-10 mx-auto flex w-full flex-col items-center rounded-xl" [attr.aria-current]="formStep() === step.number ? 'step' : null" (click)="goToStep(step.number)">
+                  <span class="grid size-8 place-items-center rounded-full border-2 text-xs font-black transition" [class.border-[#0f7a3d]]="formStep() >= step.number" [class.bg-[#0f7a3d]]="formStep() >= step.number" [class.text-white]="formStep() >= step.number" [class.border-slate-200]="formStep() < step.number" [class.bg-white]="formStep() < step.number" [class.text-slate-400]="formStep() < step.number">{{ formStep() > step.number ? '✓' : step.number }}</span>
+                  <strong class="mt-2 text-[11px] sm:text-xs" [class.text-[#0f7a3d]]="formStep() === step.number" [class.text-slate-700]="formStep() !== step.number">{{ step.label }}</strong>
+                  <small class="mt-0.5 hidden text-[10px] text-slate-400 sm:block">{{ step.hint }}</small>
+                </button>
+              </li>
+            }
+          </ol>
+        </nav>
+
+        <main class="min-h-0 flex-1 overflow-y-auto px-5 py-6 sm:px-8 sm:py-7">
+          @if (formStep() === 1) {
+            <section class="mx-auto max-w-3xl">
+              <div class="mb-6">
+                <span class="text-xs font-bold text-[#0f7a3d]">الخطوة 1 من 3</span>
+                <h3 class="mt-1 text-xl font-black">لنبدأ بتعريف الخطة</h3>
+                <p class="mt-1 text-sm text-slate-500">اختر اسمًا واضحًا يساعدك في العثور على الخطة ومتابعتها لاحقًا.</p>
+              </div>
+              <div class="grid gap-5 sm:grid-cols-2">
+                <label class="sm:col-span-2"><span class="mb-2 block text-sm font-bold">اسم الخطة <em class="not-italic text-red-500">*</em></span><input required class="w-full rounded-xl border px-4 py-3" name="name" [(ngModel)]="form.name" placeholder="مثال: تصدير فراولة هولندا - موسم 2026" autocomplete="off" /></label>
+                <label><span class="mb-2 block text-sm font-bold">المحصول <em class="not-italic text-red-500">*</em></span><select required class="w-full rounded-xl border px-4 py-3" name="cropId" [(ngModel)]="form.cropId"><option [ngValue]="0" disabled>اختر المحصول</option>@for (item of crops(); track item.id) { <option [ngValue]="item.id">{{ item.name }}</option> }</select><small class="mt-2 block text-xs text-slate-400">المحصول المراد زراعته وتجهيزه.</small></label>
+                <label><span class="mb-2 block text-sm font-bold">سوق التصدير <em class="not-italic text-red-500">*</em></span><select required class="w-full rounded-xl border px-4 py-3" name="destinationId" [(ngModel)]="form.destinationId"><option [ngValue]="0" disabled>اختر الوجهة</option>@for (item of destinations(); track item.id) { <option [ngValue]="item.id">{{ item.name }}</option> }</select><small class="mt-2 block text-xs text-slate-400">سنراعي متطلبات هذه الوجهة في الخطة.</small></label>
+              </div>
+              <div class="mt-7 flex items-start gap-3 rounded-2xl border border-green-100 bg-green-50/70 p-4 text-sm text-green-900"><span class="grid size-8 shrink-0 place-items-center rounded-full bg-white">✦</span><p class="leading-6"><strong class="block">ماذا سيحدث بعد الإنشاء؟</strong>سيحلل المخطط بيانات المحصول والوجهة والمزرعة لإنشاء مهام عملية للأيام السبعة التالية.</p></div>
+            </section>
+          }
+
+          @if (formStep() === 2) {
+            <section>
+              <div class="mb-5">
+                <span class="text-xs font-bold text-[#0f7a3d]">الخطوة 2 من 3</span>
+                <h3 class="mt-1 text-xl font-black">أين تقع المزرعة؟</h3>
+                <p class="mt-1 text-sm text-slate-500">اختر المحافظة والمدينة أولًا، ثم عدّل العلامة على الخريطة لتحديد موقع المزرعة بدقة.</p>
+              </div>
+              <div class="grid gap-6 lg:grid-cols-[minmax(0,1.55fr)_minmax(260px,.75fr)]">
+                <div>
+                  <div class="mb-3 flex flex-wrap items-center justify-between gap-2">
+                    <strong class="text-sm">حدد النقطة على الخريطة <em class="not-italic text-red-500">*</em></strong>
+                    @if (mapLocationSelected() && !mapPinIsApproximate()) { <span class="inline-flex items-center gap-1.5 rounded-full bg-green-100 px-3 py-1 text-xs font-bold text-green-800"><span class="size-1.5 rounded-full bg-green-600"></span> تم تحديد الموقع بدقة</span> }
+                    @else if (mapLocationSelected()) { <span class="inline-flex items-center gap-1.5 rounded-full bg-amber-50 px-3 py-1 text-xs font-bold text-amber-700"><span class="size-1.5 rounded-full bg-amber-500"></span> موقع مبدئي — يمكنك تعديله</span> }
+                    @else { <span class="rounded-full bg-amber-50 px-3 py-1 text-xs font-bold text-amber-700">اضغط على موقع المزرعة</span> }
+                  </div>
+                  <div class="farm-map" role="application" tabindex="0" aria-label="خريطة اختيار موقع المزرعة. استخدم الأسهم للتحريك، وزر الإدخال لتثبيت الموقع." (click)="chooseMapLocation($event)" (pointerdown)="startMapPan($event)" (pointermove)="moveMapPan($event)" (pointerup)="endMapPan()" (pointercancel)="endMapPan()" (keydown)="handleMapKeydown($event)" (wheel)="zoomMapWithWheel($event)">
+                    @for (tile of mapTiles(); track tile.key) { <img class="map-tile" [src]="tile.url" alt="" draggable="false" [style.left]="'calc(50% + ' + tile.left + 'px)'" [style.top]="'calc(50% + ' + tile.top + 'px)'" /> }
+                    <div class="map-shade"></div>
+                    @if (mapLocationSelected()) { <div class="map-marker" [class.map-marker--approximate]="mapPinIsApproximate()" [style.left]="'calc(50% + ' + markerPosition().x + 'px)'" [style.top]="'calc(50% + ' + markerPosition().y + 'px)'" aria-hidden="true"><span></span></div> }
+                    <div class="absolute left-3 top-3 z-20 flex flex-col overflow-hidden rounded-xl border border-slate-200 bg-white shadow-lg">
+                      <button type="button" class="grid size-10 place-items-center text-xl font-bold hover:bg-slate-50" aria-label="تكبير الخريطة" (click)="zoomMap(1, $event)">+</button>
+                      <button type="button" class="grid size-10 place-items-center border-t border-slate-100 text-xl font-bold hover:bg-slate-50" aria-label="تصغير الخريطة" (click)="zoomMap(-1, $event)">−</button>
+                      <button type="button" class="grid size-10 place-items-center border-t border-slate-100 text-base hover:bg-slate-50" aria-label="إعادة توسيط الخريطة" (click)="recenterMap($event)">◎</button>
+                    </div>
+                    <div class="pointer-events-none absolute inset-x-3 bottom-3 z-20 flex items-end justify-between gap-2">
+                      <span class="rounded-lg bg-white/95 px-3 py-2 text-[11px] font-bold text-slate-700 shadow">اسحب للتحريك · اضغط لتحديد الموقع</span>
+                      <a class="pointer-events-auto rounded bg-white/90 px-1.5 py-0.5 text-[9px] text-slate-500 hover:underline" href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener" (click)="$event.stopPropagation()">© OpenStreetMap</a>
+                    </div>
+                  </div>
+                  <div class="mt-3 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-slate-100 bg-slate-50 px-3 py-2.5">
+                    <p class="text-xs leading-5 text-slate-500">حرّك الخريطة حتى يصبح المكان المطلوب في المنتصف، أو اضغط مباشرة على أي نقطة.</p>
+                    <button type="button" class="shrink-0 rounded-lg border border-green-200 bg-white px-3 py-2 text-xs font-bold text-[#0f7a3d] hover:bg-green-50" (click)="selectMapCenter($event)">تثبيت مركز الخريطة</button>
+                  </div>
+                </div>
+
+                <aside class="space-y-4">
+                  <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-1">
+                    <label>
+                      <span class="mb-2 flex items-center justify-between gap-2 text-sm font-bold"><span>المحافظة <em class="not-italic text-red-500">*</em></span><small class="font-normal text-slate-400">27 محافظة</small></span>
+                      <select required class="location-select w-full rounded-xl border px-4 py-3" name="governorate" [(ngModel)]="form.governorate" (ngModelChange)="onGovernorateChange($event)">
+                        <option value="" disabled>اختر المحافظة</option>
+                        @for (governorate of governorates; track governorate.id) { <option [value]="governorate.name">{{ governorate.name }}</option> }
+                      </select>
+                    </label>
+                    <label>
+                      <span class="mb-2 flex items-center justify-between gap-2 text-sm font-bold"><span>المدينة أو المركز <em class="not-italic text-red-500">*</em></span>@if (form.governorate) { <small class="font-normal text-slate-400">{{ availableDistricts().length }} اختيارًا</small> }</span>
+                      <select required class="location-select w-full rounded-xl border px-4 py-3 disabled:cursor-not-allowed disabled:bg-slate-50 disabled:text-slate-400" name="city" [(ngModel)]="form.city" [disabled]="!form.governorate" (ngModelChange)="onDistrictChange($event)">
+                        <option value="" disabled>{{ form.governorate ? 'اختر المدينة أو المركز' : 'اختر المحافظة أولًا' }}</option>
+                        @for (district of availableDistricts(); track district.id) { <option [value]="district.name">{{ district.name }}</option> }
+                      </select>
+                      <small class="mt-2 block text-xs leading-5 text-slate-400">عند الاختيار سننقل الخريطة ونضع علامة مبدئية تلقائيًا.</small>
+                    </label>
+                    <label><span class="mb-2 block text-sm font-bold">مساحة المزرعة <em class="not-italic text-red-500">*</em></span><span class="relative block"><input required min="0.01" type="number" step="0.01" class="w-full rounded-xl border px-4 py-3 pl-16" name="area" [(ngModel)]="form.areaInFeddan" /><span class="absolute left-4 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400">فدان</span></span></label>
+                  </div>
+                  <div>
+                    <span class="mb-2 block text-xs font-bold text-slate-500">انتقال سريع</span>
+                    <div class="flex flex-wrap gap-2">@for (preset of locationPresets; track preset.label) { <button type="button" class="rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-bold text-slate-600 hover:border-green-300 hover:bg-green-50 hover:text-green-800" [class.border-green-300]="form.governorate === preset.governorate" [class.bg-green-50]="form.governorate === preset.governorate" [class.text-green-800]="form.governorate === preset.governorate" (click)="selectPreset(preset)">{{ preset.label }}</button> }</div>
+                  </div>
+                  @if (mapLocationSelected()) { <div class="rounded-xl border p-3 text-xs" [class.border-amber-100]="mapPinIsApproximate()" [class.bg-amber-50]="mapPinIsApproximate()" [class.text-amber-700]="mapPinIsApproximate()" [class.border-green-100]="!mapPinIsApproximate()" [class.bg-green-50]="!mapPinIsApproximate()" [class.text-green-700]="!mapPinIsApproximate()"><span class="mb-1 block font-bold">{{ mapPinIsApproximate() ? 'الموقع المبدئي' : 'الموقع الدقيق المحفوظ' }}</span><span dir="ltr">{{ form.latitude.toFixed(5) }}, {{ form.longitude.toFixed(5) }}</span><span class="mr-2">· يُحفظ تلقائيًا</span></div> }
+                </aside>
+              </div>
+            </section>
+          }
+
+          @if (formStep() === 3) {
+            <section>
+              <div class="mb-6">
+                <span class="text-xs font-bold text-[#0f7a3d]">الخطوة 3 من 3</span>
+                <h3 class="mt-1 text-xl font-black">حدد المواعيد وراجع الخطة</h3>
+                <p class="mt-1 text-sm text-slate-500">سنستخدم هذه التواريخ لبناء توقيتات الزراعة والتجهيز والتصدير.</p>
+              </div>
+              <div class="grid gap-7 lg:grid-cols-[minmax(0,1.25fr)_minmax(280px,.75fr)]">
+                <div>
+                  <div class="grid gap-4 sm:grid-cols-3">
+                    <label><span class="mb-2 block text-sm font-bold">تاريخ الزراعة</span><input required type="date" class="w-full rounded-xl border px-3 py-3" name="planting" [(ngModel)]="form.plantingDate" /></label>
+                    <label><span class="mb-2 block text-sm font-bold">الحصاد المتوقع</span><input required type="date" class="w-full rounded-xl border px-3 py-3" name="harvest" [(ngModel)]="form.expectedHarvestDate" /></label>
+                    <label><span class="mb-2 block text-sm font-bold">التصدير المتوقع</span><input required type="date" class="w-full rounded-xl border px-3 py-3" name="export" [(ngModel)]="form.expectedExportDate" /></label>
+                  </div>
+                  <label class="mt-5 block"><span class="mb-2 block text-sm font-bold">ملاحظات للمخطط <span class="font-normal text-slate-400">(اختياري)</span></span><textarea class="w-full resize-none rounded-xl border px-4 py-3" rows="4" name="notes" [(ngModel)]="form.notes" placeholder="مثلًا: شهادات مطلوبة، طريقة التعبئة، قيود الري أو التسميد..."></textarea><small class="mt-2 block text-xs text-slate-400">كلما كانت الملاحظات أوضح، كانت المهام المقترحة أدق.</small></label>
+                </div>
+                <aside class="rounded-2xl border border-[#dce9df] bg-[#f7fbf8] p-5">
+                  <div class="mb-5 flex items-center justify-between"><strong>ملخص الخطة</strong><button type="button" class="text-xs font-bold text-[#0f7a3d] hover:underline" (click)="goToStep(1)">تعديل</button></div>
+                  <dl class="space-y-4 text-sm">
+                    <div><dt class="text-xs text-slate-500">اسم الخطة</dt><dd class="mt-1 font-bold">{{ form.name }}</dd></div>
+                    <div class="grid grid-cols-2 gap-3"><div><dt class="text-xs text-slate-500">المحصول</dt><dd class="mt-1 font-bold">{{ cropName() }}</dd></div><div><dt class="text-xs text-slate-500">الوجهة</dt><dd class="mt-1 font-bold">{{ destinationName() }}</dd></div></div>
+                    <div class="border-t border-slate-200 pt-4"><dt class="text-xs text-slate-500">موقع المزرعة</dt><dd class="mt-1 font-bold">{{ form.city }}، {{ form.governorate }}</dd><dd class="mt-1 text-xs text-slate-500">{{ form.areaInFeddan }} فدان</dd></div>
+                  </dl>
+                  <div class="mt-5 rounded-xl bg-white p-3 text-xs leading-5 text-slate-600 shadow-sm"><strong class="text-[#0f7a3d]">جاهز للتخطيط</strong><br />بعد الحفظ، سيبدأ الذكاء الاصطناعي تلقائيًا في تجهيز المهام.</div>
+                </aside>
+              </div>
+            </section>
+          }
+        </main>
+
+        <footer class="shrink-0 border-t border-slate-100 bg-white px-5 py-4 sm:px-8">
+          @if (stepError()) { <div class="mb-3 flex items-center gap-2 rounded-xl bg-red-50 px-4 py-2.5 text-sm font-bold text-red-700" role="alert"><span>!</span> {{ stepError() }}</div> }
+          <div class="flex items-center justify-between gap-3">
+            <button type="button" class="rounded-xl px-3 py-2.5 text-sm font-bold text-slate-500 hover:bg-slate-50 hover:text-slate-800" (click)="formStep() === 1 ? closeForm() : previousStep()">{{ formStep() === 1 ? 'إلغاء' : 'السابق' }}</button>
+            <div class="flex items-center gap-3">
+              <span class="hidden text-xs text-slate-400 sm:inline">الخطوة {{ formStep() }} من 3</span>
+              @if (formStep() < 3) { <button type="button" class="inline-flex items-center gap-2 rounded-xl bg-[#0f7a3d] px-6 py-3 text-sm font-bold text-white shadow-[0_8px_20px_rgba(15,122,61,.2)] hover:bg-[#086532]" (click)="nextStep()">التالي <span aria-hidden="true">←</span></button> }
+              @else { <button type="submit" [disabled]="saving()" class="inline-flex items-center gap-2 rounded-xl bg-[#0f7a3d] px-6 py-3 text-sm font-bold text-white shadow-[0_8px_20px_rgba(15,122,61,.2)] hover:bg-[#086532] disabled:cursor-not-allowed disabled:opacity-50"><span>{{ saving() ? 'جارٍ إنشاء الخطة...' : 'إنشاء وبدء التخطيط' }}</span>@if (!saving()) { <span aria-hidden="true">✦</span> }</button> }
+            </div>
+          </div>
+        </footer>
+      </form>
     </div>
-  </div>
-
-  <div class="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
-    @for (plan of filteredPlans(); track plan.code) {
-      <article class="group overflow-hidden rounded-2xl border border-transparent bg-white shadow-[0_4px_20px_rgba(10,37,64,.05)] transition hover:border-[#006b2c]/20 hover:shadow-[0_8px_30px_rgba(10,37,64,.1)]">
-        <div class="relative h-32 overflow-hidden bg-slate-100">
-          <img class="size-full object-cover transition duration-500 group-hover:scale-105" [src]="plan.image" [alt]="plan.title" />
-          <div class="absolute inset-0 bg-gradient-to-t from-white/80 via-transparent"></div>
-          <span class="absolute right-4 top-4 rounded-full bg-[#006b2c] px-3 py-1 text-xs font-bold text-white">{{ plan.code }}</span>
-        </div>
-
-        <div class="p-6">
-          <div class="mb-5 flex items-start justify-between gap-3">
-            <div class="min-w-0">
-              <h2 class="text-lg font-bold leading-6">{{ plan.title }}</h2>
-              <p class="mt-2 text-sm text-slate-500">⌖ {{ plan.market }}</p>
-            </div>
-            <span class="shrink-0 rounded-md px-2.5 py-1 text-[10px] font-bold" [class.bg-green-100]="plan.status === 'قيد التنفيذ'" [class.text-green-700]="plan.status === 'قيد التنفيذ'" [class.bg-blue-100]="plan.status === 'قيد التخطيط'" [class.text-blue-700]="plan.status === 'قيد التخطيط'" [class.bg-[#006e2f]]="plan.status === 'مكتملة'" [class.text-white]="plan.status === 'مكتملة'">
-              {{ plan.status }}
-            </span>
-          </div>
-
-          <div class="mb-6">
-            <div class="mb-2 flex justify-between text-[11px] font-bold text-slate-500">
-              <span>تقدم الخطة</span>
-              <span>{{ plan.progress }}%</span>
-            </div>
-            <div class="h-2 overflow-hidden rounded-full bg-slate-100">
-              <i class="block h-full rounded-full" [class.bg-[#006b2c]]="plan.status !== 'مكتملة'" [class.bg-[#006e2f]]="plan.status === 'مكتملة'" [style.width.%]="plan.progress"></i>
-            </div>
-          </div>
-
-          <div class="grid grid-cols-2 gap-4 border-t border-slate-100 pt-4 text-sm">
-            <div>
-              <p class="text-[10px] font-medium tracking-wide text-slate-500">نوع المحصول</p>
-              <b class="mt-1 block">{{ plan.crop }}</b>
-            </div>
-            <div>
-              <p class="text-[10px] font-medium tracking-wide text-slate-500">{{ plan.dateLabel }}</p>
-              <b class="mt-1 block">{{ plan.date }}</b>
-            </div>
-          </div>
-        </div>
-      </article>
-    }
-
-    <button type="button" class="flex min-h-[350px] flex-col items-center justify-center rounded-2xl border-2 border-dashed border-slate-200 p-8 text-center transition hover:border-[#006b2c] hover:bg-white">
-      <span class="mb-4 grid size-16 place-items-center rounded-full bg-slate-100 text-3xl text-slate-500" aria-hidden="true">+</span>
-      <strong class="text-lg">إنشاء خطة جديدة</strong>
-      <span class="mt-2 max-w-52 text-sm leading-6 text-slate-500">حدد الأسواق المستهدفة والجداول اللوجستية.</span>
-    </button>
-  </div>
+  }
 </section>

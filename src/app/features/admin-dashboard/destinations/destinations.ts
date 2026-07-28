@@ -1,30 +1,18 @@
-import { Component, signal } from '@angular/core';
-import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { faPen, faPlus, faTrash } from '@fortawesome/free-solid-svg-icons';
+import { Component, DestroyRef, inject, signal } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { GreenmindApi } from '@core/api/greenmind-api.service';
+import { MasterDataItem } from '@core/api/api.models';
 
-type Destination = {
-  country: string;
-  port: string;
-  requirements: string;
-  risk: 'منخفض' | 'متوسط' | 'مرتفع';
-  status: 'متاح' | 'مراجعة';
-};
-
-@Component({
-  selector: 'app-destinations',
-  imports: [FontAwesomeModule],
-  templateUrl: './destinations.html',
-})
+@Component({ selector: 'app-destinations', imports: [FormsModule], templateUrl: './destinations.html' })
 export class Destinations {
-  public readonly icons = {
-    add: faPlus,
-    edit: faPen,
-    delete: faTrash,
-  };
-
-  public readonly destinations = signal<Destination[]>([
-    { country: 'السعودية', port: 'جدة الإسلامي', requirements: 'شهادة صحة نباتية', risk: 'منخفض', status: 'متاح' },
-    { country: 'الإمارات', port: 'جبل علي', requirements: 'تحليل متبقيات', risk: 'متوسط', status: 'متاح' },
-    { country: 'هولندا', port: 'روتردام', requirements: 'Global G.A.P', risk: 'مرتفع', status: 'مراجعة' },
-  ]);
+  private readonly api = inject(GreenmindApi); private readonly destroyRef = inject(DestroyRef);
+  public readonly items = signal<MasterDataItem[]>([]); public readonly error = signal<string | null>(null);
+  public name = ''; public description = ''; public editingId: number | null = null;
+  public constructor() { this.load(); }
+  public load(): void { this.api.destinations(true).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({ next: (items) => this.items.set(items), error: () => this.error.set('تعذر تحميل الوجهات.') }); }
+  public edit(item: MasterDataItem): void { this.editingId = item.id; this.name = item.name; this.description = item.description ?? ''; }
+  public cancel(): void { this.editingId = null; this.name = ''; this.description = ''; }
+  public save(): void { const request = { name: this.name.trim(), description: this.description.trim() || null }; const source = this.editingId ? this.api.updateDestination(this.editingId, request) : this.api.createDestination(request); source.pipe(takeUntilDestroyed(this.destroyRef)).subscribe({ next: () => { this.cancel(); this.load(); }, error: (e) => this.error.set(e.error?.error?.message ?? 'تعذر حفظ الوجهة.') }); }
+  public toggle(item: MasterDataItem): void { this.api.setDestinationStatus(item.id, !item.isActive).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({ next: () => this.load(), error: () => this.error.set('تعذر تغيير الحالة.') }); }
 }
