@@ -30,6 +30,7 @@ export const routes: Routes = [
     loadComponent: () => import('./layouts/main-layout/main-layout').then((m) => m.MainLayout),
     children: [
       { path: 'dashboard', loadComponent: () => import('@features/dashboard/pages/dashboard/dashboard').then((m) => m.Dashboard) },
+      { path: 'export-plans/:id/phase-two', loadComponent: () => import('@features/dashboard/phase-two/phase-two-workspace').then((m) => m.PhaseTwoWorkspace) },
       { path: 'export-plans/:id', loadComponent: () => import('@features/dashboard/pages/export-plan-details/export-plan-details').then((m) => m.ExportPlanDetailsPage) },
       { path: 'export-plans', loadComponent: () => import('@features/dashboard/pages/export-plan/export-plans').then((m) => m.ExportPlans) },
       { path: 'activities', loadComponent: () => import('@features/dashboard/pages/dashboard/activities/activities').then((m) => m.Activities) },

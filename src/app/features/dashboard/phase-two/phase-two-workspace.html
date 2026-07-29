@@ -1,0 +1,157 @@
+<section class="phase-workspace" dir="rtl">
+  <header class="workspace-hero">
+    <div>
+      <a [routerLink]="['/export-plans', planId]" class="back-link">← العودة إلى تفاصيل الخطة</a>
+      <p class="eyebrow">مساحة العمل الذكية · المرحلة الثانية</p>
+      <h1>{{ plan()?.name || 'خطة التصدير' }}</h1>
+      <p>المستشار الزراعي، صحة المحصول، والمصروفات في مكان واحد.</p>
+    </div>
+    <div class="hero-badge"><span></span> البيانات محدثة وآمنة</div>
+  </header>
+
+  @if (error()) {
+    <div class="error-banner" role="alert">
+      <span>{{ error() }}</span>
+      <button type="button" (click)="error.set(null)" aria-label="إغلاق">×</button>
+    </div>
+  }
+
+  <nav class="workspace-tabs" aria-label="أقسام مساحة العمل">
+    <button type="button" [class.active]="activeTab() === 'chat'" (click)="selectTab('chat')">
+      <span>✦</span><b>المستشار الذكي</b><small>محادثة الخطة</small>
+    </button>
+    <button type="button" [class.active]="activeTab() === 'disease'" (click)="selectTab('disease')">
+      <span>⌁</span><b>صحة المحصول</b><small>تحليل الصور والسجل</small>
+    </button>
+    <button type="button" [class.active]="activeTab() === 'costs'" (click)="selectTab('costs')">
+      <span>ج.م</span><b>التكاليف</b><small>الميزانية والمصروفات</small>
+    </button>
+  </nav>
+
+  @if (activeTab() === 'chat') {
+    <div class="chat-layout">
+      <article class="panel chat-panel">
+        <header class="panel-heading">
+          <div><span class="panel-icon">✦</span><div><h2>المستشار الزراعي للخطة</h2><p>الإجابات مبنية على بيانات هذه الخطة فقط</p></div></div>
+          <i class="online-dot">متصل</i>
+        </header>
+        <div class="messages" aria-live="polite">
+          @if (!chatMessages().length) {
+            <div class="empty-state"><span>✦</span><h3>ابدأ محادثة جديدة</h3><p>اسأل عن المهام، التربة، التكاليف، أو الاستعداد للتصدير.</p></div>
+          }
+          @for (message of chatMessages(); track message.id) {
+            <div class="message" [class.user-message]="message.role === 'المستخدم'">
+              <small>{{ message.role }}</small>
+              <p>{{ message.content || 'جارٍ إعداد الرد…' }}</p>
+              @if (message.status === 'فشل') { <em>تعذر إكمال الرد</em> }
+            </div>
+          }
+        </div>
+        <form class="chat-composer" (ngSubmit)="sendChat()">
+          <textarea name="chatInput" [(ngModel)]="chatInput" maxlength="4000" rows="2" placeholder="اكتب سؤالك عن خطة التصدير…"></textarea>
+          <button type="submit" [disabled]="chatSending() || !chatInput.trim()">{{ chatSending() ? 'جارٍ الرد…' : 'إرسال' }}</button>
+        </form>
+      </article>
+
+      <aside class="panel context-card">
+        <span class="panel-icon">◎</span>
+        <h2>السياق المستخدم</h2>
+        <p>يُعاد بناء السياق الآمن مع كل سؤال ولا يطّلع النموذج على خطط المزارع الأخرى.</p>
+        <ul><li>بيانات الخطة والموسم</li><li>المهام القادمة والمنجزة</li><li>قياسات التربة الأخيرة</li><li>سجل صحة المحصول</li><li>ملخص الميزانية والمصروفات</li></ul>
+        <div class="safety-note"><b>حد أمان واضح</b><p>لن تتغير أي مهمة إلا بعد عرض اقتراح منفصل وموافقتك الصريحة.</p></div>
+      </aside>
+    </div>
+  }
+
+  @if (activeTab() === 'disease') {
+    <div class="disease-layout">
+      <form class="panel upload-card" (ngSubmit)="submitDisease()">
+        <div class="section-title"><span class="panel-icon">⌁</span><div><h2>تحليل صور المحصول</h2><p>ارفع حتى خمس صور واضحة للأعراض</p></div></div>
+        <label><span>تاريخ الملاحظة</span><input required type="date" name="diseaseDate" [(ngModel)]="diseaseDate" /></label>
+        <label><span>المنطقة المتأثرة</span><input maxlength="500" name="diseaseArea" [(ngModel)]="diseaseArea" placeholder="مثال: الأوراق السفلية" /></label>
+        <label><span>ملاحظات المزارع</span><textarea maxlength="1000" rows="3" name="diseaseNotes" [(ngModel)]="diseaseNotes" placeholder="متى بدأت الأعراض؟ وهل تنتشر؟"></textarea></label>
+        <label class="file-drop">
+          <input required multiple accept="image/png,image/jpeg" type="file" (change)="chooseDiseaseImages($event)" />
+          <span>＋</span><b>اختر صور JPEG أو PNG</b><small>حتى 10 ميجابايت للصورة و30 ميجابايت للطلب</small>
+        </label>
+        @if (diseaseImages.length) { <p class="selected-files">تم اختيار {{ diseaseImages.length }} صورة: {{ diseaseImages[0].name }}</p> }
+        <button class="primary-action" type="submit" [disabled]="diseaseSubmitting()">{{ diseaseSubmitting() ? 'جارٍ الرفع…' : 'إرسال للتحليل' }}</button>
+        <p class="advisory">النتيجة استشارية وليست تشخيصًا معمليًا أو بديلًا عن المختص.</p>
+      </form>
+
+      <div class="report-column">
+        <div class="section-title"><div><h2>السجل الصحي المؤرخ</h2><p>{{ diseaseReports().length }} تقارير محفوظة لهذه الخطة</p></div></div>
+        @if (!diseaseReports().length) {
+          <div class="panel empty-state"><span>⌁</span><h3>لا توجد تقارير بعد</h3><p>ارفع صور المحصول لبدء سجل صحي مرتبط بالموسم.</p></div>
+        }
+        @for (report of diseaseReports(); track report.id) {
+          <article class="panel report-card">
+            <header><div><time>{{ formatDate(report.observationDate) }}</time><h3>{{ report.suspectedDisease || 'التحليل قيد التنفيذ' }}</h3></div><span class="status-pill">{{ report.status }}</span></header>
+            @if (report.status === 'فشل') {
+              <p class="failure-text">{{ report.failureMessage }}</p><button type="button" class="secondary-action" (click)="retryDisease(report.id)">إعادة التحليل</button>
+            }
+            @if (report.confidencePercentage !== null) {
+              <div class="report-metrics"><span><small>درجة الثقة</small><b>{{ report.confidencePercentage }}%</b></span><span><small>الشدة</small><b>{{ report.severity }}</b></span><span><small>المنطقة</small><b>{{ report.affectedArea || 'غير محددة' }}</b></span></div>
+              <dl><div><dt>الأعراض الملحوظة</dt><dd>{{ report.observedSymptoms }}</dd></div><div><dt>الإجراءات المقترحة</dt><dd>{{ report.recommendedActions }}</dd></div><div><dt>الأثر على التصدير</dt><dd>{{ report.exportImpact }}</dd></div></dl>
+              <p class="advisory">{{ report.advisoryWarning }}</p>
+            }
+          </article>
+        }
+      </div>
+    </div>
+  }
+
+  @if (activeTab() === 'costs') {
+    @if (costs(); as summary) {
+      <div class="cost-summary">
+        <article><small>الميزانية المخططة</small><b>{{ formatMoney(summary.plannedBudget) }}</b><span>قابلة للإضافة لاحقًا</span></article>
+        <article><small>إجمالي المصروفات</small><b>{{ formatMoney(summary.totalExpenses) }}</b><span>{{ expenses().length }} مصروفات مسجلة</span></article>
+        <article><small>المتبقي من الميزانية</small><b>{{ formatMoney(summary.remainingBudget) }}</b><span>{{ summary.budgetConsumptionPercentage ?? 0 }}% نسبة الاستهلاك</span></article>
+        <article><small>تكلفة الفدان</small><b>{{ formatMoney(summary.costPerFeddan) }}</b><span>{{ summary.highestSpendingCategory?.expenseCategoryName || 'لا توجد فئة بعد' }}</span></article>
+      </div>
+    }
+
+    <div class="finance-layout">
+      <div class="finance-main">
+        <form class="panel expense-form" (ngSubmit)="createExpense()">
+          <div class="section-title"><div><h2>تسجيل مصروف جديد</h2><p>يمكن التسجيل دون إنشاء ميزانية مسبقًا</p></div></div>
+          <div class="form-grid">
+            <label><span>الفئة</span><select required name="expenseCategory" [(ngModel)]="expenseForm.expenseCategoryId">@for (category of categories(); track category.id) { <option [ngValue]="category.id">{{ category.name }}</option> }</select></label>
+            <label><span>التاريخ</span><input required type="date" name="expenseDate" [(ngModel)]="expenseForm.expenseDate" /></label>
+            <label class="wide"><span>الوصف</span><input required maxlength="500" name="expenseDescription" [(ngModel)]="expenseForm.description" placeholder="مثال: شراء مستلزمات زراعية" /></label>
+            <label><span>الكمية</span><input required min="0.001" step="0.001" type="number" name="expenseQuantity" [(ngModel)]="expenseForm.quantity" /></label>
+            <label><span>سعر الوحدة</span><input required min="0" step="0.01" type="number" name="expenseUnitPrice" [(ngModel)]="expenseForm.unitPrice" /></label>
+            <label><span>طريقة الدفع</span><select name="paymentMethod" [(ngModel)]="expenseForm.paymentMethod">@for (method of paymentMethods; track method) { <option [ngValue]="method">{{ method }}</option> }</select></label>
+            <label><span>المورد</span><input maxlength="300" name="supplier" [(ngModel)]="expenseForm.supplier" /></label>
+          </div>
+          <div class="calculated-total"><span>الإجمالي المحسوب</span><b>{{ formatMoney(expenseForm.quantity * expenseForm.unitPrice) }}</b></div>
+          <button class="primary-action" type="submit" [disabled]="financeSaving()">حفظ المصروف</button>
+        </form>
+
+        <article class="panel expenses-table">
+          <header class="section-title"><div><h2>سجل المصروفات</h2><p>المصروفات النشطة فقط</p></div><button type="button" class="secondary-action" (click)="exportCsv()">تنزيل CSV</button></header>
+          @if (!expenses().length) { <div class="empty-state"><h3>لا توجد مصروفات بعد</h3></div> }
+          @if (expenses().length) {
+            <div class="table-scroll"><table><thead><tr><th>التاريخ</th><th>الفئة</th><th>الوصف</th><th>الإجمالي</th><th>الإيصال</th><th></th></tr></thead><tbody>
+              @for (expense of expenses(); track expense.id) {
+                <tr><td>{{ formatDate(expense.expenseDate) }}</td><td>{{ expense.expenseCategory.name }}</td><td><b>{{ expense.description }}</b><small>{{ expense.supplier }}</small></td><td class="money-cell">{{ formatMoney(expense.amount) }}</td><td><label class="receipt-button">رفع<input type="file" accept="application/pdf,image/png,image/jpeg" (change)="uploadReceipt(expense.id, $event)" /></label></td><td><button type="button" class="delete-button" (click)="deleteExpense(expense.id)">حذف</button></td></tr>
+              }
+            </tbody></table></div>
+          }
+        </article>
+      </div>
+
+      <aside class="panel budget-card">
+        <div class="section-title"><span class="panel-icon">ج.م</span><div><h2>الميزانية الاختيارية</h2><p>تُضاف بعد إنشاء الخطة</p></div></div>
+        <form (ngSubmit)="saveBudget()">
+          <label><span>إجمالي الميزانية</span><input min="0" step="0.01" type="number" name="budgetTotal" [(ngModel)]="budgetTotal" placeholder="غير محددة" /></label>
+          <label><span>ملاحظات</span><textarea maxlength="1000" rows="4" name="budgetNotes" [(ngModel)]="budgetNotes"></textarea></label>
+          <button class="primary-action" type="submit" [disabled]="financeSaving()">حفظ الميزانية</button>
+        </form>
+        @if (costs()?.expensesByCategory?.length) {
+          <div class="category-breakdown"><h3>المصروفات حسب الفئة</h3>@for (category of costs()!.expensesByCategory; track category.expenseCategoryId) { <div><span>{{ category.expenseCategoryName }}</span><b>{{ formatMoney(category.total) }}</b></div> }</div>
+        }
+      </aside>
+    </div>
+  }
+</section>
