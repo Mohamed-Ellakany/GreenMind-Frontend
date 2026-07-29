@@ -1,115 +1,71 @@
-<section class="mx-auto flex min-h-[calc(100dvh-102px)] w-full max-w-[1440px] flex-col gap-6 pb-4 text-[#001c37]" dir="rtl">
-  <div class="flex flex-col justify-between gap-3 md:flex-row md:items-center">
-    <div>
-      <h1 class="text-2xl font-bold tracking-tight md:text-[32px] md:leading-10">واجهة الذكاء الاصطناعي</h1>
-      <p class="mt-1 text-sm leading-6 text-slate-600">اسأل عن اللوائح، العلاجات، أو جاهزية قطع الأراضي للتصدير.</p>
+<section class="mx-auto flex min-h-[calc(100dvh-104px)] w-full max-w-[1480px] flex-col gap-5 pb-3 text-[#082b23]" dir="rtl">
+  <header class="relative overflow-hidden rounded-3xl bg-[#073c2f] px-5 py-6 text-white shadow-xl shadow-emerald-950/10 sm:px-8">
+    <div class="absolute -left-16 -top-20 size-64 rounded-full bg-[#bce95b]/15 blur-2xl"></div>
+    <div class="relative flex flex-col justify-between gap-5 md:flex-row md:items-center">
+      <div>
+        <div class="mb-2 flex items-center gap-2 text-xs font-black text-[#d8f36a]"><span class="size-2 rounded-full bg-[#d8f36a] shadow-[0_0_0_5px_rgba(216,243,106,.12)]"></span> متصل ببيانات مزرعتك</div>
+        <h1 class="text-2xl font-black tracking-tight sm:text-3xl">مستشار المزرعة الذكي</h1>
+        <p class="mt-2 max-w-2xl text-sm leading-6 text-emerald-50/75">اسأل عبر جميع خطط التصدير والمهام والتكاليف. كل محادثة معزولة وآمنة داخل حساب مزرعتك.</p>
+      </div>
+      <button type="button" class="w-fit rounded-xl bg-[#d8f36a] px-5 py-3 text-sm font-black text-[#183a17] shadow-lg shadow-black/10 transition hover:-translate-y-0.5 hover:bg-[#e4fa87]" (click)="createSession()" [disabled]="loading()">+ محادثة جديدة</button>
     </div>
-    <div class="flex items-center gap-3">
-      <button type="button" class="rounded-lg border border-slate-200 bg-white px-4 py-2 text-xs font-bold text-slate-700 transition hover:bg-slate-50">تحليل جديد</button>
-      <span class="rounded-full bg-green-100 px-3 py-1.5 text-xs font-bold text-[#087c35]">مباشر</span>
-    </div>
-  </div>
+  </header>
 
-  <div class="grid min-h-0 flex-1 gap-6 lg:grid-cols-[260px_1fr]">
-    <aside class="hidden flex-col gap-6 overflow-y-auto lg:flex">
-      <section>
-        <h2 class="mb-3 text-xs font-bold uppercase tracking-wide text-slate-500">استفسارات سياقية</h2>
-        <div class="space-y-2">
-          @for (suggestion of suggestions(); track suggestion.text) {
-            <button type="button" class="w-full rounded-lg border border-slate-200 bg-white p-3 text-right text-sm leading-6 text-[#001c37] shadow-[0_4px_20px_rgba(10,37,64,.05)] transition hover:border-[#006b2c] hover:bg-white hover:shadow-[0_8px_30px_rgba(10,37,64,.08)]">
-              <span class="flex items-start gap-2">
-                <span class="pt-0.5 text-[#006b2c]" aria-hidden="true">{{ suggestion.icon }}</span>
-                <span>{{ suggestion.text }}</span>
-              </span>
+  @if (error()) {
+    <div class="flex items-center justify-between rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-bold text-red-800" role="alert"><span>{{ error() }}</span><button type="button" class="text-xl" (click)="error.set(null)">×</button></div>
+  }
+
+  <div class="grid min-h-0 flex-1 gap-5 lg:grid-cols-[285px_minmax(0,1fr)]">
+    <aside class="order-2 flex flex-col gap-4 lg:order-1">
+      <section class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+        <div class="mb-3 flex items-center justify-between"><h2 class="text-sm font-black">المحادثات</h2><span class="rounded-full bg-emerald-50 px-2 py-1 text-[10px] font-black text-emerald-700">{{ sessions().length }}</span></div>
+        <div class="max-h-56 space-y-1 overflow-y-auto lg:max-h-72">
+          @for (session of sessions(); track session.id) {
+            <button type="button" class="w-full rounded-xl border px-3 py-3 text-right transition" [class.border-emerald-300]="selectedSession()?.id === session.id" [class.bg-emerald-50]="selectedSession()?.id === session.id" [class.border-transparent]="selectedSession()?.id !== session.id" (click)="selectSession(session)">
+              <b class="block truncate text-xs">{{ session.title }}</b><small class="mt-1 block text-[10px] text-slate-500">{{ formatSessionDate(session.updatedAtUtc) }}</small>
             </button>
           }
         </div>
       </section>
 
-      <section>
-        <h2 class="mb-3 text-xs font-bold uppercase tracking-wide text-slate-500">التحليلات الأخيرة</h2>
-        <div class="space-y-1">
-          @for (analysis of recentAnalyses(); track analysis) {
-            <a href="#" class="block truncate rounded-md px-3 py-2 text-sm text-slate-600 transition hover:bg-white hover:text-[#001c37]">
-              {{ analysis }}
-            </a>
+      <section class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+        <h2 class="mb-3 text-sm font-black">ابدأ بسؤال</h2>
+        <div class="space-y-2">
+          @for (suggestion of suggestions; track suggestion) {
+            <button type="button" class="w-full rounded-xl bg-slate-50 p-3 text-right text-xs font-bold leading-5 text-slate-600 transition hover:bg-emerald-50 hover:text-emerald-800" (click)="useSuggestion(suggestion)">{{ suggestion }}</button>
           }
         </div>
       </section>
     </aside>
 
-    <section class="flex min-h-[660px] flex-col overflow-hidden rounded-xl border border-slate-200 bg-white shadow-[0_4px_20px_rgba(10,37,64,.05)]">
-      <div class="flex-1 overflow-y-auto p-4 sm:p-6">
-        <div class="space-y-8">
-          <div class="flex justify-start gap-4">
-            <div class="max-w-[82%] rounded-2xl rounded-tl-sm bg-slate-100 px-5 py-3 text-base leading-7 text-[#001c37]">
-              هل يمكنني حصاد القطعة 4B الأسبوع القادم؟ لقد استخدمت "سويتش" (سايبرودينيل + فلو ديوكسونيل) قبل 3 أيام. السوق المستهدف هو الاتحاد الأوروبي.
-            </div>
-            <div class="grid size-8 shrink-0 place-items-center rounded-full bg-green-100 text-xs font-bold text-[#087c35]">JD</div>
-          </div>
+    <article class="order-1 flex min-h-[620px] flex-col overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-[0_18px_55px_rgba(8,43,35,.08)] lg:order-2">
+      <header class="flex items-center justify-between border-b border-slate-100 px-5 py-4 sm:px-7">
+        <div class="flex items-center gap-3"><div class="grid size-11 place-items-center rounded-2xl bg-[#073c2f] font-black text-[#d8f36a]">✦</div><div><h2 class="text-sm font-black">{{ selectedSession()?.title || 'مستشار المزرعة' }}</h2><p class="mt-0.5 text-[11px] text-slate-500">يفهم سياق جميع خططك دون خلط بيانات المزارع</p></div></div>
+        <span class="hidden rounded-full bg-emerald-50 px-3 py-1 text-[10px] font-black text-emerald-700 sm:inline">مباشر</span>
+      </header>
 
-          <div class="flex gap-4">
-            <div class="grid size-8 shrink-0 place-items-center rounded-full bg-[#006b2c] text-sm font-bold text-white">AI</div>
-            <div class="max-w-[88%] flex-1 space-y-4">
-              <div class="inline-flex items-center gap-2 rounded-full bg-red-50 px-3 py-1 text-xs font-bold text-red-700">
-                <span aria-hidden="true">!</span>
-                لا ينصح بالحصاد
-              </div>
-
-              <p class="text-base leading-8 text-[#001c37]">
-                بناء على لوائح الاتحاد الأوروبي الحالية وتاريخ الاستخدام، يجب عليك <strong>تأجيل الحصاد</strong>. لم يتم استيفاء فترة ما قبل الحصاد (PHI) لمبيد "سويتش" على الفراولة الموجهة للاتحاد الأوروبي.
-              </p>
-
-              <div class="rounded-lg border border-slate-200 bg-slate-50 p-4">
-                <div class="mb-3 flex flex-col justify-between gap-3 border-b border-slate-200 pb-3 sm:flex-row sm:items-center">
-                  <h2 class="flex items-center gap-2 text-lg font-bold text-[#001c37]">
-                    <span class="text-[#006b2c]" aria-hidden="true">✓</span>
-                    تفاصيل الامتثال
-                  </h2>
-                  <span class="inline-flex w-fit items-center gap-1 rounded bg-green-100 px-2 py-1 font-mono text-sm text-[#006b2c]">
-                    الثقة: 98%
-                  </span>
-                </div>
-
-                <div class="grid gap-4 md:grid-cols-2">
-                  @for (point of compliancePoints(); track point.name) {
-                    <article class="rounded border border-slate-200 bg-white p-3">
-                      <p class="mb-1 text-xs font-bold uppercase tracking-wide text-slate-500">{{ point.name }}</p>
-                      <strong class="block text-lg text-[#001c37]">{{ point.value }}</strong>
-                      <p class="mt-2 text-xs text-slate-500">{{ point.period }}</p>
-                    </article>
-                  }
-                </div>
-
-                <p class="mt-4 border-r-2 border-amber-500 pr-3 text-sm leading-7 text-slate-600">
-                  <strong>الحساب:</strong> تم الرش قبل 3 أيام. يتطلب سايبرودينيل 7 أيام كحد أدنى. يجب الانتظار 4 أيام إضافية على الأقل قبل الحصاد للامتثال لمعايير الاتحاد الأوروبي.
-                </p>
-              </div>
-
-              <div class="flex flex-wrap gap-2">
-                <span class="rounded border border-slate-200 bg-slate-50 px-2 py-1 text-xs font-bold text-slate-600">قاعدة بيانات مبيدات الاتحاد الأوروبي (Reg. 396/2005)</span>
-                <span class="rounded border border-slate-200 bg-slate-50 px-2 py-1 text-xs font-bold text-slate-600">سجل رش القطعة 4B</span>
-              </div>
+      <div class="flex-1 space-y-5 overflow-y-auto bg-[radial-gradient(circle_at_top_left,rgba(216,243,106,.08),transparent_35%)] p-4 sm:p-7" aria-live="polite">
+        @if (!messages().length && !loading()) {
+          <div class="grid min-h-96 place-items-center text-center"><div><div class="mx-auto grid size-16 place-items-center rounded-3xl bg-emerald-50 text-2xl text-emerald-700">✦</div><h3 class="mt-4 text-lg font-black">ما الذي تريد معرفته اليوم؟</h3><p class="mx-auto mt-2 max-w-md text-sm leading-6 text-slate-500">يمكنني مراجعة الخطط والمهام والتكاليف ومساعدتك في تحديد الأولويات عبر المزرعة.</p></div></div>
+        }
+        @for (message of messages(); track message.id) {
+          <div class="flex gap-3" [class.flex-row-reverse]="message.role === 'المستخدم'">
+            <div class="grid size-9 shrink-0 place-items-center rounded-xl text-xs font-black" [class.bg-emerald-800]="message.role !== 'المستخدم'" [class.text-[#d8f36a]]="message.role !== 'المستخدم'" [class.bg-slate-200]="message.role === 'المستخدم'">{{ message.role === 'المستخدم' ? 'أنت' : 'AI' }}</div>
+            <div class="max-w-[86%] rounded-2xl px-4 py-3 text-sm leading-7 shadow-sm" [class.rounded-tr-sm]="message.role === 'المستخدم'" [class.bg-[#073c2f]]="message.role === 'المستخدم'" [class.text-white]="message.role === 'المستخدم'" [class.rounded-tl-sm]="message.role !== 'المستخدم'" [class.border]="message.role !== 'المستخدم'" [class.border-slate-200]="message.role !== 'المستخدم'" [class.bg-white]="message.role !== 'المستخدم'">
+              <p class="whitespace-pre-wrap">{{ message.content || 'جارٍ إعداد الإجابة…' }}</p>
+              @if (message.status === 'فشل') { <small class="mt-2 block font-bold text-red-500">تعذر إكمال هذا الرد</small> }
             </div>
           </div>
-
-          <div class="flex flex-wrap gap-2 pr-0 lg:pr-12">
-            <button type="button" class="rounded-full border border-slate-300 bg-white px-3 py-1.5 text-sm text-[#001c37] transition hover:bg-slate-50">ماذا لو حولت للسوق المحلي؟</button>
-            <button type="button" class="rounded-full border border-slate-300 bg-white px-3 py-1.5 text-sm text-[#001c37] transition hover:bg-slate-50">عرض منحنى التحلل</button>
-          </div>
-        </div>
+        }
       </div>
 
-      <div class="border-t border-slate-200 bg-white p-4">
-        <div class="relative flex items-center">
-          <button type="button" class="absolute right-3 text-slate-500 transition hover:text-[#006b2c]" aria-label="إرفاق ملف">⌕</button>
-          <input class="w-full rounded-lg border border-slate-200 bg-slate-50 py-4 pl-12 pr-12 text-sm outline-none transition placeholder:text-slate-400 focus:border-[#006b2c] focus:ring-2 focus:ring-[#006b2c]/20" placeholder="اسأل عن اللوائح، العلاجات، أو قطع أراضي محددة..." type="text" />
-          <button type="button" class="absolute left-3 grid size-8 place-items-center rounded bg-[#006b2c] text-white transition hover:bg-[#006e2f]" aria-label="إرسال">‹</button>
+      <form class="border-t border-slate-100 bg-white p-4 sm:p-5" (ngSubmit)="send()">
+        <div class="flex items-end gap-2 rounded-2xl border border-slate-200 bg-slate-50 p-2 transition focus-within:border-emerald-500 focus-within:ring-4 focus-within:ring-emerald-500/10">
+          <textarea class="min-h-12 flex-1 resize-none bg-transparent px-3 py-2 text-sm leading-6 outline-none" rows="2" maxlength="4000" name="messageInput" [(ngModel)]="messageInput" placeholder="اسأل عن خططك، تكاليفك، أو أولويات العمل…"></textarea>
+          <button type="submit" class="grid size-12 shrink-0 place-items-center rounded-xl bg-[#087c35] text-lg font-black text-white shadow-lg shadow-emerald-800/20 transition hover:bg-[#066b2d] disabled:opacity-40" [disabled]="sending() || !selectedSession() || !messageInput.trim()" aria-label="إرسال">{{ sending() ? '…' : '←' }}</button>
         </div>
-        <p class="mt-2 text-center text-xs text-slate-500">
-          يمكن لذكاء جرين مايند ارتكاب الأخطاء. تحقق دائما من الامتثال قبل التصدير.
-        </p>
-      </div>
-    </section>
+        <p class="mt-2 text-center text-[10px] text-slate-400">المستشار أداة مساعدة. راجع القرارات الزراعية والتنظيمية الحساسة قبل التنفيذ.</p>
+      </form>
+    </article>
   </div>
 </section>

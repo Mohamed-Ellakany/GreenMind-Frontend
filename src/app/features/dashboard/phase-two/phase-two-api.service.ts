@@ -10,10 +10,13 @@ import {
   DiseaseReport,
   DiseaseReportPage,
   Expense,
+  ExpenseAttachment,
+  ExpenseAttachmentType,
   ExpenseCategory,
   ExpensePage,
   PaymentMethod,
   PhaseApiResponse,
+  TaskProposal,
 } from './phase-two.models';
 
 @Injectable({ providedIn: 'root' })
@@ -32,15 +35,47 @@ export class PhaseTwoApi {
     return this.get(`/api/export-plans/${planId}/chat/sessions/${sessionId}/messages?pageSize=100`);
   }
 
+  public farmSessions(): Observable<ChatSession[]> {
+    return this.get('/api/farm/chat/sessions');
+  }
+
+  public createFarmSession(title = 'مستشار المزرعة'): Observable<ChatSession> {
+    return this.post('/api/farm/chat/sessions', { title });
+  }
+
+  public farmMessages(sessionId: number): Observable<ChatHistoryPage> {
+    return this.get(`/api/farm/chat/sessions/${sessionId}/messages?pageSize=100`);
+  }
+
+  public streamFarmMessage(
+    sessionId: number,
+    content: string,
+    onEvent: (event: ChatStreamEvent) => void,
+  ): Promise<void> {
+    return this.stream(`/api/farm/chat/sessions/${sessionId}/messages/stream`, content, onEvent);
+  }
+
   public async streamMessage(
     planId: number,
     sessionId: number,
     content: string,
     onEvent: (event: ChatStreamEvent) => void,
   ): Promise<void> {
+    return this.stream(
+      `/api/export-plans/${planId}/chat/sessions/${sessionId}/messages/stream`,
+      content,
+      onEvent,
+    );
+  }
+
+  private async stream(
+    url: string,
+    content: string,
+    onEvent: (event: ChatStreamEvent) => void,
+  ): Promise<void> {
     const token = localStorage.getItem('greenmind_access_token');
     const response = await fetch(
-      `/api/export-plans/${planId}/chat/sessions/${sessionId}/messages/stream`,
+      url,
       {
         method: 'POST',
         headers: {
@@ -66,6 +101,18 @@ export class PhaseTwoApi {
       }
       if (result.done) break;
     }
+  }
+
+  public proposal(proposalId: number): Observable<TaskProposal> {
+    return this.get(`/api/task-change-proposals/${proposalId}`);
+  }
+
+  public applyProposal(proposalId: number): Observable<TaskProposal> {
+    return this.post(`/api/task-change-proposals/${proposalId}/apply`, {});
+  }
+
+  public rejectProposal(proposalId: number): Observable<TaskProposal> {
+    return this.post(`/api/task-change-proposals/${proposalId}/reject`, {});
   }
 
   public diseaseReports(planId: number): Observable<DiseaseReportPage> {
@@ -99,11 +146,16 @@ export class PhaseTwoApi {
     return this.get(`/api/export-plans/${planId}/budget`);
   }
 
-  public saveBudget(planId: number, totalBudget: number | null, notes: string): Observable<Budget> {
+  public saveBudget(
+    planId: number,
+    totalBudget: number | null,
+    notes: string,
+    lines: Array<{ expenseCategoryId: number; plannedAmount: number }>,
+  ): Observable<Budget> {
     return this.put(`/api/export-plans/${planId}/budget`, {
       totalBudget,
       notes: notes.trim() || null,
-      lines: [],
+      lines,
     });
   }
 
@@ -138,11 +190,33 @@ export class PhaseTwoApi {
     });
   }
 
-  public uploadReceipt(planId: number, expenseId: number, file: File): Observable<unknown> {
+  public uploadAttachment(
+    planId: number,
+    expenseId: number,
+    attachmentType: ExpenseAttachmentType,
+    file: File,
+  ): Observable<ExpenseAttachment> {
     const form = new FormData();
-    form.append('AttachmentType', 'إيصال');
+    form.append('AttachmentType', attachmentType);
     form.append('File', file, file.name);
     return this.post(`/api/export-plans/${planId}/expenses/${expenseId}/attachments`, form);
+  }
+
+  public attachments(planId: number, expenseId: number): Observable<ExpenseAttachment[]> {
+    return this.get(`/api/export-plans/${planId}/expenses/${expenseId}/attachments`);
+  }
+
+  public downloadAttachment(planId: number, expenseId: number, attachmentId: number): Observable<Blob> {
+    return this.http.get(
+      `/api/export-plans/${planId}/expenses/${expenseId}/attachments/${attachmentId}/download`,
+      { responseType: 'blob' },
+    );
+  }
+
+  public deleteAttachment(planId: number, expenseId: number, attachmentId: number): Observable<void> {
+    return this.http.delete<void>(
+      `/api/export-plans/${planId}/expenses/${expenseId}/attachments/${attachmentId}`,
+    );
   }
 
   private get<T>(url: string): Observable<T> {

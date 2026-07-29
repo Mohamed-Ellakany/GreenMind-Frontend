@@ -18,6 +18,7 @@ export interface ChatMessage {
   content: string;
   status: string;
   createdAt: string;
+  taskChangeProposalId?: number | null;
 }
 
 export interface ChatHistoryPage {
@@ -34,6 +35,35 @@ export interface ChatStreamEvent {
   messageId: number | null;
   content: string | null;
   retryable: boolean;
+  taskChangeProposalId?: number | null;
+}
+
+export interface TaskProposal {
+  id: number;
+  exportPlanId: number;
+  status: string;
+  expiresAtUtc: string;
+  reviewedAtUtc: string | null;
+  items: TaskProposalItem[];
+}
+
+export interface TaskProposalItem {
+  id: number;
+  operation: string;
+  farmTaskId: number | null;
+  originalValues: TaskProposalValues | null;
+  proposedValues: TaskProposalValues;
+  reason: string;
+}
+
+export interface TaskProposalValues {
+  farmTaskId?: number;
+  taskTypeId: number;
+  title: string;
+  description: string | null;
+  plannedDate: string;
+  status?: string;
+  priority: string;
 }
 
 export interface DiseaseReport {
@@ -104,6 +134,18 @@ export interface ExpensePage {
   page: number;
   pageSize: number;
   totalCount: number;
+}
+
+export type ExpenseAttachmentType = 'فاتورة' | 'إيصال';
+
+export interface ExpenseAttachment {
+  id: number;
+  expenseId: number;
+  attachmentType: ExpenseAttachmentType;
+  originalFileName: string;
+  contentType: string;
+  fileSize: number;
+  createdAt: string;
 }
 
 export interface CostDashboard {

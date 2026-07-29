@@ -1,4 +1,5 @@
 import { Component, DestroyRef, inject, signal } from '@angular/core';
+import { DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, RouterLink } from '@angular/router';
@@ -14,15 +15,18 @@ import {
   CostDashboard,
   DiseaseReport,
   Expense,
+  ExpenseAttachment,
+  ExpenseAttachmentType,
   ExpenseCategory,
   PaymentMethod,
+  TaskProposal,
 } from './phase-two.models';
 
 type WorkspaceTab = 'chat' | 'disease' | 'costs';
 
 @Component({
   selector: 'app-phase-two-workspace',
-  imports: [FormsModule, RouterLink],
+  imports: [DatePipe, FormsModule, RouterLink],
   templateUrl: './phase-two-workspace.html',
   styleUrl: './phase-two-workspace.css',
 })
@@ -41,6 +45,8 @@ export class PhaseTwoWorkspace {
   public readonly chatSession = signal<ChatSession | null>(null);
   public readonly chatMessages = signal<ChatMessage[]>([]);
   public readonly chatSending = signal(false);
+  public readonly selectedProposal = signal<TaskProposal | null>(null);
+  public readonly proposalLoading = signal(false);
   public chatInput = '';
 
   public readonly diseaseReports = signal<DiseaseReport[]>([]);
@@ -54,9 +60,12 @@ export class PhaseTwoWorkspace {
   public readonly budget = signal<Budget | null>(null);
   public readonly expenses = signal<Expense[]>([]);
   public readonly costs = signal<CostDashboard | null>(null);
+  public readonly attachmentsByExpense = signal<Record<number, ExpenseAttachment[]>>({});
   public readonly financeSaving = signal(false);
   public budgetTotal: number | null = null;
   public budgetNotes = '';
+  public budgetAllocations: Record<number, number | null> = {};
+  public attachmentTypes: Record<number, ExpenseAttachmentType> = {};
   public expenseForm = this.emptyExpenseForm();
 
   public readonly paymentMethods: PaymentMethod[] = [
@@ -133,6 +142,7 @@ export class PhaseTwoWorkspace {
               ? message.content + (event.delta ?? '')
               : (event.content ?? message.content),
             status: event.status,
+            taskChangeProposalId: event.taskChangeProposalId ?? message.taskChangeProposalId,
           };
         }));
       });
@@ -146,6 +156,42 @@ export class PhaseTwoWorkspace {
     } finally {
       this.chatSending.set(false);
     }
+  }
+
+  public openProposal(proposalId: number): void {
+    this.proposalLoading.set(true);
+    this.api.proposal(proposalId).pipe(
+      finalize(() => this.proposalLoading.set(false)),
+      takeUntilDestroyed(this.destroyRef),
+    ).subscribe({
+      next: (proposal) => this.selectedProposal.set(proposal),
+      error: () => this.error.set('تعذر تحميل اقتراح تعديل المهام.'),
+    });
+  }
+
+  public reviewProposal(action: 'apply' | 'reject'): void {
+    const proposal = this.selectedProposal();
+    if (!proposal || this.proposalLoading()) return;
+    this.proposalLoading.set(true);
+    const request = action === 'apply'
+      ? this.api.applyProposal(proposal.id)
+      : this.api.rejectProposal(proposal.id);
+    request.pipe(
+      finalize(() => this.proposalLoading.set(false)),
+      takeUntilDestroyed(this.destroyRef),
+    ).subscribe({
+      next: (updated) => {
+        this.selectedProposal.set(updated);
+        if (action === 'apply') {
+          this.error.set(null);
+          this.coreApi.dashboard(this.planId).pipe(
+            takeUntilDestroyed(this.destroyRef),
+          ).subscribe();
+        }
+      },
+      error: (error) => this.error.set(
+        error.error?.error?.message ?? 'تعذر مراجعة الاقتراح.'),
+    });
   }
 
   public chooseDiseaseImages(event: Event): void {
@@ -194,8 +240,20 @@ export class PhaseTwoWorkspace {
 
   public saveBudget(): void {
     if (this.budgetTotal !== null && this.budgetTotal < 0) return;
+    const lines = this.categories()
+      .map((category) => ({
+        expenseCategoryId: category.id,
+        plannedAmount: Number(this.budgetAllocations[category.id] ?? 0),
+      }))
+      .filter((line) => line.plannedAmount > 0);
+    const allocatedTotal = lines.reduce((total, line) => total + line.plannedAmount, 0);
+    if (lines.some((line) => !Number.isFinite(line.plannedAmount)) ||
+        (this.budgetTotal !== null && allocatedTotal > this.budgetTotal)) {
+      this.error.set('إجمالي توزيع الفئات يجب ألا يتجاوز الميزانية الكلية.');
+      return;
+    }
     this.financeSaving.set(true);
-    this.api.saveBudget(this.planId, this.budgetTotal, this.budgetNotes)
+    this.api.saveBudget(this.planId, this.budgetTotal, this.budgetNotes, lines)
       .pipe(
         finalize(() => this.financeSaving.set(false)),
         takeUntilDestroyed(this.destroyRef),
@@ -249,12 +307,50 @@ export class PhaseTwoWorkspace {
     const input = event.target as HTMLInputElement;
     const file = input.files?.[0];
     if (!file) return;
-    this.api.uploadReceipt(this.planId, expenseId, file)
+    this.api.uploadAttachment(
+      this.planId,
+      expenseId,
+      this.attachmentTypes[expenseId] ?? 'إيصال',
+      file,
+    )
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-        next: () => { input.value = ''; },
+        next: () => {
+          input.value = '';
+          this.loadExpenseAttachments(expenseId);
+        },
         error: (error) => this.error.set(
           error.error?.error?.message ?? 'تعذر رفع الإيصال.'),
+      });
+  }
+
+  public attachmentsFor(expenseId: number): ExpenseAttachment[] {
+    return this.attachmentsByExpense()[expenseId] ?? [];
+  }
+
+  public downloadAttachment(expenseId: number, attachment: ExpenseAttachment): void {
+    this.api.downloadAttachment(this.planId, expenseId, attachment.id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (blob) => {
+          const url = URL.createObjectURL(blob);
+          const anchor = document.createElement('a');
+          anchor.href = url;
+          anchor.download = attachment.originalFileName;
+          anchor.click();
+          URL.revokeObjectURL(url);
+        },
+        error: () => this.error.set('تعذر تنزيل المرفق.'),
+      });
+  }
+
+  public deleteAttachment(expenseId: number, attachmentId: number): void {
+    if (!window.confirm('هل تريد حذف هذا المرفق؟')) return;
+    this.api.deleteAttachment(this.planId, expenseId, attachmentId)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => this.loadExpenseAttachments(expenseId),
+        error: () => this.error.set('تعذر حذف المرفق.'),
       });
   }
 
@@ -336,12 +432,49 @@ export class PhaseTwoWorkspace {
         this.costs.set(costs);
         this.budgetTotal = budget?.totalBudget ?? null;
         this.budgetNotes = budget?.notes ?? '';
+        this.budgetAllocations = Object.fromEntries(
+          categories.map((category) => [
+            category.id,
+            budget?.lines.find((line) => line.expenseCategoryId === category.id)?.plannedAmount ?? null,
+          ]),
+        );
+        this.attachmentTypes = Object.fromEntries(
+          expenses.items.map((expense) => [expense.id, this.attachmentTypes[expense.id] ?? 'إيصال']),
+        );
+        this.loadAllAttachments(expenses.items);
         if (!this.expenseForm.expenseCategoryId && categories[0]) {
           this.expenseForm.expenseCategoryId = categories[0].id;
         }
       },
       error: () => this.error.set('تعذر تحميل بيانات التكاليف.'),
     });
+  }
+
+  private loadAllAttachments(expenses: Expense[]): void {
+    if (!expenses.length) {
+      this.attachmentsByExpense.set({});
+      return;
+    }
+    forkJoin(expenses.map((expense) => this.api.attachments(this.planId, expense.id)))
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (groups) => this.attachmentsByExpense.set(Object.fromEntries(
+          expenses.map((expense, index) => [expense.id, groups[index]]),
+        )),
+        error: () => this.error.set('تعذر تحميل مرفقات المصروفات.'),
+      });
+  }
+
+  private loadExpenseAttachments(expenseId: number): void {
+    this.api.attachments(this.planId, expenseId)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (attachments) => this.attachmentsByExpense.update((current) => ({
+          ...current,
+          [expenseId]: attachments,
+        })),
+        error: () => this.error.set('تعذر تحديث مرفقات المصروف.'),
+      });
   }
 
   private emptyExpenseForm(categoryId = 0): {
