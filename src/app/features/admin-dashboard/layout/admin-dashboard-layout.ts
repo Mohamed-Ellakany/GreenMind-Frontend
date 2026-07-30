@@ -5,11 +5,14 @@ import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import {
   faArrowRightFromBracket,
   faBars,
+  faBrain,
   faBriefcase,
   faChevronLeft,
   faClockRotateLeft,
+  faFileArrowUp,
   faShieldHalved,
   faTableCellsLarge,
+  faXmark,
 } from '@fortawesome/free-solid-svg-icons';
 
 @Component({
@@ -25,11 +28,14 @@ export class AdminDashboardLayout {
   public readonly icons = {
     accounts: faBriefcase,
     burger: faBars,
+    close: faXmark,
     collapse: faChevronLeft,
     dashboard: faTableCellsLarge,
     destinations: faShieldHalved,
     logout: faArrowRightFromBracket,
     products: faClockRotateLeft,
+    regulatoryData: faFileArrowUp,
+    knowledgeBase: faBrain,
   };
 
   public openMobileMenu(): void {

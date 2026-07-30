@@ -8,6 +8,15 @@ import { LoginRequest } from '../models/login-request';
 import { RegisterRequest } from '../models/register-request';
 import { RegisterResponse } from '../models/register-response';
 
+export interface AccountProfile {
+  fullName: string;
+  email: string | null;
+  farmName: string | null;
+  farmId: number | null;
+  isActive: boolean;
+  isFarmApproved: boolean | null;
+}
+
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   private readonly http = inject(HttpClient);
@@ -17,6 +26,8 @@ export class AuthService {
 
   public readonly loading = signal(false);
   public readonly error = signal<string | null>(null);
+  public readonly errorCode = signal<string | null>(null);
+  public readonly accountProfile = signal<AccountProfile | null>(null);
 
   public login(payload: LoginRequest): Observable<AuthResponse> {
     const source = this.http.post<ApiResponse<AuthResponse>>(`${this.baseUrl}/login`, payload).pipe(
@@ -28,10 +39,12 @@ export class AuthService {
   public register(payload: RegisterRequest): Observable<RegisterResponse> {
     this.loading.set(true);
     this.error.set(null);
+    this.errorCode.set(null);
     return this.http.post<ApiResponse<RegisterResponse>>(`${this.baseUrl}/register`, payload).pipe(
       map((response) => response.data),
       catchError((error: HttpErrorResponse) => {
         this.error.set(this.errorMessage(error));
+        this.errorCode.set(this.extractErrorCode(error));
         return throwError(() => error);
       }),
       finalize(() => this.loading.set(false)),
@@ -40,7 +53,20 @@ export class AuthService {
 
   public logout(): void {
     localStorage.removeItem(this.tokenKey);
+    this.accountProfile.set(null);
     void this.router.navigateByUrl('/auth/login');
+  }
+
+  public profile(): Observable<AccountProfile> {
+    return this.http.get<ApiResponse<AccountProfile>>(`${this.baseUrl}/me`).pipe(
+      map((response) => response.data),
+      tap((profile) => this.accountProfile.set(profile)),
+    );
+  }
+
+  public loadProfile(): void {
+    if (!this.isAuthenticated()) return;
+    this.profile().subscribe({ error: () => this.accountProfile.set(this.profileFromToken()) });
   }
 
   public getToken(): string | null {
@@ -66,10 +92,13 @@ export class AuthService {
   private request(source: Observable<AuthResponse>): Observable<AuthResponse> {
     this.loading.set(true);
     this.error.set(null);
+    this.errorCode.set(null);
     return source.pipe(
       tap((response) => localStorage.setItem(this.tokenKey, response.token)),
+      tap(() => this.loadProfile()),
       catchError((error: HttpErrorResponse) => {
         this.error.set(this.errorMessage(error));
+        this.errorCode.set(this.extractErrorCode(error));
         return throwError(() => error);
       }),
       finalize(() => this.loading.set(false)),
@@ -80,6 +109,10 @@ export class AuthService {
     return error.error?.error?.message
       ?? error.error?.message
       ?? 'حدث خطأ غير متوقع. حاول مرة أخرى.';
+  }
+
+  private extractErrorCode(error: HttpErrorResponse): string | null {
+    return error.error?.error?.code ?? null;
   }
 
   private tokenPayload(): Record<string, string | string[] | number> | null {
@@ -98,5 +131,24 @@ export class AuthService {
     } catch {
       return null;
     }
+  }
+
+  private profileFromToken(): AccountProfile | null {
+    const payload = this.tokenPayload();
+    if (!payload) return null;
+    const name = payload['fullName']
+      ?? payload['name']
+      ?? payload['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name'];
+    const email = payload['email'];
+    const farmId = payload['farmId'];
+    const farmName = payload['farmName'];
+    return {
+      fullName: typeof name === 'string' && name.trim() ? name : 'مالك المزرعة',
+      email: typeof email === 'string' ? email : null,
+      farmName: typeof farmName === 'string' && farmName.trim() ? farmName : null,
+      farmId: typeof farmId === 'string' ? Number(farmId) : null,
+      isActive: true,
+      isFarmApproved: null,
+    };
   }
 }

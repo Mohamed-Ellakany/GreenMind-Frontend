@@ -19,6 +19,8 @@ export interface MasterDataItem {
   name: string;
   description: string | null;
   isActive: boolean;
+  isDeleted: boolean;
+  deletedAtUtc: string | null;
   createdAt: string;
 }
 
@@ -143,4 +145,14 @@ export interface FarmAccount {
 
 export interface PagedResult<T> {
   items: T[]; pageNumber: number; pageSize: number; totalCount: number; totalPages: number;
+}
+
+export interface RegulatoryImportResult {
+  message: string;
+  importedRows: number;
+  skippedRows: number;
+}
+
+export interface RagIngestionResult {
+  chunksIngested: number;
 }

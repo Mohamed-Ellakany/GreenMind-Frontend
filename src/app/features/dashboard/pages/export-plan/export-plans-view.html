@@ -1,32 +1,32 @@
-<section class="mx-auto max-w-[1440px] pb-16 text-[#001c37]" dir="rtl">
-  <header class="mb-8 flex flex-col justify-between gap-4 md:flex-row md:items-end">
-    <div><p class="text-xs font-bold text-[#006b2c]">الإدارة</p><h1 class="text-3xl font-black">خطط التصدير</h1><p class="mt-2 text-sm text-slate-500">أنشئ الخطة أولاً، ثم يتولى مخطط الذكاء الاصطناعي إعداد مهام الأيام السبعة التالية.</p></div>
-    <button type="button" class="rounded-xl bg-[#006b2c] px-5 py-3 text-sm font-bold text-white" (click)="openForm()">+ خطة تصدير جديدة</button>
+<section class="mx-auto max-w-[1440px] pb-8 text-[#001c37]" dir="rtl">
+  <header class="mb-4 flex flex-col justify-between gap-3 md:flex-row md:items-end">
+    <div><p class="text-xs font-bold text-[#006b2c]">الإدارة</p><h1 class="text-2xl font-black sm:text-3xl">خطط التصدير</h1><p class="mt-1 text-sm text-slate-500">أنشئ الخطة أولاً، ثم يتولى مخطط الذكاء الاصطناعي إعداد مهام الأيام السبعة التالية.</p></div>
+    <button type="button" class="rounded-lg bg-[#006b2c] px-4 py-2 text-sm font-bold text-white" (click)="openForm()">+ خطة تصدير جديدة</button>
   </header>
 
   @if (error()) { <p class="mb-5 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">{{ error() }}</p> }
   @if (planning(); as status) {
-    <div class="mb-6 rounded-xl border p-5" [class.border-green-200]="status.status === 'Succeeded'" [class.bg-green-50]="status.status === 'Succeeded'" [class.border-red-200]="status.status === 'Failed'" [class.bg-red-50]="status.status === 'Failed'" [class.border-blue-200]="status.status === 'Pending' || status.status === 'InProgress'" [class.bg-blue-50]="status.status === 'Pending' || status.status === 'InProgress'">
+    <div class="mb-4 rounded-xl border p-4" [class.border-green-200]="status.status === 'Succeeded'" [class.bg-green-50]="status.status === 'Succeeded'" [class.border-red-200]="status.status === 'Failed'" [class.bg-red-50]="status.status === 'Failed'" [class.border-blue-200]="status.status === 'Pending' || status.status === 'InProgress'" [class.bg-blue-50]="status.status === 'Pending' || status.status === 'InProgress'">
       <div class="flex flex-wrap items-center justify-between gap-3"><div><strong>{{ planningLabel(status.status) }}</strong><p class="mt-1 text-sm text-slate-600">المحاولة {{ status.attemptCount }} · {{ status.generatedTaskCount }} مهمة محفوظة</p></div>@if (status.status === 'Failed') { <button class="rounded-lg bg-red-700 px-4 py-2 text-sm font-bold text-white" (click)="retry(status.exportPlanId)">إعادة المحاولة</button> }</div>
       @if (status.failureMessage) { <p class="mt-3 text-sm text-red-700">{{ status.failureMessage }}</p> }
     </div>
   }
 
-  <div class="mb-7 flex flex-col gap-3 rounded-xl bg-white p-4 shadow-sm lg:flex-row lg:items-center lg:justify-between">
-    <div class="flex flex-wrap gap-2">@for (tab of tabs; track tab.value) { <button class="rounded-lg px-4 py-2 text-xs font-bold" [class.bg-[#006b2c]]="selectedTab() === tab.value" [class.text-white]="selectedTab() === tab.value" [class.bg-slate-100]="selectedTab() !== tab.value" (click)="selectedTab.set(tab.value)">{{ tab.label }}</button> }</div>
+  <div class="mb-4 flex flex-col gap-3 rounded-xl border border-[#dce6df] bg-white p-3 shadow-sm lg:flex-row lg:items-center lg:justify-between">
+    <div class="flex flex-wrap gap-2">@for (tab of tabs; track tab.value) { <button class="rounded-lg px-3 py-2 text-xs font-bold" [class.bg-[#006b2c]]="selectedTab() === tab.value" [class.text-white]="selectedTab() === tab.value" [class.bg-slate-100]="selectedTab() !== tab.value" (click)="selectedTab.set(tab.value)">{{ tab.label }}</button> }</div>
     <input class="rounded-lg border border-slate-200 px-4 py-2 text-sm lg:w-80" placeholder="ابحث بالاسم أو المحصول أو الوجهة" [value]="search()" (input)="search.set($any($event.target).value)" />
   </div>
 
   @if (loading()) { <p class="rounded-xl bg-white p-8 text-center text-slate-500">جارٍ تحميل الخطط...</p> }
   @else if (filteredPlans().length === 0) { <button class="w-full rounded-2xl border-2 border-dashed border-slate-200 p-14 text-center" (click)="openForm()"><strong>لا توجد خطط بعد</strong><span class="mt-2 block text-sm text-slate-500">أنشئ أول خطة تصدير لبدء التخطيط الذكي.</span></button> }
   @else {
-    <div class="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+    <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
       @for (plan of filteredPlans(); track plan.id) {
-        <article class="cursor-pointer rounded-2xl bg-white p-6 shadow-[0_4px_20px_rgba(10,37,64,.06)] transition hover:-translate-y-0.5 hover:border-[#0f7a3d]/30 hover:shadow-[0_12px_35px_rgba(16,35,27,.1)]" [routerLink]="['/export-plans', plan.id]" role="link" tabindex="0" (keydown.enter)="$any($event.currentTarget).click()">
+        <article class="cursor-pointer rounded-xl border border-[#dce6df] bg-white p-4 shadow-[0_4px_20px_rgba(10,37,64,.045)] transition hover:border-[#0f7a3d]/30 hover:shadow-[0_10px_28px_rgba(16,35,27,.08)]" [routerLink]="['/export-plans', plan.id]" role="link" tabindex="0" (keydown.enter)="$any($event.currentTarget).click()">
           <div class="flex items-start justify-between gap-3"><div><span class="text-xs font-bold text-[#006b2c]">EX-{{ plan.id }}</span><h2 class="mt-1 text-lg font-black">{{ plan.name }}</h2><p class="mt-2 text-sm text-slate-500">{{ plan.crop }} · {{ plan.destination }}</p></div><span class="rounded-full bg-slate-100 px-3 py-1 text-xs font-bold">{{ statusLabel(plan.status) }}</span></div>
-          <div class="mt-5"><div class="mb-2 flex justify-between text-xs text-slate-500"><span>تقدم الموسم</span><b>{{ progress(plan) }}%</b></div><div class="h-2 overflow-hidden rounded-full bg-slate-100"><i class="block h-full bg-[#16a34a]" [style.width.%]="progress(plan)"></i></div></div>
-          <div class="mt-5 rounded-xl p-3 text-sm" [class.bg-green-50]="plan.planningStatus === 'Succeeded'" [class.text-green-800]="plan.planningStatus === 'Succeeded'" [class.bg-blue-50]="plan.planningStatus === 'Pending' || plan.planningStatus === 'InProgress'" [class.text-blue-800]="plan.planningStatus === 'Pending' || plan.planningStatus === 'InProgress'" [class.bg-red-50]="plan.planningStatus === 'Failed'" [class.text-red-800]="plan.planningStatus === 'Failed'"><b>{{ planningLabel(plan.planningStatus) }}</b><span class="mr-2">{{ plan.generatedTaskCount }} مهمة</span>@if (plan.planningStatus === 'Failed') { <button class="mr-3 underline" (click)="$event.stopPropagation(); retry(plan.id)">إعادة المحاولة</button> }</div>
-          <div class="mt-5 grid grid-cols-2 gap-4 border-t pt-4 text-xs"><div><span class="text-slate-500">الزراعة</span><b class="mt-1 block">{{ plan.plantingDate }}</b></div><div><span class="text-slate-500">التصدير المتوقع</span><b class="mt-1 block">{{ plan.expectedExportDate }}</b></div></div>
+          <div class="mt-4"><div class="mb-2 flex justify-between text-xs text-slate-500"><span>تقدم الموسم</span><b>{{ progress(plan) }}%</b></div><div class="h-1.5 overflow-hidden rounded-full bg-slate-100"><i class="block h-full bg-[#16a34a]" [style.width.%]="progress(plan)"></i></div></div>
+          <div class="mt-4 rounded-lg p-2.5 text-sm" [class.bg-green-50]="plan.planningStatus === 'Succeeded'" [class.text-green-800]="plan.planningStatus === 'Succeeded'" [class.bg-blue-50]="plan.planningStatus === 'Pending' || plan.planningStatus === 'InProgress'" [class.text-blue-800]="plan.planningStatus === 'Pending' || plan.planningStatus === 'InProgress'" [class.bg-red-50]="plan.planningStatus === 'Failed'" [class.text-red-800]="plan.planningStatus === 'Failed'"><b>{{ planningLabel(plan.planningStatus) }}</b><span class="mr-2">{{ plan.generatedTaskCount }} مهمة</span>@if (plan.planningStatus === 'Failed') { <button class="mr-3 underline" (click)="$event.stopPropagation(); retry(plan.id)">إعادة المحاولة</button> }</div>
+          <div class="mt-4 grid grid-cols-2 gap-3 border-t pt-3 text-xs"><div><span class="text-slate-500">الزراعة</span><b class="mt-1 block">{{ plan.plantingDate }}</b></div><div><span class="text-slate-500">التصدير المتوقع</span><b class="mt-1 block">{{ plan.expectedExportDate }}</b></div></div>
         </article>
       }
     </div>
@@ -34,8 +34,8 @@
 
   @if (formOpen()) {
     <div class="fixed inset-0 z-50 grid place-items-center bg-[#071710]/65 p-0 backdrop-blur-sm sm:p-4" (click)="closeForm()">
-      <form class="flex h-[100dvh] w-full max-w-5xl flex-col overflow-hidden bg-white shadow-2xl sm:h-auto sm:max-h-[94dvh] sm:rounded-[1.75rem]" (click)="$event.stopPropagation()" (ngSubmit)="create()">
-        <header class="flex shrink-0 items-start justify-between gap-4 border-b border-slate-100 px-5 py-4 sm:px-8 sm:py-5">
+      <form class="flex h-[100dvh] w-full max-w-5xl flex-col overflow-hidden bg-white shadow-2xl sm:h-auto sm:max-h-[92dvh] sm:rounded-xl" (click)="$event.stopPropagation()" (ngSubmit)="create()">
+        <header class="flex shrink-0 items-start justify-between gap-4 border-b border-slate-100 px-5 py-3 sm:px-6 sm:py-4">
           <div>
             <div class="mb-1 flex items-center gap-2 text-xs font-bold text-[#0f7a3d]"><span class="inline-block size-2 rounded-full bg-[#0f7a3d]"></span> مخطط التصدير الذكي</div>
             <h2 class="text-xl font-black tracking-tight sm:text-2xl">إنشاء خطة تصدير جديدة</h2>
@@ -44,7 +44,7 @@
           <button type="button" class="grid size-10 shrink-0 place-items-center rounded-full border border-slate-200 text-xl text-slate-500 hover:border-slate-300 hover:bg-slate-50 hover:text-slate-900" aria-label="إغلاق" (click)="closeForm()">×</button>
         </header>
 
-        <nav class="shrink-0 border-b border-slate-100 bg-[#fbfdfb] px-4 py-4 sm:px-8" aria-label="خطوات إنشاء الخطة">
+        <nav class="shrink-0 border-b border-slate-100 bg-[#fbfdfb] px-4 py-3 sm:px-6" aria-label="خطوات إنشاء الخطة">
           <ol class="mx-auto grid max-w-3xl grid-cols-3">
             @for (step of formSteps; track step.number) {
               <li class="relative">
@@ -59,10 +59,10 @@
           </ol>
         </nav>
 
-        <main class="min-h-0 flex-1 overflow-y-auto px-5 py-6 sm:px-8 sm:py-7">
+        <main class="min-h-0 flex-1 overflow-y-auto px-5 py-4 sm:px-6 sm:py-5">
           @if (formStep() === 1) {
             <section class="mx-auto max-w-3xl">
-              <div class="mb-6">
+              <div class="mb-4">
                 <span class="text-xs font-bold text-[#0f7a3d]">الخطوة 1 من 3</span>
                 <h3 class="mt-1 text-xl font-black">لنبدأ بتعريف الخطة</h3>
                 <p class="mt-1 text-sm text-slate-500">اختر اسمًا واضحًا يساعدك في العثور على الخطة ومتابعتها لاحقًا.</p>
@@ -72,7 +72,7 @@
                 <label><span class="mb-2 block text-sm font-bold">المحصول <em class="not-italic text-red-500">*</em></span><select required class="w-full rounded-xl border px-4 py-3" name="cropId" [(ngModel)]="form.cropId"><option [ngValue]="0" disabled>اختر المحصول</option>@for (item of crops(); track item.id) { <option [ngValue]="item.id">{{ item.name }}</option> }</select><small class="mt-2 block text-xs text-slate-400">المحصول المراد زراعته وتجهيزه.</small></label>
                 <label><span class="mb-2 block text-sm font-bold">سوق التصدير <em class="not-italic text-red-500">*</em></span><select required class="w-full rounded-xl border px-4 py-3" name="destinationId" [(ngModel)]="form.destinationId"><option [ngValue]="0" disabled>اختر الوجهة</option>@for (item of destinations(); track item.id) { <option [ngValue]="item.id">{{ item.name }}</option> }</select><small class="mt-2 block text-xs text-slate-400">سنراعي متطلبات هذه الوجهة في الخطة.</small></label>
               </div>
-              <div class="mt-7 flex items-start gap-3 rounded-2xl border border-green-100 bg-green-50/70 p-4 text-sm text-green-900"><span class="grid size-8 shrink-0 place-items-center rounded-full bg-white">✦</span><p class="leading-6"><strong class="block">ماذا سيحدث بعد الإنشاء؟</strong>سيحلل المخطط بيانات المحصول والوجهة والمزرعة لإنشاء مهام عملية للأيام السبعة التالية.</p></div>
+              <div class="mt-5 flex items-start gap-3 rounded-xl border border-green-100 bg-green-50/70 p-3 text-sm text-green-900"><span class="grid size-8 shrink-0 place-items-center rounded-full bg-white">✦</span><p class="leading-6"><strong class="block">ماذا سيحدث بعد الإنشاء؟</strong>سيحلل المخطط بيانات المحصول والوجهة والمزرعة لإنشاء مهام عملية للأيام السبعة التالية.</p></div>
             </section>
           }
 
@@ -83,7 +83,7 @@
                 <h3 class="mt-1 text-xl font-black">أين تقع المزرعة؟</h3>
                 <p class="mt-1 text-sm text-slate-500">اختر المحافظة والمدينة أولًا، ثم عدّل العلامة على الخريطة لتحديد موقع المزرعة بدقة.</p>
               </div>
-              <div class="grid gap-6 lg:grid-cols-[minmax(0,1.55fr)_minmax(260px,.75fr)]">
+              <div class="grid gap-4 lg:grid-cols-[minmax(0,1.55fr)_minmax(260px,.75fr)]">
                 <div>
                   <div class="mb-3 flex flex-wrap items-center justify-between gap-2">
                     <strong class="text-sm">حدد النقطة على الخريطة <em class="not-italic text-red-500">*</em></strong>
@@ -111,8 +111,8 @@
                   </div>
                 </div>
 
-                <aside class="space-y-4">
-                  <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-1">
+                <aside class="space-y-3">
+                  <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-1">
                     <label>
                       <span class="mb-2 flex items-center justify-between gap-2 text-sm font-bold"><span>المحافظة <em class="not-italic text-red-500">*</em></span><small class="font-normal text-slate-400">27 محافظة</small></span>
                       <select required class="location-select w-full rounded-xl border px-4 py-3" name="governorate" [(ngModel)]="form.governorate" (ngModelChange)="onGovernorateChange($event)">
@@ -142,12 +142,12 @@
 
           @if (formStep() === 3) {
             <section>
-              <div class="mb-6">
+              <div class="mb-4">
                 <span class="text-xs font-bold text-[#0f7a3d]">الخطوة 3 من 3</span>
                 <h3 class="mt-1 text-xl font-black">حدد المواعيد وراجع الخطة</h3>
                 <p class="mt-1 text-sm text-slate-500">سنستخدم هذه التواريخ لبناء توقيتات الزراعة والتجهيز والتصدير.</p>
               </div>
-              <div class="grid gap-7 lg:grid-cols-[minmax(0,1.25fr)_minmax(280px,.75fr)]">
+              <div class="grid gap-5 lg:grid-cols-[minmax(0,1.25fr)_minmax(280px,.75fr)]">
                 <div>
                   <div class="grid gap-4 sm:grid-cols-3">
                     <label><span class="mb-2 block text-sm font-bold">تاريخ الزراعة</span><input required type="date" class="w-full rounded-xl border px-3 py-3" name="planting" [(ngModel)]="form.plantingDate" /></label>
@@ -156,7 +156,7 @@
                   </div>
                   <label class="mt-5 block"><span class="mb-2 block text-sm font-bold">ملاحظات للمخطط <span class="font-normal text-slate-400">(اختياري)</span></span><textarea class="w-full resize-none rounded-xl border px-4 py-3" rows="4" name="notes" [(ngModel)]="form.notes" placeholder="مثلًا: شهادات مطلوبة، طريقة التعبئة، قيود الري أو التسميد..."></textarea><small class="mt-2 block text-xs text-slate-400">كلما كانت الملاحظات أوضح، كانت المهام المقترحة أدق.</small></label>
                 </div>
-                <aside class="rounded-2xl border border-[#dce9df] bg-[#f7fbf8] p-5">
+                <aside class="rounded-xl border border-[#dce9df] bg-[#f7fbf8] p-4">
                   <div class="mb-5 flex items-center justify-between"><strong>ملخص الخطة</strong><button type="button" class="text-xs font-bold text-[#0f7a3d] hover:underline" (click)="goToStep(1)">تعديل</button></div>
                   <dl class="space-y-4 text-sm">
                     <div><dt class="text-xs text-slate-500">اسم الخطة</dt><dd class="mt-1 font-bold">{{ form.name }}</dd></div>
@@ -170,7 +170,7 @@
           }
         </main>
 
-        <footer class="shrink-0 border-t border-slate-100 bg-white px-5 py-4 sm:px-8">
+        <footer class="shrink-0 border-t border-slate-100 bg-white px-5 py-3 sm:px-6">
           @if (stepError()) { <div class="mb-3 flex items-center gap-2 rounded-xl bg-red-50 px-4 py-2.5 text-sm font-bold text-red-700" role="alert"><span>!</span> {{ stepError() }}</div> }
           <div class="flex items-center justify-between gap-3">
             <button type="button" class="rounded-xl px-3 py-2.5 text-sm font-bold text-slate-500 hover:bg-slate-50 hover:text-slate-800" (click)="formStep() === 1 ? closeForm() : previousStep()">{{ formStep() === 1 ? 'إلغاء' : 'السابق' }}</button>

@@ -1,7 +1,63 @@
-<section class="mx-auto max-w-[1440px] pb-16 text-[#001c37]" dir="rtl">
-  <header class="mb-8 flex flex-col justify-between gap-4 sm:flex-row sm:items-end"><div><h1 class="text-3xl font-black">مهام المزرعة</h1><p class="mt-2 text-sm text-slate-500">المهام المخططة بالذكاء الاصطناعي وحالتها الفعلية.</p></div><div class="flex gap-2"><select class="rounded-lg border bg-white px-4 py-2" [(ngModel)]="status" (change)="load()"><option value="">كل الحالات</option><option value="Pending">قيد الانتظار</option><option value="InProgress">قيد التنفيذ</option><option value="Completed">مكتملة</option><option value="Cancelled">ملغاة</option></select><button class="rounded-lg border bg-white px-4 py-2" (click)="load()">تحديث</button></div></header>
-  @if (error()) { <p class="mb-5 rounded-xl border border-red-200 bg-red-50 p-4 text-red-700">{{ error() }}</p> }
-  @if (loading()) { <p class="rounded-xl bg-white p-10 text-center text-slate-500">جارٍ تحميل المهام...</p> }
-  @else if (tasks().length === 0) { <p class="rounded-xl border-2 border-dashed bg-white p-12 text-center text-slate-500">لا توجد مهام مطابقة. أنشئ خطة تصدير وانتظر اكتمال التخطيط.</p> }
-  @else { <div class="overflow-x-auto rounded-2xl bg-white shadow-sm"><table class="w-full min-w-[850px] text-right"><thead class="bg-slate-50 text-xs text-slate-500"><tr><th class="p-4">المهمة</th><th class="p-4">النوع</th><th class="p-4">التاريخ</th><th class="p-4">الأولوية</th><th class="p-4">الحالة</th><th class="p-4">الإجراء</th></tr></thead><tbody>@for (task of tasks(); track task.id) { <tr class="border-t"><td class="p-4"><b>{{ task.title }}</b><p class="mt-1 max-w-xl text-xs text-slate-500">{{ task.description }}</p></td><td class="p-4">{{ task.taskTypeName }}</td><td class="p-4 font-mono">{{ task.plannedDate }}</td><td class="p-4"><span class="rounded-full bg-amber-50 px-3 py-1 text-xs font-bold text-amber-700">{{ task.priority }}</span></td><td class="p-4">{{ statusLabel(task.status) }}</td><td class="p-4">@if (task.status !== 'Completed' && task.status !== 'Cancelled') { <button class="rounded-lg bg-[#16a34a] px-3 py-2 text-xs font-bold text-white" (click)="complete(task)">إكمال</button> } @else { <span class="text-xs text-slate-400">—</span> }</td></tr> }</tbody></table></div> }
+<section class="activities-page" dir="rtl">
+  <header class="activities-hero">
+    <div>
+      <span class="eyebrow">متابعة التنفيذ</span>
+      <h1>مهام المزرعة</h1>
+      <p>المهام المخططة بالذكاء الاصطناعي وحالتها الفعلية، مرتبة بشكل يساعدك تعرف ما الذي يحتاج إجراء الآن.</p>
+    </div>
+    <div class="toolbar" aria-label="أدوات المهام">
+      <select [(ngModel)]="status" (change)="load()" aria-label="تصفية الحالة">
+        <option value="">كل الحالات</option>
+        <option value="Pending">قيد الانتظار</option>
+        <option value="InProgress">قيد التنفيذ</option>
+        <option value="Completed">مكتملة</option>
+        <option value="Cancelled">ملغاة</option>
+      </select>
+      <button type="button" (click)="load()">تحديث</button>
+    </div>
+  </header>
+
+  @if (error()) {
+    <p class="error-banner" role="alert">{{ error() }}</p>
+  }
+
+  @if (loading()) {
+    <div class="loading-card">جارٍ تحميل المهام...</div>
+  } @else if (tasks().length === 0) {
+    <div class="empty-card">
+      <strong>لا توجد مهام مطابقة</strong>
+      <span>أنشئ خطة تصدير وانتظر اكتمال التخطيط، أو غيّر فلتر الحالة الحالي.</span>
+    </div>
+  } @else {
+    <div class="task-board">
+      @for (task of tasks(); track task.id) {
+        <article class="task-card" [class.is-done]="task.status === 'Completed'" [class.is-waiting]="task.status === 'Pending'">
+          <div class="task-main">
+            <div class="task-heading">
+              <div>
+                <span class="task-type">{{ task.taskTypeName }}</span>
+                <h2>{{ task.title }}</h2>
+              </div>
+              <span class="status-pill" [class.done]="task.status === 'Completed'" [class.active]="task.status === 'InProgress'" [class.waiting]="task.status === 'Pending'">{{ statusLabel(task.status) }}</span>
+            </div>
+
+            <p class="task-description">{{ task.description }}</p>
+
+            <div class="task-meta">
+              <span><small>التاريخ</small><b>{{ task.plannedDate }}</b></span>
+              <span><small>الأولوية</small><b class="priority" [class.high]="task.priority === 'High' || task.priority === 'Critical'">{{ priorityLabel(task.priority) }}</b></span>
+            </div>
+          </div>
+
+          <div class="task-action">
+            @if (task.status !== 'Completed' && task.status !== 'Cancelled') {
+              <button type="button" (click)="complete(task)">إكمال</button>
+            } @else {
+              <span aria-label="لا يوجد إجراء">—</span>
+            }
+          </div>
+        </article>
+      }
+    </div>
+  }
 </section>

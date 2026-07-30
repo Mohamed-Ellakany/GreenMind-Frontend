@@ -1,0 +1,36 @@
+:host { display: block; }
+.knowledge-hero { position: relative; background: linear-gradient(125deg, #fff 20%, #eff9f2 66%, #e7f3d2); background-size: 140% 140%; box-shadow: 0 18px 50px rgb(16 35 27 / .06); animation: knowledge-ambient 12s ease-in-out infinite alternate; }
+.knowledge-hero::after { content: ''; position: absolute; width: 280px; height: 280px; inset: -130px auto auto -70px; border-radius: 999px; background: rgb(215 244 94 / .5); filter: blur(2px); animation: knowledge-orb 8s ease-in-out infinite alternate; }
+.source-card { display: flex; min-height: 154px; flex-direction: column; align-items: flex-start; gap: 8px; border: 1px solid #dce6df; border-radius: 18px; background: #fbfcfb; padding: 16px; text-align: right; color: #10231b; box-shadow: none; }
+.source-card:hover { border-color: #a8cdb3; background: #f7fbf8; transform: translateY(-2px); box-shadow: 0 12px 28px rgb(16 35 27 / .07); }
+.source-card-active { border-color: #16a34a; background: linear-gradient(145deg, #f3fcf5, #eaf8ee); box-shadow: 0 0 0 3px rgb(22 163 74 / .09), 0 12px 30px rgb(16 35 27 / .055); }
+.source-card-mark { display: grid; width: 38px; height: 38px; place-items: center; border-radius: 12px; background: #e9efeb; color: #526158; font-size: 11px; font-weight: 900; }
+.source-card-active .source-card-mark { background: #d8f36a; color: #31430b; }
+.source-card strong { font-size: 14px; }
+.source-card small { color: #718078; font-size: 11px; line-height: 1.7; }
+.field-label { display: block; color: #263b31; font-size: 13px; font-weight: 800; }
+.field-label small { display: block; margin-top: 7px; color: #7a8881; font-size: 10px; font-weight: 500; }
+.field-control { width: 100%; margin-top: 8px; border: 1px solid #d6e0d9; border-radius: 13px; padding: 11px 13px; font-size: 13px; }
+.upload-zone { display: flex; min-height: 126px; margin-top: 8px; align-items: center; justify-content: center; gap: 14px; border: 2px dashed #c9d7cd; border-radius: 18px; background: #f8faf8; padding: 20px; text-align: center; transition: border-color 160ms ease, background 160ms ease, transform 160ms ease; }
+.upload-zone:hover, .upload-zone-active { border-color: #16a34a; background: #f0faf3; }
+.upload-zone-active { transform: scale(.995); }
+.upload-zone-filled { justify-content: flex-start; border-style: solid; text-align: right; }
+.upload-icon { display: grid; width: 46px; height: 46px; place-items: center; border-radius: 15px; background: #10231b; color: #d8f36a; font-size: 22px; font-weight: 900; }
+.primary-action { display: inline-flex; min-height: 46px; align-items: center; justify-content: center; gap: 9px; border-radius: 13px; background: #0f7a3d; padding: 0 20px; color: white; font-size: 13px; font-weight: 900; box-shadow: 0 10px 24px rgb(15 122 61 / .2); }
+.primary-action:hover:not(:disabled) { background: #075d2d; transform: translateY(-1px); }
+.primary-action:disabled { cursor: not-allowed; opacity: .45; box-shadow: none; }
+.spinner { width: 15px; height: 15px; border: 2px solid rgb(255 255 255 / .35); border-top-color: white; border-radius: 999px; animation: spin .75s linear infinite; }
+.flow-step { display: flex; align-items: center; gap: 12px; }
+.flow-step > span { display: grid; width: 32px; height: 32px; flex: 0 0 auto; place-items: center; border: 1px solid rgb(255 255 255 / .15); border-radius: 10px; background: rgb(255 255 255 / .07); color: #d8f36a; font-size: 11px; font-weight: 900; }
+.flow-step div { min-width: 0; }
+.flow-step strong, .flow-step small { display: block; }
+.flow-step strong { font-size: 12px; }
+.flow-step small { margin-top: 3px; color: rgb(255 255 255 / .48); font-size: 10px; }
+.agent-chip { display: grid; grid-template-columns: 38px 1fr 8px; align-items: center; gap: 11px; border: 1px solid #e2e9e4; border-radius: 15px; padding: 11px; }
+.agent-chip > span { display: grid; width: 38px; height: 38px; place-items: center; border-radius: 12px; color: #274018; font-size: 12px; font-weight: 900; }
+.agent-chip strong, .agent-chip small { display: block; }
+.agent-chip strong { color: #10231b; font-size: 11px; }
+.agent-chip small { margin-top: 3px; color: #7a8881; font-size: 9px; }
+.agent-chip i { width: 7px; height: 7px; border-radius: 999px; background: #16a34a; box-shadow: 0 0 0 4px rgb(22 163 74 / .1); }
+@keyframes spin { to { transform: rotate(360deg); } }
+@media (max-width: 639px) { .source-card { min-height: auto; } .upload-zone { align-items: stretch; flex-direction: column; } .upload-zone-filled { align-items: center; text-align: center; } }

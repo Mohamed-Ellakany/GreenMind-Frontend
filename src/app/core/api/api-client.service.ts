@@ -23,6 +23,10 @@ export class ApiClient {
     return this.unwrap(this.http.patch<ApiResponse<T>>(path, body));
   }
 
+  public delete<T>(path: string): Observable<T> {
+    return this.unwrap(this.http.delete<ApiResponse<T>>(path));
+  }
+
   private unwrap<T>(source: Observable<ApiResponse<T> | null>): Observable<T> {
     // Successful commands can legitimately return 204 No Content. Angular
     // represents that response body as null, so do not try to read `.data`.

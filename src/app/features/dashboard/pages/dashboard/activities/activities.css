@@ -1,0 +1,271 @@
+:host {
+  display: block;
+}
+
+.activities-page {
+  max-width: 1440px;
+  margin: 0 auto;
+  padding-bottom: 2rem;
+  color: #10231b;
+}
+
+.activities-hero {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1rem;
+  border: 1px solid #d9e6dc;
+  border-radius: 0.85rem;
+  background: #fff;
+  padding: 1rem;
+  box-shadow: 0 10px 28px rgb(16 35 27 / 0.05);
+}
+
+.eyebrow {
+  color: #0f7a3d;
+  font-size: 0.75rem;
+  font-weight: 900;
+}
+
+.activities-hero h1 {
+  margin-top: 0.25rem;
+  font-size: clamp(1.6rem, 2.4vw, 2.25rem);
+  font-weight: 950;
+}
+
+.activities-hero p {
+  margin-top: 0.35rem;
+  max-width: 660px;
+  color: #647168;
+  font-size: 0.9rem;
+  line-height: 1.7;
+}
+
+.toolbar {
+  display: flex;
+  flex: 0 0 auto;
+  gap: 0.5rem;
+}
+
+.toolbar select,
+.toolbar button {
+  min-height: 2.75rem;
+  border: 1px solid #d4e1d8;
+  border-radius: 0.65rem;
+  background: #fff;
+  padding: 0 0.9rem;
+  font-weight: 800;
+}
+
+.toolbar button {
+  color: #0f7a3d;
+}
+
+.error-banner,
+.loading-card,
+.empty-card {
+  border-radius: 0.85rem;
+  background: #fff;
+  padding: 1rem;
+}
+
+.error-banner {
+  margin-bottom: 1rem;
+  border: 1px solid #fecaca;
+  background: #fff1f2;
+  color: #b42318;
+  font-weight: 800;
+}
+
+.loading-card,
+.empty-card {
+  border: 1px solid #dce6de;
+  color: #647168;
+  text-align: center;
+}
+
+.empty-card {
+  display: grid;
+  gap: 0.4rem;
+  border-style: dashed;
+  padding: 2.5rem 1rem;
+}
+
+.empty-card strong {
+  color: #10231b;
+  font-size: 1rem;
+}
+
+.task-board {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.task-card {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 7.5rem;
+  gap: 1rem;
+  align-items: stretch;
+  border: 1px solid #dce6de;
+  border-radius: 0.85rem;
+  background: #fff;
+  padding: 0.9rem;
+  box-shadow: 0 8px 22px rgb(16 35 27 / 0.04);
+}
+
+.task-card.is-waiting {
+  border-right-color: #0f7a3d;
+  border-right-width: 4px;
+}
+
+.task-card.is-done {
+  background: #f8fbf8;
+}
+
+.task-main {
+  min-width: 0;
+}
+
+.task-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.task-type {
+  display: inline-flex;
+  margin-bottom: 0.35rem;
+  border-radius: 999px;
+  background: #eef5f0;
+  padding: 0.25rem 0.6rem;
+  color: #446150;
+  font-size: 0.7rem;
+  font-weight: 900;
+}
+
+.task-heading h2 {
+  font-size: 1.05rem;
+  font-weight: 950;
+  line-height: 1.45;
+}
+
+.status-pill {
+  flex: 0 0 auto;
+  border-radius: 999px;
+  background: #f1f5f9;
+  padding: 0.35rem 0.65rem;
+  color: #64748b;
+  font-size: 0.72rem;
+  font-weight: 900;
+}
+
+.status-pill.waiting {
+  background: #eef6ff;
+  color: #1d4f91;
+}
+
+.status-pill.active {
+  background: #e7f8ec;
+  color: #0f7a3d;
+}
+
+.status-pill.done {
+  background: #ecfdf3;
+  color: #15803d;
+}
+
+.task-description {
+  margin-top: 0.55rem;
+  max-width: 920px;
+  color: #526174;
+  font-size: 0.82rem;
+  line-height: 1.75;
+}
+
+.task-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+  margin-top: 0.75rem;
+}
+
+.task-meta span {
+  min-width: 8rem;
+  border-radius: 0.7rem;
+  background: #f7faf8;
+  padding: 0.5rem 0.65rem;
+}
+
+.task-meta small {
+  display: block;
+  color: #7a867e;
+  font-size: 0.68rem;
+  font-weight: 800;
+}
+
+.task-meta b {
+  display: block;
+  margin-top: 0.15rem;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.8rem;
+}
+
+.priority {
+  color: #b45309;
+  font-family: inherit !important;
+}
+
+.priority.high {
+  color: #c2410c;
+}
+
+.task-action {
+  display: grid;
+  min-height: 100%;
+  place-items: center;
+  border-right: 1px solid #edf1ee;
+  padding-right: 1rem;
+}
+
+.task-action button {
+  width: 100%;
+  border-radius: 0.7rem;
+  background: #16a34a;
+  padding: 0.7rem 0.85rem;
+  color: #fff;
+  font-weight: 900;
+  box-shadow: 0 8px 18px rgb(22 163 74 / 0.18);
+}
+
+.task-action span {
+  color: #94a3b8;
+}
+
+@media (max-width: 760px) {
+  .activities-hero,
+  .task-card {
+    grid-template-columns: 1fr;
+  }
+
+  .activities-hero {
+    display: grid;
+    align-items: start;
+  }
+
+  .toolbar {
+    width: 100%;
+  }
+
+  .toolbar select,
+  .toolbar button {
+    flex: 1;
+  }
+
+  .task-action {
+    border-right: 0;
+    border-top: 1px solid #edf1ee;
+    padding: 0.75rem 0 0;
+  }
+}

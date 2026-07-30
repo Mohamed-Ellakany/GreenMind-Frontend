@@ -1,0 +1,172 @@
+<section class="mx-auto max-w-[1320px]" dir="rtl">
+  <header class="knowledge-hero mb-7 overflow-hidden rounded-[28px] border border-[#dce8df] bg-white p-6 sm:p-8">
+    <div class="relative z-10 grid items-end gap-7 lg:grid-cols-[1fr_auto]">
+      <div>
+        <div class="mb-4 inline-flex items-center gap-2 rounded-full border border-[#cfe7d5] bg-[#f0faf3] px-3 py-1.5 text-xs font-black text-[#0f7a3d]">
+          <span class="size-2 rounded-full bg-[#16a34a]"></span>
+          مركز معرفة الذكاء الاصطناعي
+        </div>
+        <h1 class="max-w-3xl text-3xl font-black leading-tight text-[#10231b] sm:text-4xl">حوّل المستندات التنظيمية إلى إجابات موثوقة</h1>
+        <p class="mt-3 max-w-3xl text-sm leading-7 text-[#65736c] sm:text-base">
+          ارفع المصادر الرسمية بصيغة PDF ليتم تقسيمها وفهرستها دلاليًا، ثم تصبح متاحة تلقائيًا للمساعد العام ولمساعد كل خطة تصدير.
+        </p>
+      </div>
+      <div class="grid min-w-[260px] grid-cols-2 gap-3">
+        <div class="rounded-2xl border border-white/70 bg-white/75 p-4 shadow-sm backdrop-blur">
+          <span class="block text-xs font-bold text-[#718078]">نطاق الاستخدام</span>
+          <strong class="mt-1 block text-sm text-[#10231b]">جميع المحادثات</strong>
+        </div>
+        <div class="rounded-2xl border border-white/70 bg-white/75 p-4 shadow-sm backdrop-blur">
+          <span class="block text-xs font-bold text-[#718078]">الحد الأقصى</span>
+          <strong class="mt-1 block text-sm text-[#10231b]">25 م.ب / PDF</strong>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <div class="grid gap-6 xl:grid-cols-[minmax(0,1fr)_340px]">
+    <main class="rounded-[24px] border border-[#dce6df] bg-white p-5 shadow-[0_16px_46px_rgba(16,35,27,.06)] sm:p-7">
+      <div class="mb-6 flex items-center gap-3">
+        <span class="grid size-10 place-items-center rounded-xl bg-[#10231b] text-sm font-black text-white">01</span>
+        <div>
+          <h2 class="text-lg font-black text-[#10231b]">اختر نوع المصدر</h2>
+          <p class="mt-0.5 text-xs text-[#718078]">يساعد النوع على تقسيم المحتوى واسترجاعه بدقة.</p>
+        </div>
+      </div>
+
+      <div class="grid gap-3 md:grid-cols-3" role="radiogroup" aria-label="نوع المستند">
+        <button type="button" class="source-card" [class.source-card-active]="sourceType() === 'quality'" role="radio" [attr.aria-checked]="sourceType() === 'quality'" (click)="selectType('quality')">
+          <span class="source-card-mark">QS</span>
+          <strong>معيار جودة</strong>
+          <small>تصنيف، أحجام، تعبئة وتفاوتات المحصول</small>
+        </button>
+        <button type="button" class="source-card" [class.source-card-active]="sourceType() === 'regulation'" role="radio" [attr.aria-checked]="sourceType() === 'regulation'" (click)="selectType('regulation')">
+          <span class="source-card-mark">EU</span>
+          <strong>نص لائحة أوروبية</strong>
+          <small>مواد اللائحة ومتطلبات الصحة النباتية</small>
+        </button>
+        <button type="button" class="source-card" [class.source-card-active]="sourceType() === 'annex'" role="radio" [attr.aria-checked]="sourceType() === 'annex'" (click)="selectType('annex')">
+          <span class="source-card-mark">AX</span>
+          <strong>ملحق مفلتر</strong>
+          <small>فقرات الملحق المرتبطة بمحصول محدد</small>
+        </button>
+      </div>
+
+      <div class="my-7 h-px bg-[#e7ece8]"></div>
+
+      <div class="mb-6 flex items-center gap-3">
+        <span class="grid size-10 place-items-center rounded-xl bg-[#10231b] text-sm font-black text-white">02</span>
+        <div>
+          <h2 class="text-lg font-black text-[#10231b]">بيانات المصدر والملف</h2>
+          <p class="mt-0.5 text-xs text-[#718078]">استخدم الاسم الرسمي للمصدر ليسهل الاستشهاد به في الإجابات.</p>
+        </div>
+      </div>
+
+      <form (ngSubmit)="upload()">
+        <div class="grid gap-5 sm:grid-cols-2">
+          <label class="field-label sm:col-span-2">
+            اسم المصدر الرسمي
+            <input class="field-control" name="sourceName" maxlength="200" placeholder="مثال: UNECE FFV-35 Strawberries 2023" [(ngModel)]="sourceName" [disabled]="uploading()" />
+          </label>
+
+          @if (sourceType() === 'quality') {
+            <label class="field-label sm:col-span-2">
+              المحصول
+              <input class="field-control" name="crop" maxlength="100" placeholder="مثال: Strawberry" [(ngModel)]="crop" [disabled]="uploading()" />
+              <small>اكتب الاسم كما يظهر في قائمة المحاصيل لتحسين دقة المطابقة.</small>
+            </label>
+          }
+
+          @if (sourceType() === 'annex') {
+            <label class="field-label">
+              مرجع الملحق
+              <input class="field-control" name="annexLabelHint" maxlength="200" placeholder="مثال: ANNEX II" [(ngModel)]="annexLabelHint" [disabled]="uploading()" />
+            </label>
+            <label class="field-label">
+              كلمات المحصول المفتاحية
+              <input class="field-control" name="cropKeywordsCsv" maxlength="1000" placeholder="Fragaria, strawberry, فراولة" [(ngModel)]="cropKeywordsCsv" [disabled]="uploading()" />
+              <small>افصل بين الكلمات بفاصلة.</small>
+            </label>
+          }
+        </div>
+
+        <div class="mt-5">
+          <span class="field-label">ملف المستند</span>
+          <input #pdfInput class="sr-only" id="rag-pdf-file" type="file" accept=".pdf,application/pdf" (change)="selectFile($event)" [disabled]="uploading()" />
+          <label
+            class="upload-zone"
+            [class.upload-zone-active]="dragging()"
+            [class.upload-zone-filled]="selectedFile()"
+            for="rag-pdf-file"
+            (dragover)="dragOver($event)"
+            (dragleave)="dragLeave($event)"
+            (drop)="dropFile($event)"
+          >
+            @if (selectedFile(); as file) {
+              <span class="grid size-12 place-items-center rounded-2xl bg-[#e7f5eb] text-sm font-black text-[#0f7a3d]">PDF</span>
+              <span class="min-w-0 flex-1">
+                <strong class="block truncate text-sm text-[#10231b]">{{ file.name }}</strong>
+                <small class="mt-1 block text-[#718078]">{{ fileSize(file) }} · جاهز للفهرسة</small>
+              </span>
+              <button type="button" class="rounded-xl border border-[#dce6df] bg-white px-3 py-2 text-xs font-bold text-[#be3a34]" aria-label="إزالة الملف" (click)="$event.preventDefault(); removeFile()">إزالة</button>
+            } @else {
+              <span class="upload-icon" aria-hidden="true">↑</span>
+              <span>
+                <strong class="block text-sm text-[#10231b]">اسحب ملف PDF هنا أو اضغط للاختيار</strong>
+                <small class="mt-1.5 block text-[#718078]">ملف واحد بحد أقصى 25 ميجابايت</small>
+              </span>
+            }
+          </label>
+        </div>
+
+        @if (error()) {
+          <div class="mt-5 flex items-start gap-3 rounded-2xl border border-red-200 bg-red-50 p-4 text-sm font-bold text-red-700" role="alert">
+            <span aria-hidden="true">!</span><span>{{ error() }}</span>
+          </div>
+        }
+
+        @if (result(); as ingestion) {
+          <div class="mt-5 flex items-center justify-between gap-4 rounded-2xl border border-[#bfe2c8] bg-[#f0faf3] p-4" role="status">
+            <div>
+              <strong class="block text-sm text-[#0b6634]">اكتملت الفهرسة بنجاح</strong>
+              <span class="mt-1 block text-xs text-[#4f735c]">المصدر متاح الآن للمساعد العام ومساعد خطط التصدير.</span>
+            </div>
+            <span class="shrink-0 rounded-xl bg-white px-4 py-2 text-sm font-black text-[#0f7a3d] shadow-sm">{{ ingestion.chunksIngested }} مقطع</span>
+          </div>
+        }
+
+        <div class="mt-6 flex flex-col-reverse items-stretch gap-3 border-t border-[#e7ece8] pt-5 sm:flex-row sm:items-center sm:justify-between">
+          <p class="text-xs leading-6 text-[#718078]">قد تستغرق الفهرسة عدة لحظات حسب حجم المستند.</p>
+          <button type="submit" class="primary-action min-w-[190px]" [disabled]="!canSubmit()">
+            @if (uploading()) { <span class="spinner" aria-hidden="true"></span> جارٍ التحليل والفهرسة... } @else { فهرسة المستند }
+          </button>
+        </div>
+      </form>
+    </main>
+
+    <aside class="space-y-5">
+      <section class="rounded-[24px] border border-[#dce6df] bg-[#10231b] p-6 text-white shadow-[0_18px_45px_rgba(16,35,27,.16)]">
+        <span class="text-xs font-bold text-[#d8f36a]">متصل تلقائيًا</span>
+        <h2 class="mt-2 text-xl font-black">من المصدر إلى المحادثة</h2>
+        <ol class="mt-6 space-y-5">
+          <li class="flow-step"><span>1</span><div><strong>استخراج المحتوى</strong><small>قراءة النص من ملف PDF</small></div></li>
+          <li class="flow-step"><span>2</span><div><strong>تقسيم ذكي</strong><small>حسب المواد والأقسام والمعايير</small></div></li>
+          <li class="flow-step"><span>3</span><div><strong>فهرسة دلالية</strong><small>تحويل المقاطع إلى معرفة قابلة للبحث</small></div></li>
+          <li class="flow-step"><span>4</span><div><strong>إجابة موثقة</strong><small>استرجاع المصدر المناسب وقت المحادثة</small></div></li>
+        </ol>
+      </section>
+
+      <section class="rounded-[24px] border border-[#dce6df] bg-white p-6 shadow-sm">
+        <h2 class="text-sm font-black text-[#10231b]">يستخدمها كلا المساعدين</h2>
+        <div class="mt-4 space-y-3">
+          <div class="agent-chip"><span class="bg-[#d8f36a]">ع</span><div><strong>المساعد العام</strong><small>استشارات المزرعة والمقارنات</small></div><i></i></div>
+          <div class="agent-chip"><span class="bg-[#bcebd0]">خ</span><div><strong>مساعد خطة التصدير</strong><small>إجابات مرتبطة بالمحصول والوجهة</small></div><i></i></div>
+        </div>
+      </section>
+
+      <p class="rounded-2xl border border-[#eadfb8] bg-[#fffaf0] p-4 text-xs leading-6 text-[#765b20]">
+        استخدم مصادر رسمية وحديثة فقط. الفهرسة تضيف محتوى جديدًا ولا تستبدل المقاطع التي رُفعت سابقًا.
+      </p>
+    </aside>
+  </div>
+</section>
