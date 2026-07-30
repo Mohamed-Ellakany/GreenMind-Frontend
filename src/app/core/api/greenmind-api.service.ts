@@ -4,7 +4,7 @@ import { ApiClient } from './api-client.service';
 import {
   ExportPlan, ExportPlanCreateRequest, ExportPlanDashboard, ExportPlanDetails,
   FarmAccount, FarmTask, MasterDataItem, PagedResult, PlanningStatus, PlatformStatistics,
-  SoilMeasurement, SoilMeasurementRequest,
+  RagIngestionResult, RegulatoryImportResult, SoilMeasurement, SoilMeasurementRequest,
 } from './api.models';
 
 @Injectable({ providedIn: 'root' })
@@ -51,12 +51,14 @@ export class GreenmindApi {
     return this.api.patch<void>(`/api/Tasks/${id}`, body);
   }
 
-  public crops(admin = false): Observable<MasterDataItem[]> {
-    return this.api.get<MasterDataItem[]>(admin ? '/api/admin/crops' : '/api/farm-owner/crops');
+  public crops(admin = false, includeDeleted = false): Observable<MasterDataItem[]> {
+    const query = admin && includeDeleted ? '?includeDeleted=true' : '';
+    return this.api.get<MasterDataItem[]>(admin ? `/api/admin/crops${query}` : '/api/farm-owner/crops');
   }
 
-  public destinations(admin = false): Observable<MasterDataItem[]> {
-    return this.api.get<MasterDataItem[]>(admin ? '/api/admin/destinations' : '/api/farm-owner/destinations');
+  public destinations(admin = false, includeDeleted = false): Observable<MasterDataItem[]> {
+    const query = admin && includeDeleted ? '?includeDeleted=true' : '';
+    return this.api.get<MasterDataItem[]>(admin ? `/api/admin/destinations${query}` : '/api/farm-owner/destinations');
   }
 
   public createCrop(body: { name: string; description: string | null }): Observable<MasterDataItem> {
@@ -71,6 +73,14 @@ export class GreenmindApi {
     return this.api.patch<MasterDataItem>(`/api/admin/crops/${id}/status`, { isActive });
   }
 
+  public deleteCrop(id: number): Observable<MasterDataItem> {
+    return this.api.delete<MasterDataItem>(`/api/admin/crops/${id}`);
+  }
+
+  public restoreCrop(id: number): Observable<MasterDataItem> {
+    return this.api.post<MasterDataItem>(`/api/admin/crops/${id}/restore`, {});
+  }
+
   public createDestination(body: { name: string; description: string | null }): Observable<MasterDataItem> {
     return this.api.post<MasterDataItem>('/api/admin/destinations', body);
   }
@@ -81,6 +91,14 @@ export class GreenmindApi {
 
   public setDestinationStatus(id: number, isActive: boolean): Observable<MasterDataItem> {
     return this.api.patch<MasterDataItem>(`/api/admin/destinations/${id}/status`, { isActive });
+  }
+
+  public deleteDestination(id: number): Observable<MasterDataItem> {
+    return this.api.delete<MasterDataItem>(`/api/admin/destinations/${id}`);
+  }
+
+  public restoreDestination(id: number): Observable<MasterDataItem> {
+    return this.api.post<MasterDataItem>(`/api/admin/destinations/${id}/restore`, {});
   }
 
   public statistics(): Observable<PlatformStatistics> {
@@ -97,5 +115,53 @@ export class GreenmindApi {
 
   public setFarmStatus(id: number, isActive: boolean): Observable<FarmAccount> {
     return this.api.patch<FarmAccount>(`/api/admin/farms/${id}/status`, { isActive });
+  }
+
+  public uploadActiveSubstances(regionName: string, file: File): Observable<RegulatoryImportResult> {
+    const formData = new FormData();
+    formData.append('RegionName', regionName);
+    formData.append('File', file, file.name);
+    return this.api.post<RegulatoryImportResult>('/api/admin/regulatory-data/active-substances', formData);
+  }
+
+  public uploadProductMrls(
+    regionName: string,
+    productType: string,
+    file: File,
+  ): Observable<RegulatoryImportResult> {
+    const formData = new FormData();
+    formData.append('RegionName', regionName);
+    formData.append('ProductType', productType);
+    formData.append('File', file, file.name);
+    return this.api.post<RegulatoryImportResult>('/api/admin/regulatory-data/mrls', formData);
+  }
+
+  public ingestQualityStandard(file: File, crop: string, sourceName: string): Observable<RagIngestionResult> {
+    const formData = new FormData();
+    formData.append('File', file, file.name);
+    formData.append('Crop', crop);
+    formData.append('SourceName', sourceName);
+    return this.api.post<RagIngestionResult>('/api/admin/rag/ingest/quality-standard', formData);
+  }
+
+  public ingestEuRegulationBody(file: File, sourceName: string): Observable<RagIngestionResult> {
+    const formData = new FormData();
+    formData.append('File', file, file.name);
+    formData.append('SourceName', sourceName);
+    return this.api.post<RagIngestionResult>('/api/admin/rag/ingest/eu-regulation-body', formData);
+  }
+
+  public ingestEuRegulationAnnex(
+    file: File,
+    sourceName: string,
+    annexLabelHint: string,
+    cropKeywordsCsv: string,
+  ): Observable<RagIngestionResult> {
+    const formData = new FormData();
+    formData.append('File', file, file.name);
+    formData.append('SourceName', sourceName);
+    formData.append('AnnexLabelHint', annexLabelHint);
+    formData.append('CropKeywordsCsv', cropKeywordsCsv);
+    return this.api.post<RagIngestionResult>('/api/admin/rag/ingest/eu-regulation-annex', formData);
   }
 }

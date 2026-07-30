@@ -19,6 +19,12 @@ export const AUTH_ROUTES: Routes = [
     loadComponent: () =>
       import('./pages/register/register').then(m => m.Register)
   },
+  {
+    path: 'pending-approval',
+    title: 'Waiting for Approval | GreenMind',
+    loadComponent: () =>
+      import('./pages/pending-approval/pending-approval').then(m => m.PendingApproval)
+  },
 //   {
 //     path: 'forgot-password',
 //     title: 'Forgot Password | GreenMind',

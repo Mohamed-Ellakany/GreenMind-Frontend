@@ -1,21 +1,27 @@
 :host { display: block; }
-.admin-aside { transform: translateX(100%); transition: transform 220ms ease, width 220ms ease; }
+.admin-aside { overflow: hidden; transform: translateX(102%); background: linear-gradient(180deg, #0d2c20 0%, #081f17 58%, #061b14 100%); box-shadow: -20px 0 50px rgb(16 35 27 / .18); transition: transform 260ms cubic-bezier(.22,1,.36,1), width 220ms cubic-bezier(.22,1,.36,1); }
 .admin-aside.is-open { transform: translateX(0); }
-.admin-collapse-button { position: absolute; left: -16px; top: 86px; width: 32px; height: 32px; place-items: center; border: 1px solid #dde6df; border-radius: 10px; background: #fff; color: #526158; box-shadow: 0 5px 15px rgb(16 35 27 / 0.12); }
-.admin-nav-link { display: flex; min-height: 44px; align-items: center; gap: 12px; border-radius: 12px; padding: 10px 12px; color: rgb(255 255 255 / 0.62); font-size: 14px; transition: background-color 160ms ease, color 160ms ease; }
-.admin-nav-link:hover { background: rgb(255 255 255 / 0.07); color: #fff; }
-.admin-nav-link-active { background: #d8f36a; color: #26350a; font-weight: 800; }
+.admin-collapse-button { position: absolute; left: -16px; top: 102px; width: 32px; height: 32px; place-items: center; border: 1px solid #d7e2da; border-radius: 10px; background: #fff; color: #526158; box-shadow: 0 6px 18px rgb(16 35 27 / .13); z-index: 2; transition: transform 240ms cubic-bezier(.22,1,.36,1), color 160ms ease, box-shadow 160ms ease; }
+.admin-collapse-button:hover { color: #0f7a3d; }
+.admin-nav { scrollbar-color: rgb(255 255 255 / .15) transparent; scrollbar-width: thin; }
+.admin-nav-link { display: flex; min-height: 39px; align-items: center; gap: 10px; border: 1px solid transparent; border-radius: 10px; padding: 8px 10px; color: rgb(255 255 255 / .62); font-size: 13px; transition: background-color 180ms ease, border-color 180ms ease, color 180ms ease, transform 200ms cubic-bezier(.22,1,.36,1), box-shadow 180ms ease; }
+.admin-nav-link:hover { border-color: rgb(255 255 255 / .06); background: rgb(255 255 255 / .065); color: #fff; transform: translateX(-2px); }
+.admin-nav-link-active, .admin-nav-link-active:hover { border-color: #d7f45e; background: linear-gradient(135deg, #e1fa77, #cdef4e); color: #26350a; font-weight: 900; box-shadow: 0 8px 25px rgb(4 21 14 / .24), inset 0 1px rgb(255 255 255 / .5); transform: none; }
+.admin-nav-link-active [class*='bg-[#d8f36a]'] { background: rgb(38 53 10 / .1); color: #26350a; }
 .admin-nav-danger { color: #ffaaa2; }
-.admin-nav-icon { display: inline-grid; width: 20px; min-width: 20px; place-items: center; }
-.admin-content { transition: margin 220ms ease; }
+.admin-nav-danger:hover { background: rgb(190 58 52 / .13); color: #ffd0cd; }
+.admin-nav-icon { display: inline-grid; width: 20px; min-width: 20px; place-items: center; font-size: 14px; }
+.admin-content { min-width: 0; transition: margin 220ms ease; }
+.status-dot { width: 8px; height: 8px; border-radius: 999px; background: #d7f45e; box-shadow: 0 0 0 5px rgb(215 244 94 / .1); animation: admin-status-pulse 2.5s ease-in-out infinite; }
+@keyframes admin-status-pulse { 0%, 100% { box-shadow: 0 0 0 4px rgb(215 244 94 / .08); } 50% { box-shadow: 0 0 0 8px rgb(215 244 94 / .02); } }
 @media (min-width: 1024px) {
-  .admin-aside { transform: translateX(0); }
-  .admin-content { margin-right: 278px; }
-  .admin-aside-collapsed { width: 84px; }
+  .admin-aside { transform: translateX(0); box-shadow: none; }
+  .admin-content { margin-right: 260px; }
+  .admin-aside-collapsed { width: 74px; }
   .admin-aside-collapsed .admin-collapse-button { transform: rotate(180deg); }
-  .admin-aside-collapsed .admin-nav-text { width: 0; opacity: 0; overflow: hidden; pointer-events: none; }
-  .admin-aside-collapsed .admin-brand,
-  .admin-aside-collapsed .admin-nav-link { justify-content: center; gap: 0; }
-  .admin-nav-text { white-space: nowrap; transition: opacity 140ms ease, width 180ms ease; }
-  .admin-content-collapsed { margin-right: 84px; }
+  .admin-aside-collapsed .admin-nav-text { width: 0; max-width: 0; margin: 0; padding-inline: 0; opacity: 0; overflow: hidden; pointer-events: none; }
+  .admin-aside-collapsed .admin-brand, .admin-aside-collapsed .admin-nav-link { justify-content: center; gap: 0; }
+  .admin-nav-text { white-space: nowrap; transition: opacity 140ms ease, max-width 180ms ease; }
+  .admin-content-collapsed { margin-right: 74px; }
 }
+@media (prefers-reduced-motion: reduce) { .status-dot { animation: none; } }

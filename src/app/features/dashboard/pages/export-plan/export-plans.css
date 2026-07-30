@@ -4,10 +4,10 @@
 
 .farm-map {
   position: relative;
-  height: 390px;
+  height: min(340px, 46dvh);
   overflow: hidden;
   border: 1px solid #d7e2d9;
-  border-radius: 1.25rem;
+  border-radius: 0.9rem;
   background:
     radial-gradient(circle at 35% 30%, rgb(219 239 221 / 0.9), transparent 36%),
     #e9f0ea;
@@ -27,7 +27,7 @@
 }
 
 .location-select {
-  min-height: 50px;
+  min-height: 42px;
   background-color: #fff;
   cursor: pointer;
 }
@@ -100,7 +100,7 @@
 
 @media (max-width: 639px) {
   .farm-map {
-    height: 330px;
-    border-radius: 1rem;
+    height: 300px;
+    border-radius: 0.75rem;
   }
 }

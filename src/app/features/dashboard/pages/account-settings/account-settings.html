@@ -1,0 +1,76 @@
+<section class="mx-auto w-full max-w-[1180px] pb-12 text-[#10231b]" dir="rtl">
+  <header class="mb-7 flex flex-col justify-between gap-4 lg:flex-row lg:items-end">
+    <div>
+      <p class="mb-2 text-xs font-black text-[#0f7a3d]">الحساب والتنبيهات</p>
+      <h1 class="text-3xl font-black tracking-tight">إعدادات الحساب</h1>
+      <p class="mt-2 text-sm leading-6 text-[#65736c]">راجع بيانات المزرعة وتحكم في أنواع التنبيهات التي تظهر داخل المنصة.</p>
+    </div>
+    <button type="button" class="w-fit rounded-xl bg-[#0f7a3d] px-5 py-3 text-sm font-black text-white shadow-[0_8px_18px_rgba(15,122,61,.16)] hover:bg-[#0b6934]" (click)="enableBrowserNotifications()">
+      تشغيل تنبيهات المتصفح
+    </button>
+  </header>
+
+  <div class="grid gap-6 lg:grid-cols-[0.9fr_1.1fr]">
+    <article class="rounded-2xl border border-[#dce6df] bg-white p-6 shadow-sm">
+      <div class="mb-6 flex items-center gap-4">
+        <span class="grid size-16 place-items-center rounded-2xl bg-[#10231b] text-2xl font-black text-white">{{ (profile()?.fullName || 'م').charAt(0) }}</span>
+        <div class="min-w-0">
+          <h2 class="truncate text-xl font-black">{{ profile()?.fullName || 'مالك المزرعة' }}</h2>
+          <p class="truncate text-sm text-[#65736c]">{{ profile()?.email || 'لا يوجد بريد مسجل' }}</p>
+        </div>
+      </div>
+
+      <dl class="space-y-3 text-sm">
+        <div class="rounded-xl border border-[#edf1ee] bg-[#f9fbfa] p-4">
+          <dt class="text-xs font-bold text-[#738078]">اسم المزرعة</dt>
+          <dd class="mt-1 text-base font-black">{{ profile()?.farmName || 'مزرعتك' }}</dd>
+        </div>
+        <div class="rounded-xl border border-[#edf1ee] bg-[#f9fbfa] p-4">
+          <dt class="text-xs font-bold text-[#738078]">رقم المزرعة</dt>
+          <dd class="mt-1 font-mono text-base font-black" dir="ltr">{{ profile()?.farmId || '—' }}</dd>
+        </div>
+        <div class="grid gap-3 sm:grid-cols-2">
+          <div class="rounded-xl border border-[#edf1ee] bg-[#f9fbfa] p-4">
+            <dt class="text-xs font-bold text-[#738078]">حالة الحساب</dt>
+            <dd class="mt-2 inline-flex rounded-full bg-[#e9f7ed] px-3 py-1 text-xs font-black text-[#0f7a3d]">{{ profile()?.isActive === false ? 'غير نشط' : 'نشط' }}</dd>
+          </div>
+          <div class="rounded-xl border border-[#edf1ee] bg-[#f9fbfa] p-4">
+            <dt class="text-xs font-bold text-[#738078]">اعتماد المزرعة</dt>
+            <dd class="mt-2 inline-flex rounded-full px-3 py-1 text-xs font-black" [class.bg-[#e9f7ed]]="profile()?.isFarmApproved !== false" [class.text-[#0f7a3d]]="profile()?.isFarmApproved !== false" [class.bg-[#fff5d9]]="profile()?.isFarmApproved === false" [class.text-[#956500]]="profile()?.isFarmApproved === false">
+              {{ profile()?.isFarmApproved === false ? 'بانتظار المراجعة' : 'معتمدة' }}
+            </dd>
+          </div>
+        </div>
+      </dl>
+    </article>
+
+    <article class="rounded-2xl border border-[#dce6df] bg-white p-6 shadow-sm">
+      <header class="mb-5 flex items-start justify-between gap-3 border-b border-[#edf1ee] pb-4">
+        <div>
+          <h2 class="text-xl font-black">التنبيهات</h2>
+          <p class="mt-1 text-sm text-[#65736c]">اختر التنبيهات التي تريد ظهورها في الجرس ولوحة الحساب.</p>
+        </div>
+        <span class="rounded-full bg-[#f3faf5] px-3 py-1.5 text-xs font-black text-[#0f7a3d]">{{ notifications.unreadCount() }} غير مقروء</span>
+      </header>
+
+      <div class="space-y-3">
+        @for (channel of channels; track channel.key) {
+          <label class="flex items-center justify-between gap-4 rounded-xl border border-[#edf1ee] bg-[#f9fbfa] p-4 hover:bg-[#f3faf5]">
+            <span class="min-w-0">
+              <strong class="block text-sm font-black">{{ channel.label }}</strong>
+              <small class="mt-1 block leading-5 text-[#65736c]">{{ channel.description }}</small>
+            </span>
+            <input class="size-5 shrink-0" type="checkbox" [checked]="notifications.preferences()[channel.key]" (change)="toggleChannel(channel.key, $event)" />
+          </label>
+        }
+      </div>
+
+      <footer class="mt-5 rounded-xl border border-[#edf1ee] bg-[#f7f9f7] p-4 text-sm leading-6 text-[#65736c]">
+        حالة صلاحية المتصفح:
+        <strong class="text-[#10231b]">
+          {{ browserPermission() === 'granted' ? 'مفعلة' : browserPermission() === 'denied' ? 'مرفوضة' : browserPermission() === 'unsupported' ? 'غير مدعومة' : 'بانتظار التفعيل' }}
+        </strong>
+      </footer>
+    </article>
+  </div>
+</section>

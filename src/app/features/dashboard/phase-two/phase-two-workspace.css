@@ -20,3 +20,59 @@
 .cost-summary { display: grid; grid-template-columns: repeat(4, 1fr); gap: .8rem; margin-bottom: 1rem; }.cost-summary article { padding: 1rem; border: 1px solid #dce6de; border-radius: 1.2rem; background: #fff; }.cost-summary small, .cost-summary span { display: block; color: #78847c; font-size: .72rem; }.cost-summary b { display: block; margin: .4rem 0; font-size: 1.25rem; font-weight: 950; }.finance-layout { grid-template-columns: minmax(0, 1fr) 330px; }.finance-main { display: grid; gap: 1rem; }.expense-form, .expenses-table { padding: 1.2rem; }.form-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0 1rem; }.form-grid .wide { grid-column: 1 / -1; }.calculated-total { display: flex; justify-content: space-between; margin-top: 1rem; padding: .8rem; border-radius: .8rem; background: #eff8f1; color: #195f34; }.table-scroll { margin-top: 1rem; overflow-x: auto; }.expenses-table table { width: 100%; min-width: 720px; border-collapse: collapse; text-align: right; }.expenses-table th { padding: .7rem; background: #f6f9f7; color: #78847c; font-size: .72rem; }.expenses-table td { padding: .8rem .7rem; border-bottom: 1px solid #edf1ee; font-size: .8rem; }.expenses-table td small { display: block; color: #849087; }.money-cell { color: #176b39; font-weight: 900; }.delete-button { color: #b42318; font-size: .72rem; font-weight: 800; }.budget-card { position: sticky; top: 90px; }.category-breakdown { margin-top: 1.25rem; border-top: 1px solid #edf1ee; padding-top: 1rem; }.category-breakdown h3 { margin-bottom: .5rem; font-weight: 900; }.category-breakdown div { display: flex; justify-content: space-between; padding: .55rem 0; border-bottom: 1px solid #edf1ee; font-size: .76rem; }.empty-state { display: grid; place-items: center; min-height: 190px; padding: 2rem; text-align: center; color: #718077; }.empty-state > span { font-size: 2rem; color: #0f7a3d; }.empty-state h3 { margin-top: .5rem; color: #23372a; font-weight: 900; }.empty-state p { margin-top: .3rem; font-size: .8rem; }
 @media (max-width: 1000px) { .chat-layout, .disease-layout, .finance-layout { grid-template-columns: 1fr; }.context-card, .budget-card { position: static; }.cost-summary { grid-template-columns: repeat(2, 1fr); } }
 @media (max-width: 640px) { .workspace-hero { align-items: start; flex-direction: column; padding: 1.3rem; }.workspace-tabs { grid-template-columns: 1fr; }.workspace-tabs button { grid-template-columns: 2.6rem 1fr; }.messages { min-height: 360px; }.chat-composer { flex-direction: column; }.message { width: 95%; }.form-grid, .cost-summary, .report-metrics { grid-template-columns: 1fr; }.form-grid .wide { grid-column: auto; } }
+
+.phase-workspace { padding-bottom: 1rem; }
+.workspace-hero { gap: 1.25rem; margin-bottom: .85rem; padding: 1.2rem; border-radius: 1rem; }
+.workspace-hero h1 { margin: .25rem 0; font-size: clamp(1.35rem, 2.2vw, 2rem); }
+.workspace-hero p { font-size: .9rem; }
+.eyebrow { margin-top: .5rem; }
+.workspace-tabs { gap: .65rem; margin-bottom: .9rem; }
+.workspace-tabs button { grid-template-columns: 2.2rem 1fr; column-gap: .65rem; padding: .75rem; border-radius: .85rem; }
+.workspace-tabs button > span { width: 2.2rem; height: 2.2rem; border-radius: .65rem; }
+.panel { border-radius: 1rem; }
+.chat-layout, .finance-layout { grid-template-columns: minmax(0, 1fr) 320px; gap: .9rem; }
+.disease-layout { grid-template-columns: 360px minmax(0, 1fr); gap: .9rem; }
+.panel-heading { padding: .85rem 1rem; }
+.panel-heading > div, .section-title { gap: .65rem; }
+.panel-heading h2, .section-title h2 { font-size: 1rem; }
+.panel-icon { width: 2.25rem; height: 2.25rem; border-radius: .65rem; }
+.messages { min-height: 360px; max-height: calc(100dvh - 300px); padding: 1rem; }
+.message { margin-bottom: .7rem; padding: .72rem .85rem; border-radius: .85rem .85rem .85rem .25rem; }
+.message.user-message { border-radius: .85rem .85rem .25rem .85rem; }
+.message p { line-height: 1.65; }
+.chat-composer { gap: .65rem; padding: .75rem; }
+.chat-composer textarea { border-radius: .75rem; padding: .7rem .85rem; }
+.chat-composer button, .primary-action { border-radius: .75rem; padding: .7rem 1rem; }
+.context-card, .upload-card, .budget-card { padding: 1rem; }
+.context-card { position: sticky; top: 80px; }
+.context-card h2 { margin: .65rem 0 .25rem; }
+.context-card ul { margin: .8rem 0; }
+.context-card li { padding: .5rem 0; }
+.safety-note, .advisory { border-radius: .75rem; padding: .75rem; }
+.upload-card label, .budget-card label, .expense-form label { margin-top: .75rem; }
+.upload-card input:not([type=file]), .upload-card textarea, .budget-card input, .budget-card textarea, .expense-form input, .expense-form select { border-radius: .7rem; padding: .62rem .75rem; }
+.file-drop { min-height: 118px; border-radius: .8rem; }
+.report-column { gap: .85rem; }
+.report-card { padding: .95rem; }
+.report-metrics { gap: .5rem; margin: .8rem 0; }
+.report-metrics span { border-radius: .7rem; padding: .6rem; }
+.report-card dl div { margin-top: .6rem; }
+.report-card dd { line-height: 1.55; }
+.cost-summary { gap: .65rem; margin-bottom: .85rem; }
+.cost-summary article { padding: .8rem; border-radius: .85rem; }
+.cost-summary b { margin: .25rem 0; font-size: 1.1rem; }
+.finance-main { gap: .85rem; }
+.expense-form, .expenses-table { padding: 1rem; }
+.form-grid { gap: 0 .85rem; }
+.calculated-total { margin-top: .8rem; padding: .7rem; border-radius: .7rem; }
+.table-scroll { margin-top: .85rem; }
+.expenses-table th { padding: .55rem; }
+.expenses-table td { padding: .62rem .55rem; }
+.budget-card { top: 80px; }
+.empty-state { min-height: 150px; padding: 1.4rem; }
+
+@media (max-width: 640px) {
+  .workspace-hero { padding: 1rem; }
+  .workspace-tabs button { grid-template-columns: 2.2rem 1fr; }
+  .messages { min-height: 320px; max-height: 54dvh; }
+}

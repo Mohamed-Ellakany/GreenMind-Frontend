@@ -28,7 +28,7 @@ export class PhaseTwoApi {
   }
 
   public createSession(planId: number): Observable<ChatSession> {
-    return this.post(`/api/export-plans/${planId}/chat/sessions`, { title: 'استشارة الخطة' });
+    return this.post(`/api/export-plans/${planId}/chat/sessions`, { title: 'محادثة الخطة مع عم خضر' });
   }
 
   public messages(planId: number, sessionId: number): Observable<ChatHistoryPage> {
@@ -39,7 +39,7 @@ export class PhaseTwoApi {
     return this.get('/api/farm/chat/sessions');
   }
 
-  public createFarmSession(title = 'مستشار المزرعة'): Observable<ChatSession> {
+  public createFarmSession(title = 'محادثة مع عم خضر'): Observable<ChatSession> {
     return this.post('/api/farm/chat/sessions', { title });
   }
 

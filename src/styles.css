@@ -1,20 +1,22 @@
 @import 'tailwindcss';
+@import 'ngx-toastr/toastr';
 
 :root {
-  --gm-ink: #10231b;
-  --gm-muted: #65736c;
-  --gm-canvas: #f4f7f4;
+  --gm-ink: #0c261b;
+  --gm-muted: #64766d;
+  --gm-canvas: #f2f6f3;
   --gm-surface: #ffffff;
   --gm-border: #dde6df;
-  --gm-primary: #0f7a3d;
-  --gm-primary-strong: #075d2d;
-  --gm-primary-soft: #e7f5eb;
-  --gm-accent: #d8f36a;
+  --gm-primary: #087a42;
+  --gm-primary-strong: #055d31;
+  --gm-primary-soft: #e8f7ed;
+  --gm-accent: #d7f45e;
   --gm-danger: #be3a34;
   --gm-warning: #b26414;
-  --gm-radius-sm: 0.75rem;
-  --gm-radius: 1rem;
-  --gm-radius-lg: 1.5rem;
+  --gm-info: #315f8c;
+  --gm-radius-sm: 0.5rem;
+  --gm-radius: 0.75rem;
+  --gm-radius-lg: 1rem;
   --gm-shadow-sm: 0 1px 2px rgb(16 35 27 / 0.04), 0 8px 24px rgb(16 35 27 / 0.05);
   --gm-shadow: 0 18px 50px rgb(16 35 27 / 0.09);
 }
@@ -33,6 +35,7 @@ body {
   background: var(--gm-canvas);
   color: var(--gm-ink);
   font-family: "Segoe UI", Tahoma, Arial, sans-serif;
+  line-height: 1.5;
   -webkit-font-smoothing: antialiased;
 }
 
@@ -69,10 +72,29 @@ textarea {
   accent-color: var(--gm-primary);
 }
 
+.toast-container {
+  direction: rtl;
+  font-family: "Segoe UI", Tahoma, Arial, sans-serif;
+}
+
+.toast-container .ngx-toastr {
+  border-radius: 14px;
+  box-shadow: var(--gm-shadow);
+  text-align: right;
+}
+
+.toast-success {
+  background-color: var(--gm-primary) !important;
+}
+
+.toast-error {
+  background-color: var(--gm-danger) !important;
+}
+
 input:not([type='checkbox']):not([type='radio']),
 select,
 textarea {
-  min-height: 2.75rem;
+  min-height: 2.45rem;
   border-color: var(--gm-border) !important;
   background-color: #fff;
   transition: border-color 160ms ease, box-shadow 160ms ease, background-color 160ms ease;
@@ -94,6 +116,11 @@ textarea:focus {
 
 button {
   transition: transform 160ms ease, background-color 160ms ease, border-color 160ms ease, color 160ms ease, box-shadow 160ms ease;
+}
+
+a {
+  text-decoration-thickness: 0.08em;
+  text-underline-offset: 0.16em;
 }
 
 button:not(:disabled):active {
@@ -139,7 +166,7 @@ main table tbody tr {
 
 main table td,
 main table th {
-  padding-block: 1rem;
+  padding-block: 0.68rem;
 }
 
 main [class*='bg-[#16a34a]'],
@@ -148,10 +175,76 @@ main [class*='bg-[#13a346]'] {
   box-shadow: 0 8px 18px rgb(15 122 61 / 0.16);
 }
 
+.admin-shell {
+  background: linear-gradient(180deg, #f6f8f6 0%, var(--gm-canvas) 100%);
+}
+
+.admin-shell .admin-content > header {
+  box-shadow: 0 1px 0 rgb(16 35 27 / 0.025), 0 9px 30px rgb(16 35 27 / 0.035);
+}
+
+.admin-shell .admin-content router-outlet + * {
+  display: block;
+  animation: admin-page-enter 420ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  transform-origin: top center;
+}
+
+.admin-shell main article[class*='rounded'],
+.admin-shell main section[class*='rounded'] {
+  transition: transform 220ms cubic-bezier(0.22, 1, 0.36, 1), box-shadow 220ms ease, border-color 220ms ease;
+}
+
+.admin-shell main [class*='bg-[#0f7a3d]'],
+.admin-shell main [class*='bg-[#16a34a]'] {
+  background-image: linear-gradient(135deg, #0b8549, #066937);
+}
+
+.admin-shell main [role='dialog'] form {
+  animation: admin-dialog-enter 260ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@media (hover: hover) {
+  .admin-shell main article[class*='rounded']:hover,
+  .app-shell main article[class*='rounded']:hover {
+    border-color: #c8dacf;
+    box-shadow: 0 10px 26px rgb(16 35 27 / 0.065);
+  }
+}
+
+.app-shell main,
+.admin-shell main {
+  overflow-anchor: none;
+}
+
+.app-shell main > *,
+.admin-shell main > * {
+  min-width: 0;
+}
+
+@media (min-width: 1024px) {
+  .app-shell main,
+  .admin-shell main {
+    min-height: calc(100dvh - 64px);
+  }
+}
+
+@keyframes admin-page-enter {
+  from { opacity: 0; transform: translateY(10px) scale(0.995); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes admin-dialog-enter {
+  from { opacity: 0; transform: translateY(12px) scale(0.97); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes knowledge-ambient { to { background-position: 90% 60%; } }
+@keyframes knowledge-orb { to { transform: translate(24px, 18px) scale(1.08); } }
+
 @media (max-width: 639px) {
   main section > header h1,
   main section > div > header h1 {
-    font-size: 1.625rem !important;
+    font-size: 1.5rem !important;
     line-height: 1.25 !important;
   }
 }
@@ -164,5 +257,15 @@ main [class*='bg-[#13a346]'] {
     transition-duration: 0.01ms !important;
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
+  }
+
+  .admin-shell .admin-content router-outlet + *,
+  .admin-shell main [role='dialog'] form {
+    animation: none !important;
+  }
+
+  .knowledge-hero,
+  .knowledge-hero::after {
+    animation: none !important;
   }
 }

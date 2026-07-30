@@ -4,7 +4,7 @@
       <a [routerLink]="['/export-plans', planId]" class="back-link">← العودة إلى تفاصيل الخطة</a>
       <p class="eyebrow">مساحة العمل الذكية · المرحلة الثانية</p>
       <h1>{{ plan()?.name || 'خطة التصدير' }}</h1>
-      <p>المستشار الزراعي، صحة المحصول، والمصروفات في مكان واحد.</p>
+      <p>عم خضر، صحة المحصول، والمصروفات في مكان واحد.</p>
     </div>
     <div class="hero-badge"><span></span> البيانات محدثة وآمنة</div>
   </header>
@@ -18,7 +18,7 @@
 
   <nav class="workspace-tabs" aria-label="أقسام مساحة العمل">
     <button type="button" [class.active]="activeTab() === 'chat'" (click)="selectTab('chat')">
-      <span>✦</span><b>المستشار الذكي</b><small>محادثة الخطة</small>
+      <span>خ</span><b>عم خضر</b><small>محادثة الخطة</small>
     </button>
     <button type="button" [class.active]="activeTab() === 'disease'" (click)="selectTab('disease')">
       <span>⌁</span><b>صحة المحصول</b><small>تحليل الصور والسجل</small>
@@ -32,16 +32,16 @@
     <div class="chat-layout">
       <article class="panel chat-panel">
         <header class="panel-heading">
-          <div><span class="panel-icon">✦</span><div><h2>المستشار الزراعي للخطة</h2><p>الإجابات مبنية على بيانات هذه الخطة فقط</p></div></div>
+          <div><span class="panel-icon">خ</span><div><h2>عم خضر · مساعد الخطة</h2><p>متصل ببيانات الخطة والمواد الفعالة وحدود MRLs</p></div></div>
           <i class="online-dot">متصل</i>
         </header>
         <div class="messages" aria-live="polite">
           @if (!chatMessages().length) {
-            <div class="empty-state"><span>✦</span><h3>ابدأ محادثة جديدة</h3><p>اسأل عن المهام، التربة، التكاليف، أو الاستعداد للتصدير.</p></div>
+            <div class="empty-state"><span>خ</span><h3>اسأل عم خضر</h3><p>اسأل عن المهام، التربة، التكاليف، المواد الفعالة، أو حدود متبقيات التصدير.</p></div>
           }
           @for (message of chatMessages(); track message.id) {
             <div class="message" [class.user-message]="message.role === 'المستخدم'">
-              <small>{{ message.role }}</small>
+              <small>{{ message.role === 'المستخدم' ? 'أنت' : 'عم خضر' }}</small>
               <p>{{ message.content || 'جارٍ إعداد الرد…' }}</p>
               @if (message.taskChangeProposalId) {
                 <button type="button" class="mt-3 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-2 text-xs font-black text-emerald-800 hover:bg-emerald-100" (click)="openProposal(message.taskChangeProposalId)">مراجعة اقتراح تعديل المهام ←</button>
@@ -51,7 +51,7 @@
           }
         </div>
         <form class="chat-composer" (ngSubmit)="sendChat()">
-          <textarea name="chatInput" [(ngModel)]="chatInput" maxlength="4000" rows="2" placeholder="اكتب سؤالك عن خطة التصدير…"></textarea>
+          <textarea name="chatInput" [(ngModel)]="chatInput" maxlength="4000" rows="2" placeholder="اسأل عم خضر عن خطة التصدير أو مادة فعالة أو MRL…"></textarea>
           <button type="submit" [disabled]="chatSending() || !chatInput.trim()">{{ chatSending() ? 'جارٍ الرد…' : 'إرسال' }}</button>
         </form>
       </article>
@@ -60,7 +60,7 @@
         <span class="panel-icon">◎</span>
         <h2>السياق المستخدم</h2>
         <p>يُعاد بناء السياق الآمن مع كل سؤال ولا يطّلع النموذج على خطط المزارع الأخرى.</p>
-        <ul><li>بيانات الخطة والموسم</li><li>المهام القادمة والمنجزة</li><li>قياسات التربة الأخيرة</li><li>سجل صحة المحصول</li><li>ملخص الميزانية والمصروفات</li></ul>
+        <ul><li>بيانات الخطة والموسم</li><li>جدول اعتماد المواد الفعالة</li><li>حدود MRL حسب المحصول والوجهة</li><li>قياسات التربة وصحة المحصول</li><li>ملخص الميزانية والمصروفات</li></ul>
         <div class="safety-note"><b>حد أمان واضح</b><p>لن تتغير أي مهمة إلا بعد عرض اقتراح منفصل وموافقتك الصريحة.</p></div>
       </aside>
     </div>

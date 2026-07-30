@@ -1,5 +1,5 @@
 import { Component, inject, signal } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { FormField, email as emailValidator, form, minLength, required, submit, validate } from '@angular/forms/signals';
 import { firstValueFrom } from 'rxjs';
 import { AuthService } from '@features/auth/services/AuthService';
@@ -13,6 +13,7 @@ import { FormsModule } from '@angular/forms';
 })
 export class Register {
   private readonly authService = inject(AuthService);
+  private readonly router = inject(Router);
 
   protected readonly auth = this.authService;
   protected readonly submitted = signal(false);
@@ -57,6 +58,7 @@ export class Register {
         const { confirmPassword, terms, ...payload } = this.registerModel();
         await firstValueFrom(this.authService.register(payload));
         this.submitted.set(true);
+        await this.router.navigateByUrl('/auth/pending-approval', { replaceUrl: true });
       } catch {
         // authService.error() already surfaces the message in the template.
       }

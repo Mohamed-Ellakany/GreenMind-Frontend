@@ -1,4 +1,4 @@
-<section class="mx-auto max-w-[1440px] pb-16 text-[#10231b]" dir="rtl">
+<section class="mx-auto max-w-[1440px] pb-8 text-[#10231b]" dir="rtl">
   @if (loading()) {
     <div class="space-y-6 animate-pulse">
       <div class="h-7 w-52 rounded-lg bg-slate-200"></div>
@@ -15,30 +15,29 @@
       </div>
     </div>
   } @else if (plan(); as currentPlan) {
-    <nav class="mb-5 flex flex-wrap items-center gap-2 text-xs text-slate-500" aria-label="مسار الصفحة">
+    <nav class="mb-3 flex flex-wrap items-center gap-2 text-xs text-slate-500" aria-label="مسار الصفحة">
       <a routerLink="/export-plans" class="font-bold hover:text-[#0f7a3d]">خطط التصدير</a><span aria-hidden="true">‹</span><span>EX-{{ currentPlan.id }}</span>
     </nav>
 
-    <header class="relative mb-6 overflow-hidden rounded-3xl border border-[#d9e6dc] bg-white p-6 shadow-[0_14px_40px_rgba(16,35,27,.07)] sm:p-8">
-      <div class="pointer-events-none absolute -left-20 -top-24 size-64 rounded-full bg-[#d8f36a]/20 blur-2xl"></div>
-      <div class="relative flex flex-col justify-between gap-7 lg:flex-row lg:items-end">
+    <header class="relative mb-4 overflow-hidden rounded-xl border border-[#d9e6dc] bg-white p-4 shadow-[0_10px_30px_rgba(16,35,27,.055)] sm:p-5">
+      <div class="relative flex flex-col justify-between gap-4 lg:flex-row lg:items-end">
         <div class="min-w-0">
-          <div class="mb-3 flex flex-wrap items-center gap-2">
+          <div class="mb-2 flex flex-wrap items-center gap-2">
             <span class="rounded-full bg-[#e7f5eb] px-3 py-1 text-xs font-black text-[#075d2d]">EX-{{ currentPlan.id }}</span>
             <span class="rounded-full border border-[#dce8df] bg-white px-3 py-1 text-xs font-bold text-slate-600">{{ statusLabel(currentPlan.status) }}</span>
             <span class="rounded-full bg-blue-50 px-3 py-1 text-xs font-bold text-blue-700">{{ dashboard()?.season?.growthStage || 'الموسم الزراعي' }}</span>
           </div>
-          <h1 class="text-2xl font-black tracking-tight sm:text-3xl">{{ currentPlan.name }}</h1>
-          <p class="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-slate-500"><span>◉ {{ currentPlan.crop }}</span><span>✈ {{ currentPlan.destination }}</span><span>⌖ {{ currentPlan.city }}، {{ currentPlan.governorate }}</span><span>▱ {{ currentPlan.areaInFeddan }} فدان</span></p>
+          <h1 class="text-xl font-black tracking-tight sm:text-2xl">{{ currentPlan.name }}</h1>
+          <p class="mt-2 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-slate-500"><span>◉ {{ currentPlan.crop }}</span><span>✈ {{ currentPlan.destination }}</span><span>⌖ {{ currentPlan.city }}، {{ currentPlan.governorate }}</span><span>▱ {{ currentPlan.areaInFeddan }} فدان</span></p>
         </div>
         <div class="flex flex-wrap items-center gap-3">
-          <a [routerLink]="['/export-plans', currentPlan.id, 'phase-two']" class="inline-flex items-center gap-2 rounded-xl border border-[#b8dac1] bg-[#edf8f0] px-4 py-3 text-sm font-black text-[#0f7a3d] hover:bg-[#def1e3]"><span aria-hidden="true">✦</span> مساحة العمل الذكية</a>
-          <button type="button" class="inline-flex items-center gap-2 rounded-xl border border-[#d9e6dc] bg-white px-4 py-3 text-sm font-bold text-slate-700 hover:bg-slate-50" (click)="openSoilForm()"><span class="text-lg text-[#0f7a3d]">＋</span> إضافة قراءة تربة</button>
-          <a routerLink="/activities" class="inline-flex items-center gap-2 rounded-xl bg-[#0f7a3d] px-5 py-3 text-sm font-bold text-white shadow-[0_8px_20px_rgba(15,122,61,.18)] hover:bg-[#086532]">عرض المهام <span aria-hidden="true">←</span></a>
+          <a [routerLink]="['/export-plans', currentPlan.id, 'phase-two']" class="inline-flex items-center gap-2 rounded-lg border border-[#b8dac1] bg-[#edf8f0] px-3 py-2 text-sm font-black text-[#0f7a3d] hover:bg-[#def1e3]"><span aria-hidden="true">✦</span> مساحة العمل الذكية</a>
+          <button type="button" class="inline-flex items-center gap-2 rounded-lg border border-[#d9e6dc] bg-white px-3 py-2 text-sm font-bold text-slate-700 hover:bg-slate-50" (click)="openSoilForm()"><span class="text-lg text-[#0f7a3d]">＋</span> إضافة قراءة تربة</button>
+          <a routerLink="/activities" class="inline-flex items-center gap-2 rounded-lg bg-[#0f7a3d] px-4 py-2 text-sm font-bold text-white shadow-[0_8px_20px_rgba(15,122,61,.18)] hover:bg-[#086532]">عرض المهام <span aria-hidden="true">←</span></a>
         </div>
       </div>
       @if (dashboard(); as data) {
-        <div class="relative mt-7 border-t border-slate-100 pt-5">
+        <div class="relative mt-4 border-t border-slate-100 pt-4">
           <div class="mb-2 flex items-center justify-between text-xs"><span class="font-bold text-slate-600">تقدم الموسم · اليوم {{ data.season.currentSeasonDay }} من {{ data.season.totalSeasonDays }}</span><strong class="text-[#0f7a3d]">{{ data.season.progressPercentage }}%</strong></div>
           <div class="h-2.5 overflow-hidden rounded-full bg-[#edf2ee]"><i class="block h-full rounded-full bg-gradient-to-l from-[#0f7a3d] to-[#56bc6f]" [style.width.%]="data.season.progressPercentage"></i></div>
         </div>
@@ -48,17 +47,17 @@
     @if (soilSuccess()) { <div class="mb-6 flex items-center justify-between gap-3 rounded-2xl border border-green-200 bg-green-50 px-5 py-4 text-sm font-bold text-green-800" role="status"><span>✓ {{ soilSuccess() }}</span><button type="button" class="text-lg" aria-label="إخفاء الرسالة" (click)="soilSuccess.set(null)">×</button></div> }
 
     @if (dashboard(); as data) {
-      <div class="mb-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <div class="mb-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
         <article class="detail-stat-card"><div><span>صحة المزرعة</span><strong [class.text-[#0f7a3d]]="planHealth().tone === 'good'" [class.text-amber-600]="planHealth().tone === 'warning'" [class.text-red-600]="planHealth().tone === 'danger'">{{ planHealth().label }}</strong><small>{{ planHealth().detail }}</small></div><i class="bg-green-50 text-[#0f7a3d]">♡</i></article>
         <article class="detail-stat-card"><div><span>المهام المكتملة</span><strong>{{ data.taskSummary.completed }} / {{ data.taskSummary.total }}</strong><small>{{ data.taskSummary.inProgress }} مهمة قيد التنفيذ</small></div><i class="bg-blue-50 text-blue-700">✓</i></article>
         <article class="detail-stat-card"><div><span>الحصاد المتوقع</span><strong>{{ formatDate(currentPlan.expectedHarvestDate) }}</strong><small>متبقي {{ daysUntil(currentPlan.expectedHarvestDate) }} يومًا</small></div><i class="bg-amber-50 text-amber-700">♨</i></article>
         <article class="detail-stat-card"><div><span>موعد التصدير</span><strong>{{ formatDate(currentPlan.expectedExportDate) }}</strong><small>إلى {{ currentPlan.destination }}</small></div><i class="bg-violet-50 text-violet-700">✈</i></article>
       </div>
 
-      <div class="grid items-start gap-6 xl:grid-cols-[minmax(0,1.65fr)_minmax(310px,.75fr)]">
-        <div class="space-y-6">
-          <article class="rounded-3xl border border-[#dce6de] bg-white p-5 shadow-sm sm:p-7">
-            <div class="mb-6 flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 pb-5"><div><span class="text-xs font-bold text-[#0f7a3d]">رحلة التنفيذ</span><h2 class="mt-1 text-xl font-black">الجدول الزمني للخطة</h2></div><span class="rounded-full bg-slate-50 px-3 py-1.5 text-xs font-bold text-slate-500">{{ data.taskSummary.total }} مهمة إجمالًا</span></div>
+      <div class="plan-details-layout">
+        <div class="space-y-4">
+          <article class="rounded-xl border border-[#dce6de] bg-white p-4 shadow-sm">
+            <div class="mb-4 flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 pb-4"><div><span class="text-xs font-bold text-[#0f7a3d]">رحلة التنفيذ</span><h2 class="mt-1 text-lg font-black">الجدول الزمني للخطة</h2></div><span class="rounded-full bg-slate-50 px-3 py-1.5 text-xs font-bold text-slate-500">{{ data.taskSummary.total }} مهمة إجمالًا</span></div>
             @if (journeyTasks().length) {
               <ol class="task-timeline">
                 @for (task of journeyTasks(); track task.id) {
@@ -75,8 +74,8 @@
             }
           </article>
 
-          <article class="rounded-3xl border border-[#dce6de] bg-white p-5 shadow-sm sm:p-7">
-            <div class="mb-5 flex flex-wrap items-center justify-between gap-3"><div><span class="text-xs font-bold text-[#0f7a3d]">القياسات الميدانية</span><h2 class="mt-1 text-xl font-black">سجل قراءات التربة</h2></div><button type="button" class="rounded-xl bg-[#e7f5eb] px-4 py-2.5 text-sm font-black text-[#075d2d] hover:bg-[#d8eedf]" (click)="openSoilForm()">＋ إضافة قراءة جديدة</button></div>
+          <article class="rounded-xl border border-[#dce6de] bg-white p-4 shadow-sm">
+            <div class="mb-4 flex flex-wrap items-center justify-between gap-3"><div><span class="text-xs font-bold text-[#0f7a3d]">القياسات الميدانية</span><h2 class="mt-1 text-lg font-black">سجل قراءات التربة</h2></div><button type="button" class="rounded-lg bg-[#e7f5eb] px-3 py-2 text-sm font-black text-[#075d2d] hover:bg-[#d8eedf]" (click)="openSoilForm()">＋ إضافة قراءة جديدة</button></div>
             @if (soilMeasurements().length) {
               <div class="overflow-x-auto rounded-2xl border border-slate-100">
                 <table class="w-full min-w-[760px] text-right text-sm">
@@ -94,8 +93,8 @@
           </article>
         </div>
 
-        <aside class="space-y-6 xl:sticky xl:top-24">
-          <article class="rounded-3xl border border-[#dce6de] bg-white p-5 shadow-sm">
+        <aside class="space-y-4 xl:sticky xl:top-20">
+          <article class="rounded-xl border border-[#dce6de] bg-white p-4 shadow-sm">
             <div class="mb-5 flex items-start justify-between gap-3"><div><span class="text-xs font-bold text-[#0f7a3d]">آخر تحديث ميداني</span><h2 class="mt-1 text-lg font-black">حالة التربة</h2></div><button type="button" class="grid size-9 place-items-center rounded-xl border border-slate-200 text-lg text-[#0f7a3d] hover:bg-green-50" aria-label="إضافة قراءة تربة" (click)="openSoilForm()">＋</button></div>
             @if (latestSoil(); as soil) {
               <p class="mb-4 text-xs text-slate-500">قراءة {{ formatDate(soil.measurementDate) }}</p>
@@ -110,7 +109,7 @@
             }
           </article>
 
-          <article class="overflow-hidden rounded-3xl border border-[#cfe3d4] bg-gradient-to-br from-[#effaf2] to-white p-5 shadow-sm">
+          <article class="overflow-hidden rounded-xl border border-[#cfe3d4] bg-gradient-to-br from-[#effaf2] to-white p-4 shadow-sm">
             <div class="mb-4 flex items-center justify-between"><div class="flex items-center gap-2"><span class="grid size-9 place-items-center rounded-xl bg-[#0f7a3d] text-white">✦</span><div><h2 class="font-black">ذكاء الخطة</h2><small class="text-[#54705d]">ملخص مبني على أحدث البيانات</small></div></div><span class="rounded-full bg-white px-2 py-1 text-[10px] font-black text-[#0f7a3d]">مباشر</span></div>
             @if (latestSoil(); as soil) {
               <p class="text-sm leading-7 text-[#32473a]">حالة المزرعة <strong>{{ planHealth().label }}</strong>. آخر قراءة تُظهر pH عند <strong>{{ soil.ph }}</strong> ورطوبة <strong>{{ soil.moisture }}%</strong>. لديك {{ data.taskSummary.pending + data.taskSummary.inProgress }} مهام تحتاج متابعة قبل التصدير.</p>
@@ -120,7 +119,7 @@
             @if (data.upcomingTasks.length) { <div class="mt-4 rounded-2xl bg-white/80 p-3 text-xs leading-5 text-slate-600"><strong class="block text-[#0f7a3d]">المهمة التالية</strong>{{ data.upcomingTasks[0].title }} · {{ formatDate(data.upcomingTasks[0].plannedDate) }}</div> }
           </article>
 
-          <article class="rounded-3xl border border-[#dce6de] bg-white p-5 shadow-sm"><h2 class="mb-4 font-black">بيانات الخطة</h2><dl class="space-y-3 text-sm"><div class="flex justify-between gap-3"><dt class="text-slate-500">تاريخ الزراعة</dt><dd class="font-bold">{{ formatDate(currentPlan.plantingDate) }}</dd></div><div class="flex justify-between gap-3"><dt class="text-slate-500">موقع المزرعة</dt><dd class="font-bold">{{ currentPlan.city }}</dd></div><div class="flex justify-between gap-3"><dt class="text-slate-500">الإحداثيات</dt><dd class="font-mono text-xs" dir="ltr">{{ currentPlan.latitude.toFixed(4) }}, {{ currentPlan.longitude.toFixed(4) }}</dd></div>@if (currentPlan.notes) { <div class="border-t border-slate-100 pt-3"><dt class="mb-1 text-slate-500">ملاحظات</dt><dd class="leading-6">{{ currentPlan.notes }}</dd></div> }</dl></article>
+          <article class="rounded-xl border border-[#dce6de] bg-white p-4 shadow-sm"><h2 class="mb-3 font-black">بيانات الخطة</h2><dl class="space-y-2.5 text-sm"><div class="flex justify-between gap-3"><dt class="text-slate-500">تاريخ الزراعة</dt><dd class="font-bold">{{ formatDate(currentPlan.plantingDate) }}</dd></div><div class="flex justify-between gap-3"><dt class="text-slate-500">موقع المزرعة</dt><dd class="font-bold">{{ currentPlan.city }}</dd></div><div class="flex justify-between gap-3"><dt class="text-slate-500">الإحداثيات</dt><dd class="font-mono text-xs" dir="ltr">{{ currentPlan.latitude.toFixed(4) }}, {{ currentPlan.longitude.toFixed(4) }}</dd></div>@if (currentPlan.notes) { <div class="border-t border-slate-100 pt-3"><dt class="mb-1 text-slate-500">ملاحظات</dt><dd class="leading-6">{{ currentPlan.notes }}</dd></div> }</dl></article>
         </aside>
       </div>
     }

@@ -1,4 +1,4 @@
-import { Component, DestroyRef, inject, signal } from '@angular/core';
+import { Component, DestroyRef, ElementRef, inject, signal, viewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { finalize } from 'rxjs/operators';
@@ -9,6 +9,7 @@ import { ChatMessage, ChatSession } from '../../phase-two/phase-two.models';
   selector: 'app-ai-agent',
   imports: [FormsModule],
   templateUrl: './ai-agent.html',
+  styleUrl: './ai-agent.css',
 })
 export class AiAgent {
   private readonly api = inject(PhaseTwoApi);
@@ -20,12 +21,13 @@ export class AiAgent {
   public readonly loading = signal(true);
   public readonly sending = signal(false);
   public readonly error = signal<string | null>(null);
+  private readonly messagesViewport = viewChild<ElementRef<HTMLElement>>('messagesViewport');
   public messageInput = '';
 
   public readonly suggestions = [
-    'لخّص لي حالة كل خطط التصدير وأهم المخاطر الحالية',
+    'هل المادة الفعالة لهذا المبيد معتمدة للتصدير؟ وما الـ MRL للمحصول؟',
+    'لخّص لي حالة خطط التصدير وأهم المخاطر الحالية',
     'ما المهام المتأخرة التي تحتاج تدخلي اليوم؟',
-    'قارن تكاليف الخطط وحدد أعلى بنود الإنفاق',
     'ما الذي يجب مراجعته قبل تجهيز الشحنة القادمة؟',
   ];
 
@@ -46,6 +48,7 @@ export class AiAgent {
           this.sessions.update((sessions) => [session, ...sessions]);
           this.selectedSession.set(session);
           this.messages.set([]);
+          this.scrollToLatest();
         },
         error: () => this.error.set('تعذر إنشاء محادثة جديدة.'),
       });
@@ -59,6 +62,21 @@ export class AiAgent {
 
   public useSuggestion(suggestion: string): void {
     this.messageInput = suggestion;
+  }
+
+  public displaySessionTitle(title: string | null | undefined): string {
+    if (!title || title === 'مستشار المزرعة' || title === 'Farm advisor') return 'محادثة مع عم خضر';
+    return title;
+  }
+
+  public isUserMessage(message: ChatMessage): boolean {
+    return message.role === 'المستخدم';
+  }
+
+  public onComposerKeydown(event: KeyboardEvent): void {
+    if (event.key !== 'Enter' || event.shiftKey || event.isComposing) return;
+    event.preventDefault();
+    void this.send();
   }
 
   public async send(): Promise<void> {
@@ -76,6 +94,7 @@ export class AiAgent {
       { id: userId, role: 'المستخدم', content, status: 'مكتمل', createdAt: new Date().toISOString() },
       { id: assistantId, role: 'المساعد', content: '', status: 'جارٍ الإرسال', createdAt: new Date().toISOString() },
     ]);
+    this.scrollToLatest();
 
     try {
       await this.api.streamFarmMessage(session.id, content, (event) => {
@@ -90,11 +109,12 @@ export class AiAgent {
             status: event.status,
           };
         }));
+        this.scrollToLatest();
       });
       this.loadMessages(session.id);
       this.loadSessions(false);
     } catch {
-      this.error.set('تعذر إكمال رد المستشار. أعد المحاولة بعد لحظات.');
+      this.error.set('تعذر إكمال رد عم خضر. أعد المحاولة بعد لحظات.');
       this.messages.update((messages) => messages.map((message) =>
         message.id === assistantId
           ? { ...message, content: 'تعذر إنشاء الرد حاليًا.', status: 'فشل' }
@@ -124,6 +144,10 @@ export class AiAgent {
               this.selectedSession.set(sessions[0]);
               this.loadMessages(sessions[0].id);
             } else {
+              // The `next` handler runs before `finalize`, so loading is still true
+              // here. Release it before creating the initial session; otherwise
+              // createSession's guard leaves the composer disabled indefinitely.
+              this.loading.set(false);
               this.createSession();
             }
           }
@@ -140,8 +164,24 @@ export class AiAgent {
         takeUntilDestroyed(this.destroyRef),
       )
       .subscribe({
-        next: (page) => this.messages.set(page.items),
+        next: (page) => {
+          this.messages.set(page.items);
+          this.scrollToLatest();
+        },
         error: () => this.error.set('تعذر تحميل سجل المحادثة.'),
       });
+  }
+
+  private scrollToLatest(): void {
+    queueMicrotask(() => {
+      const viewport = this.messagesViewport()?.nativeElement;
+      if (!viewport) return;
+      if (typeof viewport.scrollTo === 'function') {
+        viewport.scrollTo({ top: viewport.scrollHeight, behavior: 'smooth' });
+      } else {
+        // JSDOM and older embedded browsers do not implement Element.scrollTo.
+        viewport.scrollTop = viewport.scrollHeight;
+      }
+    });
   }
 }

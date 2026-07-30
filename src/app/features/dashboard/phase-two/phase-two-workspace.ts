@@ -148,7 +148,7 @@ export class PhaseTwoWorkspace {
       });
       this.refreshMessages();
     } catch {
-      this.error.set('تعذر إكمال رد المستشار. يمكنك إعادة المحاولة.');
+      this.error.set('تعذر إكمال رد عم خضر. يمكنك إعادة المحاولة.');
       this.chatMessages.update((messages) => messages.map((message) =>
         message.id === temporaryAssistantId
           ? { ...message, status: 'فشل', content: 'تعذر إنشاء الرد حاليًا.' }

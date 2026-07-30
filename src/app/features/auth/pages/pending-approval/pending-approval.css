@@ -1,0 +1,62 @@
+:host { display: block; }
+
+.approval-orbit {
+  position: relative;
+  display: grid;
+  width: 108px;
+  height: 108px;
+  place-items: center;
+}
+
+.approval-orbit img {
+  position: relative;
+  z-index: 2;
+  width: 44px;
+  height: 44px;
+}
+
+.approval-orbit span {
+  position: absolute;
+  inset: 0;
+  border: 2px solid rgb(15 122 61 / 0.16);
+  border-top-color: #0f7a3d;
+  border-radius: 999px;
+  animation: approval-spin 1800ms linear infinite;
+}
+
+.approval-orbit span:nth-child(2) {
+  inset: 12px;
+  animation-duration: 2400ms;
+  animation-direction: reverse;
+}
+
+.approval-orbit span:nth-child(3) {
+  inset: 24px;
+  border-color: rgb(216 243 106 / 0.35);
+  border-top-color: #d8f36a;
+  animation-duration: 1400ms;
+}
+
+.waiting-pulse {
+  width: 12px;
+  height: 12px;
+  border-radius: 999px;
+  background: #d8f36a;
+  box-shadow: 0 0 0 0 rgb(216 243 106 / 0.65);
+  animation: waiting-pulse 1500ms ease-out infinite;
+}
+
+@keyframes approval-spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes waiting-pulse {
+  to { box-shadow: 0 0 0 14px rgb(216 243 106 / 0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .approval-orbit span,
+  .waiting-pulse {
+    animation: none;
+  }
+}

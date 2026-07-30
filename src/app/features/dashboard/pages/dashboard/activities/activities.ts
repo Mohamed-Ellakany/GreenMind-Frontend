@@ -5,7 +5,12 @@ import { finalize } from 'rxjs';
 import { GreenmindApi } from '@core/api/greenmind-api.service';
 import { FarmTask } from '@core/api/api.models';
 
-@Component({ selector: 'app-activities', imports: [FormsModule], templateUrl: './activities.html' })
+@Component({
+  selector: 'app-activities',
+  imports: [FormsModule],
+  templateUrl: './activities.html',
+  styleUrl: './activities.css',
+})
 export class Activities {
   private readonly api = inject(GreenmindApi);
   private readonly destroyRef = inject(DestroyRef);
@@ -32,5 +37,9 @@ export class Activities {
 
   public statusLabel(status: string): string {
     return ({ Pending: 'قيد الانتظار', InProgress: 'قيد التنفيذ', Completed: 'مكتملة', Cancelled: 'ملغاة' } as Record<string, string>)[status] ?? status;
+  }
+
+  public priorityLabel(priority: string): string {
+    return ({ Low: 'منخفضة', Medium: 'متوسطة', High: 'عالية', Critical: 'حرجة' } as Record<string, string>)[priority] ?? priority;
   }
 }
