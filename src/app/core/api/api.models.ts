@@ -124,6 +124,7 @@ export interface ExportPlanDashboard {
   season: { currentSeasonDay: number; totalSeasonDays: number; progressPercentage: number; growthStage: string };
   latestSoilMeasurement: { measurementDate: string; ph: number; ec: number; nitrogen: number; phosphorus: number; potassium: number; moisture: number; notes: string | null } | null;
   taskSummary: { total: number; pending: number; inProgress: number; completed: number; cancelled: number };
+  overdueTasks: DashboardTask[];
   upcomingTasks: DashboardTask[];
   completedTasks: DashboardTask[];
 }
