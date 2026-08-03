@@ -33,9 +33,9 @@
   }
 
   @if (formOpen()) {
-    <div class="fixed inset-0 z-50 grid place-items-center bg-[#071710]/65 p-0 backdrop-blur-sm sm:p-4" (click)="closeForm()">
-      <form class="flex h-[100dvh] w-full max-w-5xl flex-col overflow-hidden bg-white shadow-2xl sm:h-auto sm:max-h-[92dvh] sm:rounded-xl" (click)="$event.stopPropagation()" (ngSubmit)="create()">
-        <header class="flex shrink-0 items-start justify-between gap-4 border-b border-slate-100 px-5 py-3 sm:px-6 sm:py-4">
+    <div class="export-plan-modal fixed inset-0 z-50 grid place-items-center bg-[#071710]/65 p-0 backdrop-blur-sm sm:p-4" (click)="closeForm()">
+      <form class="export-plan-modal__dialog w-full max-w-5xl overflow-hidden bg-white shadow-2xl sm:rounded-xl" (click)="$event.stopPropagation()" (ngSubmit)="create()">
+        <header class="export-plan-modal__header flex items-start justify-between gap-4 border-b border-slate-100 px-5 py-3 sm:px-6 sm:py-4">
           <div>
             <div class="mb-1 flex items-center gap-2 text-xs font-bold text-[#0f7a3d]"><span class="inline-block size-2 rounded-full bg-[#0f7a3d]"></span> مخطط التصدير الذكي</div>
             <h2 class="text-xl font-black tracking-tight sm:text-2xl">إنشاء خطة تصدير جديدة</h2>
@@ -44,7 +44,7 @@
           <button type="button" class="grid size-10 shrink-0 place-items-center rounded-full border border-slate-200 text-xl text-slate-500 hover:border-slate-300 hover:bg-slate-50 hover:text-slate-900" aria-label="إغلاق" (click)="closeForm()">×</button>
         </header>
 
-        <nav class="shrink-0 border-b border-slate-100 bg-[#fbfdfb] px-4 py-3 sm:px-6" aria-label="خطوات إنشاء الخطة">
+        <nav class="export-plan-modal__steps border-b border-slate-100 bg-[#fbfdfb] px-4 py-3 sm:px-6" aria-label="خطوات إنشاء الخطة">
           <ol class="mx-auto grid max-w-3xl grid-cols-3">
             @for (step of formSteps; track step.number) {
               <li class="relative">
@@ -59,7 +59,7 @@
           </ol>
         </nav>
 
-        <main class="min-h-0 flex-1 overflow-y-auto px-5 py-4 sm:px-6 sm:py-5">
+        <main class="export-plan-modal__body px-5 py-4 sm:px-6 sm:py-5">
           @if (formStep() === 1) {
             <section class="mx-auto max-w-3xl">
               <div class="mb-4">
@@ -68,9 +68,10 @@
                 <p class="mt-1 text-sm text-slate-500">اختر اسمًا واضحًا يساعدك في العثور على الخطة ومتابعتها لاحقًا.</p>
               </div>
               <div class="grid gap-5 sm:grid-cols-2">
-                <label class="sm:col-span-2"><span class="mb-2 block text-sm font-bold">اسم الخطة <em class="not-italic text-red-500">*</em></span><input required class="w-full rounded-xl border px-4 py-3" name="name" [(ngModel)]="form.name" placeholder="مثال: تصدير فراولة هولندا - موسم 2026" autocomplete="off" /></label>
-                <label><span class="mb-2 block text-sm font-bold">المحصول <em class="not-italic text-red-500">*</em></span><select required class="w-full rounded-xl border px-4 py-3" name="cropId" [(ngModel)]="form.cropId"><option [ngValue]="0" disabled>اختر المحصول</option>@for (item of crops(); track item.id) { <option [ngValue]="item.id">{{ item.name }}</option> }</select><small class="mt-2 block text-xs text-slate-400">المحصول المراد زراعته وتجهيزه.</small></label>
-                <label><span class="mb-2 block text-sm font-bold">سوق التصدير <em class="not-italic text-red-500">*</em></span><select required class="w-full rounded-xl border px-4 py-3" name="destinationId" [(ngModel)]="form.destinationId"><option [ngValue]="0" disabled>اختر الوجهة</option>@for (item of destinations(); track item.id) { <option [ngValue]="item.id">{{ item.name }}</option> }</select><small class="mt-2 block text-xs text-slate-400">سنراعي متطلبات هذه الوجهة في الخطة.</small></label>
+                <label class="sm:col-span-2"><span class="mb-2 block text-sm font-bold">اسم الخطة <em class="not-italic text-red-500">*</em></span><input required class="w-full rounded-xl border px-4 py-3" name="name" [(ngModel)]="form.name" (ngModelChange)="invalidateSchedule()" placeholder="مثال: تصدير فراولة هولندا - موسم 2026" autocomplete="off" /></label>
+                <label><span class="mb-2 block text-sm font-bold">المحصول <em class="not-italic text-red-500">*</em></span><select required class="w-full rounded-xl border px-4 py-3" name="cropId" [(ngModel)]="form.cropId" (ngModelChange)="invalidateSchedule()"><option [ngValue]="0" disabled>اختر المحصول</option>@for (item of crops(); track item.id) { <option [ngValue]="item.id">{{ item.name }}</option> }</select><small class="mt-2 block text-xs text-slate-400">المحصول المراد زراعته وتجهيزه.</small></label>
+                <label><span class="mb-2 block text-sm font-bold">سوق التصدير <em class="not-italic text-red-500">*</em></span><select required class="w-full rounded-xl border px-4 py-3" name="destinationId" [(ngModel)]="form.destinationId" (ngModelChange)="invalidateSchedule()"><option [ngValue]="0" disabled>اختر الوجهة</option>@for (item of destinations(); track item.id) { <option [ngValue]="item.id">{{ item.name }}</option> }</select><small class="mt-2 block text-xs text-slate-400">سنراعي متطلبات هذه الوجهة في الخطة.</small></label>
+                <label class="sm:col-span-2"><span class="mb-2 block text-sm font-bold">ملاحظات للمحلل <span class="font-normal text-slate-400">(اختياري)</span></span><textarea class="w-full resize-none rounded-xl border px-4 py-3" rows="3" name="notes" [(ngModel)]="form.notes" (ngModelChange)="invalidateSchedule()" placeholder="شهادات مطلوبة، قيود الري أو التعبئة، أو أي تفاصيل تؤثر في الموسم..."></textarea></label>
               </div>
               <div class="mt-5 flex items-start gap-3 rounded-xl border border-green-100 bg-green-50/70 p-3 text-sm text-green-900"><span class="grid size-8 shrink-0 place-items-center rounded-full bg-white">✦</span><p class="leading-6"><strong class="block">ماذا سيحدث بعد الإنشاء؟</strong>سيحلل المخطط بيانات المحصول والوجهة والمزرعة لإنشاء مهام عملية للأيام السبعة التالية.</p></div>
             </section>
@@ -128,7 +129,7 @@
                       </select>
                       <small class="mt-2 block text-xs leading-5 text-slate-400">عند الاختيار سننقل الخريطة ونضع علامة مبدئية تلقائيًا.</small>
                     </label>
-                    <label><span class="mb-2 block text-sm font-bold">مساحة المزرعة <em class="not-italic text-red-500">*</em></span><span class="relative block"><input required min="0.01" type="number" step="0.01" class="w-full rounded-xl border px-4 py-3 pl-16" name="area" [(ngModel)]="form.areaInFeddan" /><span class="absolute left-4 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400">فدان</span></span></label>
+                    <label><span class="mb-2 block text-sm font-bold">مساحة المزرعة <em class="not-italic text-red-500">*</em></span><span class="relative block"><input required min="0.01" type="number" step="1" class="w-full rounded-xl border px-4 py-3 pl-16" name="area" [(ngModel)]="form.areaInFeddan" (ngModelChange)="invalidateSchedule()" /><span class="absolute left-4 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400">فدان</span></span></label>
                   </div>
                   <div>
                     <span class="mb-2 block text-xs font-bold text-slate-500">انتقال سريع</span>
@@ -141,43 +142,49 @@
           }
 
           @if (formStep() === 3) {
-            <section>
-              <div class="mb-4">
-                <span class="text-xs font-bold text-[#0f7a3d]">الخطوة 3 من 3</span>
-                <h3 class="mt-1 text-xl font-black">حدد المواعيد وراجع الخطة</h3>
-                <p class="mt-1 text-sm text-slate-500">سنستخدم هذه التواريخ لبناء توقيتات الزراعة والتجهيز والتصدير.</p>
-              </div>
-              <div class="grid gap-5 lg:grid-cols-[minmax(0,1.25fr)_minmax(280px,.75fr)]">
-                <div>
-                  <div class="grid gap-4 sm:grid-cols-3">
-                    <label><span class="mb-2 block text-sm font-bold">تاريخ الزراعة</span><input required type="date" class="w-full rounded-xl border px-3 py-3" name="planting" [(ngModel)]="form.plantingDate" /></label>
-                    <label><span class="mb-2 block text-sm font-bold">الحصاد المتوقع</span><input required type="date" class="w-full rounded-xl border px-3 py-3" name="harvest" [(ngModel)]="form.expectedHarvestDate" /></label>
-                    <label><span class="mb-2 block text-sm font-bold">التصدير المتوقع</span><input required type="date" class="w-full rounded-xl border px-3 py-3" name="export" [(ngModel)]="form.expectedExportDate" /></label>
-                  </div>
-                  <label class="mt-5 block"><span class="mb-2 block text-sm font-bold">ملاحظات للمخطط <span class="font-normal text-slate-400">(اختياري)</span></span><textarea class="w-full resize-none rounded-xl border px-4 py-3" rows="4" name="notes" [(ngModel)]="form.notes" placeholder="مثلًا: شهادات مطلوبة، طريقة التعبئة، قيود الري أو التسميد..."></textarea><small class="mt-2 block text-xs text-slate-400">كلما كانت الملاحظات أوضح، كانت المهام المقترحة أدق.</small></label>
+            @if (scheduleAnalysis(); as analysis) {
+              <section>
+                <div class="mb-4 flex flex-wrap items-start justify-between gap-3">
+                  <div><span class="text-xs font-bold text-[#0f7a3d]">الخطوة 3 من 3</span><h3 class="mt-1 text-xl font-black">راجع تحليل الموسم والمواعيد</h3><p class="mt-1 text-sm text-slate-500">الموقع النصي للعرض فقط؛ المناخ والطقس محسوبان من الإحداثيات المحفوظة.</p></div>
+                  <div class="flex gap-2"><span class="rounded-full px-3 py-1.5 text-xs font-bold" [class.bg-green-100]="analysis.assessment === 'Feasible'" [class.text-green-800]="analysis.assessment === 'Feasible'" [class.bg-amber-100]="analysis.assessment === 'AtRisk'" [class.text-amber-800]="analysis.assessment === 'AtRisk'" [class.bg-red-100]="analysis.assessment === 'NotRecommended'" [class.text-red-800]="analysis.assessment === 'NotRecommended'">{{ assessmentLabel(analysis.assessment) }}</span><span class="rounded-full bg-slate-100 px-3 py-1.5 text-xs font-bold text-slate-700">{{ confidenceLabel(analysis.confidence) }}</span></div>
                 </div>
-                <aside class="rounded-xl border border-[#dce9df] bg-[#f7fbf8] p-4">
-                  <div class="mb-5 flex items-center justify-between"><strong>ملخص الخطة</strong><button type="button" class="text-xs font-bold text-[#0f7a3d] hover:underline" (click)="goToStep(1)">تعديل</button></div>
-                  <dl class="space-y-4 text-sm">
-                    <div><dt class="text-xs text-slate-500">اسم الخطة</dt><dd class="mt-1 font-bold">{{ form.name }}</dd></div>
-                    <div class="grid grid-cols-2 gap-3"><div><dt class="text-xs text-slate-500">المحصول</dt><dd class="mt-1 font-bold">{{ cropName() }}</dd></div><div><dt class="text-xs text-slate-500">الوجهة</dt><dd class="mt-1 font-bold">{{ destinationName() }}</dd></div></div>
-                    <div class="border-t border-slate-200 pt-4"><dt class="text-xs text-slate-500">موقع المزرعة</dt><dd class="mt-1 font-bold">{{ form.city }}، {{ form.governorate }}</dd><dd class="mt-1 text-xs text-slate-500">{{ form.areaInFeddan }} فدان</dd></div>
-                  </dl>
-                  <div class="mt-5 rounded-xl bg-white p-3 text-xs leading-5 text-slate-600 shadow-sm"><strong class="text-[#0f7a3d]">جاهز للتخطيط</strong><br />بعد الحفظ، سيبدأ الذكاء الاصطناعي تلقائيًا في تجهيز المهام.</div>
-                </aside>
-              </div>
-            </section>
+
+                <div class="grid gap-5 lg:grid-cols-[minmax(0,1.3fr)_minmax(280px,.7fr)]">
+                  <div class="space-y-4">
+                    <article class="rounded-xl border border-green-100 bg-green-50/60 p-4"><span class="text-xs font-bold text-[#0f7a3d]">الموسم المقترح</span><h4 class="mt-1 text-lg font-black">{{ analysis.seasonName }}</h4><p class="mt-2 text-sm leading-6 text-slate-600">{{ analysis.summary }}</p></article>
+
+                    <div class="grid gap-4 sm:grid-cols-3">
+                      <label><span class="mb-2 block text-sm font-bold">تاريخ الزراعة</span><input required type="date" class="w-full rounded-xl border px-3 py-3" name="planting" [(ngModel)]="form.plantingDate" (ngModelChange)="markDatesChanged()" /></label>
+                      <label><span class="mb-2 block text-sm font-bold">الحصاد المتوقع</span><input required type="date" class="w-full rounded-xl border px-3 py-3" name="harvest" [(ngModel)]="form.expectedHarvestDate" (ngModelChange)="markDatesChanged()" /></label>
+                      <label><span class="mb-2 block text-sm font-bold">التصدير المتوقع</span><input required type="date" class="w-full rounded-xl border px-3 py-3" name="export" [(ngModel)]="form.expectedExportDate" (ngModelChange)="markDatesChanged()" /></label>
+                    </div>
+                    @if (scheduleDirty()) { <div class="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900"><span>عدّلت المواعيد؛ يجب تقييمها قبل التأكيد.</span><button type="button" class="rounded-lg bg-amber-700 px-4 py-2 text-xs font-bold text-white disabled:opacity-50" [disabled]="analyzing()" (click)="analyzeSchedule(true)">{{ analyzing() ? 'جارٍ التقييم...' : 'إعادة تقييم المواعيد' }}</button></div> }
+
+                    @if (analysis.reasons.length) { <article class="rounded-xl border p-4"><h4 class="text-sm font-black">أسباب الاختيار</h4><ul class="mt-2 space-y-2 text-sm leading-6 text-slate-600">@for (reason of analysis.reasons; track reason) { <li>• {{ reason }}</li> }</ul></article> }
+                    @if (analysis.warnings.length) { <article class="rounded-xl border border-amber-200 bg-amber-50 p-4"><h4 class="text-sm font-black text-amber-900">تنبيهات مهمة</h4><ul class="mt-2 space-y-2 text-sm leading-6 text-amber-800">@for (warning of analysis.warnings; track warning) { <li>• {{ warning }}</li> }</ul></article> }
+                    @if (analysis.inferredFacts.length) { <article class="rounded-xl border border-violet-200 bg-violet-50 p-4"><h4 class="text-sm font-black text-violet-900">استنتاجات AI غير موثقة مباشرة</h4><div class="mt-2 space-y-2">@for (fact of analysis.inferredFacts; track fact.field) { <div class="rounded-lg bg-white/70 p-2 text-xs leading-5 text-violet-900"><strong>{{ fact.value }}</strong><span class="block text-violet-700">{{ fact.reason }}</span></div> }</div></article> }
+                    @if (analysis.sources.length) { <article class="rounded-xl border p-4"><h4 class="text-sm font-black">المصادر المستخدمة</h4><div class="mt-2 grid gap-2 sm:grid-cols-2">@for (source of analysis.sources; track source.id) { @if (source.url) { <a class="rounded-lg border border-slate-100 p-3 text-xs hover:border-green-200 hover:bg-green-50" [href]="source.url" target="_blank" rel="noopener"><strong class="block text-slate-800">{{ source.title }}</strong><span class="mt-1 block text-slate-500">{{ source.publisher }}</span></a> } @else { <div class="rounded-lg border border-slate-100 p-3 text-xs"><strong class="block">{{ source.title }}</strong><span class="mt-1 block text-slate-500">{{ source.publisher }}</span></div> } }</div></article> }
+                  </div>
+
+                  <aside class="h-fit rounded-xl border border-[#dce9df] bg-[#f7fbf8] p-4">
+                    <div class="mb-5 flex items-center justify-between"><strong>ملخص الخطة</strong><button type="button" class="text-xs font-bold text-[#0f7a3d] hover:underline" (click)="goToStep(1)">تعديل</button></div>
+                    <dl class="space-y-4 text-sm"><div><dt class="text-xs text-slate-500">اسم الخطة</dt><dd class="mt-1 font-bold">{{ form.name }}</dd></div><div class="grid grid-cols-2 gap-3"><div><dt class="text-xs text-slate-500">المحصول</dt><dd class="mt-1 font-bold">{{ cropName() }}</dd></div><div><dt class="text-xs text-slate-500">الوجهة</dt><dd class="mt-1 font-bold">{{ destinationName() }}</dd></div></div><div class="border-t border-slate-200 pt-4"><dt class="text-xs text-slate-500">اسم المكان للعرض</dt><dd class="mt-1 font-bold">{{ form.city }}، {{ form.governorate }}</dd><dd class="mt-1 text-xs text-slate-500">{{ form.areaInFeddan }} فدان</dd></div><div><dt class="text-xs text-slate-500">إحداثيات المناخ والطقس</dt><dd class="mt-1 font-mono text-xs" dir="ltr">{{ form.latitude.toFixed(6) }}, {{ form.longitude.toFixed(6) }}</dd></div></dl>
+                    @if (requiresScheduleAcknowledgement()) { <label class="mt-5 flex cursor-pointer items-start gap-2 rounded-xl border border-amber-200 bg-amber-50 p-3 text-xs leading-5 text-amber-900"><input type="checkbox" class="mt-1" name="acceptWarnings" [ngModel]="scheduleWarningsAccepted()" (ngModelChange)="scheduleWarningsAccepted.set($event)" /><span>اطلعت على التحذيرات والاستنتاجات منخفضة الثقة وأريد متابعة إنشاء الخطة.</span></label> }
+                  </aside>
+                </div>
+              </section>
+            }
           }
         </main>
 
-        <footer class="shrink-0 border-t border-slate-100 bg-white px-5 py-3 sm:px-6">
+        <footer class="export-plan-modal__footer relative z-20 border-t border-slate-200 bg-white px-5 py-3 shadow-[0_-8px_24px_rgba(15,23,42,.07)] sm:px-6">
           @if (stepError()) { <div class="mb-3 flex items-center gap-2 rounded-xl bg-red-50 px-4 py-2.5 text-sm font-bold text-red-700" role="alert"><span>!</span> {{ stepError() }}</div> }
           <div class="flex items-center justify-between gap-3">
             <button type="button" class="rounded-xl px-3 py-2.5 text-sm font-bold text-slate-500 hover:bg-slate-50 hover:text-slate-800" (click)="formStep() === 1 ? closeForm() : previousStep()">{{ formStep() === 1 ? 'إلغاء' : 'السابق' }}</button>
             <div class="flex items-center gap-3">
               <span class="hidden text-xs text-slate-400 sm:inline">الخطوة {{ formStep() }} من 3</span>
-              @if (formStep() < 3) { <button type="button" class="inline-flex items-center gap-2 rounded-xl bg-[#0f7a3d] px-6 py-3 text-sm font-bold text-white shadow-[0_8px_20px_rgba(15,122,61,.2)] hover:bg-[#086532]" (click)="nextStep()">التالي <span aria-hidden="true">←</span></button> }
-              @else { <button type="submit" [disabled]="saving()" class="inline-flex items-center gap-2 rounded-xl bg-[#0f7a3d] px-6 py-3 text-sm font-bold text-white shadow-[0_8px_20px_rgba(15,122,61,.2)] hover:bg-[#086532] disabled:cursor-not-allowed disabled:opacity-50"><span>{{ saving() ? 'جارٍ إنشاء الخطة...' : 'إنشاء وبدء التخطيط' }}</span>@if (!saving()) { <span aria-hidden="true">✦</span> }</button> }
+              @if (formStep() < 3) { <button type="button" [disabled]="analyzing()" class="inline-flex items-center gap-2 rounded-xl bg-[#0f7a3d] px-6 py-3 text-sm font-bold text-white shadow-[0_8px_20px_rgba(15,122,61,.2)] hover:bg-[#086532] disabled:cursor-wait disabled:opacity-60" (click)="nextStep()">{{ formStep() === 2 ? (analyzing() ? 'جارٍ تحليل الموسم...' : 'تحليل واقتراح المواعيد') : 'التالي' }} <span aria-hidden="true">{{ formStep() === 2 ? '✦' : '←' }}</span></button> }
+              @else { <button type="submit" [disabled]="saving() || analyzing() || scheduleDirty() || (requiresScheduleAcknowledgement() && !scheduleWarningsAccepted())" class="inline-flex items-center gap-2 rounded-xl bg-[#0f7a3d] px-6 py-3 text-sm font-bold text-white shadow-[0_8px_20px_rgba(15,122,61,.2)] hover:bg-[#086532] disabled:cursor-not-allowed disabled:opacity-50"><span>{{ saving() ? 'جارٍ إنشاء الخطة...' : 'تأكيد وإنشاء الخطة' }}</span>@if (!saving()) { <span aria-hidden="true">✦</span> }</button> }
             </div>
           </div>
         </footer>

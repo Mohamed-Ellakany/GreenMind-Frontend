@@ -62,6 +62,56 @@ export interface ExportPlanCreateRequest {
   expectedHarvestDate: string;
   expectedExportDate: string;
   notes: string | null;
+  analysisToken: string;
+  acceptScheduleWarnings: boolean;
+}
+
+export interface ExportPlanScheduleAnalysisRequest {
+  name: string;
+  cropId: number;
+  destinationId: number;
+  governorate: string;
+  city: string;
+  latitude: number;
+  longitude: number;
+  areaInFeddan: number;
+  notes: string | null;
+  plantingDate?: string;
+  expectedHarvestDate?: string;
+  expectedExportDate?: string;
+}
+
+export interface ScheduleAnalysisSource {
+  id: string;
+  title: string;
+  publisher: string;
+  url: string | null;
+  retrievedAtUtc: string;
+  evidenceKind: 'OfficialSource' | 'FarmHistory' | 'AiInference';
+  supportedFacts: string[];
+}
+
+export interface ScheduleInferredFact {
+  field: string;
+  value: string;
+  reason: string;
+}
+
+export interface ExportPlanScheduleAnalysis {
+  seasonName: string;
+  plantingDate: string;
+  expectedHarvestDate: string;
+  expectedExportDate: string;
+  assessment: 'Feasible' | 'AtRisk' | 'NotRecommended';
+  confidence: 'High' | 'Medium' | 'Low';
+  summary: string;
+  reasons: string[];
+  warnings: string[];
+  recommendations: string[];
+  assumptions: string[];
+  sources: ScheduleAnalysisSource[];
+  inferredFacts: ScheduleInferredFact[];
+  analysisToken: string;
 }
 
 export interface SoilMeasurement {
@@ -137,7 +187,13 @@ export interface DashboardTask {
 export interface PlatformStatistics {
   totalFarms: number; pendingFarms: number; activeFarms: number; inactiveFarms: number;
   totalCrops: number; totalDestinations: number; totalExportPlans: number; totalTasks: number;
+  exportPlansByCrop: { id: number; name: string; exportPlanCount: number }[];
+  exportPlansByDestination: { id: number; name: string; exportPlanCount: number }[];
+  farmRegistrationsByMonth: NamedCount[]; exportPlansByStatus: NamedCount[]; tasksByStatus: NamedCount[];
 }
+export interface NamedCount { name: string; count: number; }
+export interface AdminUser { id: string; fullName: string; email: string; isActive: boolean; isSuperAdmin: boolean; }
+export interface AdminInvitation { id: number; fullName: string; email: string; expiresAtUtc: string; acceptedAtUtc: string | null; revokedAtUtc: string | null; }
 
 export interface FarmAccount {
   id: number; name: string; ownerUserId: string; ownerName: string; ownerEmail: string | null;

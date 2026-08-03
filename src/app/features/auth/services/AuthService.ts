@@ -64,6 +64,19 @@ export class AuthService {
     );
   }
 
+  public updateProfile(payload: { fullName: string; email: string }): Observable<AccountProfile> {
+    return this.http.put<ApiResponse<AccountProfile>>(`${this.baseUrl}/me/profile`, payload).pipe(
+      map((response) => response.data),
+      tap((profile) => this.accountProfile.set(profile)),
+    );
+  }
+
+  public changePassword(payload: { currentPassword: string; newPassword: string }): Observable<void> {
+    return this.http.put<ApiResponse<void> | null>(`${this.baseUrl}/me/password`, payload).pipe(
+      map(() => undefined),
+    );
+  }
+
   public loadProfile(): void {
     if (!this.isAuthenticated()) return;
     this.profile().subscribe({ error: () => this.accountProfile.set(this.profileFromToken()) });
@@ -79,7 +92,7 @@ export class AuthService {
     return !!payload && (typeof expiry !== 'number' || expiry * 1000 > Date.now());
   }
 
-  public hasRole(role: 'Admin' | 'FarmOwner'): boolean {
+  public hasRole(role: 'Admin' | 'SuperAdmin' | 'FarmOwner'): boolean {
     const payload = this.tokenPayload();
     const value = payload?.['role'] ?? payload?.['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'];
     return Array.isArray(value) ? value.includes(role) : value === role;

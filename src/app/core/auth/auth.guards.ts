@@ -7,7 +7,7 @@ export const authGuard: CanActivateFn = () => {
   return auth.isAuthenticated() || inject(Router).createUrlTree(['/auth/login']);
 };
 
-export const roleGuard = (role: 'Admin' | 'FarmOwner'): CanActivateFn => () => {
+export const roleGuard = (role: 'Admin' | 'SuperAdmin' | 'FarmOwner'): CanActivateFn => () => {
   const auth = inject(AuthService);
   if (!auth.isAuthenticated()) return inject(Router).createUrlTree(['/auth/login']);
   return auth.hasRole(role) || inject(Router).createUrlTree([auth.homeUrl()]);

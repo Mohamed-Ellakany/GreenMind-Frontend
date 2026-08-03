@@ -17,6 +17,12 @@
     }
   </div>
 
+  @if (stats(); as data) {
+    <section class="mb-4 grid gap-4 lg:grid-cols-2">
+      <article class="rounded-xl border border-[#dce6df] bg-white p-5 shadow-sm"><h2 class="font-black text-[#10231b]">حالة حسابات المزارع</h2><div class="mt-4 space-y-3">@for (item of [{ label: 'نشطة', value: data.activeFarms, color: '#16a34a' }, { label: 'قيد المراجعة', value: data.pendingFarms, color: '#d97706' }, { label: 'غير نشطة', value: data.inactiveFarms, color: '#dc5a50' }]; track item.label) { <div><div class="flex justify-between text-xs font-bold"><span>{{item.label}}</span><span>{{item.value}}</span></div><div class="mt-1 h-2 rounded-full bg-slate-100"><i class="block h-full rounded-full" [style.background]="item.color" [style.width.%]="data.totalFarms ? item.value * 100 / data.totalFarms : 0"></i></div></div> }</div></article>
+      <article class="rounded-xl border border-[#dce6df] bg-white p-5 shadow-sm"><h2 class="font-black text-[#10231b]">خطط التصدير حسب المحصول</h2><div class="mt-4 space-y-3">@for (item of data.exportPlansByCrop.slice(0, 6); track item.id) { <div><div class="flex justify-between text-xs font-bold"><span>{{item.name}}</span><span>{{item.exportPlanCount}}</span></div><div class="mt-1 h-2 rounded-full bg-slate-100"><i class="block h-full rounded-full bg-[#0f7a3d]" [style.width.%]="data.totalExportPlans ? item.exportPlanCount * 100 / data.totalExportPlans : 0"></i></div></div> }</div></article>
+    </section>
+  }
   <div class="grid gap-4 xl:grid-cols-[minmax(0,1fr)_310px]">
     <section class="overflow-hidden rounded-xl border border-[#dce6df] bg-white shadow-sm">
       <header class="flex items-center justify-between gap-4 border-b border-[#e5ebe7] px-4 py-4 sm:px-5"><div><h2 class="text-base font-black text-[#10231b]">طلبات الموافقة</h2><p class="mt-1 text-xs text-[#7a8881]">راجع بيانات المزرعة قبل منح صلاحية الوصول.</p></div><span class="rounded-full bg-[#fff5d9] px-3 py-1.5 text-xs font-black text-[#956500]">{{ pending().length }} معلّق</span></header>
