@@ -10,6 +10,7 @@ import {
   faChevronLeft,
   faClockRotateLeft,
   faFileArrowUp,
+  faGear,
   faShieldHalved,
   faTableCellsLarge,
   faXmark,
@@ -32,6 +33,7 @@ export class AdminDashboardLayout {
     collapse: faChevronLeft,
     dashboard: faTableCellsLarge,
     destinations: faShieldHalved,
+    settings: faGear,
     logout: faArrowRightFromBracket,
     products: faClockRotateLeft,
     regulatoryData: faFileArrowUp,
@@ -50,5 +52,7 @@ export class AdminDashboardLayout {
     this.asideCollapsed.update((collapsed) => !collapsed);
   }
 
-  public logout(): void { this.auth.logout(); }
+  public logout(): void {
+    this.auth.logout();
+  }
 }

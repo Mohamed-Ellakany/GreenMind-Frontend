@@ -1,9 +1,14 @@
 <main class="grid min-h-dvh bg-[#f4f7f4] text-[#10231b] lg:grid-cols-[.95fr_1.05fr]" dir="rtl">
   <section class="flex min-h-dvh items-center justify-center px-5 py-10 sm:px-10" aria-labelledby="pending-heading">
-    <div class="w-full max-w-[520px]">
+    <div class="w-full max-w-[540px]">
       <a routerLink="/" class="mb-10 flex items-center gap-3">
-        <span class="grid size-11 place-items-center rounded-xl bg-[#e7f5eb]"><img class="size-7" src="/greenmind-leaf.svg" alt="" /></span>
-        <span><strong class="block">جرين مايند</strong><small class="text-[#738078]">منصة التصدير الزراعي</small></span>
+        <span class="grid size-11 place-items-center rounded-xl bg-[#e7f5eb]">
+          <img class="size-7" src="/greenmind-leaf.svg" alt="" />
+        </span>
+        <span>
+          <strong class="block">جرين مايند</strong>
+          <small class="text-[#738078]">منصة التصدير الزراعي</small>
+        </span>
       </a>
 
       <article class="rounded-[28px] border border-[#dde6df] bg-white p-8 text-center shadow-[0_20px_50px_rgba(16,35,27,.08)] sm:p-10" role="status">
@@ -13,19 +18,35 @@
           <span></span>
           <img src="/greenmind-leaf.svg" alt="" />
         </div>
-        <p class="mt-8 text-sm font-black text-[#0f7a3d]">طلبك وصل بنجاح</p>
-        <h1 id="pending-heading" class="mt-2 text-2xl font-black sm:text-3xl">حسابك بانتظار موافقة الإدارة</h1>
+
+        <p class="mt-8 text-sm font-black text-[#0f7a3d]">تم إرسال الطلب بنجاح</p>
+        <h1 id="pending-heading" class="mt-2 text-2xl font-black sm:text-3xl">
+          حسابك بانتظار موافقة الإدارة
+        </h1>
         <p class="mx-auto mt-4 max-w-md leading-8 text-[#65736c]">
-          سنراجع بيانات المزرعة ثم نفعّل حسابك. جرّب تسجيل الدخول لاحقاً، وعند الموافقة ستنتقل مباشرة إلى لوحة مزرعتك.
+          أرسلنا لك رسالة تأكيد، وأبلغنا فريق الإدارة بطلبك. بعد الموافقة ستصلك رسالة أخرى تخبرك أن حسابك أصبح جاهزاً للدخول.
         </p>
-        <div class="mt-7 rounded-2xl border border-[#dde6df] bg-[#f8fbf8] p-4 text-right">
-          <span class="text-xs font-bold text-[#8a968f]">الحالة الحالية</span>
-          <div class="mt-2 flex items-center justify-between gap-4">
-            <strong class="text-sm">بانتظار مراجعة المدير</strong>
-            <i class="waiting-pulse" aria-hidden="true"></i>
+
+        <div class="mt-7 grid gap-3 text-right sm:grid-cols-2">
+          <div class="rounded-2xl border border-[#dde6df] bg-[#f8fbf8] p-4">
+            <span class="text-xs font-bold text-[#8a968f]">الحالة الحالية</span>
+            <div class="mt-2 flex items-center justify-between gap-4">
+              <strong class="text-sm">بانتظار مراجعة المدير</strong>
+              <i class="waiting-pulse" aria-hidden="true"></i>
+            </div>
+          </div>
+          <div class="rounded-2xl border border-[#dde6df] bg-[#f8fbf8] p-4">
+            <span class="text-xs font-bold text-[#8a968f]">الإشعارات</span>
+            <strong class="mt-2 block text-sm">سنرسل لك بريد الموافقة</strong>
           </div>
         </div>
-        <a routerLink="/auth/login" class="mt-7 inline-flex h-12 items-center justify-center rounded-xl bg-[#0f7a3d] px-6 text-sm font-black text-white shadow-[0_10px_25px_rgba(15,122,61,.2)] hover:bg-[#075d2d]">العودة لتسجيل الدخول</a>
+
+        <a
+          routerLink="/auth/login"
+          class="mt-7 inline-flex h-12 items-center justify-center rounded-xl bg-[#0f7a3d] px-6 text-sm font-black text-white shadow-[0_10px_25px_rgba(15,122,61,.2)] hover:bg-[#075d2d]"
+        >
+          العودة لتسجيل الدخول
+        </a>
       </article>
     </div>
   </section>
@@ -34,9 +55,15 @@
     <img class="absolute inset-0 size-full object-cover" src="/landing-page/greenhouse.png" alt="صوبة زراعية حديثة" />
     <div class="absolute inset-0 bg-gradient-to-t from-[#10231b]/95 via-[#10231b]/35 to-transparent"></div>
     <div class="absolute inset-x-12 bottom-12 text-white">
-      <span class="inline-flex rounded-full bg-white/15 px-3 py-1.5 text-xs font-black backdrop-blur">خطوة أخيرة قبل البدء</span>
-      <h2 class="mt-5 max-w-xl text-4xl font-black leading-tight">نحافظ على جودة المنصة بمراجعة كل مزرعة قبل تفعيل الحساب.</h2>
-      <p class="mt-4 max-w-lg leading-8 text-white/70">بعد الموافقة ستتمكن من إنشاء خطط التصدير ومتابعة المهام من لوحة واحدة.</p>
+      <span class="inline-flex rounded-full bg-white/15 px-3 py-1.5 text-xs font-black backdrop-blur">
+        خطوة أخيرة قبل البدء
+      </span>
+      <h2 class="mt-5 max-w-xl text-4xl font-black leading-tight">
+        نحافظ على جودة المنصة بمراجعة كل مزرعة قبل تفعيل الحساب.
+      </h2>
+      <p class="mt-4 max-w-lg leading-8 text-white/70">
+        بعد الموافقة ستتمكن من إنشاء خطط التصدير ومتابعة المهام من لوحة واحدة.
+      </p>
     </div>
   </section>
 </main>

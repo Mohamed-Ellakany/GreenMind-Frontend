@@ -10,6 +10,7 @@ export class ApiClient {
   public get<T>(path: string): Observable<T> {
     return this.unwrap(this.http.get<ApiResponse<T>>(path));
   }
+  public getBlob(path: string): Observable<Blob> { return this.http.get(path, { responseType: 'blob' }); }
 
   public post<T>(path: string, body: unknown): Observable<T> {
     return this.unwrap(this.http.post<ApiResponse<T>>(path, body));
