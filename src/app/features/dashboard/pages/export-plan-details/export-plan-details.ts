@@ -2,8 +2,11 @@ import { Component, DestroyRef, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { finalize, forkJoin, switchMap } from 'rxjs';
+import { catchError, finalize, forkJoin, of, switchMap } from 'rxjs';
 import { GreenmindApi } from '@core/api/greenmind-api.service';
+import { PhaseTwoApi } from '@features/dashboard/phase-two/phase-two-api.service';
+import { CostDashboard, DiseaseReport } from '@features/dashboard/phase-two/phase-two.models';
+import { ExportPlanOperationalSummary } from './export-plan-operational-summary';
 import {
   DashboardTask,
   ExportPlanDashboard,
@@ -22,12 +25,13 @@ interface PlanInsight {
 
 @Component({
   selector: 'app-export-plan-details',
-  imports: [FormsModule, RouterLink],
+  imports: [FormsModule, RouterLink, ExportPlanOperationalSummary],
   templateUrl: './export-plan-details.html',
   styleUrl: './export-plan-details.css',
 })
 export class ExportPlanDetailsPage {
   private readonly api = inject(GreenmindApi);
+  private readonly phaseApi = inject(PhaseTwoApi);
   private readonly route = inject(ActivatedRoute);
   private readonly destroyRef = inject(DestroyRef);
   private readonly today = this.localIsoDate(new Date());
@@ -36,6 +40,9 @@ export class ExportPlanDetailsPage {
   public readonly plan = signal<ExportPlanDetails | null>(null);
   public readonly dashboard = signal<ExportPlanDashboard | null>(null);
   public readonly soilMeasurements = signal<SoilMeasurement[]>([]);
+  public readonly costSummary = signal<CostDashboard | null>(null);
+  public readonly diseaseReports = signal<DiseaseReport[]>([]);
+  public readonly operationalSummaryLoading = signal(true);
   public readonly loading = signal(true);
   public readonly error = signal<string | null>(null);
   public readonly updatingTaskId = signal<number | null>(null);
@@ -126,6 +133,14 @@ export class ExportPlanDetailsPage {
       return;
     }
     this.load();
+    this.loadOperationalSummaries();
+  }
+
+  public heroCropImage(crop: string): string {
+    const normalized = crop.trim().toLocaleLowerCase('ar');
+    return normalized.includes('فراول') || normalized.includes('strawberry')
+      ? '/landing-page/strawberry-macro.png'
+      : '/landing-page/hero-farm.png';
   }
 
   public openSoilForm(): void {
@@ -247,6 +262,20 @@ export class ExportPlanDetailsPage {
   private refreshDashboard(): void {
     this.api.dashboard(this.planId).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (dashboard) => this.dashboard.set(dashboard),
+    });
+  }
+
+  private loadOperationalSummaries(): void {
+    this.operationalSummaryLoading.set(true);
+    forkJoin({
+      costs: this.phaseApi.costDashboard(this.planId).pipe(catchError(() => of(null))),
+      diseases: this.phaseApi.diseaseReports(this.planId, 1).pipe(catchError(() => of(null))),
+    }).pipe(
+      finalize(() => this.operationalSummaryLoading.set(false)),
+      takeUntilDestroyed(this.destroyRef),
+    ).subscribe(({ costs, diseases }) => {
+      this.costSummary.set(costs);
+      this.diseaseReports.set(diseases?.items ?? []);
     });
   }
 

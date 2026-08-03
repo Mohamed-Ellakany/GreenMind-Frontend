@@ -18,6 +18,26 @@
   color: #fff !important;
 }
 
+.hero-crop-image {
+  position: absolute;
+  inset-block: 0;
+  left: 0;
+  width: 48%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 58% center;
+  opacity: 0.78;
+  filter: saturate(0.95) contrast(1.05);
+}
+
+.hero-image-shade {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(90deg, rgb(4 30 24 / 0.2) 0%, rgb(4 30 24 / 0.58) 28%, #062d22 56%, rgb(6 45 34 / 0.92) 100%),
+    linear-gradient(180deg, rgb(3 28 21 / 0.05), rgb(3 28 21 / 0.42));
+}
+
 .hero-glow {
   position: absolute;
   width: 26rem;
@@ -576,6 +596,15 @@
 }
 
 @media (max-width: 899px) {
+  .hero-crop-image {
+    width: 100%;
+    opacity: 0.36;
+  }
+
+  .hero-image-shade {
+    background: linear-gradient(180deg, rgb(4 30 24 / 0.32), #062d22 58%, #062d22 100%);
+  }
+
   .hero-progress-panel {
     grid-template-columns: auto auto;
     justify-content: start;

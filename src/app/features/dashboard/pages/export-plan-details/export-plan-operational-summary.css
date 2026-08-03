@@ -1,0 +1,36 @@
+:host { display: grid; gap: 1.25rem; }
+.operation-card { position: relative; display: block; overflow: hidden; min-height: 11.5rem; border: 1px solid #dce6df; border-radius: 1.1rem; background: #fff; padding: 1.1rem; color: #10231b; box-shadow: 0 8px 28px rgb(16 35 27 / .045); transition: transform 180ms, border-color 180ms, box-shadow 180ms; }
+.operation-card:hover { transform: translateY(-2px); border-color: #b9d5c1; box-shadow: 0 14px 34px rgb(16 35 27 / .08); }
+.cost-card { background: radial-gradient(circle at 0 0, rgb(52 145 83 / .11), transparent 35%), linear-gradient(145deg,#fff,#f5fbf7); }
+.disease-card { padding: 0; background: radial-gradient(circle at 0 100%,rgb(86 127 201 / .1),transparent 35%),linear-gradient(145deg,#fff,#f8fafc); }
+.operation-main-link { display: block; min-height: 11.5rem; padding: 1.1rem 1.1rem 4rem; color: inherit; }
+.operation-heading { display: flex; align-items: center; gap: .75rem; }
+.operation-heading>div { min-width: 0; flex: 1; }
+.operation-heading h2 { font-size: .88rem; font-weight: 900; }
+.eyebrow { display: block; margin-bottom: .2rem; color: #0f7a3d; font-size: .67rem; font-weight: 900; }
+.operation-icon { display: grid; width: 2.35rem; height: 2.35rem; flex: 0 0 auto; place-items: center; border-radius: .75rem; background: #e5f5e9; color: #0f7a3d; }
+.disease-card .operation-icon { background: #edf2fb; color: #466aa1; }
+svg { fill: none; stroke: currentColor; stroke-linecap: round; stroke-linejoin: round; stroke-width: 1.8; }
+.operation-icon svg { width: 1.15rem; height: 1.15rem; }
+.operation-arrow { width: 1rem; height: 1rem; color: #91a097; }
+.operation-value { margin-top: 1.15rem; }
+.operation-value strong,.operation-value span,.disease-state strong,.disease-state small { display: block; }
+.operation-value strong { font-size: 1.55rem; font-weight: 900; letter-spacing: -.03em; }
+.operation-value span { margin-top: .1rem; color: #748179; font-size: .62rem; }
+.operation-meta { display: flex; justify-content: space-between; gap: .6rem; margin-top: .75rem; color: #6d7c73; font-size: .62rem; }
+.operation-meta b { color: #0f7a3d; }
+.budget-track { height: .32rem; margin-top: .55rem; overflow: hidden; border-radius: 99px; background: #e5ece7; }
+.budget-track i { display: block; max-width: 100%; height: 100%; border-radius: inherit; background: linear-gradient(90deg,#65c27a,#0f7a3d); }
+.disease-state { display: flex; align-items: flex-start; gap: .65rem; margin-top: 1.2rem; }
+.disease-state>span { width: .55rem; height: .55rem; flex: 0 0 auto; margin-top: .3rem; border-radius: 50%; background: #97a39c; box-shadow: 0 0 0 4px rgb(151 163 156 / .1); }
+[data-tone=good] .disease-state>span { background: #29a556; } [data-tone=warning] .disease-state>span { background: #d4932f; } [data-tone=danger] .disease-state>span { background: #d85b52; }
+.disease-state strong { font-size: .8rem; font-weight: 900; }
+.disease-state small,.operation-copy { margin-top: .25rem; color: #79867f; font-size: .62rem; line-height: 1.6; }
+.operation-copy { margin-top: .75rem; }
+.disease-chat-link { position: absolute; left: 1rem; bottom: .9rem; display: inline-flex; min-height: 2.25rem; align-items: center; gap: .45rem; border: 1px solid #cfe3d4; border-radius: 999px; background: #fff; padding: .45rem .7rem; color: #0f7a3d; font-size: .62rem; font-weight: 900; box-shadow: 0 6px 18px rgb(16 35 27 / .08); }
+.disease-chat-link:hover { border-color: #0f7a3d; background: #eff9f2; }
+.disease-chat-link svg { width: 1rem; height: 1rem; }
+.operation-skeleton { display: grid; gap: .55rem; margin-top: 1.2rem; }
+.operation-skeleton i { display: block; width: 65%; height: .8rem; border-radius: 99px; background: #edf1ee; animation: pulse 1.4s ease-in-out infinite; }
+.operation-skeleton i:last-child { width: 42%; }
+@keyframes pulse { 50% { opacity: .45; } }

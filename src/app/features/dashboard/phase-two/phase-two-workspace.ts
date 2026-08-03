@@ -76,6 +76,14 @@ export class PhaseTwoWorkspace {
   ];
 
   public constructor() {
+    const requestedTab = this.route.snapshot.queryParamMap.get('tab');
+    if (requestedTab === 'chat' || requestedTab === 'disease' || requestedTab === 'costs') {
+      this.activeTab.set(requestedTab);
+    }
+    if (this.route.snapshot.queryParamMap.get('prompt') === 'disease') {
+      this.chatInput = 'راجع معي آخر حالة صحية للمحصول، وما الإجراء الأكثر أولوية الآن؟';
+    }
+
     if (!Number.isInteger(this.planId) || this.planId <= 0) {
       this.loading.set(false);
       this.error.set('معرّف خطة التصدير غير صالح.');

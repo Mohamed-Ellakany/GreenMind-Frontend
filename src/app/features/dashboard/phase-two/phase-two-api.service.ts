@@ -115,8 +115,8 @@ export class PhaseTwoApi {
     return this.post(`/api/task-change-proposals/${proposalId}/reject`, {});
   }
 
-  public diseaseReports(planId: number): Observable<DiseaseReportPage> {
-    return this.get(`/api/export-plans/${planId}/disease-reports?pageSize=50`);
+  public diseaseReports(planId: number, pageSize = 50): Observable<DiseaseReportPage> {
+    return this.get(`/api/export-plans/${planId}/disease-reports?pageSize=${pageSize}`);
   }
 
   public submitDisease(
