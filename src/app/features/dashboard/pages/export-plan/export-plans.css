@@ -2,6 +2,35 @@
   display: block;
 }
 
+.export-plan-modal {
+  overflow: hidden;
+}
+
+.export-plan-modal__dialog {
+  display: grid;
+  grid-template-rows: auto auto minmax(0, 1fr) auto;
+  height: min(920px, calc(100dvh - 2rem));
+  max-height: calc(100dvh - 2rem);
+}
+
+.export-plan-modal__header,
+.export-plan-modal__steps,
+.export-plan-modal__footer {
+  min-height: 0;
+}
+
+.export-plan-modal__body {
+  min-height: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
+}
+
+.export-plan-modal__footer {
+  align-self: end;
+}
+
 .farm-map {
   position: relative;
   height: min(340px, 46dvh);
@@ -99,8 +128,31 @@
 }
 
 @media (max-width: 639px) {
+  .export-plan-modal__dialog {
+    height: 100dvh;
+    max-height: 100dvh;
+  }
+
+  .export-plan-modal__footer {
+    padding-bottom: calc(0.75rem + env(safe-area-inset-bottom));
+  }
+
   .farm-map {
     height: 300px;
     border-radius: 0.75rem;
+  }
+}
+
+@supports not (height: 100dvh) {
+  .export-plan-modal__dialog {
+    height: min(920px, calc(100vh - 2rem));
+    max-height: calc(100vh - 2rem);
+  }
+
+  @media (max-width: 639px) {
+    .export-plan-modal__dialog {
+      height: 100vh;
+      max-height: 100vh;
+    }
   }
 }

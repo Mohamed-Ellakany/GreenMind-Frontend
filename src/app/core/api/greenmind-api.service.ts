@@ -3,7 +3,8 @@ import { Observable } from 'rxjs';
 import { ApiClient } from './api-client.service';
 import {
   ExportPlan, ExportPlanCreateRequest, ExportPlanDashboard, ExportPlanDetails,
-  FarmAccount, FarmTask, MasterDataItem, PagedResult, PlanningStatus, PlatformStatistics,
+  ExportPlanScheduleAnalysis, ExportPlanScheduleAnalysisRequest,
+  AdminInvitation, AdminUser, FarmAccount, FarmTask, MasterDataItem, PagedResult, PlanningStatus, PlatformStatistics,
   RagIngestionResult, RegulatoryImportResult, SoilMeasurement, SoilMeasurementRequest,
 } from './api.models';
 
@@ -17,6 +18,10 @@ export class GreenmindApi {
 
   public createExportPlan(request: ExportPlanCreateRequest): Observable<ExportPlanDetails> {
     return this.api.post<ExportPlanDetails>('/api/farm-owner/export-plans', request);
+  }
+
+  public analyzeExportPlanSchedule(request: ExportPlanScheduleAnalysisRequest): Observable<ExportPlanScheduleAnalysis> {
+    return this.api.post<ExportPlanScheduleAnalysis>('/api/farm-owner/export-plans/schedule-analysis', request);
   }
 
   public exportPlan(id: number): Observable<ExportPlanDetails> {
@@ -104,6 +109,14 @@ export class GreenmindApi {
   public statistics(): Observable<PlatformStatistics> {
     return this.api.get<PlatformStatistics>('/api/admin/statistics');
   }
+
+  public admins(): Observable<AdminUser[]> { return this.api.get<AdminUser[]>('/api/admin/admins'); }
+  public adminInvitations(): Observable<AdminInvitation[]> { return this.api.get<AdminInvitation[]>('/api/admin/admins/invitations'); }
+  public inviteAdmin(body: { fullName: string; email: string }): Observable<void> { return this.api.post<void>('/api/admin/admins/invitations', body); }
+  public resendAdminInvitation(id: number): Observable<void> { return this.api.post<void>(`/api/admin/admins/invitations/${id}/resend`, {}); }
+  public revokeAdminInvitation(id: number): Observable<void> { return this.api.post<void>(`/api/admin/admins/invitations/${id}/revoke`, {}); }
+  public setAdminActive(id: string, isActive: boolean): Observable<void> { return this.api.patch<void>(`/api/admin/admins/${id}/active`, { isActive }); }
+  public downloadReport(params: Record<string, string>): Observable<Blob> { return this.api.getBlob('/api/farm-owner/reports/export?' + new URLSearchParams(params).toString()); }
 
   public farms(status?: 'Pending' | 'Active' | 'Inactive'): Observable<PagedResult<FarmAccount>> {
     return this.api.get<PagedResult<FarmAccount>>(`/api/admin/farms?pageSize=100${status ? `&status=${status}` : ''}`);
