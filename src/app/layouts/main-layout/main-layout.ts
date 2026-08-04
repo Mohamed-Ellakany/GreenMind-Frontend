@@ -1,8 +1,13 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, DestroyRef, computed, inject, signal } from '@angular/core';
 import { AuthService } from '@features/auth/services/AuthService';
-import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
+import { NavigationEnd, Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { filter } from 'rxjs';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { NotificationCenterService } from '@core/settings/notification-center.service';
+import { GreenmindApi } from '@core/api/greenmind-api.service';
+import { ExportPlanDetails } from '@core/api/api.models';
+import { PlanContextNavigation } from './plan-context-navigation';
 import {
   faBars,
   faBell,
@@ -27,16 +32,21 @@ import {
 
 @Component({
   selector: 'app-main-layout',
-  imports: [FontAwesomeModule, RouterLink, RouterLinkActive, RouterOutlet],
+  imports: [FontAwesomeModule, RouterLink, RouterLinkActive, RouterOutlet, PlanContextNavigation],
   templateUrl: './main-layout.html',
   styleUrl: './main-layout.css',
 })
 export class MainLayout {
   private readonly auth = inject(AuthService);
+  private readonly api = inject(GreenmindApi);
+  private readonly router = inject(Router);
+  private readonly destroyRef = inject(DestroyRef);
   public readonly notificationCenter = inject(NotificationCenterService);
   public readonly mobileMenuOpen = signal(false);
   public readonly asideCollapsed = signal(false);
   public readonly notificationPanelOpen = signal(false);
+  public readonly planContext = signal<{ id: number } | null>(null);
+  public readonly activePlan = signal<ExportPlanDetails | null>(null);
   public readonly profile = this.auth.accountProfile;
   public readonly ownerName = computed(() => this.profile()?.fullName || 'مالك المزرعة');
   public readonly farmName = computed(() => this.profile()?.farmName || 'مزرعتك');
@@ -66,6 +76,31 @@ export class MainLayout {
 
   public constructor() {
     this.auth.loadProfile();
+    this.updatePlanContext(this.router.url);
+    this.router.events.pipe(
+      filter((event): event is NavigationEnd => event instanceof NavigationEnd),
+      takeUntilDestroyed(this.destroyRef),
+    ).subscribe((event) => this.updatePlanContext(event.urlAfterRedirects));
+  }
+
+  private updatePlanContext(url: string): void {
+    const path = url.split(/[?#]/, 1)[0];
+    const match = path.match(/^\/export-plans\/(\d+)(?:\/|$)/);
+    const id = match ? Number(match[1]) : 0;
+    if (!Number.isInteger(id) || id <= 0) {
+      this.planContext.set(null);
+      this.activePlan.set(null);
+      return;
+    }
+
+    this.planContext.set({ id });
+    if (this.activePlan()?.id === id) return;
+    this.activePlan.set(null);
+    this.api.exportPlan(id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      next: (plan) => {
+        if (this.planContext()?.id === id) this.activePlan.set(plan);
+      },
+    });
   }
 
   public toggleMobileMenu(): void {

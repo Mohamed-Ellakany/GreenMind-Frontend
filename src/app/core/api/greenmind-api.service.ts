@@ -52,6 +52,16 @@ export class GreenmindApi {
     return this.api.get<FarmTask[]>(`/api/Tasks${query ? `?${query}` : ''}`);
   }
 
+  public planTasks(exportPlanId: number): Observable<FarmTask[]> {
+    if (!Number.isInteger(exportPlanId) || exportPlanId <= 0) {
+      throw new Error('A valid export plan id is required.');
+    }
+    return this.tasks(new URLSearchParams({
+      exportPlanId: String(exportPlanId),
+      pageSize: '100',
+    }).toString());
+  }
+
   public updateTask(id: number, body: { status?: string; actualDate?: string; notes?: string }): Observable<void> {
     return this.api.patch<void>(`/api/Tasks/${id}`, body);
   }

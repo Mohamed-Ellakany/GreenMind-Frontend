@@ -5,7 +5,10 @@ import { ApiClient } from './api-client.service';
 import { GreenmindApi } from './greenmind-api.service';
 
 describe('GreenmindApi RAG ingestion', () => {
-  const client = { post: vi.fn(() => of({ chunksIngested: 3 })) };
+  const client = {
+    get: vi.fn(() => of([])),
+    post: vi.fn(() => of({ chunksIngested: 3 })),
+  };
   let api: GreenmindApi;
 
   beforeEach(() => {
@@ -37,5 +40,12 @@ describe('GreenmindApi RAG ingestion', () => {
     expect(annexPath).toBe('/api/admin/rag/ingest/eu-regulation-annex');
     expect(annexForm.get('AnnexLabelHint')).toBe('ANNEX II');
     expect(annexForm.get('CropKeywordsCsv')).toBe('Fragaria, strawberry');
+  });
+
+  it('requests tasks using the current export plan id', () => {
+    api.planTasks(42).subscribe();
+
+    expect(client.get).toHaveBeenCalledWith('/api/Tasks?exportPlanId=42&pageSize=100');
+    expect(() => api.planTasks(0)).toThrowError('A valid export plan id is required.');
   });
 });

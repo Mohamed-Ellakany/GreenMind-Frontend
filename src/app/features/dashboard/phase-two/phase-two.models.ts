@@ -127,6 +127,8 @@ export interface Expense {
   currency: 'EGP';
   paymentMethod: PaymentMethod;
   notes: string | null;
+  createdAt: string;
+  updatedAtUtc: string | null;
 }
 
 export interface ExpensePage {

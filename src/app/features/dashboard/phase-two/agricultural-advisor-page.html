@@ -1,0 +1,30 @@
+<section class="plan-page" dir="rtl">
+  <div class="page-crumbs"><a routerLink="/export-plans">خطط التصدير</a><i>/</i><a [routerLink]="['/export-plans', planId, 'overview']">{{ plan()?.name || 'الخطة الحالية' }}</a><i>/</i><span>مستشار الخطة الذكي</span></div>
+  <header class="page-heading"><div><h1>مستشار الخطة الذكي – عم خضر</h1><p>اسأل عن مهام هذه الخطة أو صحة المحصول أو متطلبات التصدير واتخذ قرارًا موثوقًا.</p></div><span class="heading-badge">متصل ببيانات الخطة فقط</span></header>
+
+  @if (error()) { <div class="error-banner" role="alert"><span>{{ error() }}</span><button type="button" (click)="error.set(null)">×</button></div> }
+  @if (loading()) { <app-plant-growth-loader message="جارٍ تجهيز عم خضر ببيانات الخطة…" /> }
+  @else {
+    <div class="chat-layout">
+      <article class="panel chat-panel">
+        <header class="panel-heading"><div class="advisor-title"><span class="panel-icon">خ</span><div><h2>عم خضر · مساعد {{ plan()?.name }}</h2><p>السياق آمن ومحدود بالخطة الحالية والمحصول والوجهة</p></div></div><i class="online-dot">متصل</i></header>
+        <div class="messages" aria-live="polite">
+          @if (!chatMessages().length) { <div class="empty-state"><span>🌱</span><h3>ابدأ محادثة الخطة</h3><p>يمكنك السؤال عن المهام والتربة والمصروفات والمواد الفعالة وحدود متبقيات التصدير.</p></div> }
+          @for (message of chatMessages(); track message.id) {
+            <div class="message" [class.user-message]="message.role === 'المستخدم'">
+              <small>{{ message.role === 'المستخدم' ? 'أنت' : 'عم خضر' }}</small><p>{{ message.content || 'جارٍ إعداد الرد…' }}</p>
+              @if (message.taskChangeProposalId) { <button type="button" class="proposal-link" (click)="openProposal(message.taskChangeProposalId)">مراجعة اقتراح تعديل مهام الخطة ←</button> }
+              @if (message.status === 'فشل') { <em>تعذر إكمال الرد</em> }
+            </div>
+          }
+        </div>
+        <form class="chat-composer" (ngSubmit)="sendChat()"><textarea name="chatInput" [(ngModel)]="chatInput" maxlength="4000" rows="2" placeholder="اسأل عم خضر عن خطة التصدير أو المحصول أو MRL…"></textarea><button type="submit" [disabled]="chatSending() || !chatInput.trim()">{{ chatSending() ? 'جارٍ الرد…' : 'إرسال' }}</button></form>
+      </article>
+      <aside class="panel context-card"><span class="panel-icon">◎</span><h2>السياق المستخدم</h2><p>يُعاد بناء سياق آمن مع كل سؤال، ولا يطّلع النموذج على خطط المزارع الأخرى.</p><ul><li>بيانات الخطة والموسم</li><li>المهام الخاصة بهذه الخطة</li><li>قياسات التربة وصحة المحصول</li><li>الميزانية والمصروفات</li><li>المواد الفعالة وحدود MRL</li></ul><div class="safety-note"><b>أنت صاحب القرار</b><p>لن تتغير أي مهمة إلا بعد عرض اقتراح واضح وموافقتك الصريحة.</p></div></aside>
+    </div>
+  }
+
+  @if (selectedProposal(); as proposal) {
+    <div class="overlay" (click)="selectedProposal.set(null)"><section class="modal proposal-modal" (click)="$event.stopPropagation()"><header><div><h2>اقتراح تعديل مهام الخطة</h2><p>راجع التغييرات قبل الموافقة؛ لن يُنفذ شيء تلقائيًا.</p></div><button class="close-button" type="button" (click)="selectedProposal.set(null)">×</button></header><div class="proposal-body"><span class="proposal-status">{{ proposal.status }}</span>@for (item of proposal.items; track item.id) { <article><div><small>سبب الاقتراح</small><p>{{ item.reason }}</p></div><div class="proposal-values"><section><small>قبل</small><b>{{ item.originalValues?.title || 'مهمة جديدة' }}</b><p>{{ item.originalValues?.plannedDate || '—' }}</p></section><section><small>بعد الموافقة</small><b>{{ item.proposedValues.title }}</b><p>{{ item.proposedValues.plannedDate }} · {{ item.proposedValues.priority }}</p></section></div></article> }</div><footer>@if (proposal.reviewedAtUtc === null) { <button class="danger-action" type="button" [disabled]="proposalLoading()" (click)="reviewProposal('reject')">رفض الاقتراح</button><button class="primary-action" type="button" [disabled]="proposalLoading()" (click)="reviewProposal('apply')">{{ proposalLoading() ? 'جارٍ التنفيذ…' : 'موافقة وتطبيق' }}</button> } @else { <p>تمت مراجعة الاقتراح: {{ proposal.status }}</p> }</footer></section></div>
+  }
+</section>

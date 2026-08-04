@@ -1,0 +1,24 @@
+:host { display: block; }
+.plant-loader { display: grid; min-height: 360px; place-items: center; align-content: center; gap: 1.25rem; border: 1px solid #dce8df; border-radius: 1.5rem; background: radial-gradient(circle at 50% 42%, #f0fbf3 0, #fff 58%); color: #376147; }
+.plant-loader.compact { min-height: 180px; border: 0; background: transparent; }
+.plant-loader p { font-size: .84rem; font-weight: 850; }
+.plant-stage { position: relative; width: 92px; height: 112px; }
+.soil { position: absolute; right: 10px; bottom: 7px; width: 72px; height: 18px; border-radius: 50%; background: #835c3e; box-shadow: inset 0 5px 0 rgb(255 255 255 / .12), 0 9px 20px rgb(38 92 55 / .12); animation: soil-in .45s ease both; }
+.stem { position: absolute; right: 44px; bottom: 20px; width: 5px; height: 66px; border-radius: 99px; background: linear-gradient(#31a95e, #0d7437); transform-origin: bottom; animation: stem-grow 1.05s .2s cubic-bezier(.2,.9,.2,1) both; }
+.leaf, .sprout { position: absolute; background: linear-gradient(135deg, #5fcf79, #128443); transform-origin: bottom center; opacity: 0; }
+.leaf { width: 31px; height: 18px; border-radius: 100% 0 100% 0; }
+.leaf-right { right: 17px; bottom: 50px; transform: rotate(-15deg) scale(0); animation: leaf-right .5s .8s ease-out forwards; }
+.leaf-left { right: 45px; bottom: 67px; transform: rotate(195deg) scale(0); animation: leaf-left .5s 1.05s ease-out forwards; }
+.sprout { right: 34px; bottom: 82px; width: 25px; height: 20px; border-radius: 100% 0 100% 0; transform: rotate(42deg) scale(0); animation: sprout-in .5s 1.28s ease-out forwards; }
+@keyframes soil-in { from { opacity: 0; transform: scaleX(.35); } }
+@keyframes stem-grow { from { transform: scaleY(0); } to { transform: scaleY(1); } }
+@keyframes leaf-right { to { opacity: 1; transform: rotate(-15deg) scale(1); } }
+@keyframes leaf-left { to { opacity: 1; transform: rotate(195deg) scale(1); } }
+@keyframes sprout-in { to { opacity: 1; transform: rotate(42deg) scale(1); } }
+@media (prefers-reduced-motion: reduce) {
+  .soil, .stem, .leaf, .sprout { animation: none; opacity: 1; }
+  .stem { transform: scaleY(1); }
+  .leaf-right { transform: rotate(-15deg); }
+  .leaf-left { transform: rotate(195deg); }
+  .sprout { transform: rotate(42deg); }
+}
