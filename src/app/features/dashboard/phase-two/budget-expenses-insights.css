@@ -2,3 +2,6 @@
 
 @media (max-width:900px){.receipts-layout,.reports-grid{grid-template-columns:1fr}.report-controls{grid-template-columns:1fr 1fr}.report-controls label:last-child{grid-column:1/-1}}
 @media (max-width:600px){.report-controls{grid-template-columns:1fr}.report-controls label:last-child{grid-column:auto}.report-export-summary{align-items:stretch;flex-wrap:wrap}.report-export-summary .pdf-action{width:100%;margin-right:0}.report-builder-copy{align-items:flex-start}.receipt-rows article{grid-template-columns:auto minmax(0,1fr) auto}.receipt-status{display:none}}
+
+.report-export-summary>div:not(.report-export-actions) span,.report-export-summary>div:not(.report-export-actions) strong{display:block}.report-export-summary>div:not(.report-export-actions) span{color:#7b8980;font-size:.54rem}.report-export-summary>div:not(.report-export-actions) strong{margin-top:.12rem;font-size:.7rem;font-weight:950}.report-export-actions{display:flex;gap:.45rem;margin-right:auto}
+@media (max-width:600px){.report-export-actions{width:100%;margin-right:0}.report-export-actions button{flex:1}.report-export-summary .pdf-action{width:auto}}

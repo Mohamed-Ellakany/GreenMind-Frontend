@@ -1,0 +1,151 @@
+.attachment-delete-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 140;
+  display: grid;
+  place-items: center;
+  background: rgb(13 20 16 / 0.64);
+  padding: 1rem;
+  backdrop-filter: blur(5px);
+  animation: attachment-modal-fade-in 0.18s ease-out;
+}
+
+.attachment-delete-modal {
+  position: relative;
+  width: min(430px, 100%);
+  overflow: hidden;
+  border: 1px solid rgb(255 255 255 / 0.72);
+  border-radius: 1.25rem;
+  background: #fff;
+  padding: 1.5rem;
+  box-shadow: 0 30px 90px rgb(0 0 0 / 0.32);
+  text-align: center;
+  animation: attachment-modal-rise-in 0.22s cubic-bezier(.2, .8, .2, 1);
+}
+
+.attachment-delete-close {
+  position: absolute;
+  top: .8rem;
+  left: .8rem;
+  display: grid;
+  width: 34px;
+  height: 34px;
+  place-items: center;
+  border: 1px solid #e7e9e7;
+  border-radius: 50%;
+  background: #fafbfa;
+  color: #66716a;
+  font-size: 1rem;
+}
+
+.attachment-delete-close:disabled,
+.attachment-delete-modal footer button:disabled {
+  cursor: not-allowed;
+  opacity: .55;
+}
+
+.attachment-delete-icon {
+  display: grid;
+  width: 64px;
+  height: 64px;
+  margin: .1rem auto .8rem;
+  place-items: center;
+  border: 1px solid #fecaca;
+  border-radius: 1.05rem;
+  background: linear-gradient(145deg, #fff5f5, #ffe8e8);
+  color: #c62828;
+  box-shadow: 0 9px 24px rgb(198 40 40 / .11);
+}
+
+.attachment-delete-icon svg { width: 30px; fill: currentColor; }
+.attachment-delete-eyebrow { color: #b42318; font-size: .58rem; font-weight: 950; letter-spacing: .04em; }
+.attachment-delete-modal h2 { margin-top: .2rem; color: #1f2f25; font-size: 1.2rem; font-weight: 950; }
+.attachment-delete-modal > p { max-width: 340px; margin: .4rem auto 0; color: #6c7970; font-size: .68rem; line-height: 1.75; }
+
+.attachment-delete-file {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: .7rem;
+  margin-top: 1rem;
+  border: 1px solid #e4e9e5;
+  border-radius: .85rem;
+  background: #f8faf8;
+  padding: .7rem;
+  text-align: right;
+}
+
+.attachment-delete-file > span {
+  display: grid;
+  width: 42px;
+  height: 42px;
+  place-items: center;
+  border-radius: .7rem;
+  background: #e9f6ed;
+  color: #14733c;
+  font-size: .53rem;
+  font-weight: 950;
+}
+
+.attachment-delete-file div { min-width: 0; }
+.attachment-delete-file strong,
+.attachment-delete-file small { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.attachment-delete-file strong { color: #25372b; font-size: .65rem; }
+.attachment-delete-file small { margin-top: .15rem; color: #77837b; font-size: .54rem; }
+
+.attachment-delete-error {
+  display: flex;
+  align-items: center;
+  gap: .45rem;
+  margin-top: .75rem;
+  border: 1px solid #fecaca;
+  border-radius: .7rem;
+  background: #fff4f4;
+  padding: .6rem .7rem;
+  color: #a61b1b;
+  font-size: .59rem;
+  font-weight: 800;
+  text-align: right;
+}
+
+.attachment-delete-error span {
+  display: grid;
+  width: 21px;
+  height: 21px;
+  flex: none;
+  place-items: center;
+  border-radius: 50%;
+  background: #fee2e2;
+  font-weight: 950;
+}
+
+.attachment-delete-modal footer { display: grid; grid-template-columns: 1fr 1fr; gap: .6rem; margin-top: 1.1rem; }
+.attachment-delete-modal footer button { min-height: 43px; border-radius: .72rem; font-size: .65rem; font-weight: 950; transition: transform .15s ease, box-shadow .15s ease; }
+.attachment-delete-modal footer button:not(:disabled):hover { transform: translateY(-1px); }
+.cancel-delete { border: 1px solid #d8dfda; background: #fff; color: #46534b; }
+.confirm-delete { display: inline-flex; align-items: center; justify-content: center; gap: .45rem; background: linear-gradient(135deg, #d92d20, #b91c1c); color: #fff; box-shadow: 0 9px 20px rgb(185 28 28 / .2); }
+
+.delete-spinner {
+  width: 15px;
+  height: 15px;
+  border: 2px solid rgb(255 255 255 / .4);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: attachment-delete-spin .75s linear infinite;
+}
+
+@keyframes attachment-modal-fade-in { from { opacity: 0; } }
+@keyframes attachment-modal-rise-in { from { opacity: 0; transform: translateY(12px) scale(.98); } }
+@keyframes attachment-delete-spin { to { transform: rotate(360deg); } }
+
+@media (max-width: 520px) {
+  .attachment-delete-modal { padding: 1.25rem 1rem 1rem; border-radius: 1rem; }
+  .attachment-delete-modal footer { grid-template-columns: 1fr; }
+  .confirm-delete { grid-row: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .attachment-delete-backdrop,
+  .attachment-delete-modal,
+  .delete-spinner { animation-duration: .01ms; animation-iteration-count: 1; }
+}
