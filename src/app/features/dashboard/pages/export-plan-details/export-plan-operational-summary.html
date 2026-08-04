@@ -1,4 +1,4 @@
-<a class="operation-card cost-card" [routerLink]="['/export-plans', planId(), 'phase-two']" [queryParams]="{ tab: 'costs' }">
+<a class="operation-card cost-card" [routerLink]="['/export-plans', planId(), 'budget-expenses']">
   <div class="operation-heading">
     <span class="operation-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 7.5h16v10H4zM7 7.5V5h10v2.5M8 12h.01M12 12h4" /></svg></span>
     <div><span class="eyebrow">الرقابة المالية</span><h2>ملخص المصروفات</h2></div>
@@ -22,7 +22,7 @@
 </a>
 
 <article class="operation-card disease-card" [attr.data-tone]="diseaseSummary().tone">
-  <a class="operation-main-link" [routerLink]="['/export-plans', planId(), 'phase-two']" [queryParams]="{ tab: 'disease' }">
+  <a class="operation-main-link" [routerLink]="['/export-plans', planId(), 'crop-health']">
     <div class="operation-heading">
       <span class="operation-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 21c4-3 7-6.5 7-11a7 7 0 0 0-14 0c0 4.5 3 8 7 11ZM9 10h6M12 7v6" /></svg></span>
       <div><span class="eyebrow">صحة المحصول</span><h2>الأمراض والفحوصات</h2></div>
@@ -35,7 +35,7 @@
       <p class="operation-copy">افتح السجل لرفع صور جديدة أو مراجعة التوصيات.</p>
     }
   </a>
-  <a class="disease-chat-link" [routerLink]="['/export-plans', planId(), 'phase-two']" [queryParams]="{ tab: 'chat', prompt: 'disease' }" aria-label="اسأل عم خضر عن صحة المحصول" title="اسأل عم خضر">
+  <a class="disease-chat-link" [routerLink]="['/export-plans', planId(), 'agricultural-advisor']" [queryParams]="{ prompt: 'disease' }" aria-label="اسأل عم خضر عن صحة المحصول" title="اسأل عم خضر">
     <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14a4 4 0 0 1-4 4H9l-5 3v-7a4 4 0 0 1-1-2.6V8a4 4 0 0 1 4-4h9a4 4 0 0 1 4 4v6Z" /><path d="M8 10h.01M12 10h.01M16 10h.01" /></svg><span>اسأل عم خضر</span>
   </a>
 </article>

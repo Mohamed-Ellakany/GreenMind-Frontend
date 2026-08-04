@@ -138,6 +138,13 @@ export class PhaseTwoApi {
     return this.post(`/api/export-plans/${planId}/disease-reports/${reportId}/retry`, {});
   }
 
+  public diseaseImage(planId: number, reportId: number, imageId: number): Observable<Blob> {
+    return this.http.get(
+      `/api/export-plans/${planId}/disease-reports/${reportId}/images/${imageId}`,
+      { responseType: 'blob' },
+    );
+  }
+
   public categories(): Observable<ExpenseCategory[]> {
     return this.get('/api/expense-categories');
   }
@@ -174,6 +181,19 @@ export class PhaseTwoApi {
     notes: string | null;
   }): Observable<Expense> {
     return this.post(`/api/export-plans/${planId}/expenses`, request);
+  }
+
+  public updateExpense(planId: number, expenseId: number, request: {
+    expenseCategoryId: number;
+    expenseDate: string;
+    description: string;
+    supplier: string | null;
+    quantity: number;
+    unitPrice: number;
+    paymentMethod: PaymentMethod;
+    notes: string | null;
+  }): Observable<Expense> {
+    return this.put(`/api/export-plans/${planId}/expenses/${expenseId}`, request);
   }
 
   public deleteExpense(planId: number, expenseId: number): Observable<void> {

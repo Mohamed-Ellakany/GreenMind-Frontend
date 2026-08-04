@@ -1,0 +1,38 @@
+<div class="plan-navigation" dir="rtl">
+  <div class="brand-block">
+    <span class="brand-icon"><fa-icon [icon]="icons.plan" /></span>
+    <div><strong>جرين مايند</strong><small>مساحة خطة التصدير</small></div>
+  </div>
+
+  <a class="back-to-plans" routerLink="/export-plans" (click)="navigated.emit()">
+    <fa-icon [icon]="icons.back" />
+    <span>العودة إلى جميع خطط التصدير</span>
+  </a>
+
+  <section class="plan-summary">
+    <span class="summary-icon"><fa-icon [icon]="icons.plan" /></span>
+    <div>
+      <small>الخطة الحالية</small>
+      <strong>{{ planName() }}</strong>
+      @if (crop() || destination()) { <p>{{ crop() }} @if (destination()) { · {{ destination() }} }</p> }
+    </div>
+  </section>
+
+  <nav aria-label="التنقل داخل خطة التصدير">
+    <p class="nav-label">أقسام الخطة</p>
+    <a [routerLink]="['/export-plans', planId(), 'overview']" routerLinkActive="active" (click)="navigated.emit()">
+      <fa-icon [icon]="icons.overview" /><span><b>لوحة متابعة الخطة</b><small>التقدم والمهام ومؤشرات الموسم</small></span>
+    </a>
+    <a [routerLink]="['/export-plans', planId(), 'agricultural-advisor']" routerLinkActive="active" (click)="navigated.emit()">
+      <fa-icon [icon]="icons.advisor" /><span><b>مستشار الخطة الذكي</b><small>اسأل عم خضر عن هذه الخطة</small></span>
+    </a>
+    <a [routerLink]="['/export-plans', planId(), 'crop-health']" routerLinkActive="active" (click)="navigated.emit()">
+      <fa-icon [icon]="icons.health" /><span><b>تشخيص ومتابعة المحصول</b><small>الصور والتحليلات الصحية</small></span>
+    </a>
+    <a [routerLink]="['/export-plans', planId(), 'budget-expenses']" routerLinkActive="active" (click)="navigated.emit()">
+      <fa-icon [icon]="icons.costs" /><span><b>الميزانية وسجل المصروفات</b><small>التكاليف والإيصالات والفواتير</small></span>
+    </a>
+  </nav>
+
+  <div class="privacy-note"><fa-icon [icon]="icons.plan" /><span>كل البيانات المعروضة تخص هذه الخطة فقط.</span></div>
+</div>

@@ -7,10 +7,12 @@ import { GreenmindApi } from '@core/api/greenmind-api.service';
 import { PhaseTwoApi } from '@features/dashboard/phase-two/phase-two-api.service';
 import { CostDashboard, DiseaseReport } from '@features/dashboard/phase-two/phase-two.models';
 import { ExportPlanOperationalSummary } from './export-plan-operational-summary';
+import { PlantGrowthLoader } from '@shared/components/plant-growth-loader/plant-growth-loader';
 import {
   DashboardTask,
   ExportPlanDashboard,
   ExportPlanDetails,
+  FarmTask,
   SoilMeasurement,
   SoilMeasurementRequest,
 } from '@core/api/api.models';
@@ -25,7 +27,7 @@ interface PlanInsight {
 
 @Component({
   selector: 'app-export-plan-details',
-  imports: [FormsModule, RouterLink, ExportPlanOperationalSummary],
+  imports: [FormsModule, RouterLink, ExportPlanOperationalSummary, PlantGrowthLoader],
   templateUrl: './export-plan-details.html',
   styleUrl: './export-plan-details.css',
 })
@@ -46,6 +48,10 @@ export class ExportPlanDetailsPage {
   public readonly loading = signal(true);
   public readonly error = signal<string | null>(null);
   public readonly updatingTaskId = signal<number | null>(null);
+  public readonly planTasks = signal<FarmTask[]>([]);
+  public readonly taskDrawerOpen = signal(false);
+  public readonly taskStatusFilter = signal('all');
+  public readonly taskPriorityFilter = signal('all');
   public readonly soilHistoryLoading = signal(false);
   public readonly soilHistoryLoaded = signal(false);
   public readonly soilHistoryError = signal<string | null>(null);
@@ -85,6 +91,10 @@ export class ExportPlanDetailsPage {
     if (!data) return [];
     return data.upcomingTasks.filter((task) => task.plannedDate > this.today).slice(0, 3);
   });
+
+  public readonly filteredPlanTasks = computed(() => this.planTasks().filter((task) =>
+    (this.taskStatusFilter() === 'all' || task.status === this.taskStatusFilter()) &&
+    (this.taskPriorityFilter() === 'all' || task.priority === this.taskPriorityFilter())));
 
   public readonly heroInsights = computed<PlanInsight[]>(() => {
     const data = this.dashboard();
@@ -188,11 +198,14 @@ export class ExportPlanDetailsPage {
     this.updatingTaskId.set(task.id);
     this.error.set(null);
     this.api.updateTask(task.id, { status: 'Completed', actualDate: this.today }).pipe(
-      switchMap(() => this.api.dashboard(this.planId)),
+      switchMap(() => forkJoin({
+        dashboard: this.api.dashboard(this.planId),
+        tasks: this.api.planTasks(this.planId),
+      })),
       finalize(() => this.updatingTaskId.set(null)),
       takeUntilDestroyed(this.destroyRef),
     ).subscribe({
-      next: (dashboard) => this.dashboard.set(dashboard),
+      next: ({ dashboard, tasks }) => { this.dashboard.set(dashboard); this.planTasks.set(tasks); },
       error: () => this.error.set('تعذر تحديث المهمة. حاول مرة أخرى.'),
     });
   }
@@ -215,6 +228,10 @@ export class ExportPlanDetailsPage {
   public taskStatusLabel(task: DashboardTask): string {
     if (this.isOverdue(task)) return 'متأخرة';
     return task.status === 'InProgress' ? 'جارية' : 'اليوم';
+  }
+
+  public farmTaskStatusLabel(status: FarmTask['status']): string {
+    return ({ Pending: 'معلقة', InProgress: 'جارية', Completed: 'مكتملة', Cancelled: 'ملغاة' } as const)[status];
   }
 
   public priorityLabel(priority: string): string {
@@ -247,13 +264,15 @@ export class ExportPlanDetailsPage {
     forkJoin({
       plan: this.api.exportPlan(this.planId),
       dashboard: this.api.dashboard(this.planId),
+      tasks: this.api.planTasks(this.planId),
     }).pipe(
       finalize(() => this.loading.set(false)),
       takeUntilDestroyed(this.destroyRef),
     ).subscribe({
-      next: ({ plan, dashboard }) => {
+      next: ({ plan, dashboard, tasks }) => {
         this.plan.set(plan);
         this.dashboard.set(dashboard);
+        this.planTasks.set(tasks);
       },
       error: () => this.error.set('تعذر تحميل تفاصيل خطة التصدير. تأكد من أن الخطة ما زالت متاحة.'),
     });

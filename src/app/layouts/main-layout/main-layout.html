@@ -3,10 +3,22 @@
     <button class="fixed inset-0 z-40 bg-[#10231b]/45 backdrop-blur-[2px] lg:hidden" aria-label="إغلاق القائمة" (click)="closeMobileMenu()"></button>
   }
 
-  <aside class="floating-aside fixed inset-y-0 right-0 z-50 flex w-[258px] flex-col border-l border-[#dde6df] bg-white" [class.is-open]="mobileMenuOpen()" [class.floating-aside-collapsed]="asideCollapsed()">
-    <button class="aside-collapse-button hidden lg:grid" type="button" aria-label="تصغير القائمة" [attr.aria-expanded]="!asideCollapsed()" (click)="toggleAside()">
-      <fa-icon [icon]="icons.collapse" />
-    </button>
+  <aside class="floating-aside fixed inset-y-0 right-0 z-50 flex w-[258px] flex-col border-l border-[#dde6df] bg-white" [class.is-open]="mobileMenuOpen()" [class.plan-aside]="planContext()" [class.floating-aside-collapsed]="asideCollapsed() && !planContext()">
+    @if (!planContext()) {
+      <button class="aside-collapse-button hidden lg:grid" type="button" aria-label="تصغير القائمة" [attr.aria-expanded]="!asideCollapsed()" (click)="toggleAside()">
+        <fa-icon [icon]="icons.collapse" />
+      </button>
+    }
+
+    @if (planContext(); as context) {
+      <app-plan-context-navigation
+        [planId]="context.id"
+        [planName]="activePlan()?.name || 'خطة التصدير'"
+        [crop]="activePlan()?.crop || ''"
+        [destination]="activePlan()?.destination || ''"
+        (navigated)="closeMobileMenu()"
+      />
+    } @else {
 
     <div class="border-b border-[#edf1ee] px-4 py-4">
       <a routerLink="/dashboard" class="brand-link flex items-center gap-3" title="جرين مايند" (click)="closeMobileMenu()">
@@ -39,9 +51,10 @@
       <a href="#help" class="nav-link" title="مركز المساعدة"><fa-icon class="nav-fa" [icon]="icons.help" /><span class="aside-text">مركز المساعدة</span></a>
       <button type="button" class="nav-link w-full text-[#9c3732] hover:bg-red-50" title="تسجيل الخروج" (click)="logout()"><fa-icon class="nav-fa" [icon]="icons.logout" /><span class="aside-text">تسجيل الخروج</span></button>
     </div>
+    }
   </aside>
 
-  <div class="layout-content min-h-dvh" [class.layout-content-collapsed]="asideCollapsed()">
+  <div class="layout-content min-h-dvh" [class.layout-content-collapsed]="asideCollapsed() && !planContext()">
     <header class="sticky top-0 z-30 flex h-16 items-center gap-3 border-b border-[#dde6df] bg-white/92 px-4 backdrop-blur-xl sm:px-6">
       <button class="grid size-10 place-items-center rounded-xl border border-[#dde6df] text-lg lg:hidden" aria-label="فتح القائمة" [attr.aria-expanded]="mobileMenuOpen()" (click)="openMobileMenu()"><fa-icon [icon]="icons.burger" /></button>
       <div class="relative hidden w-full max-w-[440px] md:block">

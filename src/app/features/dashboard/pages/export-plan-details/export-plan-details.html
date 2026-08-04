@@ -1,10 +1,6 @@
 <section class="plan-page mx-auto max-w-[1380px] pb-10 text-[#10231b]" dir="rtl">
   @if (loading()) {
-    <div class="space-y-4" aria-label="جارٍ تحميل الخطة">
-      <div class="h-4 w-40 animate-pulse rounded-full bg-slate-200"></div>
-      <div class="h-[340px] animate-pulse rounded-[28px] bg-[#0c3829]"></div>
-      <div class="grid gap-4 lg:grid-cols-2"><div class="h-64 animate-pulse rounded-2xl bg-white"></div><div class="h-64 animate-pulse rounded-2xl bg-white"></div></div>
-    </div>
+    <app-plant-growth-loader message="جارٍ تجهيز لوحة متابعة الخطة…" />
   } @else if (error() && !plan()) {
     <div class="grid min-h-[60vh] place-items-center">
       <div class="max-w-md rounded-3xl border border-red-100 bg-white p-8 text-center shadow-sm">
@@ -83,7 +79,7 @@
                 <h2>اليوم وما تأخر</h2>
                 <p>الإجراءات التي قد تؤثر على جاهزية التصدير إذا لم تُنجز.</p>
               </div>
-              <a routerLink="/activities" class="quiet-link">كل المهام <span aria-hidden="true">←</span></a>
+              <button type="button" class="quiet-link" (click)="taskDrawerOpen.set(true)">عرض جميع مهام هذه الخطة <span aria-hidden="true">←</span></button>
             </header>
 
             @if (actionTasks().length) {
@@ -208,7 +204,7 @@
             </div>
           </details>
 
-          <a [routerLink]="['/export-plans', currentPlan.id, 'phase-two']" class="workspace-link">
+          <a [routerLink]="['/export-plans', currentPlan.id, 'agricultural-advisor']" class="workspace-link">
             <span class="workspace-icon">✦</span>
             <span><strong>مساحة العمل الذكية</strong><small>تحليل الخطة، المصروفات، والمستندات</small></span>
             <span aria-hidden="true">←</span>
@@ -216,6 +212,31 @@
         </aside>
       </div>
     }
+  }
+
+  @if (taskDrawerOpen()) {
+    <div class="task-drawer-backdrop" (click)="taskDrawerOpen.set(false)">
+      <aside class="plan-task-drawer" (click)="$event.stopPropagation()">
+        <header>
+          <div><span class="eyebrow">الخطة الحالية فقط</span><h2>جميع مهام هذه الخطة</h2><p>{{ filteredPlanTasks().length }} من {{ planTasks().length }} مهام</p></div>
+          <button type="button" class="drawer-close" aria-label="إغلاق" (click)="taskDrawerOpen.set(false)">×</button>
+        </header>
+        <div class="task-drawer-filters">
+          <label><span>الحالة</span><select [ngModel]="taskStatusFilter()" (ngModelChange)="taskStatusFilter.set($event)" [ngModelOptions]="{standalone: true}"><option value="all">كل الحالات</option><option value="Pending">معلقة</option><option value="InProgress">جارية</option><option value="Completed">مكتملة</option><option value="Cancelled">ملغاة</option></select></label>
+          <label><span>الأولوية</span><select [ngModel]="taskPriorityFilter()" (ngModelChange)="taskPriorityFilter.set($event)" [ngModelOptions]="{standalone: true}"><option value="all">كل الأولويات</option><option value="Critical">حرجة</option><option value="High">عالية</option><option value="Medium">متوسطة</option><option value="Low">منخفضة</option></select></label>
+        </div>
+        <div class="plan-task-list">
+          @for (task of filteredPlanTasks(); track task.id) {
+            <article>
+              <span class="task-priority" [attr.data-priority]="task.priority"></span>
+              <div><div class="task-title-line"><h3>{{ task.title }}</h3><span>{{ farmTaskStatusLabel(task.status) }}</span></div><p>{{ task.taskTypeName }} · {{ priorityLabel(task.priority) }}</p><time>{{ formatDate(task.plannedDate) }}</time>@if (task.description) { <small>{{ task.description }}</small> }</div>
+            </article>
+          } @empty {
+            <div class="drawer-empty"><span>✓</span><h3>لا توجد مهام مطابقة</h3><p>غيّر الفلاتر لعرض بقية مهام الخطة.</p></div>
+          }
+        </div>
+      </aside>
+    </div>
   }
 
   @if (soilFormOpen()) {
