@@ -16,6 +16,7 @@ export class Login {
 
   protected readonly auth = this.authService;
   protected readonly submitted = signal(false);
+  protected readonly passwordVisible = signal(false);
 
   protected readonly loginModel = signal({
     email: '',
@@ -64,5 +65,9 @@ export class Login {
         globalThis.location.replace(destination);
       }
     });
+  }
+
+  protected togglePasswordVisibility(): void {
+    this.passwordVisible.update((visible) => !visible);
   }
 }

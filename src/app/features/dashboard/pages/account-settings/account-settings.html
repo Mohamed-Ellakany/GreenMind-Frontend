@@ -2,33 +2,25 @@
   <header class="mb-7">
     <div class="mb-3 flex items-center gap-2 text-xs font-black text-[#0f7a3d]">
       <span class="size-2 rounded-full bg-[#0f7a3d]"></span>
-      حسابك الشخصي
+      حسابك والمزرعة
     </div>
     <h1 class="text-3xl font-black tracking-tight sm:text-4xl">إعدادات الحساب</h1>
     <p class="mt-3 max-w-2xl text-sm leading-7 text-[#65736c]">
-      حدّث بياناتك، حافظ على أمان حسابك، واختر التنبيهات المناسبة لك.
+      حدّث بياناتك الشخصية واسم المزرعة وكلمة المرور من مكان واحد واضح.
     </p>
   </header>
 
   <div class="grid items-start gap-6 lg:grid-cols-[300px_minmax(0,1fr)]">
-    <aside
-      class="overflow-hidden rounded-2xl border border-[#dce6df] bg-white shadow-sm lg:sticky lg:top-20"
-    >
+    <aside class="overflow-hidden rounded-2xl border border-[#dce6df] bg-white shadow-sm lg:sticky lg:top-20">
       <div class="bg-[#10231b] p-6 text-white">
-        <span
-          class="grid size-16 place-items-center rounded-2xl bg-[#d8f36a] text-2xl font-black text-[#31430b] shadow-lg"
-        >
+        <span class="grid size-16 place-items-center rounded-2xl bg-[#d8f36a] text-2xl font-black text-[#31430b] shadow-lg">
           {{ (profile()?.fullName || 'م').charAt(0) }}
         </span>
-        <h2 class="mt-4 truncate text-xl font-black">
-          {{ profile()?.fullName || 'مالك المزرعة' }}
-        </h2>
+        <h2 class="mt-4 truncate text-xl font-black">{{ profile()?.fullName || 'مالك المزرعة' }}</h2>
         <p class="mt-1 truncate text-sm text-white/60" dir="ltr">
           {{ profile()?.email || 'لا يوجد بريد مسجل' }}
         </p>
-        <span
-          class="mt-4 inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1.5 text-xs font-bold"
-        >
+        <span class="mt-4 inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1.5 text-xs font-bold">
           <i class="size-1.5 rounded-full bg-[#d8f36a]"></i>
           مالك مزرعة
         </span>
@@ -39,20 +31,19 @@
           <dt class="text-xs font-bold text-[#7a8881]">اسم المزرعة</dt>
           <dd class="mt-1 font-black">{{ profile()?.farmName || 'غير مسجل' }}</dd>
         </div>
-        <div class="flex items-center justify-between gap-3 py-4">
-          <div>
-            <dt class="text-xs font-bold text-[#7a8881]">رقم المزرعة</dt>
-            <dd class="mt-1 font-mono font-black" dir="ltr">#{{ profile()?.farmId || '—' }}</dd>
-          </div>
-          <span
-            class="rounded-full px-3 py-1 text-xs font-black"
-            [class.bg-[#e9f7ed]]="profile()?.isFarmApproved !== false"
-            [class.text-[#0f7a3d]]="profile()?.isFarmApproved !== false"
-            [class.bg-[#fff5d9]]="profile()?.isFarmApproved === false"
-            [class.text-[#956500]]="profile()?.isFarmApproved === false"
-          >
-            {{ profile()?.isFarmApproved === false ? 'قيد المراجعة' : 'معتمدة' }}
-          </span>
+        <div class="py-4">
+          <dt class="text-xs font-bold text-[#7a8881]">حالة الاعتماد</dt>
+          <dd class="mt-2">
+            <span
+              class="rounded-full px-3 py-1 text-xs font-black"
+              [class.bg-[#e9f7ed]]="profile()?.isFarmApproved !== false"
+              [class.text-[#0f7a3d]]="profile()?.isFarmApproved !== false"
+              [class.bg-[#fff5d9]]="profile()?.isFarmApproved === false"
+              [class.text-[#956500]]="profile()?.isFarmApproved === false"
+            >
+              {{ profile()?.isFarmApproved === false ? 'قيد المراجعة' : 'معتمدة' }}
+            </span>
+          </dd>
         </div>
       </dl>
     </aside>
@@ -61,16 +52,45 @@
       <article class="rounded-2xl border border-[#dce6df] bg-white shadow-sm">
         <header class="border-b border-[#edf1ee] px-5 py-5 sm:px-6">
           <div class="flex items-start gap-3">
-            <span
-              class="grid size-10 shrink-0 place-items-center rounded-xl bg-[#e8f7ed] font-black text-[#0f7a3d]"
-              aria-hidden="true"
-              >01</span
+            <span class="grid size-10 shrink-0 place-items-center rounded-xl bg-[#e8f7ed] font-black text-[#0f7a3d]" aria-hidden="true">01</span>
+            <div>
+              <h2 class="text-lg font-black">بيانات المزرعة</h2>
+              <p class="mt-1 text-sm leading-6 text-[#65736c]">اسم المزرعة هو الاسم الظاهر في لوحة العمل والتقارير.</p>
+            </div>
+          </div>
+        </header>
+
+        <form class="p-5 sm:p-6" (ngSubmit)="saveFarm()" novalidate>
+          <label class="block">
+            <span class="mb-2 block text-sm font-bold">اسم المزرعة</span>
+            <input
+              [(ngModel)]="farmName"
+              name="farmName"
+              class="h-12 w-full rounded-xl border border-[#d7e1da] bg-white px-4 text-sm outline-none transition placeholder:text-[#9aa59e] focus:border-[#0f7a3d] focus:ring-4 focus:ring-[#0f7a3d]/10"
+              placeholder="اكتب اسم المزرعة"
+              maxlength="200"
+              required
+            />
+          </label>
+          <footer class="mt-6 flex justify-end border-t border-[#edf1ee] pt-5">
+            <button
+              type="submit"
+              [disabled]="!farmName.trim() || farmLoading()"
+              class="inline-flex h-11 items-center justify-center rounded-xl bg-[#0f7a3d] px-6 text-sm font-black text-white shadow-[0_8px_18px_rgba(15,122,61,.18)] transition hover:bg-[#0b6934] disabled:cursor-not-allowed disabled:bg-[#98a49c] disabled:shadow-none"
             >
+              {{ farmLoading() ? 'جارٍ حفظ اسم المزرعة...' : 'حفظ اسم المزرعة' }}
+            </button>
+          </footer>
+        </form>
+      </article>
+
+      <article class="rounded-2xl border border-[#dce6df] bg-white shadow-sm">
+        <header class="border-b border-[#edf1ee] px-5 py-5 sm:px-6">
+          <div class="flex items-start gap-3">
+            <span class="grid size-10 shrink-0 place-items-center rounded-xl bg-[#eef3ff] font-black text-[#3f5c9a]" aria-hidden="true">02</span>
             <div>
               <h2 class="text-lg font-black">البيانات الشخصية</h2>
-              <p class="mt-1 text-sm leading-6 text-[#65736c]">
-                البيانات المستخدمة للتعريف بك والتواصل معك داخل المنصة.
-              </p>
+              <p class="mt-1 text-sm leading-6 text-[#65736c]">الاسم والبريد المستخدمان للتواصل وتسجيل الدخول.</p>
             </div>
           </div>
         </header>
@@ -106,18 +126,13 @@
             </label>
           </div>
 
-          <footer
-            class="mt-6 flex flex-col gap-3 border-t border-[#edf1ee] pt-5 sm:flex-row sm:items-center sm:justify-between"
-          >
-            <p class="text-xs leading-5 text-[#738078]">
-              تُستخدم هذه البيانات في إشعارات الحساب والمراسلات المهمة.
-            </p>
+          <footer class="mt-6 flex justify-end border-t border-[#edf1ee] pt-5">
             <button
               type="submit"
               [disabled]="!profileFullName.trim() || !profileEmail.trim() || profileLoading()"
-              class="inline-flex h-11 shrink-0 items-center justify-center rounded-xl bg-[#0f7a3d] px-6 text-sm font-black text-white shadow-[0_8px_18px_rgba(15,122,61,.18)] transition hover:bg-[#0b6934] disabled:cursor-not-allowed disabled:bg-[#98a49c] disabled:shadow-none"
+              class="inline-flex h-11 items-center justify-center rounded-xl bg-[#0f7a3d] px-6 text-sm font-black text-white shadow-[0_8px_18px_rgba(15,122,61,.18)] transition hover:bg-[#0b6934] disabled:cursor-not-allowed disabled:bg-[#98a49c] disabled:shadow-none"
             >
-              {{ profileLoading() ? 'جارٍ حفظ التغييرات...' : 'حفظ التغييرات' }}
+              {{ profileLoading() ? 'جارٍ حفظ البيانات...' : 'حفظ البيانات' }}
             </button>
           </footer>
         </form>
@@ -126,16 +141,10 @@
       <article class="rounded-2xl border border-[#dce6df] bg-white shadow-sm">
         <header class="border-b border-[#edf1ee] px-5 py-5 sm:px-6">
           <div class="flex items-start gap-3">
-            <span
-              class="grid size-10 shrink-0 place-items-center rounded-xl bg-[#fff5d9] font-black text-[#956500]"
-              aria-hidden="true"
-              >02</span
-            >
+            <span class="grid size-10 shrink-0 place-items-center rounded-xl bg-[#fff5d9] font-black text-[#956500]" aria-hidden="true">03</span>
             <div>
               <h2 class="text-lg font-black">الأمان وكلمة المرور</h2>
-              <p class="mt-1 text-sm leading-6 text-[#65736c]">
-                استخدم كلمة مرور قوية لا تستخدمها في حسابات أخرى.
-              </p>
+              <p class="mt-1 text-sm leading-6 text-[#65736c]">استخدم كلمة مرور قوية لا تستخدمها في حسابات أخرى.</p>
             </div>
           </div>
         </header>
@@ -165,9 +174,7 @@
                 autocomplete="new-password"
                 required
               />
-              <small class="mt-2 block text-xs leading-5 text-[#7a8881]"
-                >8 أحرف على الأقل، وتتضمن حرفًا كبيرًا وصغيرًا ورقمًا ورمزًا.</small
-              >
+              <small class="mt-2 block text-xs leading-5 text-[#7a8881]">8 أحرف على الأقل، وتتضمن حرفًا كبيرًا وصغيرًا ورقمًا ورمزًا.</small>
             </label>
 
             <label class="block">
@@ -178,9 +185,7 @@
                 class="h-12 w-full rounded-xl border px-4 text-sm outline-none transition focus:ring-4"
                 [class.border-[#d7e1da]]="!confirmPassword || newPassword === confirmPassword"
                 [class.focus:border-[#0f7a3d]]="!confirmPassword || newPassword === confirmPassword"
-                [class.focus:ring-[#0f7a3d]/10]="
-                  !confirmPassword || newPassword === confirmPassword
-                "
+                [class.focus:ring-[#0f7a3d]/10]="!confirmPassword || newPassword === confirmPassword"
                 [class.border-red-300]="confirmPassword && newPassword !== confirmPassword"
                 [class.focus:border-red-500]="confirmPassword && newPassword !== confirmPassword"
                 [class.focus:ring-red-100]="confirmPassword && newPassword !== confirmPassword"
@@ -190,9 +195,7 @@
                 required
               />
               @if (confirmPassword && newPassword !== confirmPassword) {
-                <small class="mt-2 block font-bold text-[#be3a34]"
-                  >كلمتا المرور غير متطابقتين.</small
-                >
+                <small class="mt-2 block font-bold text-[#be3a34]">كلمتا المرور غير متطابقتين.</small>
               }
             </label>
           </div>
@@ -200,103 +203,13 @@
           <footer class="mt-6 flex justify-end border-t border-[#edf1ee] pt-5">
             <button
               type="submit"
-              [disabled]="
-                !currentPassword ||
-                !passwordIsStrong() ||
-                !confirmPassword ||
-                newPassword !== confirmPassword ||
-                passwordLoading()
-              "
+              [disabled]="!currentPassword || !passwordIsStrong() || !confirmPassword || newPassword !== confirmPassword || passwordLoading()"
               class="inline-flex h-11 items-center justify-center rounded-xl bg-[#10231b] px-6 text-sm font-black text-white shadow-[0_8px_18px_rgba(16,35,27,.16)] transition hover:bg-[#1b372b] disabled:cursor-not-allowed disabled:bg-[#98a49c] disabled:shadow-none"
             >
               {{ passwordLoading() ? 'جارٍ تحديث كلمة المرور...' : 'تحديث كلمة المرور' }}
             </button>
           </footer>
         </form>
-      </article>
-
-      <article class="rounded-2xl border border-[#dce6df] bg-white shadow-sm">
-        <header
-          class="flex flex-col gap-4 border-b border-[#edf1ee] px-5 py-5 sm:flex-row sm:items-center sm:justify-between sm:px-6"
-        >
-          <div class="flex items-start gap-3">
-            <span
-              class="grid size-10 shrink-0 place-items-center rounded-xl bg-[#eef3ff] font-black text-[#3f5c9a]"
-              aria-hidden="true"
-              >03</span
-            >
-            <div>
-              <h2 class="text-lg font-black">تفضيلات التنبيهات</h2>
-              <p class="mt-1 text-sm leading-6 text-[#65736c]">
-                تحكم في أنواع التنبيهات التي تظهر داخل المنصة.
-              </p>
-            </div>
-          </div>
-          <span
-            class="w-fit rounded-full bg-[#f3faf5] px-3 py-1.5 text-xs font-black text-[#0f7a3d]"
-          >
-            {{ notifications.unreadCount() }} غير مقروء
-          </span>
-        </header>
-
-        <div class="grid gap-3 p-5 sm:p-6 md:grid-cols-2">
-          @for (channel of channels; track channel.key) {
-            <label
-              class="flex cursor-pointer items-center justify-between gap-4 rounded-xl border border-[#e5ebe7] bg-[#fafcfb] p-4 transition hover:border-[#c9d9cd] hover:bg-[#f5faf6]"
-            >
-              <span class="min-w-0">
-                <strong class="block text-sm font-black">{{ channel.label }}</strong>
-                <small class="mt-1 block leading-5 text-[#65736c]">{{ channel.description }}</small>
-              </span>
-              <span class="relative inline-flex shrink-0 items-center">
-                <input
-                  class="peer sr-only"
-                  type="checkbox"
-                  [checked]="notifications.preferences()[channel.key]"
-                  (change)="toggleChannel(channel.key, $event)"
-                />
-                <span
-                  class="h-6 w-11 rounded-full bg-[#c9d1cc] transition peer-checked:bg-[#0f7a3d] peer-focus-visible:ring-4 peer-focus-visible:ring-[#0f7a3d]/15"
-                ></span>
-                <span
-                  class="absolute right-1 size-4 rounded-full bg-white shadow-sm transition peer-checked:translate-x-[-20px]"
-                ></span>
-              </span>
-            </label>
-          }
-        </div>
-
-        <footer
-          class="flex flex-col gap-4 border-t border-[#edf1ee] bg-[#fafcfb] px-5 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6"
-        >
-          <p class="text-sm text-[#65736c]">
-            تنبيهات المتصفح:
-            <strong class="text-[#10231b]">
-              {{
-                browserPermission() === 'granted'
-                  ? 'مفعّلة'
-                  : browserPermission() === 'denied'
-                    ? 'مرفوضة من المتصفح'
-                    : browserPermission() === 'unsupported'
-                      ? 'غير مدعومة'
-                      : 'غير مفعّلة'
-              }}
-            </strong>
-          </p>
-          @if (browserPermission() === 'default') {
-            <button
-              type="button"
-              class="w-fit rounded-xl border border-[#cddbd1] bg-white px-4 py-2.5 text-xs font-black text-[#0f7a3d] transition hover:bg-[#f3faf5]"
-              (click)="enableBrowserNotifications()"
-            >
-              تفعيل تنبيهات المتصفح
-            </button>
-          } @else if (browserPermission() === 'denied') {
-            <small class="text-xs font-bold text-[#956500]"
-              >يمكنك إعادة تفعيلها من إعدادات المتصفح.</small
-            >
-          }
-        </footer>
       </article>
     </main>
   </div>

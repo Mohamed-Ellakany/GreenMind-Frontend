@@ -23,6 +23,9 @@ export class AiAgent {
   public readonly error = signal<string | null>(null);
   private readonly messagesViewport = viewChild<ElementRef<HTMLElement>>('messagesViewport');
   public messageInput = '';
+  public selectedImages: File[] = [];
+  public readonly recording = signal(false);
+  private recognition: any;
 
   public readonly suggestions = [
     'هل المادة الفعالة لهذا المبيد معتمدة للتصدير؟ وما الـ MRL للمحصول؟',
@@ -82,7 +85,9 @@ export class AiAgent {
   public async send(): Promise<void> {
     const content = this.messageInput.trim();
     const session = this.selectedSession();
-    if (!content || !session || this.sending()) return;
+    if ((!content && !this.selectedImages.length) || !session || this.sending()) return;
+    const images = await Promise.all(this.selectedImages.map(async (file) => ({ fileName: file.name, contentType: file.type, dataBase64: await this.toBase64(file) })));
+    this.selectedImages = [];
 
     this.messageInput = '';
     this.sending.set(true);
@@ -110,7 +115,7 @@ export class AiAgent {
           };
         }));
         this.scrollToLatest();
-      });
+      }, images);
       this.loadMessages(session.id);
       this.loadSessions(false);
     } catch {
@@ -123,6 +128,10 @@ export class AiAgent {
       this.sending.set(false);
     }
   }
+
+  public selectImages(event: Event): void { this.selectedImages = Array.from((event.target as HTMLInputElement).files ?? []).filter(file => file.type.startsWith('image/')).slice(0, 4); }
+  public toggleVoice(): void { const Speech = (globalThis as any).SpeechRecognition ?? (globalThis as any).webkitSpeechRecognition; if (!Speech) { this.error.set('المتصفح لا يدعم الإدخال الصوتي.'); return; } if (this.recording()) { this.recognition?.stop(); return; } this.recognition = new Speech(); this.recognition.lang = 'ar-EG'; this.recognition.continuous = false; this.recognition.onresult = (event: any) => { this.messageInput = `${this.messageInput} ${event.results[0][0].transcript}`.trim(); }; this.recognition.onend = () => this.recording.set(false); this.recording.set(true); this.recognition.start(); }
+  private toBase64(file: File): Promise<string> { return new Promise((resolve, reject) => { const reader = new FileReader(); reader.onload = () => resolve(String(reader.result).split(',')[1] ?? ''); reader.onerror = reject; reader.readAsDataURL(file); }); }
 
   public formatSessionDate(value: string | null): string {
     if (!value) return 'محادثة جديدة';

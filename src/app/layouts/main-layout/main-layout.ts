@@ -5,6 +5,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { filter } from 'rxjs';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { NotificationCenterService } from '@core/settings/notification-center.service';
+import { SupportRealtimeService } from '@core/support/support-realtime.service';
 import { GreenmindApi } from '@core/api/greenmind-api.service';
 import { ExportPlanDetails } from '@core/api/api.models';
 import { PlanContextNavigation } from './plan-context-navigation';
@@ -41,6 +42,7 @@ export class MainLayout {
   private readonly api = inject(GreenmindApi);
   private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly supportRealtime = inject(SupportRealtimeService);
   public readonly notificationCenter = inject(NotificationCenterService);
   public readonly mobileMenuOpen = signal(false);
   public readonly asideCollapsed = signal(false);
@@ -76,6 +78,7 @@ export class MainLayout {
 
   public constructor() {
     this.auth.loadProfile();
+    void this.supportRealtime.start();
     this.updatePlanContext(this.router.url);
     this.router.events.pipe(
       filter((event): event is NavigationEnd => event instanceof NavigationEnd),

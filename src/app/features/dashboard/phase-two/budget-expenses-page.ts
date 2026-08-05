@@ -82,6 +82,7 @@ export class BudgetExpensesPage {
   public readonly exportingPdf = signal(false);
   public readonly exportingCsv = signal(false);
   public readonly pendingReceipt = signal<File | null>(null);
+  public readonly pendingReceipts = signal<File[]>([]);
   public readonly expenseFormErrors = signal<ExpenseFormErrors>({});
   public readonly expenseFormMessage = signal<string | null>(null);
 
@@ -191,10 +192,10 @@ export class BudgetExpensesPage {
     const operation = editingId
       ? this.api.updateExpense(this.planId, editingId, request)
       : this.api.createExpense(this.planId, request);
-    const receipt = this.pendingReceipt();
+    const receipts = this.pendingReceipts();
     operation.pipe(
-      switchMap((expense) => receipt
-        ? this.api.uploadAttachment(this.planId, expense.id, this.expenseAttachmentType, receipt).pipe(
+      switchMap((expense) => receipts.length
+        ? forkJoin(receipts.map((receipt) => this.api.uploadAttachment(this.planId, expense.id, this.expenseAttachmentType, receipt))).pipe(
             map(() => ({ receiptUploaded: true, receiptUploadFailed: false })),
             catchError(() => of({ receiptUploaded: false, receiptUploadFailed: true })),
           )
@@ -238,6 +239,7 @@ export class BudgetExpensesPage {
     this.editingExpenseId.set(null);
     this.expenseForm = this.emptyExpenseForm(this.categories()[0]?.id ?? 0);
     this.pendingReceipt.set(null);
+    this.pendingReceipts.set([]);
     this.expenseAttachmentType = 'إيصال';
     this.expenseFormErrors.set({});
     this.expenseFormMessage.set(null);
@@ -292,24 +294,27 @@ export class BudgetExpensesPage {
 
   public selectExpenseReceipt(event: Event): void {
     const input = event.target as HTMLInputElement;
-    const file = input.files?.[0] ?? null;
-    if (!file) return;
+    const files = Array.from(input.files ?? []);
+    if (!files.length) return;
     const allowedTypes = ['application/pdf', 'image/png', 'image/jpeg'];
-    if (!allowedTypes.includes(file.type) || file.size > 10 * 1024 * 1024) {
+    if (files.some((file) => !allowedTypes.includes(file.type) || file.size > 10 * 1024 * 1024)) {
       input.value = '';
       this.pendingReceipt.set(null);
+      this.pendingReceipts.set([]);
       this.expenseFormErrors.update((current) => ({
         ...current,
         receipt: 'الإيصال يجب أن يكون PDF أو JPG أو PNG وبحجم لا يتجاوز 10 ميجابايت.',
       }));
       return;
     }
-    this.pendingReceipt.set(file);
+    this.pendingReceipt.set(files[0]);
+    this.pendingReceipts.update((current) => [...current, ...files]);
     this.clearExpenseFieldError('receipt');
   }
 
   public removePendingReceipt(): void {
     this.pendingReceipt.set(null);
+    this.pendingReceipts.set([]);
     this.clearExpenseFieldError('receipt');
   }
 

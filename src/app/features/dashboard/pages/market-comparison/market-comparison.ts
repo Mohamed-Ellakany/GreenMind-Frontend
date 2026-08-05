@@ -4,7 +4,6 @@ import { RouterLink } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { GreenmindApi } from '@core/api/greenmind-api.service';
 import { ExportPlan } from '@core/api/api.models';
-import { NotificationCenterService } from '@core/settings/notification-center.service';
 
 type ChecklistItem = {
   label: string;
@@ -110,7 +109,6 @@ const marketProfiles: MarketProfile[] = [
 export class MarketComparison {
   private readonly api = inject(GreenmindApi);
   private readonly destroyRef = inject(DestroyRef);
-  private readonly notifications = inject(NotificationCenterService);
 
   public readonly plans = signal<ExportPlan[]>([]);
   public readonly loading = signal(true);
@@ -170,12 +168,6 @@ export class MarketComparison {
     };
 
     this.result.set(result);
-    this.notifications.push({
-      title: 'تم تشغيل مقارنة الأسواق',
-      body: `أفضل اختيار حالياً لخطة ${plan.name}: ${winner.label}.`,
-      channel: 'markets',
-      tone: 'success',
-    });
   }
 
   private buildMarketCard(market: MarketProfile, plan: ExportPlan): MarketCard {

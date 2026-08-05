@@ -1,0 +1,67 @@
+<section class="plan-page diagnosis-page" dir="rtl">
+  <div class="page-crumbs"><a routerLink="/export-plans">خطط التصدير</a><i>/</i><a [routerLink]="['/export-plans', planId, 'crop-health']">صحة المحصول</a><i>/</i><span>{{ diagnosis()?.summary?.title || 'جلسة التشخيص' }}</span></div>
+  @if (error()) { <div class="error-banner" role="alert"><span>{{ error() }}</span><button type="button" (click)="error.set(null)">×</button></div> }
+  @if (success()) { <div class="success-banner"><span>{{ success() }}</span><button type="button" (click)="success.set(null)">×</button></div> }
+  @if (loading()) { <app-plant-growth-loader message="جارٍ تحميل جلسة التشخيص…" /> }
+  @else if (diagnosis(); as current) {
+    <header class="page-heading diagnosis-heading">
+      <div><span class="session-kicker">{{ plan()?.crop }} · {{ plan()?.name }}</span><h1>{{ current.summary.suspectedDisease || current.summary.title }}</h1><p>كل الصور والمعلومات والنتيجة محفوظة داخل هذه الجلسة فقط.</p></div>
+      <div class="heading-actions"><span class="session-status">{{ current.summary.status }}</span>@if (isOpen()) { <button type="button" class="danger-action" (click)="cancelDiagnosis()">إلغاء وأرشفة</button> }</div>
+    </header>
+
+    <div class="diagnosis-layout">
+      <article class="panel chat-shell">
+        <header class="chat-header"><div class="assistant-identity"><span>خ</span><div><h2>مساعد التشخيص</h2><p>{{ isOpen() ? 'يجمع المعلومات ولا يصدر قرارًا قبل إغلاق الجلسة' : 'المحادثة محفوظة للقراءة فقط' }}</p></div></div><i [class.offline]="!isOpen()"><span></span>{{ isOpen() ? 'الجلسة مفتوحة' : 'الجلسة مغلقة' }}</i></header>
+        <div #messagesViewport class="diagnosis-messages" aria-live="polite">
+          @if (!current.messages.length) { <div class="empty-state"><span>🗂️</span><h3>تقرير قديم</h3><p>هذا الفحص أُنشئ قبل إضافة جلسات التشخيص الحوارية.</p></div> }
+          @for (messageItem of current.messages; track messageItem.id) {
+            <div class="diagnosis-message" [class.user]="isUser(messageItem)">
+              <span class="message-avatar">{{ isUser(messageItem) ? 'أنت' : 'خ' }}</span>
+              <div class="message-stack"><div class="message-meta"><b>{{ isUser(messageItem) ? 'أنت' : 'مساعد التشخيص' }}</b><time>{{ formatDate(messageItem.createdAt) }}</time></div><div class="message-bubble">
+                @if (messageItem.content) { <p>{{ messageItem.content }}</p> }
+                @if (messageItem.images.length) { <div class="message-images">@for (image of messageItem.images; track image.id) { @if (imageUrl(image); as url) { <a [href]="url" target="_blank" rel="noopener"><img [src]="url" [alt]="image.originalFileName" /></a> } @else { <span class="image-placeholder"></span> } }</div> }
+                @if (messageItem.status === 'فشل') { <small class="message-failed">تعذر تحليل هذه الرسالة؛ الصور والنص محفوظان.</small> }
+              </div></div>
+            </div>
+          }
+          @if (pendingMessage(); as pending) {
+            <div class="diagnosis-message user pending" aria-label="جارٍ إرسال رسالتك">
+              <span class="message-avatar">أنت</span>
+              <div class="message-stack"><div class="message-meta"><b>أنت</b><time>جارٍ الإرسال…</time></div><div class="message-bubble">
+                @if (pending.content) { <p>{{ pending.content }}</p> }
+                @if (pending.images.length) { <div class="message-images">@for (image of pending.images; track image.id) { @if (imageUrl(image); as url) { <img [src]="url" [alt]="image.originalFileName" /> } }</div> }
+              </div></div>
+            </div>
+          }
+          @if (sending()) { <div class="diagnosis-message"><span class="message-avatar">خ</span><div class="message-stack"><div class="message-bubble typing"><i></i><i></i><i></i></div></div></div> }
+        </div>
+
+        @if (isOpen()) {
+          <footer class="diagnosis-composer">
+            @if (selectedImages.length) { <div class="selected-images">@for (file of selectedImages; track file.name; let index = $index) { <span><b>📷 {{ file.name }}</b><button type="button" (click)="removeSelected(index)">×</button></span> }</div> }
+            <form (ngSubmit)="send()"><label class="attach-button" title="إضافة صور"><input type="file" multiple accept="image/jpeg,image/png" (change)="chooseImages($event)" />＋<small>صورة</small></label><textarea name="message" [(ngModel)]="message" (keydown)="onMessageKeydown($event)" rows="2" maxlength="4000" placeholder="اكتب إجابتك أو أرسل صورًا إضافية…"></textarea><button type="submit" class="send-button" [disabled]="!canSend() || (!message.trim() && !selectedImages.length)">{{ sending() ? '…' : 'إرسال' }}</button></form>
+            <small class="composer-hint">حتى 5 صور في الرسالة و10 صور للجلسة · JPEG أو PNG</small>
+          </footer>
+        } @else { <div class="closed-note">هذه المحادثة مغلقة ومحفوظة للقراءة فقط.</div> }
+      </article>
+
+      <aside class="diagnosis-side">
+        @if (isOpen()) {
+          <section class="panel readiness-card"><header><div><small>جاهزية القرار</small><h2>{{ current.readiness.isReady ? 'المعلومات الأساسية مكتملة' : 'ما زلنا نجمع المعلومات' }}</h2></div><b>{{ current.readiness.checklist.length - current.readiness.missingItems.length }}/{{ current.readiness.checklist.length }}</b></header><div class="readiness-progress"><span [style.width.%]="100 * (current.readiness.checklist.length - current.readiness.missingItems.length) / current.readiness.checklist.length"></span></div><ul>@for (item of current.readiness.checklist; track item.key) { <li [class.complete]="item.isComplete"><span>{{ item.isComplete ? '✓' : '○' }}</span>{{ item.label }}</li> }</ul><button type="button" class="primary-action diagnose-action" [class.override]="!current.readiness.isReady" [disabled]="finalizing()" (click)="finalizeDiagnosis()">{{ finalizing() ? 'جارٍ الإغلاق…' : current.readiness.isReady ? 'تشخيص' : 'تشخيص بالمعلومات الحالية' }}</button>@if (!current.readiness.isReady) { <p class="readiness-warning">الإنهاء الآن ينتج قرارًا منخفض الاعتمادية وخطة متابعة غير كيميائية فقط.</p> }</section>
+        }
+
+        @if (isProcessing()) { <section class="panel analysis-state"><span class="analysis-spinner"></span><h2>جارٍ تحليل الحالة</h2><p>نراجع المحادثة والصور والمهام والتشخيصات السابقة، ثم نتحقق من المصادر الموثوقة.</p></section> }
+        @if (isFailed()) { <section class="panel failure-card"><span>!</span><h2>تعذر إكمال التشخيص</h2><p>{{ current.failureMessage }}</p><button type="button" class="secondary-action" [disabled]="finalizing()" (click)="retry()">إعادة التشخيص بنفس البيانات</button></section> }
+        @if (isCancelled()) { <section class="panel archived-card"><span>□</span><h2>جلسة مؤرشفة</h2><p>تم إلغاء هذه المسودة، وتظل المحادثة والصور متاحة للرجوع إليها.</p></section> }
+
+        @if (isCompleted()) {
+          <section class="panel result-card"><header><div><small>نتيجة التشخيص الاستشاري</small><h2>{{ current.summary.suspectedDisease }}</h2></div><span>{{ current.summary.confidencePercentage }}%</span></header><div class="result-facts"><span><small>الشدة</small><b>{{ current.summary.severity }}</b></span><span><small>المصادر</small><b>{{ current.sources.length ? 'موثقة' : 'غير متاحة' }}</b></span></div><div class="result-copy"><small>ملخص الإجراء</small><p>{{ current.recommendedActions }}</p></div>@if (current.advisoryWarning) { <p class="advisory">{{ current.advisoryWarning }}</p> }@if (current.knowledgeFailureMessage) { <p class="source-warning">{{ current.knowledgeFailureMessage }}</p> }@if (current.sources.length) { <details class="sources"><summary>عرض المصادر المستخدمة ({{ current.sources.length }})</summary>@for (source of current.sources; track source.id) { <a [href]="source.sourceUrl" target="_blank" rel="noopener"><b>{{ source.sourceName }}</b><small>{{ source.publisher }} · {{ source.sectionReference || 'مرجع عام' }}</small><p>{{ source.excerpt }}</p></a> }</details> }<button type="button" class="primary-action treatment-action" [disabled]="treatmentLoading()" (click)="openTreatment()">{{ treatmentLoading() ? 'جارٍ تجهيز المقترح…' : monitoringOnly() ? 'إضافة خطة متابعة آمنة' : 'إضافة الخطة العلاجية' }}</button>@if (monitoringOnly()) { <p class="readiness-warning">ستقتصر الخطة على المتابعة والفحص؛ لا توجد توصية كيميائية دون تحقق كامل.</p> }</section>
+        }
+      </aside>
+    </div>
+  }
+
+  @if (proposal(); as treatment) {
+    <div class="overlay" (click)="proposal.set(null)"><section class="modal treatment-modal" (click)="$event.stopPropagation()"><header><div><h2>معاينة الخطة العلاجية</h2><p>عدّل التفاصيل أو استبعد أي بند. لن يتغير الجدول قبل موافقتك.</p></div><button type="button" class="close-button" (click)="proposal.set(null)">×</button></header><div class="treatment-items"><span class="proposal-status">{{ treatment.status }}</span>@for (item of treatment.items; track item.id) { <article [class.excluded]="!item.isIncluded"><header><label><input type="checkbox" [(ngModel)]="item.isIncluded" [name]="'include-' + item.id" [disabled]="treatment.reviewedAtUtc !== null" /> تنفيذ هذا البند</label><span>{{ item.operation }}</span></header><p class="proposal-reason">{{ item.reason }}</p><div class="proposal-form"><label><span>العنوان</span><input [(ngModel)]="item.proposedValues.title" [name]="'title-' + item.id" [disabled]="treatment.reviewedAtUtc !== null" /></label><label class="wide"><span>الوصف</span><textarea rows="2" [(ngModel)]="item.proposedValues.description" [name]="'description-' + item.id" [disabled]="treatment.reviewedAtUtc !== null"></textarea></label><label><span>التاريخ</span><input type="date" [(ngModel)]="item.proposedValues.plannedDate" [name]="'date-' + item.id" [disabled]="treatment.reviewedAtUtc !== null" /></label><label><span>الكمية</span><input type="number" min="0.001" step="0.001" [(ngModel)]="item.proposedValues.quantity" [name]="'quantity-' + item.id" [disabled]="treatment.reviewedAtUtc !== null" /></label><label><span>الوحدة</span><input maxlength="50" [(ngModel)]="item.proposedValues.unit" [name]="'unit-' + item.id" [disabled]="treatment.reviewedAtUtc !== null" /></label><label><span>الأولوية</span><select [(ngModel)]="item.proposedValues.priority" [name]="'priority-' + item.id" [disabled]="treatment.reviewedAtUtc !== null"><option>منخفضة</option><option>متوسطة</option><option>عالية</option><option>حرجة</option></select></label></div></article> }</div><footer>@if (treatment.reviewedAtUtc === null) { <button type="button" class="danger-action" [disabled]="proposalLoading()" (click)="rejectProposal()">رفض</button><button type="button" class="secondary-action" [disabled]="proposalLoading()" (click)="saveProposal()">حفظ التعديلات</button><button type="button" class="primary-action" [disabled]="proposalLoading()" (click)="applyProposal()">{{ proposalLoading() ? 'جارٍ التحقق…' : 'موافقة وتطبيق' }}</button> } @else { <p>تمت مراجعة المقترح: {{ treatment.status }}</p> }</footer></section></div>
+  }
+</section>

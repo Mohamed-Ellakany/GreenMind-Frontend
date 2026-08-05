@@ -213,3 +213,35 @@ export interface RegulatoryImportResult {
 export interface RagIngestionResult {
   chunksIngested: number;
 }
+
+export type SupportMessageRole = 'Customer' | 'Admin';
+
+export interface SupportConversation {
+  id: number;
+  farmId: number;
+  farmName: string;
+  ownerName: string;
+  ownerEmail: string | null;
+  isClosed: boolean;
+  lastMessageAtUtc: string;
+  lastAdminReplyAtUtc: string | null;
+  lastCustomerMessageAtUtc: string | null;
+  lastMessagePreview: string | null;
+}
+
+export interface SupportMessage {
+  id: number;
+  conversationId: number;
+  role: SupportMessageRole;
+  senderUserId: string;
+  senderName: string;
+  content: string;
+  createdAt: string;
+}
+
+export interface SupportMessagePage {
+  items: SupportMessage[];
+  pageNumber: number;
+  pageSize: number;
+  totalCount: number;
+}

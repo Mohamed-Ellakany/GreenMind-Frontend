@@ -54,6 +54,7 @@ export interface TaskProposalItem {
   originalValues: TaskProposalValues | null;
   proposedValues: TaskProposalValues;
   reason: string;
+  isIncluded: boolean;
 }
 
 export interface TaskProposalValues {
@@ -61,9 +62,99 @@ export interface TaskProposalValues {
   taskTypeId: number;
   title: string;
   description: string | null;
+  quantity: number;
+  unit: string;
   plannedDate: string;
   status?: string;
   priority: string;
+}
+
+export interface DiagnosisChecklistItem {
+  key: string;
+  label: string;
+  isComplete: boolean;
+  isRequired: boolean;
+}
+
+export interface DiagnosisReadiness {
+  isReady: boolean;
+  checklist: DiagnosisChecklistItem[];
+  missingItems: string[];
+}
+
+export interface DiagnosisFacts {
+  affectedPart: string | null;
+  onset: string | null;
+  spreadPattern: string | null;
+  affectedExtent: string | null;
+  conditions: string | null;
+  previousTreatments: string | null;
+}
+
+export interface DiagnosisImage {
+  id: number;
+  messageId: number | null;
+  originalFileName: string;
+  contentType: string;
+  fileSize: number;
+}
+
+export interface DiagnosisMessage {
+  id: number;
+  role: string;
+  content: string;
+  status: string;
+  createdAt: string;
+  images: DiagnosisImage[];
+}
+
+export interface DiagnosisSource {
+  id: number;
+  sourceName: string;
+  sourceUrl: string;
+  publisher: string | null;
+  sectionReference: string | null;
+  excerpt: string;
+  retrievedAtUtc: string;
+  isOfficialOrAcademic: boolean;
+}
+
+export interface DiagnosisSummary {
+  id: number;
+  exportPlanId: number;
+  title: string;
+  status: string;
+  observationDate: string;
+  suspectedDisease: string | null;
+  confidencePercentage: number | null;
+  severity: string | null;
+  imageCount: number;
+  finalizedWithOverride: boolean;
+  knowledgeVerified: boolean;
+  createdAt: string;
+  closedAtUtc: string | null;
+  completedAtUtc: string | null;
+}
+
+export interface DiagnosisDetail {
+  summary: DiagnosisSummary;
+  readiness: DiagnosisReadiness;
+  facts: DiagnosisFacts;
+  recommendedActions: string | null;
+  advisoryWarning: string | null;
+  exportImpact: string | null;
+  failureMessage: string | null;
+  knowledgeFailureMessage: string | null;
+  treatmentProposalId: number | null;
+  messages: DiagnosisMessage[];
+  sources: DiagnosisSource[];
+}
+
+export interface DiagnosisTurn {
+  userMessage: DiagnosisMessage;
+  assistantMessage: DiagnosisMessage;
+  readiness: DiagnosisReadiness;
+  facts: DiagnosisFacts;
 }
 
 export interface DiseaseReport {
