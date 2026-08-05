@@ -6,6 +6,7 @@ import {
   ExportPlanScheduleAnalysis, ExportPlanScheduleAnalysisRequest,
   AdminInvitation, AdminUser, FarmAccount, FarmTask, MasterDataItem, PagedResult, PlanningStatus, PlatformStatistics,
   RagIngestionResult, RegulatoryImportResult, SoilMeasurement, SoilMeasurementRequest,
+  SupportConversation, SupportMessage, SupportMessagePage,
 } from './api.models';
 
 @Injectable({ providedIn: 'root' })
@@ -127,6 +128,30 @@ export class GreenmindApi {
   public revokeAdminInvitation(id: number): Observable<void> { return this.api.post<void>(`/api/admin/admins/invitations/${id}/revoke`, {}); }
   public setAdminActive(id: string, isActive: boolean): Observable<void> { return this.api.patch<void>(`/api/admin/admins/${id}/active`, { isActive }); }
   public downloadReport(params: Record<string, string>): Observable<Blob> { return this.api.getBlob('/api/farm-owner/reports/export?' + new URLSearchParams(params).toString()); }
+
+  public supportConversation(): Observable<SupportConversation> {
+    return this.api.get<SupportConversation>('/api/support/conversation');
+  }
+
+  public supportMessages(): Observable<SupportMessagePage> {
+    return this.api.get<SupportMessagePage>('/api/support/conversation/messages?pageSize=100');
+  }
+
+  public sendSupportMessage(content: string): Observable<SupportMessage> {
+    return this.api.post<SupportMessage>('/api/support/conversation/messages', { content });
+  }
+
+  public adminSupportConversations(): Observable<SupportConversation[]> {
+    return this.api.get<SupportConversation[]>('/api/admin/support/conversations');
+  }
+
+  public adminSupportMessages(conversationId: number): Observable<SupportMessagePage> {
+    return this.api.get<SupportMessagePage>(`/api/admin/support/conversations/${conversationId}/messages?pageSize=100`);
+  }
+
+  public sendAdminSupportMessage(conversationId: number, content: string): Observable<SupportMessage> {
+    return this.api.post<SupportMessage>(`/api/admin/support/conversations/${conversationId}/messages`, { content });
+  }
 
   public farms(status?: 'Pending' | 'Active' | 'Inactive'): Observable<PagedResult<FarmAccount>> {
     return this.api.get<PagedResult<FarmAccount>>(`/api/admin/farms?pageSize=100${status ? `&status=${status}` : ''}`);

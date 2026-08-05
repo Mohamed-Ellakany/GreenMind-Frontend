@@ -1,0 +1,75 @@
+<section class="mx-auto flex min-h-[calc(100dvh-120px)] w-full max-w-[1120px] flex-col text-[#10231b]" dir="rtl">
+  <header class="mb-5 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+    <div>
+      <p class="text-xs font-black text-[#0f7a3d]">مركز المساعدة</p>
+      <h1 class="mt-1 text-3xl font-black tracking-tight">محادثة الدعم</h1>
+    </div>
+    <button
+      type="button"
+      class="w-fit rounded-xl border border-[#dce6df] bg-white px-4 py-2 text-xs font-black text-[#0f7a3d] shadow-sm transition hover:bg-[#f3faf5]"
+      (click)="load()"
+    >
+      تحديث
+    </button>
+  </header>
+
+  <article class="flex min-h-[560px] flex-1 flex-col overflow-hidden rounded-2xl border border-[#dce6df] bg-white shadow-sm">
+    <header class="flex items-center justify-between gap-4 border-b border-[#edf1ee] px-5 py-4">
+      <div class="min-w-0">
+        <h2 class="truncate text-lg font-black">{{ conversation()?.farmName || 'مزرعتك' }}</h2>
+        <p class="mt-1 truncate text-xs text-[#738078]">{{ conversation()?.ownerName || 'فريق الدعم جاهز للرد' }}</p>
+      </div>
+      <span class="rounded-full bg-[#e7f5eb] px-3 py-1 text-xs font-black text-[#0f7a3d]">مفتوحة</span>
+    </header>
+
+    @if (error()) {
+      <p class="m-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-bold text-[#be3a34]">{{ error() }}</p>
+    }
+
+    <div class="flex-1 space-y-3 overflow-y-auto bg-[#f7faf8] p-4 sm:p-5">
+      @if (loading()) {
+        <p class="rounded-xl bg-white p-5 text-center text-sm font-bold text-[#65736c]">جارٍ تحميل الرسائل...</p>
+      } @else {
+        @for (message of messages(); track message.id) {
+          <div class="flex" [class.justify-end]="message.role === 'Customer'" [class.justify-start]="message.role === 'Admin'">
+            <div
+              class="max-w-[82%] rounded-2xl px-4 py-3 shadow-sm sm:max-w-[66%]"
+              [class.bg-[#0f7a3d]]="message.role === 'Customer'"
+              [class.text-white]="message.role === 'Customer'"
+              [class.bg-white]="message.role === 'Admin'"
+              [class.text-[#10231b]]="message.role === 'Admin'"
+            >
+              <div class="mb-1 flex items-center gap-2 text-[11px] font-black opacity-75">
+                <span>{{ message.role === 'Customer' ? 'أنت' : 'الأدمن' }}</span>
+                <span>{{ messageTime(message.createdAt) }}</span>
+              </div>
+              <p class="whitespace-pre-wrap break-words text-sm leading-7">{{ message.content }}</p>
+            </div>
+          </div>
+        } @empty {
+          <p class="rounded-xl bg-white p-8 text-center text-sm text-[#65736c]">ابدأ المحادثة بكتابة رسالتك لفريق الدعم.</p>
+        }
+      }
+    </div>
+
+    <form class="border-t border-[#edf1ee] bg-white p-4" (ngSubmit)="send()" novalidate>
+      <div class="flex flex-col gap-3 sm:flex-row">
+        <textarea
+          [(ngModel)]="draft"
+          name="draft"
+          class="min-h-24 flex-1 resize-none rounded-xl border border-[#dce6df] px-4 py-3 text-sm leading-7 outline-none transition placeholder:text-[#9aa59e] focus:border-[#0f7a3d] focus:ring-4 focus:ring-[#0f7a3d]/10"
+          placeholder="اكتب رسالتك..."
+          maxlength="2000"
+          required
+        ></textarea>
+        <button
+          type="submit"
+          [disabled]="!draft.trim() || sending()"
+          class="h-12 rounded-xl bg-[#0f7a3d] px-8 text-sm font-black text-white shadow-[0_10px_25px_rgba(15,122,61,.18)] transition hover:bg-[#075d2d] disabled:cursor-not-allowed disabled:bg-[#96a39b] disabled:shadow-none sm:self-end"
+        >
+          {{ sending() ? 'جارٍ الإرسال...' : 'إرسال' }}
+        </button>
+      </div>
+    </form>
+  </article>
+</section>

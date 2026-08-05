@@ -35,6 +35,9 @@ export class AgriculturalAdvisorPage {
   public chatInput = this.route.snapshot.queryParamMap.get('prompt') === 'disease'
     ? 'راجع معي آخر حالة صحية للمحصول، وما الإجراء الأكثر أولوية الآن؟'
     : '';
+  public selectedImages: File[] = [];
+  public readonly recording = signal(false);
+  private recognition: any;
 
   public readonly suggestions = [
     'هل المادة الفعالة للمبيد معتمدة؟ وما حد MRL للمحصول؟',
@@ -54,7 +57,9 @@ export class AgriculturalAdvisorPage {
   public async sendChat(): Promise<void> {
     const content = this.chatInput.trim();
     const session = this.chatSession();
-    if (!content || !session || this.chatSending()) return;
+    if ((!content && !this.selectedImages.length) || !session || this.chatSending()) return;
+    const images = await Promise.all(this.selectedImages.map(async (file) => ({ fileName: file.name, contentType: file.type, dataBase64: await this.toBase64(file) })));
+    this.selectedImages = [];
     this.chatInput = '';
     this.chatSending.set(true);
     this.error.set(null);
@@ -75,7 +80,7 @@ export class AgriculturalAdvisorPage {
           taskChangeProposalId: event.taskChangeProposalId ?? message.taskChangeProposalId,
         })));
         this.scrollToLatest();
-      });
+      }, images);
       this.refreshMessages();
     } catch {
       this.error.set('تعذر إكمال رد عم خضر. يمكنك إعادة المحاولة.');
@@ -86,6 +91,10 @@ export class AgriculturalAdvisorPage {
       this.chatSending.set(false);
     }
   }
+
+  public selectImages(event: Event): void { this.selectedImages = Array.from((event.target as HTMLInputElement).files ?? []).filter(file => file.type.startsWith('image/')).slice(0, 4); }
+  public toggleVoice(): void { const Speech = (globalThis as any).SpeechRecognition ?? (globalThis as any).webkitSpeechRecognition; if (!Speech) { this.error.set('المتصفح لا يدعم الإدخال الصوتي.'); return; } if (this.recording()) { this.recognition?.stop(); return; } this.recognition = new Speech(); this.recognition.lang = 'ar-EG'; this.recognition.continuous = false; this.recognition.onresult = (event: any) => { this.chatInput = `${this.chatInput} ${event.results[0][0].transcript}`.trim(); }; this.recognition.onend = () => this.recording.set(false); this.recording.set(true); this.recognition.start(); }
+  private toBase64(file: File): Promise<string> { return new Promise((resolve, reject) => { const reader = new FileReader(); reader.onload = () => resolve(String(reader.result).split(',')[1] ?? ''); reader.onerror = reject; reader.readAsDataURL(file); }); }
 
   public onComposerKeydown(event: KeyboardEvent): void {
     if (event.key !== 'Enter' || event.shiftKey || event.isComposing) return;

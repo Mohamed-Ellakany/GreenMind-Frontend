@@ -1,0 +1,69 @@
+
+> greenmind@0.0.0 start
+> ng serve --proxy-config proxy.conf.json
+
+> Building...
+√ Building...
+Initial chunk files | Names                     |  Raw size
+styles.css          | styles                    | 107.34 kB | 
+main.js             | main                      |   8.36 kB | 
+chunk-RYDV6UHQ.js   | -                         |   5.98 kB | 
+chunk-GOMI4DH3.js   | -                         |   1.37 kB | 
+
+                    | Initial total             | 123.06 kB
+
+Lazy chunk files    | Names                     |  Raw size
+chunk-WVONP3C7.js   | budget-expenses-page      | 312.89 kB | 
+chunk-MBPEP7Z6.js   | export-plans              | 234.50 kB | 
+chunk-W6FUWKZV.js   | export-plan-details       | 173.05 kB | 
+chunk-WK7WU65U.js   | diagnosis-chat-page       | 130.66 kB | 
+chunk-ZCWZHZLZ.js   | agricultural-advisor-page |  89.58 kB | 
+chunk-LDMRQVD2.js   | ai-agent                  |  76.41 kB | 
+chunk-KRLH2CB2.js   | main-layout               |  72.42 kB | 
+chunk-HRUHOKEC.js   | knowledge-base            |  64.44 kB | 
+chunk-3D4CJCQZ.js   | home                      |  49.19 kB | 
+chunk-WC4PCJL5.js   | crop-health-page          |  46.47 kB | 
+chunk-X3HBODKL.js   | register                  |  42.01 kB | 
+chunk-FQY44MAD.js   | account-settings          |  41.89 kB | 
+chunk-WV4IXIJX.js   | regulatory-data           |  41.56 kB | 
+chunk-5LXNAHYN.js   | market-comparison         |  40.54 kB | 
+chunk-OAWPMGRN.js   | admin-team                |  39.06 kB | 
+...and 22 more lazy chunks files. Use "--verbose" to show all the files.
+
+Application bundle generation complete. [5.826 seconds] - 2026-08-05T14:54:06.725Z
+
+Watch mode enabled. Watching for file changes...
+NOTE: Raw file sizes do not reflect development server per-request transformations.
+[2m5:54:07 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m Re-optimizing dependencies because lockfile has changed
+  [32m➜[39m  [1mLocal[22m:   [36mhttp://localhost:[1m4200[22m/[39m
+[2m[32m  ➜[39m[22m[2m  press [22m[1mh + enter[22m[2m to show help[22m
+> Changes detected. Rebuilding...
+√ Changes detected. Rebuilding...
+Initial chunk files | Names                     |  Raw size
+styles.css          | styles                    | 107.34 kB | 
+main.js             | main                      |   8.36 kB | 
+chunk-RYDV6UHQ.js   | -                         |   5.98 kB | 
+chunk-GOMI4DH3.js   | -                         |   1.37 kB | 
+
+                    | Initial total             | 123.06 kB
+
+Lazy chunk files    | Names                     |  Raw size
+chunk-WVONP3C7.js   | budget-expenses-page      | 312.89 kB | 
+chunk-MBPEP7Z6.js   | export-plans              | 234.50 kB | 
+chunk-W6FUWKZV.js   | export-plan-details       | 173.05 kB | 
+chunk-WK7WU65U.js   | diagnosis-chat-page       | 130.66 kB | 
+chunk-ZCWZHZLZ.js   | agricultural-advisor-page |  89.58 kB | 
+chunk-LDMRQVD2.js   | ai-agent                  |  76.41 kB | 
+chunk-KRLH2CB2.js   | main-layout               |  72.42 kB | 
+chunk-HRUHOKEC.js   | knowledge-base            |  64.44 kB | 
+chunk-3D4CJCQZ.js   | home                      |  49.19 kB | 
+chunk-WC4PCJL5.js   | crop-health-page          |  46.47 kB | 
+chunk-X3HBODKL.js   | register                  |  42.01 kB | 
+chunk-FQY44MAD.js   | account-settings          |  41.89 kB | 
+chunk-WV4IXIJX.js   | regulatory-data           |  41.56 kB | 
+chunk-5LXNAHYN.js   | market-comparison         |  40.54 kB | 
+chunk-OAWPMGRN.js   | admin-team                |  39.06 kB | 
+...and 22 more lazy chunks files. Use "--verbose" to show all the files.
+
+Application bundle generation complete. [0.207 seconds] - 2026-08-05T15:10:03.869Z
+

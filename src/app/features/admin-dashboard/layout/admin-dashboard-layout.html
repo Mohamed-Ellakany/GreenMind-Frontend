@@ -48,13 +48,6 @@
       </button>
     </div>
 
-    <div class="admin-nav-text mx-3 mt-3 rounded-xl border border-white/10 bg-white/[.055] p-3">
-      <p class="text-[10px] font-bold text-white/40">حالة المنصة</p>
-      <div class="mt-2 flex items-center gap-2 text-xs font-bold">
-        <i class="status-dot"></i> جميع الأنظمة تعمل
-      </div>
-    </div>
-
     <nav class="admin-nav flex-1 space-y-1 overflow-y-auto px-3 py-4" aria-label="إدارة المنصة">
       <p class="admin-nav-text mb-2 px-3 text-[10px] font-bold text-white/30">مساحة الإدارة</p>
       <a
@@ -123,6 +116,26 @@
         ><span
           class="admin-nav-text mr-auto rounded-full bg-[#d8f36a]/15 px-2 py-0.5 text-[9px] font-black text-[#d8f36a]"
           >RAG</span
+        ></a
+      >
+      <a
+        routerLink="/admin-dashboard/support"
+        routerLinkActive="admin-nav-link-active"
+        class="admin-nav-link"
+        title="رسائل الدعم"
+        (click)="closeMobileMenu()"
+        ><fa-icon class="admin-nav-icon" [icon]="icons.support" /><span class="admin-nav-text"
+          >رسائل الدعم</span
+        ></a
+      >
+      <a
+        routerLink="/admin-dashboard/team"
+        routerLinkActive="admin-nav-link-active"
+        class="admin-nav-link"
+        title="إدارة الفريق"
+        (click)="closeMobileMenu()"
+        ><fa-icon class="admin-nav-icon" [icon]="icons.team" /><span class="admin-nav-text"
+          >إدارة الفريق</span
         ></a
       >
       <a

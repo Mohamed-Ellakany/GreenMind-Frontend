@@ -71,11 +71,21 @@ export class AuthService {
     );
   }
 
+  public updateFarm(payload: { farmName: string }): Observable<AccountProfile> {
+    return this.http.put<ApiResponse<AccountProfile>>(`${this.baseUrl}/me/farm`, payload).pipe(
+      map((response) => response.data),
+      tap((profile) => this.accountProfile.set(profile)),
+    );
+  }
+
   public changePassword(payload: { currentPassword: string; newPassword: string }): Observable<void> {
     return this.http.put<ApiResponse<void> | null>(`${this.baseUrl}/me/password`, payload).pipe(
       map(() => undefined),
     );
   }
+
+  public forgotPassword(email: string): Observable<void> { return this.http.post<void>(`${this.baseUrl}/forgot-password`, { email }).pipe(map(() => undefined)); }
+  public resetPassword(payload: { email: string; token: string; newPassword: string }): Observable<void> { return this.http.post<void>(`${this.baseUrl}/reset-password`, payload).pipe(map(() => undefined)); }
 
   public loadProfile(): void {
     if (!this.isAuthenticated()) return;

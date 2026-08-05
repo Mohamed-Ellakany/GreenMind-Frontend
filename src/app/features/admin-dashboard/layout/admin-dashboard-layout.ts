@@ -11,8 +11,10 @@ import {
   faClockRotateLeft,
   faFileArrowUp,
   faGear,
+  faHeadset,
   faShieldHalved,
   faTableCellsLarge,
+  faUsersGear,
   faXmark,
 } from '@fortawesome/free-solid-svg-icons';
 
@@ -34,10 +36,12 @@ export class AdminDashboardLayout {
     dashboard: faTableCellsLarge,
     destinations: faShieldHalved,
     settings: faGear,
+    support: faHeadset,
     logout: faArrowRightFromBracket,
     products: faClockRotateLeft,
     regulatoryData: faFileArrowUp,
     knowledgeBase: faBrain,
+    team: faUsersGear,
   };
 
   public openMobileMenu(): void {

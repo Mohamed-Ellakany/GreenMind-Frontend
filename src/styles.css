@@ -257,6 +257,50 @@ main [class*='bg-[#13a346]'] {
   }
 }
 
+.admin-data-table {
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.admin-data-table thead th {
+  background: #f8fbf9;
+  border-bottom: 1px solid #e2ebe5;
+  font-weight: 900;
+  line-height: 1.7;
+  padding: 0.95rem 1.1rem;
+  white-space: nowrap;
+}
+
+.admin-data-table tbody td {
+  border-bottom: 1px solid #edf1ee;
+  line-height: 1.9;
+  padding: 1rem 1.1rem;
+  vertical-align: middle;
+}
+
+.admin-data-table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.admin-data-table td,
+.admin-data-table th {
+  overflow-wrap: anywhere;
+}
+
+.admin-data-table td:last-child {
+  min-width: 150px;
+}
+
+.admin-data-table td:last-child > div,
+.admin-data-table td:last-child {
+  gap: 0.5rem;
+}
+
+.admin-data-table td:last-child button {
+  min-width: 4.4rem;
+  white-space: nowrap;
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

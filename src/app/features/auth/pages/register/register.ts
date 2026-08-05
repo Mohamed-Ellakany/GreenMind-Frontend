@@ -17,6 +17,8 @@ export class Register {
 
   protected readonly auth = this.authService;
   protected readonly submitted = signal(false);
+  protected readonly passwordVisible = signal(false);
+  protected readonly confirmPasswordVisible = signal(false);
 
   protected readonly registerModel = signal({
     fullName: '',
@@ -63,5 +65,13 @@ export class Register {
         // authService.error() already surfaces the message in the template.
       }
     });
+  }
+
+  protected togglePasswordVisibility(): void {
+    this.passwordVisible.update((visible) => !visible);
+  }
+
+  protected toggleConfirmPasswordVisibility(): void {
+    this.confirmPasswordVisible.update((visible) => !visible);
   }
 }

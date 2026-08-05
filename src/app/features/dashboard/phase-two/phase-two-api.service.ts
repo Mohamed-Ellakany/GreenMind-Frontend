@@ -7,6 +7,9 @@ import {
   ChatSession,
   ChatStreamEvent,
   CostDashboard,
+  DiagnosisDetail,
+  DiagnosisSummary,
+  DiagnosisTurn,
   DiseaseReport,
   DiseaseReportPage,
   Expense,
@@ -51,8 +54,9 @@ export class PhaseTwoApi {
     sessionId: number,
     content: string,
     onEvent: (event: ChatStreamEvent) => void,
+    images: Array<{ fileName: string; contentType: string; dataBase64: string }> = [],
   ): Promise<void> {
-    return this.stream(`/api/farm/chat/sessions/${sessionId}/messages/stream`, content, onEvent);
+    return this.stream(`/api/farm/chat/sessions/${sessionId}/messages/stream`, content, onEvent, images);
   }
 
   public async streamMessage(
@@ -60,11 +64,13 @@ export class PhaseTwoApi {
     sessionId: number,
     content: string,
     onEvent: (event: ChatStreamEvent) => void,
+    images: Array<{ fileName: string; contentType: string; dataBase64: string }> = [],
   ): Promise<void> {
     return this.stream(
       `/api/export-plans/${planId}/chat/sessions/${sessionId}/messages/stream`,
       content,
       onEvent,
+      images,
     );
   }
 
@@ -72,6 +78,7 @@ export class PhaseTwoApi {
     url: string,
     content: string,
     onEvent: (event: ChatStreamEvent) => void,
+    images: Array<{ fileName: string; contentType: string; dataBase64: string }> = [],
   ): Promise<void> {
     const token = localStorage.getItem('greenmind_access_token');
     const response = await fetch(
@@ -82,7 +89,7 @@ export class PhaseTwoApi {
           'Content-Type': 'application/json',
           ...(token ? { Authorization: `Bearer ${token}` } : {}),
         },
-        body: JSON.stringify({ content, idempotencyKey: crypto.randomUUID() }),
+        body: JSON.stringify({ content, images, idempotencyKey: crypto.randomUUID() }),
       },
     );
     if (!response.ok || !response.body) throw new Error('تعذر بدء المحادثة.');
@@ -113,6 +120,69 @@ export class PhaseTwoApi {
 
   public rejectProposal(proposalId: number): Observable<TaskProposal> {
     return this.post(`/api/task-change-proposals/${proposalId}/reject`, {});
+  }
+
+  public updateProposal(proposalId: number, proposal: TaskProposal): Observable<TaskProposal> {
+    return this.put(`/api/task-change-proposals/${proposalId}`, {
+      items: proposal.items.map((item) => ({
+        id: item.id,
+        isIncluded: item.isIncluded,
+        title: item.proposedValues.title,
+        description: item.proposedValues.description,
+        quantity: item.proposedValues.quantity,
+        unit: item.proposedValues.unit,
+        plannedDate: item.proposedValues.plannedDate,
+        priority: item.proposedValues.priority,
+      })),
+    });
+  }
+
+  public diagnoses(planId: number): Observable<DiagnosisSummary[]> {
+    return this.get(`/api/export-plans/${planId}/diagnoses`);
+  }
+
+  public createDiagnosis(planId: number): Observable<DiagnosisDetail> {
+    return this.post(`/api/export-plans/${planId}/diagnoses`, {});
+  }
+
+  public diagnosis(planId: number, diagnosisId: number): Observable<DiagnosisDetail> {
+    return this.get(`/api/export-plans/${planId}/diagnoses/${diagnosisId}`);
+  }
+
+  public sendDiagnosisMessage(
+    planId: number,
+    diagnosisId: number,
+    content: string,
+    images: File[],
+  ): Observable<DiagnosisTurn> {
+    const form = new FormData();
+    form.append('Content', content);
+    form.append('IdempotencyKey', crypto.randomUUID());
+    images.forEach((image) => form.append('Images', image, image.name));
+    return this.post(`/api/export-plans/${planId}/diagnoses/${diagnosisId}/messages`, form);
+  }
+
+  public finalizeDiagnosis(planId: number, diagnosisId: number, force: boolean): Observable<DiagnosisDetail> {
+    return this.post(`/api/export-plans/${planId}/diagnoses/${diagnosisId}/finalize`, { force });
+  }
+
+  public cancelDiagnosis(planId: number, diagnosisId: number): Observable<DiagnosisDetail> {
+    return this.post(`/api/export-plans/${planId}/diagnoses/${diagnosisId}/cancel`, {});
+  }
+
+  public retryDiagnosis(planId: number, diagnosisId: number): Observable<DiagnosisDetail> {
+    return this.post(`/api/export-plans/${planId}/diagnoses/${diagnosisId}/retry`, {});
+  }
+
+  public createTreatmentProposal(planId: number, diagnosisId: number): Observable<TaskProposal> {
+    return this.post(`/api/export-plans/${planId}/diagnoses/${diagnosisId}/treatment-proposal`, {});
+  }
+
+  public diagnosisImage(planId: number, diagnosisId: number, imageId: number): Observable<Blob> {
+    return this.http.get(
+      `/api/export-plans/${planId}/diagnoses/${diagnosisId}/images/${imageId}`,
+      { responseType: 'blob' },
+    );
   }
 
   public diseaseReports(planId: number, pageSize = 50): Observable<DiseaseReportPage> {

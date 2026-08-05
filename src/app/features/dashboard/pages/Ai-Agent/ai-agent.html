@@ -114,7 +114,7 @@
           }
         </div>
         <form class="composer" (ngSubmit)="send()">
-          <textarea rows="2" maxlength="4000" name="messageInput" [(ngModel)]="messageInput" (keydown)="onComposerKeydown($event)" placeholder="اسأل عم خضر عن مبيد، مادة فعالة، MRL، أو خطة تصدير…" aria-label="اكتب رسالتك"></textarea>
+          <input type="file" accept="image/*" multiple (change)="selectImages($event)" aria-label="إضافة صور" /> <textarea rows="2" maxlength="4000" name="messageInput" [(ngModel)]="messageInput" (keydown)="onComposerKeydown($event)" placeholder="اسأل عم خضر عن مبيد، مادة فعالة، MRL، أو خطة تصدير…" aria-label="اكتب رسالتك"></textarea>
           <div class="composer-actions">
             <span>{{ messageInput.length }} / 4000</span>
             <button type="submit" [disabled]="sending() || !selectedSession() || !messageInput.trim()" aria-label="إرسال الرسالة">
