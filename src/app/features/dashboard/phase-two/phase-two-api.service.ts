@@ -31,8 +31,8 @@ export class PhaseTwoApi {
     return this.post(`/api/export-plans/${planId}/chat/sessions`, { title: 'محادثة الخطة مع عم خضر' });
   }
 
-  public messages(planId: number, sessionId: number): Observable<ChatHistoryPage> {
-    return this.get(`/api/export-plans/${planId}/chat/sessions/${sessionId}/messages?pageSize=100`);
+  public messages(planId: number, sessionId: number, pageNumber = 1): Observable<ChatHistoryPage> {
+    return this.get(`/api/export-plans/${planId}/chat/sessions/${sessionId}/messages?pageNumber=${pageNumber}&pageSize=100`);
   }
 
   public farmSessions(): Observable<ChatSession[]> {

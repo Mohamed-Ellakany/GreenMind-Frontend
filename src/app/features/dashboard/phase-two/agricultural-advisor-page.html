@@ -1,26 +1,40 @@
 <section class="plan-page" dir="rtl">
   <div class="page-crumbs"><a routerLink="/export-plans">خطط التصدير</a><i>/</i><a [routerLink]="['/export-plans', planId, 'overview']">{{ plan()?.name || 'الخطة الحالية' }}</a><i>/</i><span>مستشار الخطة الذكي</span></div>
-  <header class="page-heading"><div><h1>مستشار الخطة الذكي – عم خضر</h1><p>اسأل عن مهام هذه الخطة أو صحة المحصول أو متطلبات التصدير واتخذ قرارًا موثوقًا.</p></div><span class="heading-badge">متصل ببيانات الخطة فقط</span></header>
+  <header class="page-heading advisor-hero"><div><span class="hero-kicker">مساعدك الزراعي الذكي</span><h1>مستشار الخطة الذكي – عم خضر</h1><p>اسأل عن المهام أو صحة المحصول أو متطلبات التصدير، وستحصل على إجابة مرتبطة ببيانات خطتك.</p></div><span class="heading-badge">متصل ببيانات الخطة فقط</span></header>
 
   @if (error()) { <div class="error-banner" role="alert"><span>{{ error() }}</span><button type="button" (click)="error.set(null)">×</button></div> }
   @if (loading()) { <app-plant-growth-loader message="جارٍ تجهيز عم خضر ببيانات الخطة…" /> }
   @else {
     <div class="chat-layout">
       <article class="panel chat-panel">
-        <header class="panel-heading"><div class="advisor-title"><span class="panel-icon">خ</span><div><h2>عم خضر · مساعد {{ plan()?.name }}</h2><p>السياق آمن ومحدود بالخطة الحالية والمحصول والوجهة</p></div></div><i class="online-dot">متصل</i></header>
-        <div class="messages" aria-live="polite">
-          @if (!chatMessages().length) { <div class="empty-state"><span>🌱</span><h3>ابدأ محادثة الخطة</h3><p>يمكنك السؤال عن المهام والتربة والمصروفات والمواد الفعالة وحدود متبقيات التصدير.</p></div> }
+        <header class="panel-heading chat-heading"><div class="advisor-title"><span class="advisor-avatar">خ</span><div><h2>عم خضر <small>· مساعد {{ plan()?.name }}</small></h2><p>إجاباته مبنية على الخطة الحالية والمحصول والوجهة</p></div></div><i class="online-dot"><span></span> متصل</i></header>
+        <div #messagesViewport class="messages" aria-live="polite" aria-label="رسائل محادثة الخطة">
+          @if (!chatMessages().length) { <div class="empty-state welcome-state"><span class="welcome-icon">🌱</span><h3>أهلًا! أنا عم خضر</h3><p>اسألني عن مهام الخطة والتربة والمصروفات والمواد الفعالة وحدود متبقيات التصدير.</p><small>اختر سؤالًا مقترحًا بالأسفل أو اكتب سؤالك</small></div> }
           @for (message of chatMessages(); track message.id) {
-            <div class="message" [class.user-message]="message.role === 'المستخدم'">
-              <small>{{ message.role === 'المستخدم' ? 'أنت' : 'عم خضر' }}</small><p>{{ message.content || 'جارٍ إعداد الرد…' }}</p>
-              @if (message.taskChangeProposalId) { <button type="button" class="proposal-link" (click)="openProposal(message.taskChangeProposalId)">مراجعة اقتراح تعديل مهام الخطة ←</button> }
-              @if (message.status === 'فشل') { <em>تعذر إكمال الرد</em> }
+            <div class="message-row" [class.user-message]="isUserMessage(message)">
+              <span class="message-avatar" aria-hidden="true">{{ isUserMessage(message) ? 'أنت' : 'خ' }}</span>
+              <div class="message-content">
+                <div class="message-meta"><b>{{ isUserMessage(message) ? 'أنت' : 'عم خضر' }}</b><time>{{ formatMessageTime(message.createdAt) }}</time></div>
+                <div class="message-bubble">
+                  @if (message.content) { <p>{{ formatMessageContent(message.content) }}</p> }
+                  @else { <span class="typing-indicator" aria-label="عم خضر يكتب"><i></i><i></i><i></i></span> }
+                  @if (message.taskChangeProposalId) { <button type="button" class="proposal-link" (click)="openProposal(message.taskChangeProposalId)">مراجعة اقتراح تعديل مهام الخطة ←</button> }
+                  @if (message.status === 'فشل') { <em>تعذر إكمال الرد</em> }
+                </div>
+              </div>
             </div>
           }
         </div>
-        <form class="chat-composer" (ngSubmit)="sendChat()"><textarea name="chatInput" [(ngModel)]="chatInput" maxlength="4000" rows="2" placeholder="اسأل عم خضر عن خطة التصدير أو المحصول أو MRL…"></textarea><button type="submit" [disabled]="chatSending() || !chatInput.trim()">{{ chatSending() ? 'جارٍ الرد…' : 'إرسال' }}</button></form>
+        <footer class="composer-area">
+          <div class="suggestion-row" aria-label="أسئلة مقترحة">@for (suggestion of suggestions; track suggestion) { <button type="button" (click)="useSuggestion(suggestion)">{{ suggestion }}</button> }</div>
+          <form class="chat-composer" (ngSubmit)="sendChat()">
+            <textarea #composerInput name="chatInput" [(ngModel)]="chatInput" (keydown)="onComposerKeydown($event)" maxlength="4000" rows="2" placeholder="اكتب سؤالك لعم خضر…" aria-label="اكتب رسالتك"></textarea>
+            <div class="composer-actions"><span>{{ chatInput.length }} / 4000</span><button type="submit" [disabled]="chatSending() || !chatInput.trim()" aria-label="إرسال الرسالة">@if (chatSending()) { <span class="send-spinner"></span> } @else { <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="m5 12 14-7-4 14-3-5-7-2Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="m12 14 7-9" stroke="currentColor" stroke-width="2"/></svg> }</button></div>
+          </form>
+          <p class="composer-note"><kbd>Enter</kbd> للإرسال · <kbd>Shift + Enter</kbd> لسطر جديد</p>
+        </footer>
       </article>
-      <aside class="panel context-card"><span class="panel-icon">◎</span><h2>السياق المستخدم</h2><p>يُعاد بناء سياق آمن مع كل سؤال، ولا يطّلع النموذج على خطط المزارع الأخرى.</p><ul><li>بيانات الخطة والموسم</li><li>المهام الخاصة بهذه الخطة</li><li>قياسات التربة وصحة المحصول</li><li>الميزانية والمصروفات</li><li>المواد الفعالة وحدود MRL</li></ul><div class="safety-note"><b>أنت صاحب القرار</b><p>لن تتغير أي مهمة إلا بعد عرض اقتراح واضح وموافقتك الصريحة.</p></div></aside>
+      <aside class="panel context-card"><div class="context-heading"><span class="panel-icon">◎</span><div><small>مصادر الإجابة</small><h2>السياق المستخدم</h2></div></div><p>يُعاد بناء سياق آمن مع كل سؤال، ولا يطّلع النموذج على خطط المزارع الأخرى.</p><div class="plan-facts"><span><small>المحصول</small><b>{{ plan()?.crop }}</b></span><span><small>الوجهة</small><b>{{ plan()?.destination }}</b></span><span><small>المساحة</small><b>{{ plan()?.areaInFeddan }} فدان</b></span></div><ul><li>بيانات الخطة والموسم</li><li>المهام الخاصة بهذه الخطة</li><li>قياسات التربة وصحة المحصول</li><li>الميزانية والمصروفات</li><li>المواد الفعالة وحدود MRL</li></ul><div class="safety-note"><b>أنت صاحب القرار</b><p>لن تتغير أي مهمة إلا بعد عرض اقتراح واضح وموافقتك الصريحة.</p></div></aside>
     </div>
   }
 

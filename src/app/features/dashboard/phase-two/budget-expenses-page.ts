@@ -1,11 +1,12 @@
 import { Component, DestroyRef, HostListener, computed, inject, signal } from '@angular/core';
+import { HttpErrorResponse } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
-import { finalize, forkJoin } from 'rxjs';
+import { catchError, finalize, forkJoin, map, of, switchMap } from 'rxjs';
 import { GreenmindApi } from '@core/api/greenmind-api.service';
-import { ExportPlanDetails } from '@core/api/api.models';
+import { ApiError, ExportPlanDetails } from '@core/api/api.models';
 import { PlantGrowthLoader } from '@shared/components/plant-growth-loader/plant-growth-loader';
 import { PhaseTwoApi } from './phase-two-api.service';
 import { Budget, CostDashboard, Expense, ExpenseAttachment, ExpenseAttachmentType, ExpenseCategory, PaymentMethod } from './phase-two.models';
@@ -21,6 +22,9 @@ interface ExpenseFormModel {
   notes: string;
 }
 
+type ExpenseFormField = keyof ExpenseFormModel | 'receipt';
+type ExpenseFormErrors = Partial<Record<ExpenseFormField, string>>;
+
 type FinanceTab = 'overview' | 'expenses' | 'budget' | 'receipts' | 'reports';
 type ExpensePeriod = 'week' | 'month' | 'season';
 
@@ -28,7 +32,7 @@ type ExpensePeriod = 'week' | 'month' | 'season';
   selector: 'app-budget-expenses-page',
   imports: [FormsModule, RouterLink, PlantGrowthLoader],
   templateUrl: './budget-expenses-page.html',
-  styleUrls: ['./plan-page.shared.css', './budget-expenses-page.css', './budget-expenses-insights.css', './budget-expenses-overlays.css'],
+  styleUrls: ['./plan-page.shared.css', './budget-expenses-page.css', './budget-expenses-insights.css', './budget-expenses-overlays.css', './budget-expenses-confirmation.css'],
 })
 export class BudgetExpensesPage {
   private readonly api = inject(PhaseTwoApi);
@@ -53,6 +57,9 @@ export class BudgetExpensesPage {
   public readonly deletingId = signal<number | null>(null);
   public readonly filesLoading = signal(false);
   public readonly attachmentSaving = signal(false);
+  public readonly attachmentPendingDelete = signal<ExpenseAttachment | null>(null);
+  public readonly deletingAttachmentId = signal<number | null>(null);
+  public readonly attachmentDeleteError = signal<string | null>(null);
   public readonly error = signal<string | null>(null);
   public readonly success = signal<string | null>(null);
   public readonly previewUrl = signal<string | SafeResourceUrl | null>(null);
@@ -73,12 +80,17 @@ export class BudgetExpensesPage {
   public readonly reportTo = signal(new Date().toISOString().slice(0, 10));
   public readonly reportCategoryId = signal(0);
   public readonly exportingPdf = signal(false);
+  public readonly exportingCsv = signal(false);
+  public readonly pendingReceipt = signal<File | null>(null);
+  public readonly expenseFormErrors = signal<ExpenseFormErrors>({});
+  public readonly expenseFormMessage = signal<string | null>(null);
 
   public expenseForm: ExpenseFormModel = this.emptyExpenseForm();
   public budgetTotal: number | null = null;
   public budgetNotes = '';
   public budgetAllocations: Record<number, number | null> = {};
   public attachmentType: ExpenseAttachmentType = 'إيصال';
+  public expenseAttachmentType: ExpenseAttachmentType = 'إيصال';
   public readonly paymentMethods: PaymentMethod[] = ['نقدي', 'تحويل بنكي', 'بطاقة', 'محفظة إلكترونية'];
 
   public readonly filteredExpenses = computed(() => {
@@ -157,8 +169,14 @@ export class BudgetExpensesPage {
 
   public saveExpense(): void {
     const form = this.expenseForm;
-    if (!form.expenseCategoryId || !form.description.trim() || form.quantity <= 0 || form.unitPrice < 0) {
-      this.error.set('راجع الفئة والوصف والكمية وسعر الوحدة.');
+    const validationErrors = this.validateExpenseForm(form);
+    this.expenseFormErrors.set(validationErrors);
+    if (Object.keys(validationErrors).length) {
+      this.expenseFormMessage.set('راجع الحقول الموضحة بالأسفل ثم حاول مرة أخرى.');
+      requestAnimationFrame(() => {
+        const firstInvalid = document.querySelector<HTMLElement>('.expense-form .invalid');
+        firstInvalid?.focus();
+      });
       return;
     }
     const request = {
@@ -169,18 +187,34 @@ export class BudgetExpensesPage {
     };
     const editingId = this.editingExpenseId();
     this.saving.set(true);
-    this.error.set(null);
+    this.expenseFormMessage.set(null);
     const operation = editingId
       ? this.api.updateExpense(this.planId, editingId, request)
       : this.api.createExpense(this.planId, request);
-    operation.pipe(finalize(() => this.saving.set(false)), takeUntilDestroyed(this.destroyRef)).subscribe({
-      next: () => {
-        this.success.set(editingId ? 'تم تحديث المصروف بنجاح.' : 'تم تسجيل المصروف بنجاح.');
+    const receipt = this.pendingReceipt();
+    operation.pipe(
+      switchMap((expense) => receipt
+        ? this.api.uploadAttachment(this.planId, expense.id, this.expenseAttachmentType, receipt).pipe(
+            map(() => ({ receiptUploaded: true, receiptUploadFailed: false })),
+            catchError(() => of({ receiptUploaded: false, receiptUploadFailed: true })),
+          )
+        : of({ receiptUploaded: false, receiptUploadFailed: false })),
+      finalize(() => this.saving.set(false)),
+      takeUntilDestroyed(this.destroyRef),
+    ).subscribe({
+      next: ({ receiptUploaded, receiptUploadFailed }) => {
+        const action = editingId ? 'تم تحديث المصروف بنجاح' : 'تم تسجيل المصروف بنجاح';
+        if (receiptUploadFailed) {
+          this.success.set(null);
+          this.error.set(`${action}، لكن تعذر رفع الإيصال. يمكنك إضافته من تبويب الإيصالات.`);
+        } else {
+          this.success.set(receiptUploaded ? `${action} ورفع الإيصال.` : `${action}.`);
+        }
         this.cancelEdit();
         this.expenseDrawerOpen.set(false);
         this.refreshFinancials();
       },
-      error: (error) => this.error.set(error.error?.error?.message ?? 'تعذر حفظ المصروف.'),
+      error: (error: HttpErrorResponse) => this.handleExpenseSaveError(error, editingId !== null),
     });
   }
 
@@ -203,10 +237,15 @@ export class BudgetExpensesPage {
   public cancelEdit(): void {
     this.editingExpenseId.set(null);
     this.expenseForm = this.emptyExpenseForm(this.categories()[0]?.id ?? 0);
+    this.pendingReceipt.set(null);
+    this.expenseAttachmentType = 'إيصال';
+    this.expenseFormErrors.set({});
+    this.expenseFormMessage.set(null);
   }
 
   public openExpenseDrawer(): void {
     this.cancelEdit();
+    this.error.set(null);
     this.expenseDrawerOpen.set(true);
   }
 
@@ -241,9 +280,43 @@ export class BudgetExpensesPage {
     });
   }
 
+  public clearExpenseFieldError(field: ExpenseFormField): void {
+    this.expenseFormErrors.update((current) => {
+      if (!current[field]) return current;
+      const next = { ...current };
+      delete next[field];
+      return next;
+    });
+    if (!Object.keys(this.expenseFormErrors()).length) this.expenseFormMessage.set(null);
+  }
+
+  public selectExpenseReceipt(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0] ?? null;
+    if (!file) return;
+    const allowedTypes = ['application/pdf', 'image/png', 'image/jpeg'];
+    if (!allowedTypes.includes(file.type) || file.size > 10 * 1024 * 1024) {
+      input.value = '';
+      this.pendingReceipt.set(null);
+      this.expenseFormErrors.update((current) => ({
+        ...current,
+        receipt: 'الإيصال يجب أن يكون PDF أو JPG أو PNG وبحجم لا يتجاوز 10 ميجابايت.',
+      }));
+      return;
+    }
+    this.pendingReceipt.set(file);
+    this.clearExpenseFieldError('receipt');
+  }
+
+  public removePendingReceipt(): void {
+    this.pendingReceipt.set(null);
+    this.clearExpenseFieldError('receipt');
+  }
+
   @HostListener('document:keydown.escape')
   public closeTransientUi(): void {
-    if (this.selectedExpense()) this.closeFiles();
+    if (this.attachmentPendingDelete()) this.cancelAttachmentDelete();
+    else if (this.selectedExpense()) this.closeFiles();
     else if (this.expenseDrawerOpen()) this.closeExpenseDrawer();
     else this.openRowMenuId.set(null);
   }
@@ -274,11 +347,20 @@ export class BudgetExpensesPage {
   public openFiles(expense: Expense): void {
     this.selectedExpense.set(expense);
     this.attachments.set([]);
+    this.attachmentPendingDelete.set(null);
+    this.attachmentDeleteError.set(null);
     this.closePreview();
     this.loadAttachments(expense.id);
   }
 
-  public closeFiles(): void { this.selectedExpense.set(null); this.attachments.set([]); this.closePreview(); }
+  public closeFiles(): void {
+    if (this.deletingAttachmentId() !== null) return;
+    this.attachmentPendingDelete.set(null);
+    this.attachmentDeleteError.set(null);
+    this.selectedExpense.set(null);
+    this.attachments.set([]);
+    this.closePreview();
+  }
 
   public uploadAttachment(event: Event): void {
     const expense = this.selectedExpense();
@@ -313,11 +395,61 @@ export class BudgetExpensesPage {
     });
   }
 
-  public deleteAttachment(expenseId: number, attachment: ExpenseAttachment): void {
-    if (!window.confirm(`هل تريد حذف الملف «${attachment.originalFileName}»؟`)) return;
-    this.api.deleteAttachment(this.planId, expenseId, attachment.id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
-      next: () => { if (this.previewAttachment()?.id === attachment.id) this.closePreview(); this.loadAttachments(expenseId); },
-      error: () => this.error.set('تعذر حذف الملف.'),
+  public requestAttachmentDelete(attachment: ExpenseAttachment): void {
+    this.attachmentPendingDelete.set(attachment);
+    this.attachmentDeleteError.set(null);
+    requestAnimationFrame(() => {
+      document.querySelector<HTMLElement>('.attachment-delete-modal .cancel-delete')?.focus();
+    });
+  }
+
+  public deleteAttachment(_expenseId: number, attachment: ExpenseAttachment): void {
+    this.requestAttachmentDelete(attachment);
+  }
+
+  public cancelAttachmentDelete(): void {
+    if (this.deletingAttachmentId() !== null) return;
+    const attachmentId = this.attachmentPendingDelete()?.id;
+    this.attachmentPendingDelete.set(null);
+    this.attachmentDeleteError.set(null);
+    if (attachmentId) {
+      requestAnimationFrame(() => {
+        document.querySelector<HTMLElement>(`[data-attachment-delete-id="${attachmentId}"]`)?.focus();
+      });
+    }
+  }
+
+  public confirmAttachmentDelete(): void {
+    const expense = this.selectedExpense();
+    const attachment = this.attachmentPendingDelete();
+    if (!expense || !attachment || this.deletingAttachmentId() !== null) return;
+
+    this.deletingAttachmentId.set(attachment.id);
+    this.attachmentDeleteError.set(null);
+    this.api.deleteAttachment(this.planId, expense.id, attachment.id).pipe(
+      finalize(() => this.deletingAttachmentId.set(null)),
+      takeUntilDestroyed(this.destroyRef),
+    ).subscribe({
+      next: () => {
+        if (this.previewAttachment()?.id === attachment.id) this.closePreview();
+        this.attachments.update((items) => items.filter((item) => item.id !== attachment.id));
+        this.attachmentsCount.update((current) => ({
+          ...current,
+          [expense.id]: Math.max(0, (current[expense.id] ?? 1) - 1),
+        }));
+        this.attachmentSearchIndex.update((current) => {
+          const next = { ...current };
+          next[expense.id] = this.attachments().map((item) => item.originalFileName).join(' ');
+          return next;
+        });
+        this.attachmentPendingDelete.set(null);
+        this.success.set(`تم حذف ${attachment.attachmentType} بنجاح.`);
+      },
+      error: (error: HttpErrorResponse) => {
+        this.attachmentDeleteError.set(
+          error.error?.error?.message ?? 'تعذر حذف الملف الآن. تأكد من الاتصال ثم حاول مرة أخرى.',
+        );
+      },
     });
   }
 
@@ -338,7 +470,17 @@ export class BudgetExpensesPage {
     if (!year || !month) return value;
     return new Date(year, month - 1, 1).toLocaleDateString('ar-EG', { month: 'long', year: 'numeric' });
   }
-  public exportCsv(): void { this.api.exportExpenses(this.planId).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({ next: (blob) => { const url = URL.createObjectURL(blob); const anchor = document.createElement('a'); anchor.href = url; anchor.download = `plan-${this.planId}-expenses.csv`; anchor.click(); URL.revokeObjectURL(url); } }); }
+  public exportCsv(): void {
+    this.exportingCsv.set(true);
+    this.error.set(null);
+    this.api.exportExpenses(this.planId).pipe(
+      finalize(() => this.exportingCsv.set(false)),
+      takeUntilDestroyed(this.destroyRef),
+    ).subscribe({
+      next: (blob) => this.downloadBlob(blob, `plan-${this.planId}-expenses.csv`),
+      error: (error) => this.error.set(error.error?.error?.message ?? error.error?.message ?? 'تعذر تصدير ملف CSV.'),
+    });
+  }
 
   public exportPdfReport(): void {
     const from = this.reportFrom();
@@ -364,12 +506,7 @@ export class BudgetExpensesPage {
       takeUntilDestroyed(this.destroyRef),
     ).subscribe({
       next: (blob) => {
-        const url = URL.createObjectURL(blob);
-        const anchor = document.createElement('a');
-        anchor.href = url;
-        anchor.download = `greenmind-financial-report-plan-${this.planId}.pdf`;
-        anchor.click();
-        URL.revokeObjectURL(url);
+        this.downloadBlob(blob, `greenmind-financial-report-plan-${this.planId}.pdf`);
         this.success.set('تم تجهيز تقرير PDF وتنزيله بنجاح.');
       },
       error: (error) => this.error.set(error.error?.error?.message ?? error.error?.message ?? 'تعذر إنشاء تقرير PDF.'),
@@ -421,5 +558,97 @@ export class BudgetExpensesPage {
   }
 
   private emptyExpenseForm(categoryId = 0): ExpenseFormModel { return { expenseCategoryId: categoryId, expenseDate: new Date().toISOString().slice(0, 10), description: '', supplier: '', quantity: 1, unitPrice: 0, paymentMethod: 'نقدي', notes: '' }; }
+  private validateExpenseForm(form: ExpenseFormModel): ExpenseFormErrors {
+    const errors: ExpenseFormErrors = {};
+    if (!form.expenseCategoryId) errors.expenseCategoryId = 'اختر فئة المصروف.';
+    if (!form.description.trim()) errors.description = 'اكتب وصف المصروف.';
+    else if (form.description.trim().length > 500) errors.description = 'الوصف لا يمكن أن يتجاوز 500 حرف.';
+    if (!form.expenseDate) errors.expenseDate = 'حدد تاريخ المصروف.';
+    if (!this.paymentMethods.includes(form.paymentMethod)) errors.paymentMethod = 'اختر طريقة دفع صحيحة.';
+    if (!Number.isFinite(Number(form.quantity)) || Number(form.quantity) <= 0) errors.quantity = 'الكمية يجب أن تكون أكبر من صفر.';
+    if (!Number.isFinite(Number(form.unitPrice)) || Number(form.unitPrice) < 0) errors.unitPrice = 'سعر الوحدة يجب أن يكون صفرًا أو أكثر.';
+    if (form.supplier.length > 300) errors.supplier = 'اسم المورد لا يمكن أن يتجاوز 300 حرف.';
+    if (form.notes.length > 1000) errors.notes = 'الملاحظات لا يمكن أن تتجاوز 1000 حرف.';
+    return errors;
+  }
+  private handleExpenseSaveError(error: HttpErrorResponse, editing: boolean): void {
+    const payload = error.error as { error?: ApiError; traceId?: string } | null;
+    const apiError = payload?.error;
+    const serverFields = apiError?.validationErrors;
+    if (serverFields) {
+      const fieldMap: Record<string, ExpenseFormField> = {
+        expensecategoryid: 'expenseCategoryId',
+        expensedate: 'expenseDate',
+        description: 'description',
+        supplier: 'supplier',
+        quantity: 'quantity',
+        unitprice: 'unitPrice',
+        paymentmethod: 'paymentMethod',
+        notes: 'notes',
+      };
+      const mapped: ExpenseFormErrors = {};
+      for (const [serverField, messages] of Object.entries(serverFields)) {
+        const field = fieldMap[serverField.replace(/^request\./i, '').toLowerCase()];
+        if (field && messages.length) {
+          mapped[field] = /[\u0600-\u06FF]/.test(messages[0])
+            ? messages[0]
+            : this.expenseFieldErrorMessage(field);
+        }
+      }
+      this.expenseFormErrors.update((current) => ({ ...current, ...mapped }));
+    }
+
+    let message: string;
+    if (error.status === 0) {
+      message = 'تعذر الاتصال بالخادم. تأكد أن الخدمة تعمل ثم حاول مرة أخرى.';
+    } else if (error.status === 401) {
+      message = 'انتهت جلسة الدخول. سجّل الدخول مرة أخرى لحفظ المصروف.';
+    } else if (error.status === 403) {
+      message = 'ليس لديك صلاحية لتعديل هذا المصروف.';
+    } else if (error.status === 404) {
+      message = editing
+        ? 'المصروف لم يعد موجودًا أو تم حذفه. حدّث الصفحة ثم حاول مرة أخرى.'
+        : 'خطة التصدير غير موجودة أو لم تعد متاحة.';
+    } else if (error.status === 409) {
+      message = 'تغيّرت بيانات المصروف منذ فتحه. حدّث الصفحة وراجع أحدث نسخة.';
+    } else if (error.status === 400) {
+      const serverMessage = apiError?.message;
+      message = serverMessage && /[\u0600-\u06FF]/.test(serverMessage)
+        ? serverMessage
+        : 'بعض بيانات المصروف غير مقبولة. راجع الحقول الموضحة ثم حاول مرة أخرى.';
+    } else if (error.status >= 500) {
+      message = editing
+        ? 'حدث خطأ أثناء تحديث المصروف ولم تُحفظ التعديلات. حاول مرة أخرى بعد قليل.'
+        : 'حدث خطأ أثناء تسجيل المصروف ولم يتم الحفظ. حاول مرة أخرى بعد قليل.';
+    } else {
+      message = editing ? 'تعذر تحديث المصروف حاليًا.' : 'تعذر تسجيل المصروف حاليًا.';
+    }
+    this.expenseFormMessage.set(message);
+    requestAnimationFrame(() => document.querySelector<HTMLElement>('.expense-form .invalid')?.focus());
+  }
+  private expenseFieldErrorMessage(field: ExpenseFormField): string {
+    const messages: Record<ExpenseFormField, string> = {
+      expenseCategoryId: 'فئة المصروف المختارة غير متاحة لهذه الخطة.',
+      expenseDate: 'اختر تاريخًا صحيحًا للمصروف.',
+      description: 'اكتب وصفًا واضحًا للمصروف بحد أقصى 500 حرف.',
+      supplier: 'اسم المورد لا يمكن أن يتجاوز 300 حرف.',
+      quantity: 'الكمية يجب أن تكون رقمًا أكبر من صفر، ويمكن أن تحتوي على كسور.',
+      unitPrice: 'سعر الوحدة يجب أن يكون رقمًا يساوي صفرًا أو أكثر.',
+      paymentMethod: 'اختر طريقة دفع صحيحة من القائمة.',
+      notes: 'الملاحظات لا يمكن أن تتجاوز 1000 حرف.',
+      receipt: 'اختر إيصالًا بصيغة PDF أو JPG أو PNG وبحجم لا يتجاوز 10 ميجابايت.',
+    };
+    return messages[field];
+  }
+  private downloadBlob(blob: Blob, fileName: string): void {
+    const url = URL.createObjectURL(blob);
+    const anchor = document.createElement('a');
+    anchor.href = url;
+    anchor.download = fileName;
+    document.body.appendChild(anchor);
+    anchor.click();
+    anchor.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1_000);
+  }
   private revokePreview(): void { if (this.previewObjectUrl) { URL.revokeObjectURL(this.previewObjectUrl); this.previewObjectUrl = null; } }
 }

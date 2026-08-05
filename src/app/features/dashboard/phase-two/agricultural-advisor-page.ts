@@ -1,13 +1,13 @@
-import { Component, DestroyRef, inject, signal } from '@angular/core';
+import { Component, DestroyRef, ElementRef, inject, signal, viewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { finalize, forkJoin, map, of, switchMap } from 'rxjs';
+import { finalize, forkJoin, map, Observable, of, switchMap } from 'rxjs';
 import { GreenmindApi } from '@core/api/greenmind-api.service';
 import { ExportPlanDetails } from '@core/api/api.models';
 import { PlantGrowthLoader } from '@shared/components/plant-growth-loader/plant-growth-loader';
 import { PhaseTwoApi } from './phase-two-api.service';
-import { ChatMessage, ChatSession, TaskProposal } from './phase-two.models';
+import { ChatHistoryPage, ChatMessage, ChatSession, TaskProposal } from './phase-two.models';
 
 @Component({
   selector: 'app-agricultural-advisor-page',
@@ -30,9 +30,17 @@ export class AgriculturalAdvisorPage {
   public readonly chatSending = signal(false);
   public readonly selectedProposal = signal<TaskProposal | null>(null);
   public readonly proposalLoading = signal(false);
+  private readonly messagesViewport = viewChild<ElementRef<HTMLElement>>('messagesViewport');
+  private readonly composerInput = viewChild<ElementRef<HTMLTextAreaElement>>('composerInput');
   public chatInput = this.route.snapshot.queryParamMap.get('prompt') === 'disease'
     ? 'راجع معي آخر حالة صحية للمحصول، وما الإجراء الأكثر أولوية الآن؟'
     : '';
+
+  public readonly suggestions = [
+    'هل المادة الفعالة للمبيد معتمدة؟ وما حد MRL للمحصول؟',
+    'لخّص لي أهم المخاطر الحالية في الخطة',
+    'ما المهام المتأخرة التي تحتاج تدخلي؟',
+  ];
 
   public constructor() {
     if (!Number.isInteger(this.planId) || this.planId <= 0) {
@@ -56,6 +64,7 @@ export class AgriculturalAdvisorPage {
       { id: temporaryUserId, role: 'المستخدم', content, status: 'مكتمل', createdAt: new Date().toISOString() },
       { id: temporaryAssistantId, role: 'المساعد', content: '', status: 'جارٍ الإرسال', createdAt: new Date().toISOString() },
     ]);
+    this.scrollToLatest();
     try {
       await this.api.streamMessage(this.planId, session.id, content, (event) => {
         this.chatMessages.update((messages) => messages.map((message) => message.id !== temporaryAssistantId ? message : ({
@@ -65,6 +74,7 @@ export class AgriculturalAdvisorPage {
           status: event.status,
           taskChangeProposalId: event.taskChangeProposalId ?? message.taskChangeProposalId,
         })));
+        this.scrollToLatest();
       });
       this.refreshMessages();
     } catch {
@@ -75,6 +85,41 @@ export class AgriculturalAdvisorPage {
     } finally {
       this.chatSending.set(false);
     }
+  }
+
+  public onComposerKeydown(event: KeyboardEvent): void {
+    if (event.key !== 'Enter' || event.shiftKey || event.isComposing) return;
+    event.preventDefault();
+    void this.sendChat();
+  }
+
+  public useSuggestion(suggestion: string): void {
+    this.chatInput = suggestion;
+    queueMicrotask(() => this.composerInput()?.nativeElement.focus());
+  }
+
+  public isUserMessage(message: ChatMessage): boolean {
+    return message.role === 'المستخدم';
+  }
+
+  public formatMessageContent(content: string): string {
+    return content
+      .replace(/\r\n/g, '\n')
+      .replace(/^\s{0,3}#{1,6}\s+/gm, '')
+      .replace(/\*\*([^*]+)\*\*/g, '$1')
+      .replace(/__([^_]+)__/g, '$1')
+      .replace(/^\s*[-*]\s+/gm, '• ')
+      .replace(/^\s*<\s+(?=[⚠✅❌])/gm, '')
+      .replace(/^\s*---+\s*$/gm, '')
+      .replace(/\n{3,}/g, '\n\n')
+      .trim();
+  }
+
+  public formatMessageTime(value: string): string {
+    return new Intl.DateTimeFormat('ar-EG', {
+      hour: 'numeric',
+      minute: '2-digit',
+    }).format(new Date(value));
   }
 
   public openProposal(proposalId: number): void {
@@ -99,11 +144,16 @@ export class AgriculturalAdvisorPage {
   private load(): void {
     forkJoin({ plan: this.coreApi.exportPlan(this.planId), sessions: this.api.sessions(this.planId) }).pipe(
       switchMap(({ plan, sessions }) => (sessions[0] ? of(sessions[0]) : this.api.createSession(this.planId)).pipe(map((session) => ({ plan, session })))),
-      switchMap(({ plan, session }) => this.api.messages(this.planId, session.id).pipe(map((page) => ({ plan, session, messages: page.items })))),
+      switchMap(({ plan, session }) => this.latestMessages(session.id).pipe(map((page) => ({ plan, session, messages: page.items })))),
       finalize(() => this.loading.set(false)),
       takeUntilDestroyed(this.destroyRef),
     ).subscribe({
-      next: ({ plan, session, messages }) => { this.plan.set(plan); this.chatSession.set(session); this.chatMessages.set(messages); },
+      next: ({ plan, session, messages }) => {
+        this.plan.set(plan);
+        this.chatSession.set(session);
+        this.chatMessages.set(messages);
+        this.scrollToLatest('auto');
+      },
       error: () => this.error.set('تعذر تحميل محادثة الخطة.'),
     });
   }
@@ -111,8 +161,34 @@ export class AgriculturalAdvisorPage {
   private refreshMessages(): void {
     const session = this.chatSession();
     if (!session) return;
-    this.api.messages(this.planId, session.id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
-      next: (page) => this.chatMessages.set(page.items),
+    this.latestMessages(session.id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      next: (page) => {
+        this.chatMessages.set(page.items);
+        this.scrollToLatest();
+      },
+    });
+  }
+
+  private latestMessages(sessionId: number): Observable<ChatHistoryPage> {
+    return this.api.messages(this.planId, sessionId).pipe(
+      switchMap((firstPage) => {
+        const lastPageNumber = Math.max(1, Math.ceil(firstPage.totalCount / firstPage.pageSize));
+        return lastPageNumber > firstPage.pageNumber
+          ? this.api.messages(this.planId, sessionId, lastPageNumber)
+          : of(firstPage);
+      }),
+    );
+  }
+
+  private scrollToLatest(behavior: ScrollBehavior = 'smooth'): void {
+    queueMicrotask(() => {
+      const viewport = this.messagesViewport()?.nativeElement;
+      if (!viewport) return;
+      if (typeof viewport.scrollTo === 'function') {
+        viewport.scrollTo({ top: viewport.scrollHeight, behavior });
+      } else {
+        viewport.scrollTop = viewport.scrollHeight;
+      }
     });
   }
 }
