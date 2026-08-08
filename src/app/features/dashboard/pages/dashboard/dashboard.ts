@@ -4,6 +4,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { finalize, switchMap } from 'rxjs';
 import { GreenmindApi } from '@core/api/greenmind-api.service';
 import { DashboardTask, ExportPlan, ExportPlanDashboard } from '@core/api/api.models';
+import { taskPriorityLabel, taskTypeLabel } from '@shared/utils/task-labels';
 
 @Component({
   selector: 'app-dashboard',
@@ -45,14 +46,23 @@ export class Dashboard {
 
   public toggleTask(task: DashboardTask): void {
     this.updatingTaskId.set(task.id);
-    const completed = task.status === 'Completed';
-    const body = completed
-      ? { status: 'Pending' }
-      : { status: 'Completed', actualDate: new Date().toISOString().slice(0, 10) };
+    const body = task.status === 'InProgress'
+      ? { status: 'Completed', actualDate: new Date().toISOString().slice(0, 10) }
+      : task.status === 'Completed'
+        ? { status: 'Pending' }
+        : { status: 'InProgress' };
     this.api.updateTask(task.id, body).pipe(
       switchMap(() => this.api.dashboard(this.selectedPlanId()!)),
       finalize(() => this.updatingTaskId.set(null)),
       takeUntilDestroyed(this.destroyRef),
     ).subscribe({ next: (data) => this.data.set(data), error: () => this.error.set('تعذر تحديث المهمة.') });
+  }
+
+  public taskTypeLabel(value: string): string {
+    return taskTypeLabel(value);
+  }
+
+  public priorityLabel(value: string): string {
+    return taskPriorityLabel(value);
   }
 }

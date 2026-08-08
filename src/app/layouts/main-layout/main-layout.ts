@@ -1,4 +1,4 @@
-import { Component, DestroyRef, computed, inject, signal } from '@angular/core';
+import { Component, DestroyRef, computed, effect, inject, signal } from '@angular/core';
 import { AuthService } from '@features/auth/services/AuthService';
 import { NavigationEnd, Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -45,7 +45,7 @@ export class MainLayout {
   private readonly supportRealtime = inject(SupportRealtimeService);
   public readonly notificationCenter = inject(NotificationCenterService);
   public readonly mobileMenuOpen = signal(false);
-  public readonly asideCollapsed = signal(false);
+  public readonly asideCollapsed = signal(typeof localStorage !== 'undefined' && localStorage.getItem('greenmind.sidebar.collapsed') === 'true');
   public readonly notificationPanelOpen = signal(false);
   public readonly planContext = signal<{ id: number } | null>(null);
   public readonly activePlan = signal<ExportPlanDetails | null>(null);
@@ -77,6 +77,9 @@ export class MainLayout {
   };
 
   public constructor() {
+    effect(() => {
+      if (typeof localStorage !== 'undefined') localStorage.setItem('greenmind.sidebar.collapsed', String(this.asideCollapsed()));
+    });
     this.auth.loadProfile();
     void this.supportRealtime.start();
     this.updatePlanContext(this.router.url);

@@ -194,6 +194,39 @@
         </div>
       </div>
       <div class="flex items-center gap-3">
+        <div class="relative">
+          <button
+            type="button"
+            class="relative grid size-10 place-items-center rounded-xl border border-[#dde6df] bg-white text-[#415047] transition hover:bg-[#f3f8f4]"
+            aria-label="إشعارات رسائل الدعم"
+            [attr.aria-expanded]="notificationPanelOpen()"
+            (click)="toggleNotifications()"
+          >
+            <fa-icon [icon]="icons.bell" />
+            @if (notificationCenter.unreadCount() > 0) {
+              <i class="absolute left-1.5 top-1 grid min-w-4 place-items-center rounded-full border-2 border-white bg-[#dc5a50] px-1 text-[9px] font-black leading-3 text-white">{{ notificationCenter.unreadCount() }}</i>
+            }
+          </button>
+          @if (notificationPanelOpen()) {
+            <section class="admin-notification-panel absolute left-0 top-12 z-40 w-[min(360px,calc(100vw-2rem))] rounded-2xl border border-[#dce6df] bg-white p-3 text-right shadow-[0_20px_50px_rgba(16,35,27,.16)]" dir="rtl">
+              <header class="mb-2 flex items-center justify-between gap-3 border-b border-[#edf1ee] pb-3">
+                <div><h2 class="text-sm font-black text-[#10231b]">رسائل الدعم</h2><p class="text-[11px] text-[#738078]">{{ notificationCenter.unreadCount() }} غير مقروء</p></div>
+                <button type="button" class="rounded-lg bg-[#f3faf5] px-3 py-1.5 text-[11px] font-black text-[#0f7a3d]" (click)="notificationCenter.markAllRead()">تمييز الكل</button>
+              </header>
+              <div class="max-h-80 space-y-2 overflow-y-auto">
+                @for (notification of notificationCenter.visibleNotifications(); track notification.id) {
+                  <button type="button" class="w-full rounded-xl border border-[#edf1ee] bg-[#f9fbfa] p-3 text-right transition hover:bg-[#f3faf5]" [class.border-[#0f7a3d]]="!notification.read" (click)="notificationCenter.markRead(notification.id)">
+                    <span class="mb-1 block text-xs font-black text-[#10231b]">{{ notification.title }}</span>
+                    <span class="block text-xs leading-5 text-[#65736c]">{{ notification.body }}</span>
+                  </button>
+                } @empty {
+                  <p class="rounded-xl bg-[#f7f9f7] p-4 text-center text-xs text-[#738078]">لا توجد رسائل دعم جديدة.</p>
+                }
+              </div>
+              <a routerLink="/admin-dashboard/support" class="mt-3 block rounded-xl border border-[#dce6df] px-3 py-2 text-center text-xs font-black text-[#10231b] transition hover:bg-[#f3faf5]" (click)="closeNotifications()">فتح رسائل الدعم</a>
+            </section>
+          }
+        </div>
         <span class="hidden text-[11px] font-bold text-[#7a8881] sm:inline">بيئة آمنة ومشفّرة</span
         ><span
           class="inline-flex items-center gap-2 rounded-full border border-[#dbe9de] bg-[#f3faf5] px-3 py-2 text-[11px] font-black text-[#0f7a3d]"

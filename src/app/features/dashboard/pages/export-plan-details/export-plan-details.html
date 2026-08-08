@@ -79,22 +79,20 @@
                 <h2>اليوم وما تأخر</h2>
                 <p>الإجراءات التي قد تؤثر على جاهزية التصدير إذا لم تُنجز.</p>
               </div>
-              <button type="button" class="quiet-link" (click)="taskDrawerOpen.set(true)">عرض جميع مهام هذه الخطة <span aria-hidden="true">←</span></button>
+              <div class="flex flex-wrap items-center gap-2"><a routerLink="/activities" class="quiet-link">+ إضافة مهمة غير مخططة</a><button type="button" class="quiet-link" (click)="taskDrawerOpen.set(true)">عرض جميع مهام هذه الخطة <span aria-hidden="true">←</span></button></div>
             </header>
 
             @if (actionTasks().length) {
               <ul class="action-list">
                 @for (task of actionTasks(); track task.id) {
                   <li [class.is-overdue]="isOverdue(task)">
-                    <button type="button" class="task-check" [disabled]="updatingTaskId() === task.id" [attr.aria-label]="'إكمال مهمة ' + task.title" (click)="toggleTask(task)">
-                      @if (updatingTaskId() === task.id) { <span class="task-spinner"></span> }
-                    </button>
+                    <button type="button" class="task-status-control" [disabled]="updatingTaskId() === task.id" [attr.aria-label]="'تحديث حالة مهمة ' + task.title" (click)="toggleTask(task)">{{ task.status === 'InProgress' ? 'إكمال' : task.status === 'Completed' ? 'مكتملة' : 'بدء التنفيذ' }}</button>
                     <div class="min-w-0 flex-1">
                       <div class="flex flex-wrap items-center gap-2">
                         <h3>{{ task.title }}</h3>
                         <span class="task-state">{{ taskStatusLabel(task) }}</span>
                       </div>
-                      <p>{{ task.taskType }} · أولوية {{ priorityLabel(task.priority) }} · {{ formatDate(task.plannedDate) }}</p>
+                      <p>{{ taskTypeLabel(task.taskType) }} · أولوية {{ priorityLabel(task.priority) }} · {{ formatDate(task.plannedDate) }}</p>
                     </div>
                   </li>
                 }
@@ -229,7 +227,7 @@
           @for (task of filteredPlanTasks(); track task.id) {
             <article>
               <span class="task-priority" [attr.data-priority]="task.priority"></span>
-              <div><div class="task-title-line"><h3>{{ task.title }}</h3><span>{{ farmTaskStatusLabel(task.status) }}</span></div><p>{{ task.taskTypeName }} · {{ priorityLabel(task.priority) }}</p><time>{{ formatDate(task.plannedDate) }}</time>@if (task.description) { <small>{{ task.description }}</small> }</div>
+              <div><div class="task-title-line"><h3>{{ task.title }}</h3><span>{{ farmTaskStatusLabel(task.status) }}</span></div><p>{{ taskTypeLabel(task.taskTypeName) }} · {{ priorityLabel(task.priority) }} · {{ task.origin === 'UserAdded' ? 'أضافها المستخدم' : 'مخططة بالذكاء الاصطناعي' }}</p><time>{{ formatDate(task.plannedDate) }}</time>@if (task.description) { <small>{{ task.description }}</small> }@if (task.notes) { <small>ملاحظة: {{ task.notes }}</small> }</div>
             </article>
           } @empty {
             <div class="drawer-empty"><span>✓</span><h3>لا توجد مهام مطابقة</h3><p>غيّر الفلاتر لعرض بقية مهام الخطة.</p></div>

@@ -6,7 +6,7 @@ import {
   ExportPlanScheduleAnalysis, ExportPlanScheduleAnalysisRequest,
   AdminInvitation, AdminUser, FarmAccount, FarmTask, MasterDataItem, PagedResult, PlanningStatus, PlatformStatistics,
   RagIngestionResult, RegulatoryImportResult, SoilMeasurement, SoilMeasurementRequest,
-  SupportConversation, SupportMessage, SupportMessagePage,
+  SupportConversation, SupportMessage, SupportMessagePage, CreateTaskRequest, TaskType, ScheduleRevision,
 } from './api.models';
 
 @Injectable({ providedIn: 'root' })
@@ -63,8 +63,28 @@ export class GreenmindApi {
     }).toString());
   }
 
-  public updateTask(id: number, body: { status?: string; actualDate?: string; notes?: string }): Observable<void> {
+  public task(id: number): Observable<FarmTask> {
+    return this.api.get<FarmTask>(`/api/Tasks/${id}`);
+  }
+
+  public taskTypes(): Observable<TaskType[]> {
+    return this.api.get<TaskType[]>('/api/Tasks/types');
+  }
+
+  public createTask(body: CreateTaskRequest): Observable<FarmTask> {
+    return this.api.post<FarmTask>('/api/Tasks', body);
+  }
+
+  public updateTask(id: number, body: { status?: string; plannedDate?: string; actualDate?: string; notes?: string }): Observable<void> {
     return this.api.patch<void>(`/api/Tasks/${id}`, body);
+  }
+
+  public scheduleRevision(exportPlanId: number): Observable<ScheduleRevision> {
+    return this.api.get<ScheduleRevision>(`/api/export-plans/${exportPlanId}/schedule-revision`);
+  }
+
+  public retryScheduleRevision(exportPlanId: number): Observable<ScheduleRevision> {
+    return this.api.post<ScheduleRevision>(`/api/export-plans/${exportPlanId}/schedule-revision/retry`, {});
   }
 
   public crops(admin = false, includeDeleted = false): Observable<MasterDataItem[]> {

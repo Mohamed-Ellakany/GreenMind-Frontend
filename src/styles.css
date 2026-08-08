@@ -301,6 +301,22 @@ main [class*='bg-[#13a346]'] {
   white-space: nowrap;
 }
 
+.task-status-control {
+  flex: none;
+  min-width: 5.4rem;
+  min-height: 2.1rem;
+  border: 1px solid #cfe2d3;
+  border-radius: 0.55rem;
+  background: #f2faf4;
+  padding: 0.35rem 0.55rem;
+  color: #0f7a3d;
+  font-size: 0.62rem;
+  font-weight: 950;
+}
+
+.task-status-control:hover { border-color: #83bd93; background: #e7f5eb; }
+.task-status-control:disabled { cursor: wait; opacity: 0.55; }
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

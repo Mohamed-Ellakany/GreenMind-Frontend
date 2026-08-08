@@ -26,8 +26,12 @@ export class SupportRealtimeService {
 
     this.connection.on('SupportMessageReceived', (message: SupportMessage) => {
       this.latestMessage.set(message);
-      if (this.auth.hasRole('FarmOwner') && message.role === 'Admin') {
+      const role = String(message.role).toLowerCase();
+      if (this.auth.hasRole('FarmOwner') && role === 'admin') {
         this.notifications.pushAdminReply(message.content);
+      }
+      if (this.auth.hasRole('Admin') && role === 'customer') {
+        this.notifications.pushCustomerMessage(message.senderName, message.content);
       }
     });
 

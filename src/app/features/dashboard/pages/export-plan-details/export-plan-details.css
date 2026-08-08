@@ -633,3 +633,13 @@
   .plan-facts dl { grid-template-columns: 1fr; }
   .plan-facts dl > .full { grid-column: auto; }
 }
+
+@media (min-width: 1200px) {
+  .plan-hero { min-height: 270px; border-radius: 1.1rem; padding: 1.35rem 1.6rem; }
+  .hero-crop-image { width: 35%; opacity: .42; }
+  .hero-image-shade { background: linear-gradient(90deg, rgb(4 30 24 / .4), #062d22 52%, #041e18 100%); }
+  .hero-primary-action { margin-top: 1rem; }
+  .progress-ring { width: 7.5rem; height: 7.5rem; }
+  .progress-ring > div { width: 5.8rem; height: 5.8rem; }
+  .hero-insights { margin-top: 1rem; }
+}

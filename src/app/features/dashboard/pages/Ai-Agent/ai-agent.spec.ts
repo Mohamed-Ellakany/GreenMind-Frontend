@@ -63,4 +63,13 @@ describe('AiAgent', () => {
     expect(component.displaySessionTitle('Farm advisor')).toBe('محادثة مع عم خضر');
     expect(fixture.nativeElement.textContent).toContain('عم خضر');
   });
+
+  it('renders assistant markdown as structured HTML and escapes raw tags', () => {
+    const html = component.renderAssistantMessage('## ملخص\n- **مهم**\n<script>alert(1)</script>');
+
+    expect(html).toContain('<h3>ملخص</h3>');
+    expect(html).toContain('<li><strong>مهم</strong></li>');
+    expect(html).toContain('&lt;script&gt;alert(1)&lt;/script&gt;');
+    expect(html).not.toContain('<script>');
+  });
 });

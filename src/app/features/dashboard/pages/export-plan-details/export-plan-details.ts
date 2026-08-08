@@ -8,6 +8,7 @@ import { PhaseTwoApi } from '@features/dashboard/phase-two/phase-two-api.service
 import { CostDashboard, DiseaseReport } from '@features/dashboard/phase-two/phase-two.models';
 import { ExportPlanOperationalSummary } from './export-plan-operational-summary';
 import { PlantGrowthLoader } from '@shared/components/plant-growth-loader/plant-growth-loader';
+import { taskPriorityLabel, taskStatusLabel, taskTypeLabel } from '@shared/utils/task-labels';
 import {
   DashboardTask,
   ExportPlanDashboard,
@@ -197,7 +198,10 @@ export class ExportPlanDetailsPage {
     if (this.updatingTaskId()) return;
     this.updatingTaskId.set(task.id);
     this.error.set(null);
-    this.api.updateTask(task.id, { status: 'Completed', actualDate: this.today }).pipe(
+    const body = task.status === 'InProgress'
+      ? { status: 'Completed', actualDate: this.today }
+      : task.status === 'Completed' ? { status: 'Pending' } : { status: 'InProgress' };
+    this.api.updateTask(task.id, body).pipe(
       switchMap(() => forkJoin({
         dashboard: this.api.dashboard(this.planId),
         tasks: this.api.planTasks(this.planId),
@@ -227,15 +231,19 @@ export class ExportPlanDetailsPage {
 
   public taskStatusLabel(task: DashboardTask): string {
     if (this.isOverdue(task)) return 'متأخرة';
-    return task.status === 'InProgress' ? 'جارية' : 'اليوم';
+    return task.status === 'InProgress' ? 'جارية' : task.status === 'Postponed' ? 'مؤجلة' : task.status === 'Completed' ? 'مكتملة' : 'اليوم';
   }
 
   public farmTaskStatusLabel(status: FarmTask['status']): string {
-    return ({ Pending: 'معلقة', InProgress: 'جارية', Completed: 'مكتملة', Cancelled: 'ملغاة' } as const)[status];
+    return taskStatusLabel(status);
   }
 
   public priorityLabel(priority: string): string {
-    return ({ Low: 'منخفضة', Medium: 'متوسطة', High: 'عالية', Critical: 'حرجة' } as Record<string, string>)[priority] ?? priority;
+    return taskPriorityLabel(priority);
+  }
+
+  public taskTypeLabel(value: string): string {
+    return taskTypeLabel(value);
   }
 
   public isOverdue(task: DashboardTask): boolean {

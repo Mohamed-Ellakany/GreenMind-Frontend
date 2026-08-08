@@ -15,6 +15,12 @@
 .layout-content { transition: margin 220ms ease; }
 
 @media (min-width: 1024px) {
+  .layout-content main { max-width: 1800px; margin-inline: auto; }
+  .floating-aside-collapsed { width: 78px; }
+  .floating-aside-collapsed .nav-link { min-height: 44px; }
+}
+
+@media (min-width: 1024px) {
   .floating-aside { transform: translateX(0); }
   .layout-content { margin-right: 258px; }
   .floating-aside-collapsed { width: 74px; }
