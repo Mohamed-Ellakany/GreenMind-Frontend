@@ -1,4 +1,4 @@
-import { Component, DestroyRef, effect, inject, signal } from '@angular/core';
+import { Component, DestroyRef, ElementRef, effect, inject, signal, viewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { finalize } from 'rxjs';
@@ -10,6 +10,7 @@ import { SupportRealtimeService } from '@core/support/support-realtime.service';
   selector: 'app-admin-support',
   imports: [FormsModule],
   templateUrl: './admin-support.html',
+  styleUrl: './admin-support.css',
 })
 export class AdminSupport {
   private readonly api = inject(GreenmindApi);
@@ -23,6 +24,7 @@ export class AdminSupport {
   protected readonly loadingMessages = signal(false);
   protected readonly sending = signal(false);
   protected readonly error = signal('');
+  private readonly messagesViewport = viewChild<ElementRef<HTMLElement>>('messagesViewport');
   protected draft = '';
 
   constructor() {
@@ -67,6 +69,7 @@ export class AdminSupport {
 
   protected selectConversation(conversation: SupportConversation): void {
     this.activeConversation.set(conversation);
+    this.messages.set([]);
     this.loadingMessages.set(true);
     this.error.set('');
 
@@ -77,7 +80,10 @@ export class AdminSupport {
         takeUntilDestroyed(this.destroyRef),
       )
       .subscribe({
-        next: (page) => this.messages.set(page.items),
+        next: (page) => {
+          this.messages.set(page.items);
+          this.scrollToLatest();
+        },
         error: () => this.error.set('تعذر تحميل رسائل هذه المحادثة.'),
       });
   }
@@ -104,6 +110,21 @@ export class AdminSupport {
       });
   }
 
+  protected onComposerKeydown(event: KeyboardEvent): void {
+    if (event.key !== 'Enter' || event.shiftKey || event.isComposing) return;
+    event.preventDefault();
+    this.send();
+  }
+
+  protected isMine(message: SupportMessage): boolean {
+    return String(message.role).toLowerCase() === 'admin';
+  }
+
+  protected senderInitial(message: SupportMessage): string {
+    const fallback = this.isMine(message) ? 'أ' : 'م';
+    return message.senderName?.trim().charAt(0) || fallback;
+  }
+
   protected messageTime(value: string | null): string {
     if (!value) return 'لا توجد رسائل';
     return new Intl.DateTimeFormat('ar-EG', {
@@ -118,6 +139,14 @@ export class AdminSupport {
     this.messages.update((items) => {
       if (items.some((item) => item.id === message.id)) return items;
       return [...items, message].sort((a, b) => a.createdAt.localeCompare(b.createdAt));
+    });
+    this.scrollToLatest(true);
+  }
+
+  private scrollToLatest(smooth = false): void {
+    requestAnimationFrame(() => {
+      const viewport = this.messagesViewport()?.nativeElement;
+      viewport?.scrollTo({ top: viewport.scrollHeight, behavior: smooth ? 'smooth' : 'auto' });
     });
   }
 }

@@ -1,6 +1,6 @@
 import { Component, inject, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
-import { FormField, email as emailValidator, form, minLength, required, submit } from '@angular/forms/signals';
+import { FormField, email as emailValidator, form, required, submit } from '@angular/forms/signals';
 import { firstValueFrom } from 'rxjs';
 import { AuthService } from '@features/auth/services/AuthService';
 
@@ -16,6 +16,7 @@ export class Login {
 
   protected readonly auth = this.authService;
   protected readonly submitted = signal(false);
+  protected readonly submitAttempted = signal(false);
   protected readonly passwordVisible = signal(false);
 
   protected readonly loginModel = signal({
@@ -29,13 +30,18 @@ export class Login {
     emailValidator(path.email, { message: 'أدخل بريداً إلكترونياً صحيحاً.' });
 
     required(path.password, { message: 'كلمة المرور مطلوبة.' });
-    minLength(path.password, 8, { message: 'كلمة المرور يجب أن تكون 8 أحرف على الأقل.' });
   });
 
   protected async onSubmit(event: SubmitEvent): Promise<void> {
     // Signal Forms does not install the FormsModule submit directive, so a
     // plain `(submit)` listener must cancel the browser's native GET request.
     event.preventDefault();
+    this.submitAttempted.set(true);
+
+    if (this.loginForm().invalid()) {
+      this.focusFirstInvalidField();
+      return;
+    }
 
     await submit(this.loginForm, async () => {
       try {
@@ -43,6 +49,8 @@ export class Login {
       } catch {
         if (this.authService.errorCode() === 'account_pending_approval') {
           await this.router.navigateByUrl('/auth/pending-approval', { replaceUrl: true });
+        } else {
+          this.focusFormError();
         }
         // authService.error() already surfaces the message in the template.
         return;
@@ -69,5 +77,14 @@ export class Login {
 
   protected togglePasswordVisibility(): void {
     this.passwordVisible.update((visible) => !visible);
+  }
+
+  private focusFirstInvalidField(): void {
+    const fieldId = this.loginForm.email().invalid() ? 'login-email' : 'login-password';
+    queueMicrotask(() => globalThis.document?.getElementById(fieldId)?.focus());
+  }
+
+  private focusFormError(): void {
+    queueMicrotask(() => globalThis.document?.getElementById('login-form-error')?.focus());
   }
 }

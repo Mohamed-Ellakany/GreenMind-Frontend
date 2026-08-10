@@ -57,6 +57,8 @@ export interface TaskProposalItem {
   isIncluded: boolean;
 }
 
+export type TaskPriority = 'Low' | 'Medium' | 'High' | 'Critical';
+
 export interface TaskProposalValues {
   farmTaskId?: number;
   taskTypeId: number;
@@ -66,7 +68,7 @@ export interface TaskProposalValues {
   unit: string;
   plannedDate: string;
   status?: string;
-  priority: string;
+  priority: TaskPriority;
 }
 
 export interface DiagnosisChecklistItem {

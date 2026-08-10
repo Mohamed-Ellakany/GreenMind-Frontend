@@ -1,4 +1,5 @@
 import { Component, DestroyRef, ElementRef, inject, signal, viewChild } from '@angular/core';
+import { DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, RouterLink } from '@angular/router';
@@ -11,7 +12,7 @@ import { ChatHistoryPage, ChatMessage, ChatSession, TaskProposal } from './phase
 
 @Component({
   selector: 'app-agricultural-advisor-page',
-  imports: [FormsModule, RouterLink, PlantGrowthLoader],
+  imports: [FormsModule, RouterLink, PlantGrowthLoader, DatePipe],
   templateUrl: './agricultural-advisor-page.html',
   styleUrls: ['./plan-page.shared.css', './agricultural-advisor-page.css'],
 })
@@ -26,6 +27,7 @@ export class AgriculturalAdvisorPage {
   public readonly loading = signal(true);
   public readonly error = signal<string | null>(null);
   public readonly chatSession = signal<ChatSession | null>(null);
+  public readonly chatSessions = signal<ChatSession[]>([]);
   public readonly chatMessages = signal<ChatMessage[]>([]);
   public readonly chatSending = signal(false);
   public readonly selectedProposal = signal<TaskProposal | null>(null);
@@ -152,18 +154,27 @@ export class AgriculturalAdvisorPage {
 
   private load(): void {
     forkJoin({ plan: this.coreApi.exportPlan(this.planId), sessions: this.api.sessions(this.planId) }).pipe(
-      switchMap(({ plan, sessions }) => (sessions[0] ? of(sessions[0]) : this.api.createSession(this.planId)).pipe(map((session) => ({ plan, session })))),
-      switchMap(({ plan, session }) => this.latestMessages(session.id).pipe(map((page) => ({ plan, session, messages: page.items })))),
+      switchMap(({ plan, sessions }) => (sessions[0] ? of(sessions[0]) : this.api.createSession(this.planId)).pipe(map((session) => ({ plan, sessions, session })))),
+      switchMap(({ plan, sessions, session }) => this.latestMessages(session.id).pipe(map((page) => ({ plan, sessions, session, messages: page.items })))),
       finalize(() => this.loading.set(false)),
       takeUntilDestroyed(this.destroyRef),
     ).subscribe({
-      next: ({ plan, session, messages }) => {
+      next: ({ plan, sessions, session, messages }) => {
         this.plan.set(plan);
+        this.chatSessions.set(sessions.length ? sessions : [session]);
         this.chatSession.set(session);
         this.chatMessages.set(messages);
         this.scrollToLatest('auto');
       },
       error: () => this.error.set('تعذر تحميل محادثة الخطة.'),
+    });
+  }
+
+  public selectSession(session: ChatSession): void {
+    this.chatSession.set(session);
+    this.latestMessages(session.id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      next: (page) => { this.chatMessages.set(page.items); this.scrollToLatest('auto'); },
+      error: () => this.error.set('تعذر تحميل المحادثة المحددة.'),
     });
   }
 

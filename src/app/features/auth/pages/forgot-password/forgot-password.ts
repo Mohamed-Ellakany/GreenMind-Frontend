@@ -1,6 +1,52 @@
 import { Component, inject, signal } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, NgForm } from '@angular/forms';
 import { RouterLink } from '@angular/router';
+import { firstValueFrom } from 'rxjs';
 import { AuthService } from '../../services/AuthService';
-@Component({selector:'app-forgot-password',imports:[FormsModule,RouterLink],template:`<main class="min-h-dvh grid place-items-center bg-[#f4f7f4] p-6" dir="rtl"><form class="w-full max-w-md rounded-3xl bg-white p-8 shadow" (ngSubmit)="submit()"><h1 class="text-2xl font-black">نسيت كلمة المرور؟</h1><input class="mt-6 h-12 w-full rounded-xl border px-4" type="email" name="email" [(ngModel)]="email" required placeholder="البريد الإلكتروني" dir="ltr"><button class="mt-4 h-12 w-full rounded-xl bg-[#0f7a3d] font-bold text-white">إرسال الرابط</button>@if(message()){<p class="mt-4 text-sm text-[#0f7a3d]">{{message()}}</p>}<a class="mt-6 block text-center text-sm text-[#0f7a3d]" routerLink="/auth/login">العودة</a></form></main>`})
-export class ForgotPassword { private readonly auth=inject(AuthService); protected email=''; protected message=signal(''); submit(){this.auth.forgotPassword(this.email).subscribe(()=>this.message.set('تم إرسال الرابط إذا كان البريد مسجلًا.'));} }
+
+@Component({
+  selector: 'app-forgot-password',
+  imports: [FormsModule, RouterLink],
+  templateUrl: './forgot-password.html',
+})
+export class ForgotPassword {
+  private readonly auth = inject(AuthService);
+
+  protected email = '';
+  protected readonly loading = signal(false);
+  protected readonly success = signal(false);
+  protected readonly error = signal<string | null>(null);
+  protected readonly submitAttempted = signal(false);
+
+  protected async submit(form: NgForm): Promise<void> {
+    this.submitAttempted.set(true);
+    this.error.set(null);
+    this.email = this.email.trim();
+
+    if (form.invalid || !this.email) {
+      this.focus('forgot-email');
+      return;
+    }
+
+    this.loading.set(true);
+    try {
+      await firstValueFrom(this.auth.forgotPassword(this.email));
+      this.success.set(true);
+      this.focus('forgot-success');
+    } catch (error) {
+      this.error.set(
+        this.auth.messageFromError(
+          error,
+          'تعذر إرسال رابط الاستعادة الآن. حاول مرة أخرى بعد قليل.',
+        ),
+      );
+      this.focus('forgot-error');
+    } finally {
+      this.loading.set(false);
+    }
+  }
+
+  private focus(id: string): void {
+    queueMicrotask(() => globalThis.document?.getElementById(id)?.focus());
+  }
+}

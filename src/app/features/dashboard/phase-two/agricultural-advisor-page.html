@@ -6,6 +6,7 @@
   @if (loading()) { <app-plant-growth-loader message="جارٍ تجهيز عم خضر ببيانات الخطة…" /> }
   @else {
     <div class="chat-layout">
+      <aside class="panel session-history"><header><div><small>المحادثات</small><h2>سجل المستشار</h2></div><span>{{ chatSessions().length }}</span></header><div class="session-list">@for (session of chatSessions(); track session.id) { <button type="button" [class.active]="chatSession()?.id === session.id" (click)="selectSession(session)"><span class="session-dot"></span><div><b>{{ session.title || 'محادثة الخطة' }}</b><small>{{ session.updatedAtUtc | date:'yyyy/MM/dd' }}</small></div></button> }</div></aside>
       <article class="panel chat-panel">
         <header class="panel-heading chat-heading"><div class="advisor-title"><span class="advisor-avatar">خ</span><div><h2>عم خضر <small>· مساعد {{ plan()?.name }}</small></h2><p>إجاباته مبنية على الخطة الحالية والمحصول والوجهة</p></div></div><i class="online-dot"><span></span> متصل</i></header>
         <div #messagesViewport class="messages" aria-live="polite" aria-label="رسائل محادثة الخطة">
@@ -28,13 +29,18 @@
         <footer class="composer-area">
           <div class="suggestion-row" aria-label="أسئلة مقترحة">@for (suggestion of suggestions; track suggestion) { <button type="button" (click)="useSuggestion(suggestion)">{{ suggestion }}</button> }</div>
           <form class="chat-composer" (ngSubmit)="sendChat()">
-            <input type="file" accept="image/*" multiple (change)="selectImages($event)" aria-label="إضافة صور" /> <textarea #composerInput name="chatInput" [(ngModel)]="chatInput" (keydown)="onComposerKeydown($event)" maxlength="4000" rows="2" placeholder="اكتب سؤالك لعم خضر…" aria-label="اكتب رسالتك"></textarea>
-            <div class="composer-actions"><span>{{ chatInput.length }} / 4000</span><button type="submit" [disabled]="chatSending() || !chatInput.trim()" aria-label="إرسال الرسالة">@if (chatSending()) { <span class="send-spinner"></span> } @else { <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="m5 12 14-7-4 14-3-5-7-2Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="m12 14 7-9" stroke="currentColor" stroke-width="2"/></svg> }</button></div>
+            <label class="attachment-button" title="إضافة صور">
+              <input type="file" accept="image/*" multiple (change)="selectImages($event)" aria-label="إضافة صور" />
+              <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="m20.5 11.5-8.2 8.2a6 6 0 0 1-8.5-8.5l8.9-8.9a4 4 0 0 1 5.7 5.7l-9 9a2 2 0 0 1-2.8-2.8l8.2-8.2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              @if (selectedImages.length) { <span class="attachment-count">{{ selectedImages.length }}</span> }
+            </label>
+            <textarea #composerInput name="chatInput" [(ngModel)]="chatInput" (keydown)="onComposerKeydown($event)" maxlength="4000" rows="2" placeholder="اكتب سؤالك لعم خضر…" aria-label="اكتب رسالتك"></textarea>
+            <div class="composer-actions"><span>{{ chatInput.length }} / 4000</span><button type="submit" [disabled]="chatSending() || (!chatInput.trim() && !selectedImages.length)" aria-label="إرسال الرسالة">@if (chatSending()) { <span class="send-spinner"></span> } @else { <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="m5 12 14-7-4 14-3-5-7-2Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="m12 14 7-9" stroke="currentColor" stroke-width="2"/></svg> }</button></div>
           </form>
           <p class="composer-note"><kbd>Enter</kbd> للإرسال · <kbd>Shift + Enter</kbd> لسطر جديد</p>
         </footer>
       </article>
-      <aside class="panel context-card"><div class="context-heading"><span class="panel-icon">◎</span><div><small>مصادر الإجابة</small><h2>السياق المستخدم</h2></div></div><p>يُعاد بناء سياق آمن مع كل سؤال، ولا يطّلع النموذج على خطط المزارع الأخرى.</p><div class="plan-facts"><span><small>المحصول</small><b>{{ plan()?.crop }}</b></span><span><small>الوجهة</small><b>{{ plan()?.destination }}</b></span><span><small>المساحة</small><b>{{ plan()?.areaInFeddan }} فدان</b></span></div><ul><li>بيانات الخطة والموسم</li><li>المهام الخاصة بهذه الخطة</li><li>قياسات التربة وصحة المحصول</li><li>الميزانية والمصروفات</li><li>المواد الفعالة وحدود MRL</li></ul><div class="safety-note"><b>أنت صاحب القرار</b><p>لن تتغير أي مهمة إلا بعد عرض اقتراح واضح وموافقتك الصريحة.</p></div></aside>
+      <aside class="panel context-card"><div class="context-heading"><span class="panel-icon">◎</span><div><small>مصادر الإجابة</small><h2>السياق المستخدم</h2></div></div><p>يُعاد بناء سياق آمن مع كل سؤال، ولا يطّلع النموذج على خطط المزارع الأخرى.</p><div class="plan-facts"><span><small>المحصول</small><b>{{ plan()?.crop }}</b></span><span><small>الوجهة</small><b>{{ plan()?.destination }}</b></span><span><small>المساحة</small><b>{{ plan()?.areaInFeddan }} فدان</b></span></div><ul><li>بيانات الخطة والموسم</li><li>المهام الخاصة بهذه الخطة وسجل التنفيذ</li><li>قياسات التربة وصحة المحصول</li><li>الميزانية والمصروفات</li><li>المواد الفعالة وحدود MRL</li></ul><div class="safety-note"><b>سجل التنفيذ محفوظ</b><p>كل تحديث للمهمة وملاحظتها يصل إلى سياق المستشار، والمهام التي أضفتها بنفسك تبقى محمية أثناء إعادة ترتيب الخطة.</p></div></aside>
     </div>
   }
 

@@ -1,75 +1,94 @@
-<section class="mx-auto flex min-h-[calc(100dvh-120px)] w-full max-w-[1120px] flex-col text-[#10231b]" dir="rtl">
-  <header class="mb-5 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+<section class="support-page" dir="rtl">
+  <header class="page-heading">
     <div>
-      <p class="text-xs font-black text-[#0f7a3d]">مركز المساعدة</p>
-      <h1 class="mt-1 text-3xl font-black tracking-tight">محادثة الدعم</h1>
+      <p class="heading-kicker"><span></span> مركز المساعدة</p>
+      <h1>إحنا هنا علشان نساعدك</h1>
+      <p class="heading-description">تواصل مباشرةً مع فريق جرين مايند، وتابع الردود من نفس المكان.</p>
     </div>
-    <button
-      type="button"
-      class="w-fit rounded-xl border border-[#dce6df] bg-white px-4 py-2 text-xs font-black text-[#0f7a3d] shadow-sm transition hover:bg-[#f3faf5]"
-      (click)="load()"
-    >
-      تحديث
+    <button type="button" class="refresh-button" (click)="load()" [disabled]="loading()" aria-label="تحديث الرسائل">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 11a8.1 8.1 0 0 0-15.5-2M4 4v5h5M4 13a8.1 8.1 0 0 0 15.5 2M20 20v-5h-5"/></svg>
+      <span>تحديث</span>
     </button>
   </header>
 
-  <article class="flex min-h-[560px] flex-1 flex-col overflow-hidden rounded-2xl border border-[#dce6df] bg-white shadow-sm">
-    <header class="flex items-center justify-between gap-4 border-b border-[#edf1ee] px-5 py-4">
-      <div class="min-w-0">
-        <h2 class="truncate text-lg font-black">{{ conversation()?.farmName || 'مزرعتك' }}</h2>
-        <p class="mt-1 truncate text-xs text-[#738078]">{{ conversation()?.ownerName || 'فريق الدعم جاهز للرد' }}</p>
+  <article class="support-chat">
+    <header class="chat-header">
+      <div class="chat-identity">
+        <span class="header-avatar" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M4 13v-2a8 8 0 0 1 16 0v2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M6 17H5a2 2 0 0 1-2-2v-2a2 2 0 0 1 2-2h1v6Zm12 0h1a2 2 0 0 0 2-2v-2a2 2 0 0 0-2-2h-1v6ZM18 17c0 2-1.5 3-4 3h-1" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+        </span>
+        <div class="identity-copy">
+          <h2>فريق دعم جرين مايند</h2>
+          <p><i></i> متاح لمساعدتك</p>
+        </div>
       </div>
-      <span class="rounded-full bg-[#e7f5eb] px-3 py-1 text-xs font-black text-[#0f7a3d]">مفتوحة</span>
+      <div class="header-status">
+        <small>عادةً نرد في أقرب وقت</small>
+        <span class="conversation-status">{{ conversation()?.isClosed ? 'مغلقة' : 'مفتوحة' }}</span>
+      </div>
     </header>
 
     @if (error()) {
-      <p class="m-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-bold text-[#be3a34]">{{ error() }}</p>
+      <p class="chat-error" role="alert">{{ error() }}</p>
     }
 
-    <div class="flex-1 space-y-3 overflow-y-auto bg-[#f7faf8] p-4 sm:p-5">
+    <div #messagesViewport class="messages-viewport" aria-live="polite" aria-label="رسائل الدعم">
       @if (loading()) {
-        <p class="rounded-xl bg-white p-5 text-center text-sm font-bold text-[#65736c]">جارٍ تحميل الرسائل...</p>
+        <div class="loading-state"><i></i><i></i><i></i><span>جاري تحميل الرسائل</span></div>
       } @else {
         @for (message of messages(); track message.id) {
-          <div class="flex" [class.justify-end]="message.role === 'Customer'" [class.justify-start]="message.role === 'Admin'">
-            <div
-              class="max-w-[82%] rounded-2xl px-4 py-3 shadow-sm sm:max-w-[66%]"
-              [class.bg-[#0f7a3d]]="message.role === 'Customer'"
-              [class.text-white]="message.role === 'Customer'"
-              [class.bg-white]="message.role === 'Admin'"
-              [class.text-[#10231b]]="message.role === 'Admin'"
-            >
-              <div class="mb-1 flex items-center gap-2 text-[11px] font-black opacity-75">
-                <span>{{ message.role === 'Customer' ? 'أنت' : 'الأدمن' }}</span>
-                <span>{{ messageTime(message.createdAt) }}</span>
+          <div class="support-message" [class.support-message--mine]="isMine(message)">
+            <span class="message-avatar" aria-hidden="true">{{ senderInitial(message) }}</span>
+            <div class="message-stack">
+              @if (!isMine(message)) {
+                <b class="sender-name">{{ message.senderName || 'فريق الدعم' }}</b>
+              }
+              <div class="message-bubble">
+                <p>{{ message.content }}</p>
+                <div class="message-meta">
+                  <time [attr.datetime]="message.createdAt">{{ messageTime(message.createdAt) }}</time>
+                  @if (isMine(message)) { <span class="delivery-check" title="تم الإرسال" aria-label="تم الإرسال">✓✓</span> }
+                </div>
               </div>
-              <p class="whitespace-pre-wrap break-words text-sm leading-7">{{ message.content }}</p>
             </div>
           </div>
         } @empty {
-          <p class="rounded-xl bg-white p-8 text-center text-sm text-[#65736c]">ابدأ المحادثة بكتابة رسالتك لفريق الدعم.</p>
+          <div class="empty-chat">
+            <span class="empty-chat-icon" aria-hidden="true">👋</span>
+            <h3>أهلًا بك في دعم جرين مايند</h3>
+            <p>اكتب رسالتك وسيقوم فريق الدعم بالرد عليك هنا.</p>
+            <div class="topic-list" aria-label="مواضيع شائعة">
+              @for (topic of supportTopics; track topic) {
+                <button type="button" (click)="useTopic(topic)">{{ topic }}</button>
+              }
+            </div>
+          </div>
         }
       }
     </div>
 
-    <form class="border-t border-[#edf1ee] bg-white p-4" (ngSubmit)="send()" novalidate>
-      <div class="flex flex-col gap-3 sm:flex-row">
+    <form class="chat-composer" (ngSubmit)="send()" novalidate>
+      <div class="composer-field">
         <textarea
           [(ngModel)]="draft"
           name="draft"
-          class="min-h-24 flex-1 resize-none rounded-xl border border-[#dce6df] px-4 py-3 text-sm leading-7 outline-none transition placeholder:text-[#9aa59e] focus:border-[#0f7a3d] focus:ring-4 focus:ring-[#0f7a3d]/10"
+          rows="1"
           placeholder="اكتب رسالتك..."
           maxlength="2000"
+          aria-label="نص الرسالة"
+          (keydown)="onComposerKeydown($event)"
           required
         ></textarea>
-        <button
-          type="submit"
-          [disabled]="!draft.trim() || sending()"
-          class="h-12 rounded-xl bg-[#0f7a3d] px-8 text-sm font-black text-white shadow-[0_10px_25px_rgba(15,122,61,.18)] transition hover:bg-[#075d2d] disabled:cursor-not-allowed disabled:bg-[#96a39b] disabled:shadow-none sm:self-end"
-        >
-          {{ sending() ? 'جارٍ الإرسال...' : 'إرسال' }}
-        </button>
+        <span class="character-count">{{ draft.length }}/2000</span>
       </div>
+      <button type="submit" class="send-button" [disabled]="!draft.trim() || sending()" [attr.aria-label]="sending() ? 'جاري الإرسال' : 'إرسال الرسالة'">
+        @if (sending()) {
+          <span class="send-spinner" aria-hidden="true"></span>
+        } @else {
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m22 2-7 20-4-9-9-4 20-7Z"/><path d="M22 2 11 13"/></svg>
+        }
+      </button>
     </form>
+    <p class="composer-hint"><kbd>Enter</kbd> للإرسال <span>·</span> <kbd>Shift + Enter</kbd> لسطر جديد</p>
   </article>
 </section>

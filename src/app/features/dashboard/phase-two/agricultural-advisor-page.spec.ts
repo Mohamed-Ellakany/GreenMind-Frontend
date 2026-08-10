@@ -23,6 +23,7 @@ describe('AgriculturalAdvisorPage', () => {
     name: 'تصدير الفراولة',
     cropId: 1,
     crop: 'Strawberry',
+    supportsSmartDiagnosis: true,
     destinationId: 1,
     destination: 'European Union',
     governorate: 'القاهرة',

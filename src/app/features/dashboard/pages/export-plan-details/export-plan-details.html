@@ -79,22 +79,20 @@
                 <h2>اليوم وما تأخر</h2>
                 <p>الإجراءات التي قد تؤثر على جاهزية التصدير إذا لم تُنجز.</p>
               </div>
-              <button type="button" class="quiet-link" (click)="taskDrawerOpen.set(true)">عرض جميع مهام هذه الخطة <span aria-hidden="true">←</span></button>
+              <div class="flex flex-wrap items-center gap-2"><a routerLink="/activities" class="quiet-link">+ إضافة مهمة غير مخططة</a><button type="button" class="quiet-link" (click)="taskDrawerOpen.set(true)">عرض جميع مهام هذه الخطة <span aria-hidden="true">←</span></button></div>
             </header>
 
             @if (actionTasks().length) {
               <ul class="action-list">
                 @for (task of actionTasks(); track task.id) {
                   <li [class.is-overdue]="isOverdue(task)">
-                    <button type="button" class="task-check" [disabled]="updatingTaskId() === task.id" [attr.aria-label]="'إكمال مهمة ' + task.title" (click)="toggleTask(task)">
-                      @if (updatingTaskId() === task.id) { <span class="task-spinner"></span> }
-                    </button>
+                    <button type="button" class="task-status-control" [disabled]="updatingTaskId() === task.id" [attr.aria-label]="'تحديث حالة مهمة ' + task.title" (click)="toggleTask(task)">{{ task.status === 'InProgress' ? 'إكمال' : task.status === 'Completed' ? 'مكتملة' : 'بدء التنفيذ' }}</button>
                     <div class="min-w-0 flex-1">
                       <div class="flex flex-wrap items-center gap-2">
                         <h3>{{ task.title }}</h3>
                         <span class="task-state">{{ taskStatusLabel(task) }}</span>
                       </div>
-                      <p>{{ task.taskType }} · أولوية {{ priorityLabel(task.priority) }} · {{ formatDate(task.plannedDate) }}</p>
+                      <p>{{ taskTypeLabel(task.taskType) }} · أولوية {{ priorityLabel(task.priority) }} · {{ formatDate(task.plannedDate) }}</p>
                     </div>
                   </li>
                 }
@@ -229,7 +227,7 @@
           @for (task of filteredPlanTasks(); track task.id) {
             <article>
               <span class="task-priority" [attr.data-priority]="task.priority"></span>
-              <div><div class="task-title-line"><h3>{{ task.title }}</h3><span>{{ farmTaskStatusLabel(task.status) }}</span></div><p>{{ task.taskTypeName }} · {{ priorityLabel(task.priority) }}</p><time>{{ formatDate(task.plannedDate) }}</time>@if (task.description) { <small>{{ task.description }}</small> }</div>
+              <div><div class="task-title-line"><h3>{{ task.title }}</h3><span>{{ farmTaskStatusLabel(task.status) }}</span></div><p>{{ taskTypeLabel(task.taskTypeName) }} · {{ priorityLabel(task.priority) }} · {{ task.origin === 'UserAdded' ? 'أضافها المستخدم' : 'مخططة بالذكاء الاصطناعي' }}</p><time>{{ formatDate(task.plannedDate) }}</time>@if (task.description) { <small>{{ task.description }}</small> }@if (task.notes) { <small>ملاحظة: {{ task.notes }}</small> }</div>
             </article>
           } @empty {
             <div class="drawer-empty"><span>✓</span><h3>لا توجد مهام مطابقة</h3><p>غيّر الفلاتر لعرض بقية مهام الخطة.</p></div>
@@ -240,18 +238,25 @@
   }
 
   @if (soilFormOpen()) {
-    <div class="fixed inset-0 z-50 grid place-items-center bg-[#071710]/65 p-0 backdrop-blur-sm sm:p-4" (click)="closeSoilForm()">
+    <dialog
+      #soilDialog
+      class="gm-modal-layer place-items-center p-0 sm:p-4"
+      aria-labelledby="soil-dialog-title"
+      aria-describedby="soil-dialog-description"
+      (cancel)="cancelSoilForm($event)"
+      (click)="closeSoilForm()"
+    >
       <form class="flex max-h-[100dvh] w-full max-w-2xl flex-col overflow-hidden bg-white shadow-2xl sm:max-h-[92dvh] sm:rounded-3xl" (click)="$event.stopPropagation()" (ngSubmit)="saveSoilReading()">
         <header class="flex items-start justify-between gap-4 border-b border-slate-100 px-5 py-5 sm:px-7">
-          <div><span class="text-xs font-bold text-[#0f7a3d]">تحديث ميداني</span><h2 class="mt-1 text-xl font-black">إضافة قراءة تربة</h2><p class="mt-1 text-sm text-slate-500">سجّل نتائج جهاز القياس أو تحليل المختبر لهذه الخطة.</p></div>
+          <div><span class="text-xs font-bold text-[#0f7a3d]">تحديث ميداني</span><h2 id="soil-dialog-title" class="mt-1 text-xl font-black">إضافة قراءة تربة</h2><p id="soil-dialog-description" class="mt-1 text-sm text-slate-500">سجّل نتائج جهاز القياس أو تحليل المختبر لهذه الخطة. لا نملأ أي قيمة نيابةً عنك.</p></div>
           <button type="button" class="grid size-10 shrink-0 place-items-center rounded-full border border-slate-200 text-xl text-slate-500" aria-label="إغلاق" (click)="closeSoilForm()">×</button>
         </header>
-        <main class="min-h-0 flex-1 overflow-y-auto px-5 py-6 sm:px-7">
-          <label class="mb-5 block"><span class="mb-2 block text-sm font-bold">تاريخ القياس <em class="not-italic text-red-500">*</em></span><input required type="date" class="w-full rounded-xl border px-4 py-3" name="measurementDate" [(ngModel)]="soilForm.measurementDate" /></label>
+        <div class="min-h-0 flex-1 overflow-y-auto px-5 py-6 sm:px-7">
+          <label class="mb-5 block"><span class="mb-2 block text-sm font-bold">تاريخ القياس <em class="not-italic text-red-500">*</em></span><input id="soil-measurement-date" required type="date" class="w-full rounded-xl border px-4 py-3" name="measurementDate" [(ngModel)]="soilForm.measurementDate" /></label>
           <div class="grid gap-4 sm:grid-cols-2">
             <label><span class="mb-2 block text-sm font-bold">درجة الحموضة pH</span><span class="relative block"><input required type="number" min="0" max="14" step="0.01" class="w-full rounded-xl border px-4 py-3 pl-20" name="ph" [(ngModel)]="soilForm.ph" /><small class="field-unit">0–14</small></span></label>
             <label><span class="mb-2 block text-sm font-bold">التوصيل الكهربائي EC</span><span class="relative block"><input required type="number" min="0" step="0.01" class="w-full rounded-xl border px-4 py-3 pl-24" name="ec" [(ngModel)]="soilForm.ec" /><small class="field-unit">dS/m</small></span></label>
-            <label><span class="mb-2 block text-sm font-bold">الرطوبة</span><span class="relative block"><input required type="number" min="0" step="0.1" class="w-full rounded-xl border px-4 py-3 pl-20" name="moisture" [(ngModel)]="soilForm.moisture" /><small class="field-unit">%</small></span></label>
+            <label><span class="mb-2 block text-sm font-bold">الرطوبة</span><span class="relative block"><input required type="number" min="0" max="100" step="0.1" class="w-full rounded-xl border px-4 py-3 pl-20" name="moisture" [(ngModel)]="soilForm.moisture" /><small class="field-unit">%</small></span></label>
             <div class="hidden sm:block"></div>
             <label><span class="mb-2 block text-sm font-bold">النيتروجين N</span><span class="relative block"><input required type="number" min="0" step="0.1" class="w-full rounded-xl border px-4 py-3 pl-20" name="nitrogen" [(ngModel)]="soilForm.nitrogen" /><small class="field-unit">mg/kg</small></span></label>
             <label><span class="mb-2 block text-sm font-bold">الفوسفور P</span><span class="relative block"><input required type="number" min="0" step="0.1" class="w-full rounded-xl border px-4 py-3 pl-20" name="phosphorus" [(ngModel)]="soilForm.phosphorus" /><small class="field-unit">mg/kg</small></span></label>
@@ -259,9 +264,9 @@
           </div>
           <label class="mt-5 block"><span class="mb-2 block text-sm font-bold">ملاحظات <span class="font-normal text-slate-400">(اختياري)</span></span><textarea class="w-full resize-none rounded-xl border px-4 py-3" rows="3" maxlength="500" name="soilNotes" [(ngModel)]="soilForm.notes" placeholder="مكان أخذ العينة، ظروف الري، أو ملاحظات المختبر..."></textarea></label>
           @if (soilError()) { <p class="mt-4 rounded-xl bg-red-50 px-4 py-3 text-sm font-bold text-red-700" role="alert">{{ soilError() }}</p> }
-        </main>
+        </div>
         <footer class="flex items-center justify-between gap-3 border-t border-slate-100 px-5 py-4 sm:px-7"><button type="button" class="rounded-xl px-4 py-3 text-sm font-bold text-slate-500 hover:bg-slate-50" (click)="closeSoilForm()">إلغاء</button><button type="submit" [disabled]="soilSaving()" class="rounded-xl bg-[#0f7a3d] px-6 py-3 text-sm font-black text-white shadow-[0_8px_20px_rgba(15,122,61,.18)] disabled:opacity-50">{{ soilSaving() ? 'جارٍ حفظ القراءة...' : 'حفظ قراءة التربة' }}</button></footer>
       </form>
-    </div>
+    </dialog>
   }
 </section>

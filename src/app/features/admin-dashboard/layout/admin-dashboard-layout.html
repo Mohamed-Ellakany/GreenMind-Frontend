@@ -1,4 +1,5 @@
 <div class="admin-shell min-h-dvh bg-[#f4f7f4] text-[#10231b]" dir="rtl">
+  <a class="skip-link" href="#admin-main-content">تخطي إلى المحتوى</a>
   @if (mobileMenuOpen()) {
     <button
       class="fixed inset-0 z-40 bg-[#10231b]/55 backdrop-blur-[3px] lg:hidden"
@@ -9,13 +10,21 @@
   }
 
   <aside
+    #sidebar
+    id="admin-sidebar"
     class="admin-aside fixed inset-y-0 right-0 z-50 flex w-[260px] flex-col border-l border-white/5 bg-[#10231b] text-white"
+    aria-label="قائمة إدارة المنصة"
+    [attr.aria-hidden]="mobileDrawerHidden() ? 'true' : null"
+    [attr.aria-modal]="mobileDrawerActive() ? 'true' : null"
+    [attr.inert]="mobileDrawerHidden() ? '' : null"
+    [attr.role]="mobileDrawerActive() ? 'dialog' : null"
     [class.is-open]="mobileMenuOpen()"
     [class.admin-aside-collapsed]="asideCollapsed()"
   >
     <button
       class="admin-collapse-button hidden lg:grid"
       type="button"
+      aria-controls="admin-sidebar"
       [attr.aria-label]="asideCollapsed() ? 'توسيع القائمة' : 'تصغير القائمة'"
       [attr.aria-expanded]="!asideCollapsed()"
       (click)="toggleAside()"
@@ -27,7 +36,7 @@
       <a
         routerLink="/admin-dashboard/control-panel"
         class="admin-brand flex min-w-0 flex-1 items-center gap-3"
-        (click)="closeMobileMenu()"
+        (click)="closeMobileMenu(false)"
       >
         <span
           class="grid size-10 shrink-0 place-items-center rounded-xl bg-white shadow-[0_8px_20px_rgba(0,0,0,.15)]"
@@ -39,6 +48,7 @@
         >
       </a>
       <button
+        #mobileMenuClose
         class="grid size-9 shrink-0 place-items-center rounded-xl border border-white/10 text-white/65 lg:hidden"
         type="button"
         aria-label="إغلاق القائمة"
@@ -53,9 +63,10 @@
       <a
         routerLink="/admin-dashboard/control-panel"
         routerLinkActive="admin-nav-link-active"
+        ariaCurrentWhenActive="page"
         class="admin-nav-link"
         title="لوحة القيادة"
-        (click)="closeMobileMenu()"
+        (click)="closeMobileMenu(false)"
         ><fa-icon class="admin-nav-icon" [icon]="icons.dashboard" /><span class="admin-nav-text"
           >لوحة القيادة</span
         ></a
@@ -63,9 +74,10 @@
       <a
         routerLink="/admin-dashboard/accounts"
         routerLinkActive="admin-nav-link-active"
+        ariaCurrentWhenActive="page"
         class="admin-nav-link"
         title="حسابات المزارع"
-        (click)="closeMobileMenu()"
+        (click)="closeMobileMenu(false)"
         ><fa-icon class="admin-nav-icon" [icon]="icons.accounts" /><span class="admin-nav-text"
           >حسابات المزارع</span
         ></a
@@ -73,9 +85,10 @@
       <a
         routerLink="/admin-dashboard/destinations"
         routerLinkActive="admin-nav-link-active"
+        ariaCurrentWhenActive="page"
         class="admin-nav-link"
         title="وجهات التصدير"
-        (click)="closeMobileMenu()"
+        (click)="closeMobileMenu(false)"
         ><fa-icon class="admin-nav-icon" [icon]="icons.destinations" /><span class="admin-nav-text"
           >وجهات التصدير</span
         ></a
@@ -83,9 +96,10 @@
       <a
         routerLink="/admin-dashboard/products"
         routerLinkActive="admin-nav-link-active"
+        ariaCurrentWhenActive="page"
         class="admin-nav-link"
         title="المحاصيل"
-        (click)="closeMobileMenu()"
+        (click)="closeMobileMenu(false)"
         ><fa-icon class="admin-nav-icon" [icon]="icons.products" /><span class="admin-nav-text"
           >المحاصيل</span
         ></a
@@ -93,9 +107,10 @@
       <a
         routerLink="/admin-dashboard/regulatory-data"
         routerLinkActive="admin-nav-link-active"
+        ariaCurrentWhenActive="page"
         class="admin-nav-link"
         title="البيانات التنظيمية"
-        (click)="closeMobileMenu()"
+        (click)="closeMobileMenu(false)"
         ><fa-icon class="admin-nav-icon" [icon]="icons.regulatoryData" /><span
           class="admin-nav-text"
           >البيانات التنظيمية</span
@@ -108,9 +123,10 @@
       <a
         routerLink="/admin-dashboard/knowledge-base"
         routerLinkActive="admin-nav-link-active"
+        ariaCurrentWhenActive="page"
         class="admin-nav-link"
         title="قاعدة المعرفة"
-        (click)="closeMobileMenu()"
+        (click)="closeMobileMenu(false)"
         ><fa-icon class="admin-nav-icon" [icon]="icons.knowledgeBase" /><span class="admin-nav-text"
           >قاعدة المعرفة</span
         ><span
@@ -121,9 +137,10 @@
       <a
         routerLink="/admin-dashboard/support"
         routerLinkActive="admin-nav-link-active"
+        ariaCurrentWhenActive="page"
         class="admin-nav-link"
         title="رسائل الدعم"
-        (click)="closeMobileMenu()"
+        (click)="closeMobileMenu(false)"
         ><fa-icon class="admin-nav-icon" [icon]="icons.support" /><span class="admin-nav-text"
           >رسائل الدعم</span
         ></a
@@ -131,9 +148,10 @@
       <a
         routerLink="/admin-dashboard/team"
         routerLinkActive="admin-nav-link-active"
+        ariaCurrentWhenActive="page"
         class="admin-nav-link"
         title="إدارة الفريق"
-        (click)="closeMobileMenu()"
+        (click)="closeMobileMenu(false)"
         ><fa-icon class="admin-nav-icon" [icon]="icons.team" /><span class="admin-nav-text"
           >إدارة الفريق</span
         ></a
@@ -141,9 +159,10 @@
       <a
         routerLink="/admin-dashboard/settings"
         routerLinkActive="admin-nav-link-active"
+        ariaCurrentWhenActive="page"
         class="admin-nav-link"
         title="إعدادات الحساب"
-        (click)="closeMobileMenu()"
+        (click)="closeMobileMenu(false)"
         ><fa-icon class="admin-nav-icon" [icon]="icons.settings" /><span class="admin-nav-text"
           >إعدادات الحساب</span
         ></a
@@ -154,11 +173,11 @@
       <div class="admin-nav-text mb-2 flex items-center gap-3 rounded-xl bg-white/[.055] p-3">
         <span
           class="grid size-9 shrink-0 place-items-center rounded-xl bg-[#d8f36a] text-xs font-black text-[#31430b]"
-          >م</span
+          >{{ adminInitial() }}</span
         >
         <div class="min-w-0">
-          <strong class="block truncate text-xs">مدير المنصة</strong
-          ><small class="text-[10px] text-white/40">صلاحية كاملة</small>
+          <strong class="block truncate text-xs">{{ adminName() }}</strong
+          ><small class="block truncate text-[10px] text-white/55" dir="auto">{{ adminEmail() }}</small>
         </div>
       </div>
       <button
@@ -174,15 +193,17 @@
     </div>
   </aside>
 
-  <div class="admin-content" [class.admin-content-collapsed]="asideCollapsed()">
+  <div class="admin-content" [attr.aria-hidden]="mobileDrawerActive() ? 'true' : null" [attr.inert]="mobileDrawerActive() ? '' : null" [class.admin-content-collapsed]="asideCollapsed()">
     <header
       class="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-[#dde6df] bg-white/92 px-4 backdrop-blur-xl sm:px-6"
     >
       <div class="flex items-center gap-3">
         <button
+          #mobileMenuTrigger
           class="grid size-10 place-items-center rounded-xl border border-[#dde6df] bg-white text-[#405147] shadow-sm lg:hidden"
           type="button"
           aria-label="فتح القائمة"
+          aria-controls="admin-sidebar"
           [attr.aria-expanded]="mobileMenuOpen()"
           (click)="openMobileMenu()"
         >
@@ -194,6 +215,43 @@
         </div>
       </div>
       <div class="flex items-center gap-3">
+        <div class="relative">
+          <button
+            #notificationTrigger
+            id="admin-notifications-button"
+            type="button"
+            class="relative grid size-10 place-items-center rounded-xl border border-[#dde6df] bg-white text-[#415047] transition hover:bg-[#f3f8f4]"
+            aria-controls="admin-notifications-panel"
+            aria-haspopup="dialog"
+            [attr.aria-label]="notificationButtonLabel()"
+            [attr.aria-expanded]="notificationPanelOpen()"
+            (click)="toggleNotifications()"
+          >
+            <fa-icon [icon]="icons.bell" />
+            @if (notificationCenter.unreadCount() > 0) {
+              <i aria-hidden="true" class="absolute left-1.5 top-1 grid min-w-4 place-items-center rounded-full border-2 border-white bg-[#dc5a50] px-1 text-[9px] font-black leading-3 text-white">{{ notificationCenter.unreadCount() }}</i>
+            }
+          </button>
+          @if (notificationPanelOpen()) {
+            <section #notificationPanel id="admin-notifications-panel" class="admin-notification-panel absolute left-0 top-12 z-40 w-[min(360px,calc(100vw-2rem))] rounded-2xl border border-[#dce6df] bg-white p-3 text-right shadow-[0_20px_50px_rgba(16,35,27,.16)]" dir="rtl" role="dialog" aria-labelledby="admin-notifications-title" tabindex="-1">
+              <header class="mb-2 flex items-center justify-between gap-3 border-b border-[#edf1ee] pb-3">
+                <div><h2 id="admin-notifications-title" class="text-sm font-black text-[#10231b]">رسائل الدعم</h2><p class="text-[11px] text-[#738078]" aria-live="polite">{{ notificationCenter.unreadCount() }} غير مقروء</p></div>
+                <button type="button" class="rounded-lg bg-[#f3faf5] px-3 py-1.5 text-[11px] font-black text-[#0f7a3d]" (click)="notificationCenter.markAllRead()">تمييز الكل كمقروء</button>
+              </header>
+              <div class="max-h-80 space-y-2 overflow-y-auto">
+                @for (notification of notificationCenter.visibleNotifications(); track notification.id) {
+                  <button type="button" class="w-full rounded-xl border border-[#edf1ee] bg-[#f9fbfa] p-3 text-right transition hover:bg-[#f3faf5]" [class.border-[#0f7a3d]]="!notification.read" [attr.aria-label]="notification.title + (notification.read ? '، مقروء' : '، غير مقروء، تمييز كمقروء')" (click)="notificationCenter.markRead(notification.id)">
+                    <span class="mb-1 block text-xs font-black text-[#10231b]">{{ notification.title }}</span>
+                    <span class="block text-xs leading-5 text-[#65736c]">{{ notification.body }}</span>
+                  </button>
+                } @empty {
+                  <p class="rounded-xl bg-[#f7f9f7] p-4 text-center text-xs text-[#738078]">لا توجد رسائل دعم جديدة.</p>
+                }
+              </div>
+              <a routerLink="/admin-dashboard/support" class="mt-3 block rounded-xl border border-[#dce6df] px-3 py-2 text-center text-xs font-black text-[#10231b] transition hover:bg-[#f3faf5]" (click)="closeNotifications(false)">فتح رسائل الدعم</a>
+            </section>
+          }
+        </div>
         <span class="hidden text-[11px] font-bold text-[#7a8881] sm:inline">بيئة آمنة ومشفّرة</span
         ><span
           class="inline-flex items-center gap-2 rounded-full border border-[#dbe9de] bg-[#f3faf5] px-3 py-2 text-[11px] font-black text-[#0f7a3d]"
@@ -201,6 +259,6 @@
         >
       </div>
     </header>
-    <main class="min-h-[calc(100dvh-64px)] p-3 sm:p-5 lg:p-6"><router-outlet /></main>
+    <main id="admin-main-content" class="min-h-[calc(100dvh-64px)] p-3 sm:p-5 lg:p-6"><router-outlet /></main>
   </div>
 </div>

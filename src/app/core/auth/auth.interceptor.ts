@@ -2,12 +2,12 @@ import { HttpErrorResponse, HttpInterceptorFn } from '@angular/common/http';
 import { inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { catchError, throwError } from 'rxjs';
-
-const tokenKey = 'greenmind_access_token';
+import { AuthService } from '@features/auth/services/AuthService';
 
 export const authInterceptor: HttpInterceptorFn = (request, next) => {
   const router = inject(Router);
-  const token = localStorage.getItem(tokenKey);
+  const auth = inject(AuthService);
+  const token = auth.getToken();
   const authenticatedRequest = token
     ? request.clone({ setHeaders: { Authorization: `Bearer ${token}` } })
     : request;
@@ -15,8 +15,9 @@ export const authInterceptor: HttpInterceptorFn = (request, next) => {
   return next(authenticatedRequest).pipe(
     catchError((error: HttpErrorResponse) => {
       if (error.status === 401 && !request.url.includes('/api/Auth/')) {
-        localStorage.removeItem(tokenKey);
-        void router.navigateByUrl('/auth/login');
+        auth.logout();
+      } else if (error.status === 403 && router.url.startsWith('/admin-dashboard')) {
+        void router.navigateByUrl(auth.homeUrl());
       }
       return throwError(() => error);
     }),

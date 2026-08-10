@@ -1,4 +1,13 @@
-import { Component, DestroyRef, computed, inject, signal } from '@angular/core';
+import { DOCUMENT } from '@angular/common';
+import {
+  Component,
+  DestroyRef,
+  ElementRef,
+  computed,
+  inject,
+  signal,
+  viewChild,
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -8,6 +17,7 @@ import { PhaseTwoApi } from '@features/dashboard/phase-two/phase-two-api.service
 import { CostDashboard, DiseaseReport } from '@features/dashboard/phase-two/phase-two.models';
 import { ExportPlanOperationalSummary } from './export-plan-operational-summary';
 import { PlantGrowthLoader } from '@shared/components/plant-growth-loader/plant-growth-loader';
+import { taskPriorityLabel, taskStatusLabel, taskTypeLabel } from '@shared/utils/task-labels';
 import {
   DashboardTask,
   ExportPlanDashboard,
@@ -18,6 +28,17 @@ import {
 } from '@core/api/api.models';
 
 type InsightTone = 'good' | 'warning' | 'danger' | 'neutral';
+
+type SoilFormModel = {
+  measurementDate: string;
+  ph: number | null;
+  ec: number | null;
+  nitrogen: number | null;
+  phosphorus: number | null;
+  potassium: number | null;
+  moisture: number | null;
+  notes: string | null;
+};
 
 interface PlanInsight {
   tone: InsightTone;
@@ -36,8 +57,11 @@ export class ExportPlanDetailsPage {
   private readonly phaseApi = inject(PhaseTwoApi);
   private readonly route = inject(ActivatedRoute);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly document = inject(DOCUMENT);
+  private readonly soilDialog = viewChild<ElementRef<HTMLDialogElement>>('soilDialog');
   private readonly today = this.localIsoDate(new Date());
   private planId = 0;
+  private soilFormTrigger: HTMLElement | null = null;
 
   public readonly plan = signal<ExportPlanDetails | null>(null);
   public readonly dashboard = signal<ExportPlanDashboard | null>(null);
@@ -60,7 +84,7 @@ export class ExportPlanDetailsPage {
   public readonly soilError = signal<string | null>(null);
   public readonly soilSuccess = signal<string | null>(null);
 
-  public soilForm: SoilMeasurementRequest = this.emptySoilForm();
+  public soilForm: SoilFormModel = this.emptySoilForm();
 
   public readonly latestSoil = computed(() => this.dashboard()?.latestSoilMeasurement ?? null);
 
@@ -136,6 +160,7 @@ export class ExportPlanDetailsPage {
   });
 
   public constructor() {
+    this.destroyRef.onDestroy(() => this.document.body.classList.remove('gm-dialog-open'));
     this.planId = Number(this.route.snapshot.paramMap.get('id'));
     if (!Number.isInteger(this.planId) || this.planId <= 0) {
       this.loading.set(false);
@@ -149,19 +174,29 @@ export class ExportPlanDetailsPage {
   public heroCropImage(crop: string): string {
     const normalized = crop.trim().toLocaleLowerCase('ar');
     return normalized.includes('فراول') || normalized.includes('strawberry')
-      ? '/landing-page/strawberry-macro.png'
-      : '/landing-page/hero-farm.png';
+      ? '/landing-page/strawberry-macro.jpg'
+      : '/landing-page/hero-farm.jpg';
   }
 
   public openSoilForm(): void {
+    this.soilFormTrigger = this.document.activeElement instanceof HTMLElement
+      ? this.document.activeElement
+      : null;
     this.soilForm = this.emptySoilForm();
     this.soilError.set(null);
     this.soilSuccess.set(null);
     this.soilFormOpen.set(true);
+    this.document.body.classList.add('gm-dialog-open');
+    globalThis.setTimeout(() => this.showSoilDialog());
   }
 
   public closeSoilForm(): void {
-    if (!this.soilSaving()) this.soilFormOpen.set(false);
+    if (!this.soilSaving()) this.dismissSoilForm();
+  }
+
+  public cancelSoilForm(event: Event): void {
+    event.preventDefault();
+    this.closeSoilForm();
   }
 
   public onSoilDetailsToggle(event: Event): void {
@@ -170,22 +205,29 @@ export class ExportPlanDetailsPage {
 
   public saveSoilReading(): void {
     if (!this.validSoilReading()) {
-      this.soilError.set('راجع القيم: الحموضة من 0 إلى 14، وباقي القراءات يجب ألا تكون سالبة.');
+      this.soilError.set('أدخل كل نتائج القياس: الحموضة من 0 إلى 14، والرطوبة من 0 إلى 100، وباقي القيم غير سالبة.');
       return;
     }
 
     this.soilSaving.set(true);
     this.soilError.set(null);
-    this.api.createSoilMeasurement(this.planId, {
-      ...this.soilForm,
+    const payload: SoilMeasurementRequest = {
+      measurementDate: this.soilForm.measurementDate,
+      ph: this.soilForm.ph!,
+      ec: this.soilForm.ec!,
+      nitrogen: this.soilForm.nitrogen!,
+      phosphorus: this.soilForm.phosphorus!,
+      potassium: this.soilForm.potassium!,
+      moisture: this.soilForm.moisture!,
       notes: this.soilForm.notes?.trim() || null,
-    }).pipe(
+    };
+    this.api.createSoilMeasurement(this.planId, payload).pipe(
       finalize(() => this.soilSaving.set(false)),
       takeUntilDestroyed(this.destroyRef),
     ).subscribe({
       next: (reading) => {
         if (this.soilHistoryLoaded()) this.soilMeasurements.update((items) => [reading, ...items]);
-        this.soilFormOpen.set(false);
+        this.dismissSoilForm();
         this.soilSuccess.set('تم حفظ قراءة التربة وتحديث حالة الخطة.');
         this.refreshDashboard();
       },
@@ -197,7 +239,10 @@ export class ExportPlanDetailsPage {
     if (this.updatingTaskId()) return;
     this.updatingTaskId.set(task.id);
     this.error.set(null);
-    this.api.updateTask(task.id, { status: 'Completed', actualDate: this.today }).pipe(
+    const body = task.status === 'InProgress'
+      ? { status: 'Completed', actualDate: this.today }
+      : task.status === 'Completed' ? { status: 'Pending' } : { status: 'InProgress' };
+    this.api.updateTask(task.id, body).pipe(
       switchMap(() => forkJoin({
         dashboard: this.api.dashboard(this.planId),
         tasks: this.api.planTasks(this.planId),
@@ -227,15 +272,19 @@ export class ExportPlanDetailsPage {
 
   public taskStatusLabel(task: DashboardTask): string {
     if (this.isOverdue(task)) return 'متأخرة';
-    return task.status === 'InProgress' ? 'جارية' : 'اليوم';
+    return task.status === 'InProgress' ? 'جارية' : task.status === 'Postponed' ? 'مؤجلة' : task.status === 'Completed' ? 'مكتملة' : 'اليوم';
   }
 
   public farmTaskStatusLabel(status: FarmTask['status']): string {
-    return ({ Pending: 'معلقة', InProgress: 'جارية', Completed: 'مكتملة', Cancelled: 'ملغاة' } as const)[status];
+    return taskStatusLabel(status);
   }
 
   public priorityLabel(priority: string): string {
-    return ({ Low: 'منخفضة', Medium: 'متوسطة', High: 'عالية', Critical: 'حرجة' } as Record<string, string>)[priority] ?? priority;
+    return taskPriorityLabel(priority);
+  }
+
+  public taskTypeLabel(value: string): string {
+    return taskTypeLabel(value);
   }
 
   public isOverdue(task: DashboardTask): boolean {
@@ -321,21 +370,46 @@ export class ExportPlanDetailsPage {
 
   private validSoilReading(): boolean {
     const form = this.soilForm;
+    const values = [form.ph, form.ec, form.nitrogen, form.phosphorus, form.potassium, form.moisture];
     return Boolean(form.measurementDate)
-      && form.ph >= 0 && form.ph <= 14
-      && [form.ec, form.nitrogen, form.phosphorus, form.potassium, form.moisture]
-        .every((value) => Number.isFinite(value) && value >= 0);
+      && values.every((value) => typeof value === 'number' && Number.isFinite(value))
+      && form.ph! >= 0 && form.ph! <= 14
+      && form.moisture! >= 0 && form.moisture! <= 100
+      && [form.ec!, form.nitrogen!, form.phosphorus!, form.potassium!].every((value) => value >= 0);
   }
 
-  private emptySoilForm(): SoilMeasurementRequest {
+  private showSoilDialog(): void {
+    const dialog = this.soilDialog()?.nativeElement;
+    if (!dialog?.isConnected) return;
+    if (!dialog.open) {
+      if (typeof dialog.showModal === 'function') dialog.showModal();
+      else dialog.setAttribute('open', '');
+    }
+    this.document.getElementById('soil-measurement-date')?.focus();
+  }
+
+  private dismissSoilForm(): void {
+    const dialog = this.soilDialog()?.nativeElement;
+    if (dialog?.open) {
+      if (typeof dialog.close === 'function') dialog.close();
+      else dialog.removeAttribute('open');
+    }
+    this.soilFormOpen.set(false);
+    this.document.body.classList.remove('gm-dialog-open');
+    const trigger = this.soilFormTrigger;
+    this.soilFormTrigger = null;
+    globalThis.setTimeout(() => trigger?.focus());
+  }
+
+  private emptySoilForm(): SoilFormModel {
     return {
       measurementDate: this.today,
-      ph: 6.5,
-      ec: 1.2,
-      nitrogen: 25,
-      phosphorus: 15,
-      potassium: 35,
-      moisture: 65,
+      ph: null,
+      ec: null,
+      nitrogen: null,
+      phosphorus: null,
+      potassium: null,
+      moisture: null,
       notes: null,
     };
   }

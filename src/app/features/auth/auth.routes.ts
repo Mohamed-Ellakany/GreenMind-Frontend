@@ -9,33 +9,27 @@ export const AUTH_ROUTES: Routes = [
   },
   {
     path: 'login',
-    title: 'Login | GreenMind',
+    title: 'تسجيل الدخول | جرين مايند',
     loadComponent: () =>
       import('./pages/login/login').then(m => m.Login)
   },
   {
     path: 'register',
-    title: 'Register | GreenMind',
+    title: 'إنشاء حساب | جرين مايند',
     loadComponent: () =>
       import('./pages/register/register').then(m => m.Register)
   },
   {
     path: 'pending-approval',
-    title: 'Waiting for Approval | GreenMind',
+    title: 'بانتظار الموافقة | جرين مايند',
     loadComponent: () =>
       import('./pages/pending-approval/pending-approval').then(m => m.PendingApproval)
   },
-  { path: 'forgot-password', loadComponent: () => import('./pages/forgot-password/forgot-password').then(m => m.ForgotPassword) },
-  { path: 'reset-password', loadComponent: () => import('./pages/reset-password/reset-password').then(m => m.ResetPassword) },
+  { path: 'forgot-password', title: 'استعادة كلمة المرور | جرين مايند', loadComponent: () => import('./pages/forgot-password/forgot-password').then(m => m.ForgotPassword) },
+  { path: 'reset-password', title: 'إعادة تعيين كلمة المرور | جرين مايند', loadComponent: () => import('./pages/reset-password/reset-password').then(m => m.ResetPassword) },
   {
     path: 'accept-invitation',
-    title: 'Accept invitation | GreenMind',
+    title: 'قبول دعوة الإدارة | جرين مايند',
     loadComponent: () => import('./pages/accept-invitation/accept-invitation').then(m => m.AcceptInvitation)
   },
-//   {
-//     path: 'forgot-password',
-//     title: 'Forgot Password | GreenMind',
-//     loadComponent: () =>
-//       import('./pages/forgot-password/forgot-password').then(m => m.ForgotPasswordComponent)
-//   }
 ];

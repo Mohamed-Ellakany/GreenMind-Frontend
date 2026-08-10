@@ -5,6 +5,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { finalize } from 'rxjs';
 import { ToastrService } from 'ngx-toastr';
 import { AuthService } from '@features/auth/services/AuthService';
+import { meetsPasswordPolicy } from '@features/auth/utils/password-policy';
 
 @Component({
   selector: 'app-account-settings',
@@ -121,13 +122,7 @@ export class AccountSettings {
   }
 
   public passwordIsStrong(): boolean {
-    return (
-      this.newPassword.length >= 8 &&
-      /[A-Z]/.test(this.newPassword) &&
-      /[a-z]/.test(this.newPassword) &&
-      /\d/.test(this.newPassword) &&
-      /[^A-Za-z0-9]/.test(this.newPassword)
-    );
+    return meetsPasswordPolicy(this.newPassword);
   }
 
   private profileError(error: HttpErrorResponse): string {

@@ -39,6 +39,7 @@ export interface ExportPlan {
 
 export interface ExportPlanDetails extends ExportPlan {
   cropId: number;
+  supportsSmartDiagnosis: boolean;
   destinationId: number;
   governorate: string;
   city: string;
@@ -160,9 +161,68 @@ export interface FarmTask {
   description: string | null;
   plannedDate: string;
   actualDate: string | null;
-  status: 'Pending' | 'InProgress' | 'Completed' | 'Cancelled';
+  status: 'Pending' | 'InProgress' | 'Completed' | 'Cancelled' | 'Postponed' | 'Skipped';
   priority: 'Low' | 'Medium' | 'High' | 'Critical';
+  origin: 'AIPlanned' | 'UserAdded' | 'AIReplanned';
   notes: string | null;
+  activities?: TaskActivity[];
+}
+
+export interface TaskActivity {
+  id: number;
+  eventType: string;
+  source: string;
+  actorName: string | null;
+  previousStatus: FarmTask['status'] | null;
+  newStatus: FarmTask['status'] | null;
+  previousPlannedDate: string | null;
+  newPlannedDate: string | null;
+  actualDate: string | null;
+  note: string | null;
+  createdAt: string;
+}
+
+export interface TaskType {
+  id: number;
+  name: string;
+  description: string | null;
+}
+
+export interface CreateTaskRequest {
+  exportPlanId: number;
+  taskTypeId: number;
+  title: string;
+  description: string | null;
+  quantity: number;
+  unit: string;
+  plannedDate: string;
+  actualDate: string | null;
+  status: FarmTask['status'];
+  priority: FarmTask['priority'];
+  notes: string | null;
+}
+
+export interface ScheduleRevision {
+  id: number;
+  exportPlanId: number;
+  status: 'Pending' | 'InProgress' | 'Succeeded' | 'Failed' | 'Superseded';
+  source: string;
+  createdAt: string;
+  startedAtUtc: string | null;
+  completedAtUtc: string | null;
+  attemptCount: number;
+  failureMessage: string | null;
+  items: ScheduleRevisionItem[];
+}
+
+export interface ScheduleRevisionItem {
+  id: number;
+  farmTaskId: number | null;
+  operation: 'Added' | 'Moved' | 'Cancelled';
+  taskTitle: string;
+  previousPlannedDate: string | null;
+  newPlannedDate: string | null;
+  reason: string | null;
 }
 
 export interface ExportPlanDashboard {
@@ -173,7 +233,7 @@ export interface ExportPlanDashboard {
   };
   season: { currentSeasonDay: number; totalSeasonDays: number; progressPercentage: number; growthStage: string };
   latestSoilMeasurement: { measurementDate: string; ph: number; ec: number; nitrogen: number; phosphorus: number; potassium: number; moisture: number; notes: string | null } | null;
-  taskSummary: { total: number; pending: number; inProgress: number; completed: number; cancelled: number };
+  taskSummary: { total: number; pending: number; inProgress: number; completed: number; cancelled: number; postponed?: number; skipped?: number };
   overdueTasks: DashboardTask[];
   upcomingTasks: DashboardTask[];
   completedTasks: DashboardTask[];
@@ -181,7 +241,8 @@ export interface ExportPlanDashboard {
 
 export interface DashboardTask {
   id: number; title: string; taskType: string; plannedDate: string;
-  actualDate: string | null; status: string; priority: string;
+  actualDate: string | null; status: FarmTask['status'] | string; priority: string;
+  description?: string | null; notes?: string | null; origin?: FarmTask['origin'] | string;
 }
 
 export interface PlatformStatistics {

@@ -4,12 +4,13 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { finalize } from 'rxjs/operators';
 import { PhaseTwoApi } from '../../phase-two/phase-two-api.service';
 import { ChatMessage, ChatSession } from '../../phase-two/phase-two.models';
+import { markdownToHtml } from '../../../../shared/utils/markdown-to-html';
 
 @Component({
   selector: 'app-ai-agent',
   imports: [FormsModule],
   templateUrl: './ai-agent.html',
-  styleUrl: './ai-agent.css',
+  styleUrls: ['./ai-agent.css', './ai-agent-responsive.css'],
 })
 export class AiAgent {
   private readonly api = inject(PhaseTwoApi);
@@ -76,6 +77,10 @@ export class AiAgent {
     return message.role === 'المستخدم';
   }
 
+  public renderAssistantMessage(content: string): string {
+    return markdownToHtml(content);
+  }
+
   public onComposerKeydown(event: KeyboardEvent): void {
     if (event.key !== 'Enter' || event.shiftKey || event.isComposing) return;
     event.preventDefault();
@@ -86,7 +91,17 @@ export class AiAgent {
     const content = this.messageInput.trim();
     const session = this.selectedSession();
     if ((!content && !this.selectedImages.length) || !session || this.sending()) return;
-    const images = await Promise.all(this.selectedImages.map(async (file) => ({ fileName: file.name, contentType: file.type, dataBase64: await this.toBase64(file) })));
+    let images: Array<{ fileName: string; contentType: string; dataBase64: string }>;
+    try {
+      images = await Promise.all(this.selectedImages.map(async (file) => ({
+        fileName: file.name,
+        contentType: file.type,
+        dataBase64: await this.toBase64(file),
+      })));
+    } catch {
+      this.error.set('تعذر قراءة الصورة المرفقة. يرجى اختيار صورة أخرى.');
+      return;
+    }
     this.selectedImages = [];
 
     this.messageInput = '';
@@ -129,7 +144,24 @@ export class AiAgent {
     }
   }
 
-  public selectImages(event: Event): void { this.selectedImages = Array.from((event.target as HTMLInputElement).files ?? []).filter(file => file.type.startsWith('image/')).slice(0, 4); }
+  public selectImages(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const allowedTypes = new Set(['image/jpeg', 'image/png', 'image/gif', 'image/webp']);
+    const maximumImageBytes = 10 * 1024 * 1024;
+    const selected = Array.from(input.files ?? []);
+    const incoming = selected.filter((file) => allowedTypes.has(file.type) && file.size <= maximumImageBytes);
+    if (incoming.length !== selected.length) {
+      this.error.set('الصور المدعومة هي JPG وPNG وGIF وWebP، وبحد أقصى 10 ميجابايت للصورة.');
+    }
+    this.selectedImages = [...this.selectedImages, ...incoming]
+      .filter((file, index, items) => items.findIndex((candidate) => candidate.name === file.name && candidate.size === file.size) === index)
+      .slice(0, 4);
+    input.value = '';
+  }
+
+  public removeImage(index: number): void {
+    this.selectedImages = this.selectedImages.filter((_, imageIndex) => imageIndex !== index);
+  }
   public toggleVoice(): void { const Speech = (globalThis as any).SpeechRecognition ?? (globalThis as any).webkitSpeechRecognition; if (!Speech) { this.error.set('المتصفح لا يدعم الإدخال الصوتي.'); return; } if (this.recording()) { this.recognition?.stop(); return; } this.recognition = new Speech(); this.recognition.lang = 'ar-EG'; this.recognition.continuous = false; this.recognition.onresult = (event: any) => { this.messageInput = `${this.messageInput} ${event.results[0][0].transcript}`.trim(); }; this.recognition.onend = () => this.recording.set(false); this.recording.set(true); this.recognition.start(); }
   private toBase64(file: File): Promise<string> { return new Promise((resolve, reject) => { const reader = new FileReader(); reader.onload = () => resolve(String(reader.result).split(',')[1] ?? ''); reader.onerror = reject; reader.readAsDataURL(file); }); }
 

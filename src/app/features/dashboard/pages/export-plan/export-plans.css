@@ -6,6 +6,10 @@
   overflow: hidden;
 }
 
+.export-plan-modal[open] {
+  display: grid;
+}
+
 .export-plan-modal__dialog {
   display: grid;
   grid-template-rows: auto auto minmax(0, 1fr) auto;

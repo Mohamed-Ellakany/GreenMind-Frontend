@@ -13,33 +13,42 @@
   }
 
   <div class="mb-4 flex flex-col gap-3 rounded-xl border border-[#dce6df] bg-white p-3 shadow-sm lg:flex-row lg:items-center lg:justify-between">
-    <div class="flex flex-wrap gap-2">@for (tab of tabs; track tab.value) { <button class="rounded-lg px-3 py-2 text-xs font-bold" [class.bg-[#006b2c]]="selectedTab() === tab.value" [class.text-white]="selectedTab() === tab.value" [class.bg-slate-100]="selectedTab() !== tab.value" (click)="selectedTab.set(tab.value)">{{ tab.label }}</button> }</div>
-    <input class="rounded-lg border border-slate-200 px-4 py-2 text-sm lg:w-80" placeholder="ابحث بالاسم أو المحصول أو الوجهة" [value]="search()" (input)="search.set($any($event.target).value)" />
+    <div class="flex flex-wrap gap-2" aria-label="تصفية الخطط">@for (tab of tabs; track tab.value) { <button type="button" class="rounded-lg px-3 py-2 text-xs font-bold" [attr.aria-pressed]="selectedTab() === tab.value" [class.bg-[#006b2c]]="selectedTab() === tab.value" [class.text-white]="selectedTab() === tab.value" [class.bg-slate-100]="selectedTab() !== tab.value" (click)="selectedTab.set(tab.value)">{{ tab.label }}</button> }</div>
+    <input type="search" class="rounded-lg border border-slate-200 px-4 py-2 text-sm lg:w-80" placeholder="ابحث بالاسم أو المحصول أو الوجهة" aria-label="البحث في خطط التصدير" [value]="search()" (input)="search.set($any($event.target).value)" />
   </div>
 
   @if (loading()) { <p class="rounded-xl bg-white p-8 text-center text-slate-500">جارٍ تحميل الخطط...</p> }
-  @else if (filteredPlans().length === 0) { <button class="w-full rounded-2xl border-2 border-dashed border-slate-200 p-14 text-center" (click)="openForm()"><strong>لا توجد خطط بعد</strong><span class="mt-2 block text-sm text-slate-500">أنشئ أول خطة تصدير لبدء التخطيط الذكي.</span></button> }
+  @else if (plans().length === 0) { <button type="button" class="w-full rounded-2xl border-2 border-dashed border-slate-200 bg-white p-14 text-center" (click)="openForm()"><strong class="block text-lg">لا توجد خطط بعد</strong><span class="mt-2 block text-sm text-slate-500">أنشئ أول خطة تصدير لبدء التخطيط الذكي.</span><span class="mt-5 inline-flex rounded-xl bg-[#006b2c] px-4 py-2.5 text-sm font-black text-white">إنشاء أول خطة</span></button> }
+  @else if (filteredPlans().length === 0) { <div class="rounded-2xl border border-dashed border-[#cad6cc] bg-white p-12 text-center"><span class="mx-auto grid size-12 place-items-center rounded-xl bg-[#eef5f0] text-xl" aria-hidden="true">⌕</span><strong class="mt-4 block text-lg">لا توجد نتائج مطابقة</strong><p class="mt-2 text-sm text-slate-500">جرّب كلمة بحث أخرى أو اعرض كل الخطط.</p><button type="button" class="mt-5 rounded-xl border border-[#cad6cc] px-4 py-2.5 text-sm font-black text-[#006b2c]" (click)="search.set(''); selectedTab.set('all')">مسح عوامل التصفية</button></div> }
   @else {
     <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
       @for (plan of filteredPlans(); track plan.id) {
-        <article class="cursor-pointer rounded-xl border border-[#dce6df] bg-white p-4 shadow-[0_4px_20px_rgba(10,37,64,.045)] transition hover:border-[#0f7a3d]/30 hover:shadow-[0_10px_28px_rgba(16,35,27,.08)]" [routerLink]="['/export-plans', plan.id]" role="link" tabindex="0" (keydown.enter)="$any($event.currentTarget).click()">
-          <div class="flex items-start justify-between gap-3"><div><span class="text-xs font-bold text-[#006b2c]">EX-{{ plan.id }}</span><h2 class="mt-1 text-lg font-black">{{ plan.name }}</h2><p class="mt-2 text-sm text-slate-500">{{ plan.crop }} · {{ plan.destination }}</p></div><span class="rounded-full bg-slate-100 px-3 py-1 text-xs font-bold">{{ statusLabel(plan.status) }}</span></div>
+        <article class="rounded-xl border border-[#dce6df] bg-white p-4 shadow-[0_4px_20px_rgba(10,37,64,.045)] transition hover:border-[#0f7a3d]/30 hover:shadow-[0_10px_28px_rgba(16,35,27,.08)]">
+          <div class="flex items-start justify-between gap-3"><div><span class="text-xs font-bold text-[#006b2c]">EX-{{ plan.id }}</span><h2 class="mt-1 text-lg font-black"><a class="rounded-md hover:text-[#006b2c] hover:underline" [routerLink]="['/export-plans', plan.id]">{{ plan.name }}</a></h2><p class="mt-2 text-sm text-slate-500">{{ plan.crop }} · {{ plan.destination }}</p></div><span class="rounded-full bg-slate-100 px-3 py-1 text-xs font-bold">{{ statusLabel(plan.status) }}</span></div>
           <div class="mt-4"><div class="mb-2 flex justify-between text-xs text-slate-500"><span>تقدم الموسم</span><b>{{ progress(plan) }}%</b></div><div class="h-1.5 overflow-hidden rounded-full bg-slate-100"><i class="block h-full bg-[#16a34a]" [style.width.%]="progress(plan)"></i></div></div>
           <div class="mt-4 rounded-lg p-2.5 text-sm" [class.bg-green-50]="plan.planningStatus === 'Succeeded'" [class.text-green-800]="plan.planningStatus === 'Succeeded'" [class.bg-blue-50]="plan.planningStatus === 'Pending' || plan.planningStatus === 'InProgress'" [class.text-blue-800]="plan.planningStatus === 'Pending' || plan.planningStatus === 'InProgress'" [class.bg-red-50]="plan.planningStatus === 'Failed'" [class.text-red-800]="plan.planningStatus === 'Failed'"><b>{{ planningLabel(plan.planningStatus) }}</b><span class="mr-2">{{ plan.generatedTaskCount }} مهمة</span>@if (plan.planningStatus === 'Failed') { <button class="mr-3 underline" (click)="$event.stopPropagation(); retry(plan.id)">إعادة المحاولة</button> }</div>
           <div class="mt-4 grid grid-cols-2 gap-3 border-t pt-3 text-xs"><div><span class="text-slate-500">الزراعة</span><b class="mt-1 block">{{ plan.plantingDate }}</b></div><div><span class="text-slate-500">التصدير المتوقع</span><b class="mt-1 block">{{ plan.expectedExportDate }}</b></div></div>
+          <a class="mt-4 inline-flex rounded-lg text-xs font-black text-[#006b2c] hover:underline" [routerLink]="['/export-plans', plan.id]">فتح لوحة الخطة <span class="mr-1" aria-hidden="true">←</span></a>
         </article>
       }
     </div>
   }
 
   @if (formOpen()) {
-    <div class="export-plan-modal fixed inset-0 z-50 grid place-items-center bg-[#071710]/65 p-0 backdrop-blur-sm sm:p-4" (click)="closeForm()">
+    <dialog
+      #formDialog
+      class="export-plan-modal gm-modal-layer place-items-center p-0 sm:p-4"
+      aria-labelledby="export-plan-dialog-title"
+      aria-describedby="export-plan-dialog-description"
+      (cancel)="cancelForm($event)"
+      (click)="closeForm()"
+    >
       <form class="export-plan-modal__dialog w-full max-w-5xl overflow-hidden bg-white shadow-2xl sm:rounded-xl" (click)="$event.stopPropagation()" (ngSubmit)="create()">
         <header class="export-plan-modal__header flex items-start justify-between gap-4 border-b border-slate-100 px-5 py-3 sm:px-6 sm:py-4">
           <div>
             <div class="mb-1 flex items-center gap-2 text-xs font-bold text-[#0f7a3d]"><span class="inline-block size-2 rounded-full bg-[#0f7a3d]"></span> مخطط التصدير الذكي</div>
-            <h2 class="text-xl font-black tracking-tight sm:text-2xl">إنشاء خطة تصدير جديدة</h2>
-            <p class="mt-1 text-xs leading-5 text-slate-500 sm:text-sm">ثلاث خطوات قصيرة، ثم يبدأ الذكاء الاصطناعي في بناء المهام.</p>
+            <h2 id="export-plan-dialog-title" class="text-xl font-black tracking-tight sm:text-2xl">إنشاء خطة تصدير جديدة</h2>
+            <p id="export-plan-dialog-description" class="mt-1 text-xs leading-5 text-slate-500 sm:text-sm">ثلاث خطوات قصيرة، ثم يبدأ الذكاء الاصطناعي في بناء المهام.</p>
           </div>
           <button type="button" class="grid size-10 shrink-0 place-items-center rounded-full border border-slate-200 text-xl text-slate-500 hover:border-slate-300 hover:bg-slate-50 hover:text-slate-900" aria-label="إغلاق" (click)="closeForm()">×</button>
         </header>
@@ -59,7 +68,7 @@
           </ol>
         </nav>
 
-        <main class="export-plan-modal__body px-5 py-4 sm:px-6 sm:py-5">
+        <div class="export-plan-modal__body px-5 py-4 sm:px-6 sm:py-5">
           @if (formStep() === 1) {
             <section class="mx-auto max-w-3xl">
               <div class="mb-4">
@@ -68,7 +77,7 @@
                 <p class="mt-1 text-sm text-slate-500">اختر اسمًا واضحًا يساعدك في العثور على الخطة ومتابعتها لاحقًا.</p>
               </div>
               <div class="grid gap-5 sm:grid-cols-2">
-                <label class="sm:col-span-2"><span class="mb-2 block text-sm font-bold">اسم الخطة <em class="not-italic text-red-500">*</em></span><input required class="w-full rounded-xl border px-4 py-3" name="name" [(ngModel)]="form.name" (ngModelChange)="invalidateSchedule()" placeholder="مثال: تصدير فراولة هولندا - موسم 2026" autocomplete="off" /></label>
+                <label class="sm:col-span-2" for="export-plan-name"><span class="mb-2 block text-sm font-bold">اسم الخطة <em class="not-italic text-red-500">*</em></span><input id="export-plan-name" required class="w-full rounded-xl border px-4 py-3" name="name" [(ngModel)]="form.name" (ngModelChange)="invalidateSchedule()" placeholder="مثال: تصدير فراولة هولندا - موسم 2026" autocomplete="off" /></label>
                 <label><span class="mb-2 block text-sm font-bold">المحصول <em class="not-italic text-red-500">*</em></span><select required class="w-full rounded-xl border px-4 py-3" name="cropId" [(ngModel)]="form.cropId" (ngModelChange)="invalidateSchedule()"><option [ngValue]="0" disabled>اختر المحصول</option>@for (item of crops(); track item.id) { <option [ngValue]="item.id">{{ item.name }}</option> }</select><small class="mt-2 block text-xs text-slate-400">المحصول المراد زراعته وتجهيزه.</small></label>
                 <label><span class="mb-2 block text-sm font-bold">سوق التصدير <em class="not-italic text-red-500">*</em></span><select required class="w-full rounded-xl border px-4 py-3" name="destinationId" [(ngModel)]="form.destinationId" (ngModelChange)="invalidateSchedule()"><option [ngValue]="0" disabled>اختر الوجهة</option>@for (item of destinations(); track item.id) { <option [ngValue]="item.id">{{ item.name }}</option> }</select><small class="mt-2 block text-xs text-slate-400">سنراعي متطلبات هذه الوجهة في الخطة.</small></label>
                 <label class="sm:col-span-2"><span class="mb-2 block text-sm font-bold">ملاحظات للمحلل <span class="font-normal text-slate-400">(اختياري)</span></span><textarea class="w-full resize-none rounded-xl border px-4 py-3" rows="3" name="notes" [(ngModel)]="form.notes" (ngModelChange)="invalidateSchedule()" placeholder="شهادات مطلوبة، قيود الري أو التعبئة، أو أي تفاصيل تؤثر في الموسم..."></textarea></label>
@@ -175,7 +184,7 @@
               </section>
             }
           }
-        </main>
+        </div>
 
         <footer class="export-plan-modal__footer relative z-20 border-t border-slate-200 bg-white px-5 py-3 shadow-[0_-8px_24px_rgba(15,23,42,.07)] sm:px-6">
           @if (stepError()) { <div class="mb-3 flex items-center gap-2 rounded-xl bg-red-50 px-4 py-2.5 text-sm font-bold text-red-700" role="alert"><span>!</span> {{ stepError() }}</div> }
@@ -189,6 +198,6 @@
           </div>
         </footer>
       </form>
-    </div>
+    </dialog>
   }
 </section>

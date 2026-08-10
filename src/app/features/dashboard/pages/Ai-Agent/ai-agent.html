@@ -97,8 +97,10 @@
               <div class="message-bubble" [class.message-bubble--user]="isUserMessage(message)">
                 @if (!message.content) {
                   <span class="typing-indicator" aria-label="عم خضر يكتب"><i></i><i></i><i></i></span>
-                } @else {
+                } @else if (isUserMessage(message)) {
                   <p>{{ message.content }}</p>
+                } @else {
+                  <div class="message-markdown" [innerHTML]="renderAssistantMessage(message.content)"></div>
                 }
                 @if (message.status === 'فشل') { <small class="message-failure">تعذر إكمال هذا الرد</small> }
               </div>
@@ -113,11 +115,31 @@
             <button type="button" (click)="useSuggestion(suggestion)">{{ suggestion }}</button>
           }
         </div>
+        @if (selectedImages.length) {
+          <div class="attachment-list" aria-label="الصور المرفقة">
+            @for (image of selectedImages; track image.name + image.lastModified; let index = $index) {
+              <span class="attachment-chip">
+                <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="3" stroke="currentColor" stroke-width="1.8"/><circle cx="9" cy="10" r="2" stroke="currentColor" stroke-width="1.8"/><path d="m5 18 5-5 3 3 2-2 4 4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                <span>{{ image.name }}</span>
+                <button type="button" (click)="removeImage(index)" [attr.aria-label]="'حذف ' + image.name">×</button>
+              </span>
+            }
+          </div>
+        }
         <form class="composer" (ngSubmit)="send()">
-          <input type="file" accept="image/*" multiple (change)="selectImages($event)" aria-label="إضافة صور" /> <textarea rows="2" maxlength="4000" name="messageInput" [(ngModel)]="messageInput" (keydown)="onComposerKeydown($event)" placeholder="اسأل عم خضر عن مبيد، مادة فعالة، MRL، أو خطة تصدير…" aria-label="اكتب رسالتك"></textarea>
+          <div class="composer-tools">
+            <input #imageInput hidden type="file" accept="image/*" multiple (change)="selectImages($event)" aria-label="إضافة صور" />
+            <button type="button" class="tool-button" (click)="imageInput.click()" title="إرفاق صور" aria-label="إرفاق صور">
+              <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="m20.5 11.5-8.2 8.2a6 6 0 0 1-8.5-8.5l9-9a4 4 0 0 1 5.7 5.6l-9 9a2 2 0 1 1-2.8-2.8l8.2-8.2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+            <button type="button" class="tool-button" [class.tool-button--active]="recording()" (click)="toggleVoice()" title="إملاء صوتي" aria-label="إملاء صوتي">
+              <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="9" y="3" width="6" height="12" rx="3" stroke="currentColor" stroke-width="1.8"/><path d="M5.5 11.5a6.5 6.5 0 0 0 13 0M12 18v3M9 21h6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+            </button>
+          </div>
+          <textarea rows="2" maxlength="4000" name="messageInput" [(ngModel)]="messageInput" (keydown)="onComposerKeydown($event)" placeholder="اسأل عم خضر عن مبيد، مادة فعالة، MRL، أو خطة تصدير…" aria-label="اكتب رسالتك"></textarea>
           <div class="composer-actions">
             <span>{{ messageInput.length }} / 4000</span>
-            <button type="submit" [disabled]="sending() || !selectedSession() || !messageInput.trim()" aria-label="إرسال الرسالة">
+            <button type="submit" [disabled]="sending() || !selectedSession() || (!messageInput.trim() && !selectedImages.length)" aria-label="إرسال الرسالة">
               @if (sending()) { <span class="send-spinner"></span> } @else {
                 <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="m5 12 14-7-4 14-3-5-7-2Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="m12 14 7-9" stroke="currentColor" stroke-width="2"/></svg>
               }

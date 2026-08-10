@@ -1,6 +1,6 @@
 :host { display: block; }
-.admin-aside { overflow: hidden; transform: translateX(102%); background: linear-gradient(180deg, #0d2c20 0%, #081f17 58%, #061b14 100%); box-shadow: -20px 0 50px rgb(16 35 27 / .18); transition: transform 260ms cubic-bezier(.22,1,.36,1), width 220ms cubic-bezier(.22,1,.36,1); }
-.admin-aside.is-open { transform: translateX(0); }
+.admin-aside { visibility: hidden; pointer-events: none; overflow: hidden; transform: translateX(102%); background: linear-gradient(180deg, #0d2c20 0%, #081f17 58%, #061b14 100%); box-shadow: -20px 0 50px rgb(16 35 27 / .18); transition: transform 260ms cubic-bezier(.22,1,.36,1), width 220ms cubic-bezier(.22,1,.36,1), visibility 0s linear 260ms; }
+.admin-aside.is-open { visibility: visible; pointer-events: auto; transform: translateX(0); transition-delay: 0s; }
 .admin-collapse-button { position: absolute; left: -16px; top: 102px; width: 32px; height: 32px; place-items: center; border: 1px solid #d7e2da; border-radius: 10px; background: #fff; color: #526158; box-shadow: 0 6px 18px rgb(16 35 27 / .13); z-index: 2; transition: transform 240ms cubic-bezier(.22,1,.36,1), color 160ms ease, box-shadow 160ms ease; }
 .admin-collapse-button:hover { color: #0f7a3d; }
 .admin-nav { scrollbar-color: rgb(255 255 255 / .15) transparent; scrollbar-width: thin; }
@@ -15,7 +15,7 @@
 .status-dot { width: 8px; height: 8px; border-radius: 999px; background: #d7f45e; box-shadow: 0 0 0 5px rgb(215 244 94 / .1); animation: admin-status-pulse 2.5s ease-in-out infinite; }
 @keyframes admin-status-pulse { 0%, 100% { box-shadow: 0 0 0 4px rgb(215 244 94 / .08); } 50% { box-shadow: 0 0 0 8px rgb(215 244 94 / .02); } }
 @media (min-width: 1024px) {
-  .admin-aside { transform: translateX(0); box-shadow: none; }
+  .admin-aside { visibility: visible; pointer-events: auto; transform: translateX(0); box-shadow: none; }
   .admin-content { margin-right: 260px; }
   .admin-aside-collapsed { width: 74px; }
   .admin-aside-collapsed .admin-collapse-button { transform: rotate(180deg); }
@@ -23,5 +23,9 @@
   .admin-aside-collapsed .admin-brand, .admin-aside-collapsed .admin-nav-link { justify-content: center; gap: 0; }
   .admin-nav-text { white-space: nowrap; transition: opacity 140ms ease, max-width 180ms ease; }
   .admin-content-collapsed { margin-right: 74px; }
+}
+@media (max-width: 639px) {
+  .admin-notification-panel { position: fixed; inset-inline: 1rem; top: 4.75rem; width: auto; max-height: calc(100dvh - 5.75rem); overflow: hidden; }
+  .admin-notification-panel > div { max-height: calc(100dvh - 14rem); }
 }
 @media (prefers-reduced-motion: reduce) { .status-dot { animation: none; } }

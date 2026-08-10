@@ -1,123 +1,87 @@
-<section class="mx-auto flex min-h-[calc(100dvh-120px)] w-full max-w-[1280px] flex-col text-[#10231b]" dir="rtl">
-  <header class="mb-5 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-    <div>
-      <p class="text-xs font-black text-[#0f7a3d]">مركز المساعدة</p>
-      <h1 class="mt-1 text-3xl font-black tracking-tight">رسائل الدعم</h1>
-    </div>
-    <button
-      type="button"
-      class="w-fit rounded-xl border border-[#dce6df] bg-white px-4 py-2 text-xs font-black text-[#0f7a3d] shadow-sm transition hover:bg-[#f3faf5]"
-      (click)="loadConversations()"
-    >
-      تحديث
+<section class="admin-support-page" dir="rtl">
+  <header class="page-heading">
+    <div><p>مركز المساعدة</p><h1>رسائل الدعم</h1></div>
+    <button type="button" class="refresh-button" (click)="loadConversations()" [disabled]="loadingConversations()" aria-label="تحديث المحادثات">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 11a8.1 8.1 0 0 0-15.5-2M4 4v5h5M4 13a8.1 8.1 0 0 0 15.5 2M20 20v-5h-5"/></svg><span>تحديث</span>
     </button>
   </header>
 
-  @if (error()) {
-    <p class="mb-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-bold text-[#be3a34]">{{ error() }}</p>
-  }
+  @if (error()) { <p class="chat-error" role="alert">{{ error() }}</p> }
 
-  <div class="grid min-h-[600px] overflow-hidden rounded-2xl border border-[#dce6df] bg-white shadow-sm lg:grid-cols-[360px_1fr]">
-    <aside class="border-b border-[#edf1ee] bg-[#fbfdfc] lg:border-b-0 lg:border-l">
-      <div class="border-b border-[#edf1ee] px-4 py-4">
-        <h2 class="text-base font-black">المحادثات</h2>
-        <p class="mt-1 text-xs text-[#738078]">{{ conversations().length }} محادثة</p>
-      </div>
+  <div class="support-workspace">
+    <aside class="conversations-panel">
+      <header class="conversations-header">
+        <div><h2>المحادثات</h2><p>{{ conversations().length }} محادثة</p></div>
+        <span class="live-dot" title="متصل لحظيًا"></span>
+      </header>
 
-      <div class="max-h-[600px] overflow-y-auto p-3">
+      <div class="conversation-list">
         @if (loadingConversations()) {
-          <p class="rounded-xl bg-white p-5 text-center text-sm font-bold text-[#65736c]">جارٍ التحميل...</p>
+          <div class="list-loading"><i></i><i></i><i></i></div>
         } @else {
           @for (conversation of conversations(); track conversation.id) {
-            <button
-              type="button"
-              class="mb-2 w-full rounded-xl border border-[#e2e9e4] bg-white p-4 text-right transition hover:border-[#bcd9c5] hover:bg-[#f3faf5]"
-              [class.border-[#0f7a3d]]="activeConversation()?.id === conversation.id"
-              [class.bg-[#eef8f0]]="activeConversation()?.id === conversation.id"
-              (click)="selectConversation(conversation)"
-            >
-              <div class="flex items-start justify-between gap-3">
-                <div class="min-w-0">
-                  <b class="block truncate text-sm">{{ conversation.farmName }}</b>
-                  <span class="mt-1 block truncate text-xs text-[#65736c]">{{ conversation.ownerName }}</span>
-                </div>
-                <span class="shrink-0 text-[10px] font-bold text-[#7a8881]">{{ messageTime(conversation.lastMessageAtUtc) }}</span>
-              </div>
-              <p class="mt-3 line-clamp-2 text-xs leading-5 text-[#65736c]">
-                {{ conversation.lastMessagePreview || 'لا توجد رسائل بعد' }}
-              </p>
+            <button type="button" class="conversation-card" [class.conversation-card--active]="activeConversation()?.id === conversation.id" (click)="selectConversation(conversation)">
+              <span class="conversation-avatar">{{ conversation.ownerName.charAt(0) || 'م' }}</span>
+              <span class="conversation-copy">
+                <span class="conversation-line"><b>{{ conversation.ownerName }}</b><time>{{ messageTime(conversation.lastMessageAtUtc) }}</time></span>
+                <strong>{{ conversation.farmName }}</strong>
+                <small>{{ conversation.lastMessagePreview || 'لا توجد رسائل بعد' }}</small>
+              </span>
             </button>
           } @empty {
-            <p class="rounded-xl border border-dashed border-[#dce6df] p-8 text-center text-sm text-[#718078]">
-              لا توجد محادثات دعم حتى الآن.
-            </p>
+            <div class="empty-list"><span>💬</span><p>لا توجد محادثات دعم حتى الآن.</p></div>
           }
         }
       </div>
     </aside>
 
-    <article class="flex min-w-0 flex-col">
+    <article class="support-chat">
       @if (activeConversation(); as conversation) {
-        <header class="flex items-center justify-between gap-4 border-b border-[#edf1ee] px-5 py-4">
-          <div class="min-w-0">
-            <h2 class="truncate text-lg font-black">{{ conversation.farmName }}</h2>
-            <p class="mt-1 truncate text-xs text-[#738078]" dir="ltr">{{ conversation.ownerEmail || conversation.ownerName }}</p>
+        <header class="chat-header">
+          <div class="chat-identity">
+            <span class="header-avatar">{{ conversation.ownerName.charAt(0) || 'م' }}</span>
+            <div class="identity-copy"><h2>{{ conversation.ownerName }}</h2><p><i></i> {{ conversation.farmName }}</p></div>
           </div>
-          <span class="rounded-full bg-[#e7f5eb] px-3 py-1 text-xs font-black text-[#0f7a3d]">مفتوحة</span>
+          <span class="conversation-status">{{ conversation.isClosed ? 'مغلقة' : 'مفتوحة' }}</span>
         </header>
 
-        <div class="flex-1 space-y-3 overflow-y-auto bg-[#f7faf8] p-4 sm:p-5">
+        <div #messagesViewport class="messages-viewport" aria-live="polite" aria-label="رسائل المحادثة">
           @if (loadingMessages()) {
-            <p class="rounded-xl bg-white p-5 text-center text-sm font-bold text-[#65736c]">جارٍ تحميل الرسائل...</p>
+            <div class="loading-state"><i></i><i></i><i></i><span>جاري تحميل الرسائل</span></div>
           } @else {
             @for (message of messages(); track message.id) {
-              <div class="flex" [class.justify-end]="message.role === 'Admin'" [class.justify-start]="message.role === 'Customer'">
-                <div
-                  class="max-w-[82%] rounded-2xl px-4 py-3 shadow-sm sm:max-w-[66%]"
-                  [class.bg-[#10231b]]="message.role === 'Admin'"
-                  [class.text-white]="message.role === 'Admin'"
-                  [class.bg-white]="message.role === 'Customer'"
-                  [class.text-[#10231b]]="message.role === 'Customer'"
-                >
-                  <div class="mb-1 flex items-center gap-2 text-[11px] font-black opacity-75">
-                    <span>{{ message.role === 'Admin' ? 'الأدمن' : conversation.ownerName }}</span>
-                    <span>{{ messageTime(message.createdAt) }}</span>
+              <div class="support-message" [class.support-message--mine]="isMine(message)">
+                <span class="message-avatar" aria-hidden="true">{{ senderInitial(message) }}</span>
+                <div class="message-stack">
+                  @if (!isMine(message)) { <b class="sender-name">{{ message.senderName || conversation.ownerName }}</b> }
+                  <div class="message-bubble">
+                    <p>{{ message.content }}</p>
+                    <div class="message-meta">
+                      <time [attr.datetime]="message.createdAt">{{ messageTime(message.createdAt) }}</time>
+                      @if (isMine(message)) { <span class="delivery-check" title="تم الإرسال" aria-label="تم الإرسال">✓✓</span> }
+                    </div>
                   </div>
-                  <p class="whitespace-pre-wrap break-words text-sm leading-7">{{ message.content }}</p>
                 </div>
               </div>
             } @empty {
-              <p class="rounded-xl bg-white p-8 text-center text-sm text-[#65736c]">لم تُرسل أي رسائل في هذه المحادثة بعد.</p>
+              <div class="empty-chat"><span>👋</span><h3>ابدأ المحادثة</h3><p>لم تُرسل أي رسائل في هذه المحادثة بعد.</p></div>
             }
           }
         </div>
 
-        <form class="border-t border-[#edf1ee] bg-white p-4" (ngSubmit)="send()" novalidate>
-          <div class="flex flex-col gap-3 sm:flex-row">
-            <textarea
-              [(ngModel)]="draft"
-              name="draft"
-              class="min-h-24 flex-1 resize-none rounded-xl border border-[#dce6df] px-4 py-3 text-sm leading-7 outline-none transition placeholder:text-[#9aa59e] focus:border-[#0f7a3d] focus:ring-4 focus:ring-[#0f7a3d]/10"
-              placeholder="اكتب ردك..."
-              maxlength="2000"
-              required
-            ></textarea>
-            <button
-              type="submit"
-              [disabled]="!draft.trim() || sending()"
-              class="h-12 rounded-xl bg-[#10231b] px-8 text-sm font-black text-white shadow-[0_10px_25px_rgba(16,35,27,.16)] transition hover:bg-[#1b372b] disabled:cursor-not-allowed disabled:bg-[#96a39b] disabled:shadow-none sm:self-end"
-            >
-              {{ sending() ? 'جارٍ الإرسال...' : 'إرسال الرد' }}
-            </button>
+        <form class="chat-composer" (ngSubmit)="send()" novalidate>
+          <div class="composer-field">
+            <textarea [(ngModel)]="draft" name="draft" rows="1" placeholder="اكتب ردك..." maxlength="2000" aria-label="نص الرد" (keydown)="onComposerKeydown($event)" required></textarea>
+            <span class="character-count">{{ draft.length }}/2000</span>
           </div>
+          <button type="submit" class="send-button" [disabled]="!draft.trim() || sending()" [attr.aria-label]="sending() ? 'جاري الإرسال' : 'إرسال الرد'">
+            @if (sending()) { <span class="send-spinner" aria-hidden="true"></span> }
+            @else { <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m22 2-7 20-4-9-9-4 20-7Z"/><path d="M22 2 11 13"/></svg> }
+          </button>
         </form>
+        <p class="composer-hint">Enter للإرسال · Shift + Enter لسطر جديد</p>
       } @else {
-        <div class="grid flex-1 place-items-center p-8 text-center">
-          <div>
-            <h2 class="text-lg font-black">اختر محادثة</h2>
-            <p class="mt-2 text-sm text-[#65736c]">ستظهر الرسائل هنا بعد اختيار إحدى محادثات الدعم.</p>
-          </div>
-        </div>
+        <div class="no-conversation"><span>💬</span><h2>اختر محادثة</h2><p>اختر أحد العملاء لعرض الرسائل والرد عليها.</p></div>
       }
     </article>
   </div>
