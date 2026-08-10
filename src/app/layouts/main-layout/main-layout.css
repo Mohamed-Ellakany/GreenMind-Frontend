@@ -1,9 +1,11 @@
 :host { display: block; }
 
 .app-shell { background: var(--gm-canvas); color: var(--gm-ink); }
-.floating-aside { transform: translateX(100%); transition: transform 220ms ease, width 220ms ease; }
-.floating-aside.is-open { transform: translateX(0); }
+.floating-aside { visibility: hidden; pointer-events: none; transform: translateX(100%); transition: transform 220ms ease, width 220ms ease, visibility 0s linear 220ms; }
+.floating-aside.is-open { visibility: visible; pointer-events: auto; transform: translateX(0); transition-delay: 0s; }
 .floating-aside.plan-aside { border-color: #0b4b34; background: linear-gradient(180deg, #053f31 0%, #042f27 100%); box-shadow: -10px 0 40px rgb(4 47 39 / .12); }
+.mobile-aside-close { position: absolute; inset-inline-end: .75rem; top: .75rem; z-index: 4; display: grid; width: 38px; height: 38px; place-items: center; border: 1px solid #dce6df; border-radius: .75rem; background: #fff; color: #526158; font-size: 1.25rem; line-height: 1; box-shadow: 0 5px 15px rgb(16 35 27 / .09); }
+.plan-aside .mobile-aside-close { border-color: rgb(255 255 255 / .18); background: rgb(255 255 255 / .1); color: #fff; }
 .aside-scroll { scrollbar-width: thin; scrollbar-color: #c6d2c9 transparent; }
 .aside-scroll::-webkit-scrollbar { width: 5px; }
 .aside-scroll::-webkit-scrollbar-thumb { border-radius: 99px; background: #c6d2c9; }
@@ -13,6 +15,19 @@
 .nav-fa { display: inline-grid; width: 20px; min-width: 20px; place-items: center; }
 .aside-collapse-button { position: absolute; left: -16px; top: 86px; width: 32px; height: 32px; place-items: center; border: 1px solid #dde6df; border-radius: 10px; background: #fff; color: #526158; box-shadow: 0 5px 15px rgb(16 35 27 / 0.1); }
 .layout-content { transition: margin 220ms ease; }
+.route-search-results { position: absolute; inset-inline: 0; top: calc(100% + .5rem); z-index: 60; overflow: hidden; border: 1px solid #dce6df; border-radius: 1rem; background: #fff; padding: .45rem; box-shadow: 0 20px 50px rgb(16 35 27 / .15); }
+.route-search-heading { padding: .35rem .65rem .45rem; color: #738078; font-size: .7rem; font-weight: 800; }
+.route-search-result { display: grid; width: 100%; grid-template-columns: 34px 1fr; align-items: center; gap: .65rem; border-radius: .75rem; padding: .55rem .6rem; text-align: start; color: #263b31; }
+.route-search-result:hover, .route-search-result.is-active { background: #eff8f1; color: #075d2d; }
+.route-search-result > span:last-child, .route-search-result strong, .route-search-result small { display: block; min-width: 0; }
+.route-search-result strong { overflow: hidden; font-size: .78rem; font-weight: 900; text-overflow: ellipsis; white-space: nowrap; }
+.route-search-result small { overflow: hidden; margin-top: .1rem; color: #718078; font-size: .67rem; text-overflow: ellipsis; white-space: nowrap; }
+.route-search-icon { display: grid; width: 34px; height: 34px; place-items: center; border-radius: .7rem; background: #e7f5eb; color: #0f7a3d; font-size: .72rem; }
+.route-search-empty { padding: 1.25rem .75rem; text-align: center; color: #718078; font-size: .75rem; }
+.mobile-bottom-nav { padding-bottom: max(.35rem, env(safe-area-inset-bottom)); box-shadow: 0 -10px 30px rgb(16 35 27 / .08); }
+.mobile-tab { display: flex; min-height: 54px; flex-direction: column; align-items: center; justify-content: center; gap: .22rem; border-radius: .75rem; color: #718078; font-size: .64rem; font-weight: 800; }
+.mobile-tab fa-icon { font-size: .95rem; }
+.mobile-tab:hover, .mobile-tab-active { background: #edf8f0; color: #087a42; }
 
 @media (min-width: 1024px) {
   .layout-content main { max-width: 1800px; margin-inline: auto; }
@@ -21,7 +36,7 @@
 }
 
 @media (min-width: 1024px) {
-  .floating-aside { transform: translateX(0); }
+  .floating-aside { visibility: visible; pointer-events: auto; transform: translateX(0); }
   .layout-content { margin-right: 258px; }
   .floating-aside-collapsed { width: 74px; }
   .floating-aside-collapsed .aside-collapse-button { transform: rotate(180deg); }
@@ -31,4 +46,9 @@
   .floating-aside-collapsed .nav-link { padding-inline: 0; }
   .aside-text { white-space: nowrap; transition: opacity 140ms ease, width 180ms ease; }
   .layout-content-collapsed { margin-right: 74px; }
+}
+
+@media (max-width: 639px) {
+  .notification-panel { position: fixed; inset-inline: 1rem; top: 4.75rem; width: auto; max-height: calc(100dvh - 5.75rem); overflow: hidden; }
+  .notification-panel > div { max-height: calc(100dvh - 14rem); }
 }

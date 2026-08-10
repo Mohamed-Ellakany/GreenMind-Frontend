@@ -1,7 +1,8 @@
+import { DOCUMENT } from '@angular/common';
 import { Component, DestroyRef, computed, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { finalize, forkJoin, timer } from 'rxjs';
+import { Subscription, finalize, forkJoin, fromEvent, timer } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
 import { GreenmindApi } from '@core/api/greenmind-api.service';
 import { ExportPlanDetails } from '@core/api/api.models';
@@ -21,6 +22,8 @@ export class CropHealthPage {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly document = inject(DOCUMENT);
+  private pollingSubscription: Subscription | null = null;
 
   public readonly planId = Number(this.route.snapshot.paramMap.get('id'));
   public readonly plan = signal<ExportPlanDetails | null>(null);
@@ -33,9 +36,13 @@ export class CropHealthPage {
   public readonly completed = computed(() => this.diagnoses().filter((item) => item.status === 'مكتمل').length);
   public readonly attention = computed(() => this.diagnoses().filter((item) => ['قيد الانتظار', 'جاري التحليل', 'فشل'].includes(item.status)).length);
   public readonly latest = computed(() => this.diagnoses().find((item) => item.status === 'مكتمل') ?? null);
-  public readonly supportsSmartDiagnosis = computed(() => this.plan()?.crop?.toLowerCase() === 'strawberry');
+  public readonly supportsSmartDiagnosis = computed(() => this.plan()?.supportsSmartDiagnosis === true);
 
   public constructor() {
+    fromEvent(this.document, 'visibilitychange').pipe(
+      takeUntilDestroyed(this.destroyRef),
+    ).subscribe(() => this.syncPolling());
+
     if (!Number.isInteger(this.planId) || this.planId <= 0) {
       this.loading.set(false);
       this.error.set('معرّف خطة التصدير غير صالح.');
@@ -81,17 +88,39 @@ export class CropHealthPage {
     ).subscribe({
       next: ({ plan, diagnoses }) => {
         this.plan.set(plan);
-        this.diagnoses.set(diagnoses);
-        this.startPolling();
+        this.updateDiagnoses(diagnoses);
       },
       error: () => this.error.set('تعذر تحميل سجل صحة المحصول.'),
     });
   }
 
-  private startPolling(): void {
-    timer(5000, 5000).pipe(
+  private updateDiagnoses(items: DiagnosisSummary[]): void {
+    this.diagnoses.set(items);
+    this.syncPolling();
+  }
+
+  private syncPolling(): void {
+    const shouldPoll = !this.document.hidden && this.diagnoses().some(
+      (item) => ['قيد الانتظار', 'جاري التحليل'].includes(item.status),
+    );
+
+    if (!shouldPoll) {
+      this.stopPolling();
+      return;
+    }
+    if (this.pollingSubscription && !this.pollingSubscription.closed) return;
+
+    this.pollingSubscription = timer(5000, 5000).pipe(
       switchMap(() => this.api.diagnoses(this.planId)),
       takeUntilDestroyed(this.destroyRef),
-    ).subscribe({ next: (items) => this.diagnoses.set(items) });
+    ).subscribe({
+      next: (items) => this.updateDiagnoses(items),
+      error: () => this.stopPolling(),
+    });
+  }
+
+  private stopPolling(): void {
+    this.pollingSubscription?.unsubscribe();
+    this.pollingSubscription = null;
   }
 }

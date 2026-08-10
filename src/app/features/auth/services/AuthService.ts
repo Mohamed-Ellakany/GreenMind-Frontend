@@ -30,10 +30,11 @@ export class AuthService {
   public readonly accountProfile = signal<AccountProfile | null>(null);
 
   public login(payload: LoginRequest): Observable<AuthResponse> {
-    const source = this.http.post<ApiResponse<AuthResponse>>(`${this.baseUrl}/login`, payload).pipe(
-      map((response) => response.data),
-    );
-    return this.request(source);
+    const { rememberMe, ...credentials } = payload;
+    const source = this.http
+      .post<ApiResponse<AuthResponse>>(`${this.baseUrl}/login`, credentials)
+      .pipe(map((response) => response.data));
+    return this.request(source, rememberMe);
   }
 
   public register(payload: RegisterRequest): Observable<RegisterResponse> {
@@ -52,7 +53,7 @@ export class AuthService {
   }
 
   public logout(): void {
-    localStorage.removeItem(this.tokenKey);
+    this.clearToken();
     this.accountProfile.set(null);
     void this.router.navigateByUrl('/auth/login');
   }
@@ -78,14 +79,30 @@ export class AuthService {
     );
   }
 
-  public changePassword(payload: { currentPassword: string; newPassword: string }): Observable<void> {
-    return this.http.put<ApiResponse<void> | null>(`${this.baseUrl}/me/password`, payload).pipe(
-      map(() => undefined),
-    );
+  public changePassword(payload: {
+    currentPassword: string;
+    newPassword: string;
+  }): Observable<void> {
+    return this.http
+      .put<ApiResponse<void> | null>(`${this.baseUrl}/me/password`, payload)
+      .pipe(map(() => undefined));
   }
 
-  public forgotPassword(email: string): Observable<void> { return this.http.post<void>(`${this.baseUrl}/forgot-password`, { email }).pipe(map(() => undefined)); }
-  public resetPassword(payload: { email: string; token: string; newPassword: string }): Observable<void> { return this.http.post<void>(`${this.baseUrl}/reset-password`, payload).pipe(map(() => undefined)); }
+  public forgotPassword(email: string): Observable<void> {
+    return this.http
+      .post<void>(`${this.baseUrl}/forgot-password`, { email })
+      .pipe(map(() => undefined));
+  }
+
+  public resetPassword(payload: {
+    email: string;
+    token: string;
+    newPassword: string;
+  }): Observable<void> {
+    return this.http
+      .post<void>(`${this.baseUrl}/reset-password`, payload)
+      .pipe(map(() => undefined));
+  }
 
   public loadProfile(): void {
     if (!this.isAuthenticated()) return;
@@ -93,18 +110,22 @@ export class AuthService {
   }
 
   public getToken(): string | null {
-    return localStorage.getItem(this.tokenKey);
+    return sessionStorage.getItem(this.tokenKey) ?? localStorage.getItem(this.tokenKey);
   }
 
   public isAuthenticated(): boolean {
     const payload = this.tokenPayload();
     const expiry = payload?.['exp'];
-    return !!payload && (typeof expiry !== 'number' || expiry * 1000 > Date.now());
+    const authenticated = !!payload && (typeof expiry !== 'number' || expiry * 1000 > Date.now());
+    if (!authenticated && this.getToken()) this.clearToken();
+    return authenticated;
   }
 
   public hasRole(role: 'Admin' | 'SuperAdmin' | 'FarmOwner'): boolean {
     const payload = this.tokenPayload();
-    const value = payload?.['role'] ?? payload?.['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'];
+    const value =
+      payload?.['role'] ??
+      payload?.['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'];
     return Array.isArray(value) ? value.includes(role) : value === role;
   }
 
@@ -112,12 +133,25 @@ export class AuthService {
     return this.hasRole('Admin') ? '/admin-dashboard' : '/dashboard';
   }
 
-  private request(source: Observable<AuthResponse>): Observable<AuthResponse> {
+  public messageFromError(error: unknown, fallback = 'حدث خطأ غير متوقع. حاول مرة أخرى.'): string {
+    if (!(error instanceof HttpErrorResponse)) return fallback;
+    if (error.status === 0) return 'تعذر الاتصال بالخدمة. تحقق من اتصالك وحاول مرة أخرى.';
+
+    const messages = this.collectErrorMessages(error.error);
+    if (messages.length > 0) {
+      return [...new Set(messages.map((message) => this.localizeError(message)))].join(' ');
+    }
+    if (error.status === 401) return 'البريد الإلكتروني أو كلمة المرور غير صحيحة.';
+    if (error.status === 409) return 'يوجد حساب مسجل بهذا البريد الإلكتروني بالفعل.';
+    return fallback;
+  }
+
+  private request(source: Observable<AuthResponse>, rememberMe: boolean): Observable<AuthResponse> {
     this.loading.set(true);
     this.error.set(null);
     this.errorCode.set(null);
     return source.pipe(
-      tap((response) => localStorage.setItem(this.tokenKey, response.token)),
+      tap((response) => this.persistToken(response.token, rememberMe)),
       tap(() => this.loadProfile()),
       catchError((error: HttpErrorResponse) => {
         this.error.set(this.errorMessage(error));
@@ -129,13 +163,75 @@ export class AuthService {
   }
 
   private errorMessage(error: HttpErrorResponse): string {
-    return error.error?.error?.message
-      ?? error.error?.message
-      ?? 'حدث خطأ غير متوقع. حاول مرة أخرى.';
+    return this.messageFromError(error);
   }
 
   private extractErrorCode(error: HttpErrorResponse): string | null {
     return error.error?.error?.code ?? null;
+  }
+
+  private persistToken(token: string, rememberMe: boolean): void {
+    this.clearToken();
+    const storage = rememberMe ? localStorage : sessionStorage;
+    storage.setItem(this.tokenKey, token);
+  }
+
+  private clearToken(): void {
+    localStorage.removeItem(this.tokenKey);
+    sessionStorage.removeItem(this.tokenKey);
+  }
+
+  private collectErrorMessages(payload: unknown): string[] {
+    if (typeof payload === 'string') return payload.trim() ? [payload] : [];
+    if (Array.isArray(payload)) return payload.flatMap((item) => this.collectErrorMessages(item));
+    if (!payload || typeof payload !== 'object') return [];
+
+    const value = payload as Record<string, unknown>;
+    for (const key of ['message', 'Message', 'description', 'Description']) {
+      if (typeof value[key] === 'string' && value[key].trim()) return [value[key].trim()];
+    }
+
+    for (const key of ['errors', 'Errors', 'details', 'Details']) {
+      const messages = this.collectErrorMessages(value[key]);
+      if (messages.length > 0) return messages;
+    }
+
+    if (value['error']) {
+      const messages = this.collectErrorMessages(value['error']);
+      if (messages.length > 0) return messages;
+    }
+
+    return Object.values(value).flatMap((item) => this.collectErrorMessages(item));
+  }
+
+  private localizeError(message: string): string {
+    const normalized = message.toLowerCase();
+    if (normalized.includes('email already in use')) {
+      return 'يوجد حساب مسجل بهذا البريد الإلكتروني بالفعل.';
+    }
+    if (
+      normalized.includes('passwords must') ||
+      normalized.includes('password requires') ||
+      normalized.includes('password is too short')
+    ) {
+      return 'كلمة المرور لا تستوفي متطلبات الأمان الموضحة.';
+    }
+    if (normalized.includes('invalid reset') || normalized.includes('invalid token')) {
+      return 'الرابط غير صالح أو انتهت صلاحيته.';
+    }
+    if (
+      normalized.includes('invitation is invalid') ||
+      normalized.includes('invitation is no longer')
+    ) {
+      return 'رابط الدعوة غير صالح أو انتهت صلاحيته.';
+    }
+    if (normalized.includes('waiting for admin approval')) {
+      return 'الحساب ما زال بانتظار موافقة الإدارة.';
+    }
+    if (normalized.includes('user account is not active')) {
+      return 'هذا الحساب غير نشط. تواصل مع الدعم للمساعدة.';
+    }
+    return message;
   }
 
   private tokenPayload(): Record<string, string | string[] | number> | null {
@@ -159,9 +255,10 @@ export class AuthService {
   private profileFromToken(): AccountProfile | null {
     const payload = this.tokenPayload();
     if (!payload) return null;
-    const name = payload['fullName']
-      ?? payload['name']
-      ?? payload['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name'];
+    const name =
+      payload['fullName'] ??
+      payload['name'] ??
+      payload['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name'];
     const email = payload['email'];
     const farmId = payload['farmId'];
     const farmName = payload['farmName'];

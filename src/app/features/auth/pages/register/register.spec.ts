@@ -26,10 +26,7 @@ describe('Register', () => {
 
     await TestBed.configureTestingModule({
       imports: [Register],
-      providers: [
-        provideRouter([]),
-        { provide: AuthService, useValue: auth },
-      ],
+      providers: [provideRouter([]), { provide: AuthService, useValue: auth }],
     }).compileComponents();
 
     fixture = TestBed.createComponent(Register);
@@ -40,6 +37,39 @@ describe('Register', () => {
 
   it('should create', () => {
     expect(component).toBeTruthy();
+  });
+
+  it('keeps submit discoverable and focuses the first invalid field', async () => {
+    const submitButton = fixture.nativeElement.querySelector(
+      'button[type="submit"]',
+    ) as HTMLButtonElement;
+
+    expect(submitButton.disabled).toBe(false);
+    await (component as any).onSubmit();
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    expect(
+      fixture.nativeElement.querySelector('#register-full-name').getAttribute('aria-invalid'),
+    ).toBe('true');
+    expect(document.activeElement?.id).toBe('register-full-name');
+    expect(auth.register).not.toHaveBeenCalled();
+  });
+
+  it('rejects a password that does not meet the server identity policy', async () => {
+    (component as any).registerModel.set({
+      fullName: 'Test Owner',
+      email: 'owner@test.com',
+      password: 'abcdefgh',
+      confirmPassword: 'abcdefgh',
+      farmName: 'Test Farm',
+      terms: true,
+    });
+
+    await (component as any).onSubmit();
+
+    expect(auth.register).not.toHaveBeenCalled();
+    expect((component as any).registerForm.password().invalid()).toBe(true);
   });
 
   it('redirects to the pending approval page after successful registration', async () => {

@@ -1,0 +1,5 @@
+:host { display: block; }
+.legal-copy { display: grid; gap: 1.75rem; padding-block: 2rem .5rem; }
+.legal-copy h2 { color: #10231b; font-size: 1.05rem; font-weight: 950; }
+.legal-copy p { margin-top: .65rem; color: #586a60; font-size: .92rem; line-height: 2; }
+.legal-copy a { color: #087a42; font-weight: 800; }

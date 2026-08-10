@@ -19,7 +19,8 @@ describe('CropHealthPage', () => {
     id: 2,
     name: 'خطة فراولة',
     cropId: 1,
-    crop: 'Strawberry',
+    crop: 'Editable strawberry display name',
+    supportsSmartDiagnosis: true,
     destinationId: 1,
     destination: 'European Union',
     governorate: 'القاهرة',
@@ -91,7 +92,7 @@ describe('CropHealthPage', () => {
 
   afterEach(() => fixture.destroy());
 
-  it('renders the diagnosis history and enables the new diagnosis action for strawberry', () => {
+  it('uses the API capability flag instead of the editable crop display name', () => {
     const button = fixture.nativeElement.querySelector('.new-diagnosis') as HTMLButtonElement;
     expect(button).not.toBeNull();
     expect(button.disabled).toBe(false);
@@ -105,5 +106,37 @@ describe('CropHealthPage', () => {
 
     expect(api.createDiagnosis).toHaveBeenCalledWith(2);
     expect(navigate).toHaveBeenCalledWith(['/export-plans', 2, 'crop-health', 'diagnoses', 9]);
+  });
+
+  it('polls only while processing, pauses in a hidden tab, and stops after completion', async () => {
+    vi.useFakeTimers();
+    let hidden = false;
+    const hiddenSpy = vi.spyOn(document, 'hidden', 'get').mockImplementation(() => hidden);
+    const processing = { ...summary, status: 'قيد الانتظار' };
+
+    try {
+      api.diagnoses.mockClear();
+      api.diagnoses.mockReturnValue(of([processing]));
+      component.diagnoses.set([processing]);
+      document.dispatchEvent(new Event('visibilitychange'));
+
+      await vi.advanceTimersByTimeAsync(5000);
+      expect(api.diagnoses).toHaveBeenCalledTimes(1);
+
+      hidden = true;
+      document.dispatchEvent(new Event('visibilitychange'));
+      await vi.advanceTimersByTimeAsync(10_000);
+      expect(api.diagnoses).toHaveBeenCalledTimes(1);
+
+      api.diagnoses.mockReturnValue(of([{ ...summary, status: 'مكتمل' }]));
+      hidden = false;
+      document.dispatchEvent(new Event('visibilitychange'));
+      await vi.advanceTimersByTimeAsync(5000);
+      await vi.advanceTimersByTimeAsync(10_000);
+      expect(api.diagnoses).toHaveBeenCalledTimes(2);
+    } finally {
+      hiddenSpy.mockRestore();
+      vi.useRealTimers();
+    }
   });
 });

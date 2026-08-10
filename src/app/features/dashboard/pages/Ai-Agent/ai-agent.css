@@ -127,35 +127,3 @@
 @keyframes typing { 0%, 60%, 100% { transform: translateY(0); opacity: .45; } 30% { transform: translateY(-4px); opacity: 1; } }
 @keyframes shimmer { to { background-position: -200% 0; } }
 @keyframes spin { to { transform: rotate(360deg); } }
-
-@media (max-width: 1000px) {
-  .ai-hero { align-items: flex-start; flex-direction: column; }
-  .hero-actions { width: 100%; justify-content: space-between; }
-  .data-sources { display: flex; flex-wrap: wrap; gap: .5rem 1rem; }
-  .ai-workspace { grid-template-columns: 1fr; }
-  .chat-sidebar { order: 2; display: grid; grid-template-columns: 1fr 1fr; }
-  .sessions-card { min-height: 13rem; }
-  .sessions-list { max-height: 12rem; }
-}
-
-@media (max-width: 640px) {
-  .ai-shell { min-height: calc(100dvh - 80px); }
-  .ai-hero { gap: 1rem; padding: 1.15rem; border-radius: 1.25rem; }
-  .assistant-avatar--hero { display: none; }
-  .hero-copy p { font-size: .75rem; }
-  .hero-actions { align-items: stretch; flex-direction: column; }
-  .new-chat-button { justify-content: center; }
-  .ai-workspace { min-height: 0; }
-  .chat-card { min-height: 650px; border-radius: 1.2rem; }
-  .chat-source-badge { display: none; }
-  .messages-viewport { max-height: 58vh; padding: 1rem .8rem; }
-  .message-content { max-width: 86%; }
-  .message-avatar { width: 1.85rem; height: 1.85rem; }
-  .composer { grid-template-columns: auto minmax(0, 1fr); }
-  .composer-actions { grid-column: 1 / -1; justify-content: space-between; }
-  .chat-sidebar { grid-template-columns: 1fr; }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; }
-}

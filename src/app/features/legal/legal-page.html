@@ -1,0 +1,43 @@
+<div class="legal-shell min-h-dvh bg-[#f4f7f4] px-4 py-6 text-[#10231b] sm:px-6 sm:py-10" dir="rtl">
+  <a class="skip-link" href="#legal-content">تخطي إلى المحتوى</a>
+  <header class="mx-auto flex max-w-[920px] items-center justify-between gap-4">
+    <a routerLink="/" class="flex items-center gap-3 rounded-xl">
+      <span class="grid size-11 place-items-center rounded-xl bg-[#e7f5eb]">
+        <img class="size-7" src="/greenmind-leaf.svg" width="28" height="28" alt="" />
+      </span>
+      <span><strong class="block font-black">جرين مايند</strong><small class="text-xs text-[#738078]">منصة التصدير الزراعي</small></span>
+    </a>
+    <a routerLink="/auth/register" class="rounded-xl bg-[#10231b] px-4 py-2.5 text-sm font-black text-white">ابدأ الآن</a>
+  </header>
+
+  <main id="legal-content" class="mx-auto mt-8 max-w-[920px] rounded-3xl border border-[#dce6df] bg-white p-6 shadow-[0_20px_55px_rgba(16,35,27,.07)] sm:p-10">
+    <header class="border-b border-[#edf1ee] pb-7">
+      <p class="text-sm font-black text-[#0f7a3d]">معلومات قانونية واضحة</p>
+      <h1 class="mt-2 text-3xl font-black tracking-tight sm:text-4xl">{{ isPrivacy ? 'سياسة الخصوصية' : 'شروط الاستخدام' }}</h1>
+      <p class="mt-3 text-sm leading-7 text-[#65736c]">آخر تحديث: 9 أغسطس 2026</p>
+    </header>
+
+    @if (isPrivacy) {
+      <div class="legal-copy">
+        <section><h2>البيانات التي نستخدمها</h2><p>نستخدم بيانات الحساب والمزرعة وخطط التصدير والمهام والمرفقات التي تقدمها لتشغيل المنصة وتخصيص التوصيات وتقديم الدعم. نجمع كذلك معلومات تقنية ضرورية للأمان وتشخيص الأعطال.</p></section>
+        <section><h2>كيف نستخدم بياناتك</h2><p>نستخدم البيانات لتقديم الوظائف المطلوبة، حماية الحساب، تحسين دقة الخدمة، وإرسال رسائل تشغيلية مهمة. لا نبيع بياناتك الشخصية أو بيانات مزرعتك.</p></section>
+        <section><h2>الذكاء الاصطناعي والقرارات الزراعية</h2><p>قد تُعالج بعض المدخلات لتقديم تحليل أو توصية مساعدة. هذه النتائج استشارية ولا تستبدل تقييم مهندس زراعي معتمد أو متطلبات الجهات الرسمية.</p></section>
+        <section><h2>الحفظ والحماية</h2><p>نحتفظ بالبيانات للمدة اللازمة لتقديم الخدمة والوفاء بالالتزامات النظامية، ونطبق ضوابط وصول وحماية مناسبة لطبيعة البيانات.</p></section>
+        <section><h2>حقوقك</h2><p>يمكنك طلب تصحيح بياناتك أو الاستفسار عن استخدامها أو طلب حذف ما يسمح النظام بحذفه عبر مركز المساعدة داخل حسابك.</p></section>
+      </div>
+    } @else {
+      <div class="legal-copy">
+        <section><h2>استخدام المنصة</h2><p>تستخدم جرين مايند لإدارة معلومات المزرعة وخطط التصدير والمهام ذات الصلة. أنت مسؤول عن دقة البيانات التي تدخلها وعن الحفاظ على سرية بيانات الدخول.</p></section>
+        <section><h2>طبيعة التوصيات</h2><p>التوصيات والتنبيهات والتحليلات أدوات مساعدة لاتخاذ القرار، وليست ضماناً لقبول شحنة أو بديلاً عن الفحص الميداني أو التعليمات الحكومية أو رأي المختص.</p></section>
+        <section><h2>الاستخدام المقبول</h2><p>لا يجوز إساءة استخدام الخدمة أو محاولة الوصول إلى حسابات أو بيانات لا تخصك، أو رفع محتوى ضار، أو تعطيل المنصة أو التحايل على ضوابطها.</p></section>
+        <section><h2>توفر الخدمة</h2><p>نسعى إلى تقديم خدمة مستقرة ودقيقة، وقد نحتاج أحياناً إلى صيانة أو تحديث وظائف معينة. سنوضح الحالات المؤثرة كلما كان ذلك عملياً.</p></section>
+        <section><h2>التواصل</h2><p>لأي سؤال عن هذه الشروط، استخدم مركز المساعدة أو راسلنا على <a href="mailto:hello@greenmind.ag">hello@greenmind.ag</a>.</p></section>
+      </div>
+    }
+
+    <footer class="mt-9 flex flex-wrap items-center justify-between gap-3 border-t border-[#edf1ee] pt-6 text-sm">
+      <a routerLink="/" class="font-black text-[#0f7a3d]">العودة إلى الرئيسية</a>
+      <a [routerLink]="isPrivacy ? '/legal/terms' : '/legal/privacy'" class="text-[#526158] underline">{{ isPrivacy ? 'شروط الاستخدام' : 'سياسة الخصوصية' }}</a>
+    </footer>
+  </main>
+</div>

@@ -1,4 +1,13 @@
-import { Component, DestroyRef, computed, inject, signal } from '@angular/core';
+import { DOCUMENT } from '@angular/common';
+import {
+  Component,
+  DestroyRef,
+  ElementRef,
+  computed,
+  inject,
+  signal,
+  viewChild,
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -33,6 +42,8 @@ interface FarmLocationPreset {
 export class ExportPlans {
   private readonly api = inject(GreenmindApi);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly document = inject(DOCUMENT);
+  private readonly formDialog = viewChild<ElementRef<HTMLDialogElement>>('formDialog');
 
   public readonly search = signal('');
   public readonly selectedTab = signal<PlanTab>('all');
@@ -63,6 +74,7 @@ export class ExportPlans {
 
   private mapPanStart: { x: number; y: number; centerX: number; centerY: number } | null = null;
   private mapDragged = false;
+  private formTrigger: HTMLElement | null = null;
 
   public form: ExportPlanCreateRequest = this.emptyForm();
 
@@ -143,10 +155,14 @@ export class ExportPlans {
   });
 
   public constructor() {
+    this.destroyRef.onDestroy(() => this.document.body.classList.remove('gm-dialog-open'));
     this.load();
   }
 
   public openForm(): void {
+    this.formTrigger = this.document.activeElement instanceof HTMLElement
+      ? this.document.activeElement
+      : null;
     this.form = this.emptyForm();
     this.error.set(null);
     this.stepError.set(null);
@@ -159,10 +175,17 @@ export class ExportPlans {
     this.scheduleDirty.set(false);
     this.scheduleWarningsAccepted.set(false);
     this.formOpen.set(true);
+    this.document.body.classList.add('gm-dialog-open');
+    globalThis.setTimeout(() => this.showFormDialog());
   }
 
   public closeForm(): void {
-    if (!this.saving()) this.formOpen.set(false);
+    if (!this.saving()) this.dismissForm();
+  }
+
+  public cancelForm(event: Event): void {
+    event.preventDefault();
+    this.closeForm();
   }
 
   public nextStep(): void {
@@ -345,7 +368,7 @@ export class ExportPlans {
       takeUntilDestroyed(this.destroyRef),
     ).subscribe({
       next: (plan) => {
-        this.formOpen.set(false);
+        this.dismissForm();
         this.loadPlans();
         this.pollPlanning(plan.id);
       },
@@ -451,6 +474,29 @@ export class ExportPlans {
     this.loadPlans();
     this.api.crops().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({ next: (items) => this.crops.set(items), error: () => this.error.set('تعذر تحميل المحاصيل.') });
     this.api.destinations().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({ next: (items) => this.destinations.set(items), error: () => this.error.set('تعذر تحميل الوجهات.') });
+  }
+
+  private dismissForm(): void {
+    const dialog = this.formDialog()?.nativeElement;
+    if (dialog?.open) {
+      if (typeof dialog.close === 'function') dialog.close();
+      else dialog.removeAttribute('open');
+    }
+    this.formOpen.set(false);
+    this.document.body.classList.remove('gm-dialog-open');
+    const trigger = this.formTrigger;
+    this.formTrigger = null;
+    globalThis.setTimeout(() => trigger?.focus());
+  }
+
+  private showFormDialog(): void {
+    const dialog = this.formDialog()?.nativeElement;
+    if (!dialog?.isConnected) return;
+    if (!dialog.open) {
+      if (typeof dialog.showModal === 'function') dialog.showModal();
+      else dialog.setAttribute('open', '');
+    }
+    this.document.getElementById('export-plan-name')?.focus();
   }
 
   private loadPlans(): void {

@@ -20,16 +20,16 @@
 
   <nav aria-label="التنقل داخل خطة التصدير">
     <p class="nav-label">أقسام الخطة</p>
-    <a [routerLink]="['/export-plans', planId(), 'overview']" routerLinkActive="active" (click)="navigated.emit()">
+    <a [routerLink]="['/export-plans', planId(), 'overview']" routerLinkActive="active" ariaCurrentWhenActive="page" (click)="navigated.emit()">
       <fa-icon [icon]="icons.overview" /><span><b>لوحة متابعة الخطة</b><small>التقدم والمهام ومؤشرات الموسم</small></span>
     </a>
-    <a [routerLink]="['/export-plans', planId(), 'agricultural-advisor']" routerLinkActive="active" (click)="navigated.emit()">
+    <a [routerLink]="['/export-plans', planId(), 'agricultural-advisor']" routerLinkActive="active" ariaCurrentWhenActive="page" (click)="navigated.emit()">
       <fa-icon [icon]="icons.advisor" /><span><b>مستشار الخطة الذكي</b><small>اسأل عم خضر عن هذه الخطة</small></span>
     </a>
-    <a [routerLink]="['/export-plans', planId(), 'crop-health']" routerLinkActive="active" (click)="navigated.emit()">
+    <a [routerLink]="['/export-plans', planId(), 'crop-health']" routerLinkActive="active" ariaCurrentWhenActive="page" (click)="navigated.emit()">
       <fa-icon [icon]="icons.health" /><span><b>تشخيص ومتابعة المحصول</b><small>الصور والتحليلات الصحية</small></span>
     </a>
-    <a [routerLink]="['/export-plans', planId(), 'budget-expenses']" routerLinkActive="active" (click)="navigated.emit()">
+    <a [routerLink]="['/export-plans', planId(), 'budget-expenses']" routerLinkActive="active" ariaCurrentWhenActive="page" (click)="navigated.emit()">
       <fa-icon [icon]="icons.costs" /><span><b>الميزانية وسجل المصروفات</b><small>التكاليف والإيصالات والفواتير</small></span>
     </a>
   </nav>

@@ -1,28 +1,259 @@
 <main class="grid min-h-dvh bg-[#f4f7f4] text-[#10231b] lg:grid-cols-[1.05fr_.95fr]" dir="rtl">
-  <section class="relative hidden min-h-dvh overflow-hidden p-8 lg:block">
-    <img class="absolute inset-0 size-full object-cover" src="/landing-page/strawberry-macro.png" alt="ثمار فراولة جاهزة للحصاد" />
-    <div class="absolute inset-0 bg-gradient-to-t from-[#10231b]/95 via-[#10231b]/35 to-[#10231b]/10"></div>
-    <a routerLink="/" class="absolute right-8 top-8 flex items-center gap-3 rounded-2xl border border-white/20 bg-white/10 px-4 py-3 text-white backdrop-blur-md"><span class="grid size-9 place-items-center rounded-xl bg-white"><img class="size-6" src="/greenmind-leaf.svg" alt="" /></span><span><strong class="block">جرين مايند</strong><small class="text-white/65">منصة التصدير الزراعي</small></span></a>
-    <div class="absolute inset-x-12 bottom-12 max-w-xl text-white"><span class="inline-flex rounded-full bg-[#d8f36a] px-3 py-1.5 text-xs font-black text-[#31430b]">قرارات أذكى كل يوم</span><h2 class="mt-5 text-4xl font-black leading-tight">موسم ناجح يبدأ من رؤية واضحة.</h2><p class="mt-4 max-w-lg leading-8 text-white/70">تابع مزرعتك، رتّب مهامك، واستعد لمتطلبات الأسواق العالمية من مكان واحد.</p></div>
+  <section class="relative hidden min-h-dvh overflow-hidden p-8 lg:block" aria-label="جرين مايند">
+    <img
+      class="absolute inset-0 size-full object-cover"
+      src="/landing-page/strawberry-macro.jpg"
+      width="1376"
+      height="768"
+      alt="ثمار فراولة جاهزة للحصاد"
+      fetchpriority="high"
+    />
+    <div
+      class="absolute inset-0 bg-gradient-to-t from-[#10231b]/95 via-[#10231b]/35 to-[#10231b]/10"
+    ></div>
+    <a
+      routerLink="/"
+      class="absolute right-8 top-8 flex min-h-11 items-center gap-3 rounded-2xl border border-white/20 bg-white/10 px-4 py-3 text-white backdrop-blur-md"
+    >
+      <span class="grid size-9 place-items-center rounded-xl bg-white"
+        ><img class="size-6" src="/greenmind-leaf.svg" alt=""
+      /></span>
+      <span
+        ><strong class="block">جرين مايند</strong
+        ><small class="text-white/70">منصة التصدير الزراعي</small></span
+      >
+    </a>
+    <div class="absolute inset-x-12 bottom-12 max-w-xl text-white">
+      <span
+        class="inline-flex rounded-full bg-[#d8f36a] px-3 py-1.5 text-xs font-black text-[#31430b]"
+        >قرارات أذكى كل يوم</span
+      >
+      <h2 class="mt-5 text-4xl font-black leading-tight">موسم ناجح يبدأ من رؤية واضحة.</h2>
+      <p class="mt-4 max-w-lg leading-8 text-white/75">
+        تابع مزرعتك، رتّب مهامك، واستعد لمتطلبات الأسواق العالمية من مكان واحد.
+      </p>
+    </div>
   </section>
 
-  <section class="flex min-h-dvh items-center justify-center px-5 py-10 sm:px-10" aria-labelledby="login-heading">
+  <section
+    class="flex min-h-dvh items-center justify-center px-5 py-10 sm:px-10"
+    aria-labelledby="login-heading"
+  >
     <div class="w-full max-w-[430px]">
-      <a routerLink="/" class="mb-10 flex items-center gap-3 lg:hidden"><span class="grid size-10 place-items-center rounded-xl bg-[#e7f5eb]"><img class="size-7" src="/greenmind-leaf.svg" alt="" /></span><strong class="text-lg">جرين مايند</strong></a>
+      <a
+        routerLink="/"
+        class="mb-10 flex min-h-11 items-center gap-3 lg:hidden"
+        aria-label="جرين مايند - الرئيسية"
+      >
+        <span class="grid size-10 place-items-center rounded-xl bg-[#e7f5eb]"
+          ><img class="size-7" src="/greenmind-leaf.svg" alt=""
+        /></span>
+        <strong class="text-lg">جرين مايند</strong>
+      </a>
+
       @if (submitted()) {
-        <div class="rounded-[28px] border border-[#dde6df] bg-white p-10 text-center shadow-[0_20px_50px_rgba(16,35,27,.08)]" role="status"><span class="mx-auto grid size-16 place-items-center rounded-full bg-[#e7f5eb] text-3xl font-black text-[#0f7a3d]">✓</span><h1 id="login-heading" class="mt-5 text-2xl font-black">تم تسجيل الدخول</h1><p class="mt-3 leading-7 text-[#65736c]">تم التحقق من بياناتك بنجاح.</p></div>
+        <div
+          class="rounded-[28px] border border-[#dde6df] bg-white p-10 text-center shadow-[0_20px_50px_rgba(16,35,27,.08)]"
+          role="status"
+          aria-live="polite"
+        >
+          <span
+            class="mx-auto grid size-16 place-items-center rounded-full bg-[#e7f5eb] text-3xl font-black text-[#0f7a3d]"
+            aria-hidden="true"
+            >✓</span
+          >
+          <h1 id="login-heading" class="mt-5 text-2xl font-black">تم تسجيل الدخول</h1>
+          <p class="mt-3 leading-7 text-[#65736c]">تم التحقق من بياناتك، جارٍ فتح مساحة عملك.</p>
+        </div>
       } @else {
-        <header><p class="text-sm font-black text-[#0f7a3d]">مرحباً بعودتك</p><h1 id="login-heading" class="mt-2 text-3xl font-black tracking-tight sm:text-4xl">تسجيل الدخول</h1><p class="mt-3 text-sm leading-6 text-[#65736c]">أدخل بيانات حسابك للوصول إلى مساحة عمل مزرعتك.</p></header>
-        <form class="mt-9" (submit)="onSubmit($event)" novalidate>
-          <div class="mb-5"><label class="mb-2 block text-sm font-bold" for="email">البريد الإلكتروني</label><input class="h-12 w-full rounded-xl border px-4 text-left text-sm" id="email" type="email" [formField]="loginForm.email" placeholder="name@email.com" autocomplete="email" dir="ltr" />@if (loginForm.email().touched() && loginForm.email().invalid()) {@for (err of loginForm.email().errors(); track err.kind) {<small class="mt-1.5 block text-xs text-[#be3a34]">{{ err.message }}</small>}}</div>
-          <div><div class="mb-2 flex items-center justify-between"><label class="text-sm font-bold" for="password">كلمة المرور</label><a class="text-xs font-bold text-[#0f7a3d] hover:underline" routerLink="/auth/forgot-password">نسيت كلمة المرور؟</a></div><div class="relative"><input class="h-12 w-full rounded-xl border pe-4 ps-11 text-left text-sm" id="password" [type]="passwordVisible() ? 'text' : 'password'" [formField]="loginForm.password" placeholder="••••••••" autocomplete="current-password" dir="ltr" /><button class="absolute inset-y-0 left-0 flex w-11 items-center justify-center text-[#65736c] transition hover:text-[#0f7a3d] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#0f7a3d] focus-visible:ring-inset" type="button" (click)="togglePasswordVisibility()" [attr.aria-label]="passwordVisible() ? 'إخفاء كلمة المرور' : 'إظهار كلمة المرور'" [attr.aria-pressed]="passwordVisible()"><svg class="size-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">@if (passwordVisible()) {<path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12Z" /><circle cx="12" cy="12" r="2.5" />} @else {<path d="m3 3 18 18" /><path d="M10.6 10.7a2 2 0 0 0 2.7 2.7" /><path d="M9.9 5.2A10.7 10.7 0 0 1 12 5c6.5 0 10 7 10 7a18.2 18.2 0 0 1-3.2 4.2" /><path d="M6.2 6.2C3.5 8 2 12 2 12s3.5 7 10 7a9.8 9.8 0 0 0 3-.5" />}</svg></button></div>@if (loginForm.password().touched() && loginForm.password().invalid()) {@for (err of loginForm.password().errors(); track err.kind) {<small class="mt-1.5 block text-xs text-[#be3a34]">{{ err.message }}</small>}}</div>
-          <label class="mt-5 flex cursor-pointer items-center gap-2 text-sm text-[#65736c]" for="rememberMe"><input class="size-4" id="rememberMe" type="checkbox" [formField]="loginForm.rememberMe" /> تذكرني على هذا الجهاز</label>
-          @if (auth.error()) {<div class="mt-5 rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-[#be3a34]" role="alert">{{ auth.error() }}</div>}
-          <button class="mt-6 h-12 w-full rounded-xl bg-[#0f7a3d] text-sm font-black text-white shadow-[0_10px_25px_rgba(15,122,61,.2)] hover:bg-[#075d2d] disabled:cursor-not-allowed disabled:opacity-50" type="submit" [disabled]="loginForm().invalid() || auth.loading()">@if (auth.loading()) { جارٍ تسجيل الدخول... } @else { تسجيل الدخول }</button>
+        <header>
+          <p class="text-sm font-black text-[#0f7a3d]">مرحباً بعودتك</p>
+          <h1 id="login-heading" class="mt-2 text-3xl font-black tracking-tight sm:text-4xl">
+            تسجيل الدخول
+          </h1>
+          <p id="login-intro" class="mt-3 text-sm leading-6 text-[#65736c]">
+            أدخل بيانات حسابك للوصول إلى مساحة عمل مزرعتك.
+          </p>
+        </header>
+
+        <form
+          class="mt-9"
+          (submit)="onSubmit($event)"
+          novalidate
+          [attr.aria-busy]="auth.loading()"
+          aria-describedby="login-intro"
+        >
+          <div class="mb-5">
+            <label class="mb-2 block text-sm font-bold" for="login-email">البريد الإلكتروني</label>
+            <input
+              class="h-12 w-full rounded-xl border px-4 text-left text-sm"
+              id="login-email"
+              type="email"
+              [formField]="loginForm.email"
+              placeholder="name@email.com"
+              autocomplete="email"
+              inputmode="email"
+              dir="ltr"
+              [attr.aria-invalid]="
+                loginForm.email().invalid() && (loginForm.email().touched() || submitAttempted())
+                  ? 'true'
+                  : null
+              "
+              [attr.aria-describedby]="
+                loginForm.email().invalid() && (loginForm.email().touched() || submitAttempted())
+                  ? 'login-email-error'
+                  : null
+              "
+            />
+            @if (
+              loginForm.email().invalid() && (loginForm.email().touched() || submitAttempted())
+            ) {
+              <div id="login-email-error" class="mt-1.5 text-xs text-[#a92f2a]" role="alert">
+                @for (err of loginForm.email().errors(); track err.kind) {
+                  <p>{{ err.message }}</p>
+                }
+              </div>
+            }
+          </div>
+
+          <div>
+            <div class="mb-2 flex items-center justify-between gap-3">
+              <label class="text-sm font-bold" for="login-password">كلمة المرور</label>
+              <a
+                class="inline-flex min-h-11 items-center text-xs font-bold text-[#0f7a3d] hover:underline"
+                routerLink="/auth/forgot-password"
+                >نسيت كلمة المرور؟</a
+              >
+            </div>
+            <div class="relative">
+              <input
+                class="h-12 w-full rounded-xl border pe-4 ps-11 text-left text-sm"
+                id="login-password"
+                [type]="passwordVisible() ? 'text' : 'password'"
+                [formField]="loginForm.password"
+                placeholder="••••••••"
+                autocomplete="current-password"
+                dir="ltr"
+                [attr.aria-invalid]="
+                  loginForm.password().invalid() &&
+                  (loginForm.password().touched() || submitAttempted())
+                    ? 'true'
+                    : null
+                "
+                [attr.aria-describedby]="
+                  loginForm.password().invalid() &&
+                  (loginForm.password().touched() || submitAttempted())
+                    ? 'login-password-error'
+                    : null
+                "
+              />
+              <button
+                class="absolute inset-y-0 left-0 flex w-11 items-center justify-center text-[#65736c] transition hover:text-[#0f7a3d] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#0f7a3d] focus-visible:ring-inset"
+                type="button"
+                (click)="togglePasswordVisibility()"
+                [attr.aria-label]="passwordVisible() ? 'إخفاء كلمة المرور' : 'إظهار كلمة المرور'"
+                [attr.aria-pressed]="passwordVisible()"
+              >
+                <svg
+                  class="size-5"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  aria-hidden="true"
+                >
+                  @if (passwordVisible()) {
+                    <path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12Z" />
+                    <circle cx="12" cy="12" r="2.5" />
+                  } @else {
+                    <path d="m3 3 18 18" />
+                    <path d="M10.6 10.7a2 2 0 0 0 2.7 2.7" />
+                    <path
+                      d="M9.9 5.2A10.7 10.7 0 0 1 12 5c6.5 0 10 7 10 7a18.2 18.2 0 0 1-3.2 4.2"
+                    />
+                    <path d="M6.2 6.2C3.5 8 2 12 2 12s3.5 7 10 7a9.8 9.8 0 0 0 3-.5" />
+                  }
+                </svg>
+              </button>
+            </div>
+            @if (
+              loginForm.password().invalid() &&
+              (loginForm.password().touched() || submitAttempted())
+            ) {
+              <div id="login-password-error" class="mt-1.5 text-xs text-[#a92f2a]" role="alert">
+                @for (err of loginForm.password().errors(); track err.kind) {
+                  <p>{{ err.message }}</p>
+                }
+              </div>
+            }
+          </div>
+
+          <label
+            class="mt-5 flex min-h-11 cursor-pointer items-center gap-3 text-sm text-[#526158]"
+            for="rememberMe"
+          >
+            <input
+              class="size-5"
+              id="rememberMe"
+              type="checkbox"
+              [formField]="loginForm.rememberMe"
+              aria-describedby="remember-hint"
+            />
+            <span>تذكرني على هذا الجهاز</span>
+          </label>
+          <p id="remember-hint" class="text-xs leading-5 text-[#7c8981]">
+            فعّل هذا الخيار على جهازك الشخصي فقط.
+          </p>
+
+          @if (auth.error()) {
+            <div
+              id="login-form-error"
+              class="mt-5 rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-[#a92f2a]"
+              role="alert"
+              aria-live="assertive"
+              tabindex="-1"
+            >
+              {{ auth.error() }}
+            </div>
+          }
+
+          <button
+            class="mt-6 flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-[#0f7a3d] text-sm font-black text-white shadow-[0_10px_25px_rgba(15,122,61,.2)] hover:bg-[#075d2d] disabled:cursor-wait disabled:opacity-70"
+            type="submit"
+            [disabled]="auth.loading()"
+          >
+            @if (auth.loading()) {
+              <span
+                class="size-4 animate-spin rounded-full border-2 border-white/40 border-t-white"
+                aria-hidden="true"
+              ></span>
+              جارٍ تسجيل الدخول...
+            } @else {
+              تسجيل الدخول
+            }
+          </button>
         </form>
-        <div class="my-7 flex items-center gap-4 text-xs text-[#8a968f]"><i class="h-px flex-1 bg-[#dde6df]"></i><span>جديد في جرين مايند؟</span><i class="h-px flex-1 bg-[#dde6df]"></i></div>
-        <a class="flex h-12 w-full items-center justify-center rounded-xl border border-[#cad6cc] bg-white text-sm font-black text-[#10231b] transition hover:bg-[#f8fbf8]" routerLink="/auth/register">إنشاء حساب جديد</a>
-        <p class="mt-8 text-center text-xs leading-5 text-[#8a968f]">بالمتابعة، أنت توافق على شروط الاستخدام وسياسة الخصوصية.</p>
+
+        <div class="my-7 flex items-center gap-4 text-xs text-[#7c8981]" aria-hidden="true">
+          <i class="h-px flex-1 bg-[#dde6df]"></i><span>جديد في جرين مايند؟</span
+          ><i class="h-px flex-1 bg-[#dde6df]"></i>
+        </div>
+        <a
+          class="flex h-12 w-full items-center justify-center rounded-xl border border-[#cad6cc] bg-white text-sm font-black text-[#10231b] transition hover:bg-[#f8fbf8]"
+          routerLink="/auth/register"
+          >إنشاء حساب جديد</a
+        >
+        <p class="mt-8 text-center text-xs leading-6 text-[#7c8981]">
+          بالمتابعة، أنت توافق على
+          <a class="font-bold text-[#0f7a3d] hover:underline" routerLink="/legal/terms"
+            >شروط الاستخدام</a
+          >
+          و<a class="font-bold text-[#0f7a3d] hover:underline" routerLink="/legal/privacy"
+            >سياسة الخصوصية</a
+          >.
+        </p>
       }
     </div>
   </section>

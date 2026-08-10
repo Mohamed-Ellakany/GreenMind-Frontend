@@ -1,27 +1,426 @@
-<main class="grid min-h-dvh bg-[#f4f7f4] text-[#10231b] lg:h-dvh lg:overflow-hidden lg:grid-cols-[.95fr_1.05fr]" dir="rtl">
-  <section class="flex items-center justify-center px-5 py-10 sm:px-10 lg:overflow-y-auto" aria-labelledby="register-heading">
+<main
+  class="grid min-h-dvh bg-[#f4f7f4] text-[#10231b] lg:h-dvh lg:overflow-hidden lg:grid-cols-[.95fr_1.05fr]"
+  dir="rtl"
+>
+  <section
+    class="flex items-center justify-center px-5 py-10 sm:px-10 lg:overflow-y-auto"
+    aria-labelledby="register-heading"
+  >
     <div class="w-full max-w-[510px]">
-      <a routerLink="/" class="mb-8 flex items-center gap-3"><span class="grid size-10 place-items-center rounded-xl bg-[#e7f5eb]"><img class="size-7" src="/greenmind-leaf.svg" alt="" /></span><span><strong class="block">جرين مايند</strong><small class="text-[#738078]">منصة التصدير الزراعي</small></span></a>
+      <a
+        routerLink="/"
+        class="mb-8 flex min-h-11 items-center gap-3"
+        aria-label="جرين مايند - الرئيسية"
+      >
+        <span class="grid size-10 place-items-center rounded-xl bg-[#e7f5eb]"
+          ><img class="size-7" src="/greenmind-leaf.svg" alt=""
+        /></span>
+        <span
+          ><strong class="block">جرين مايند</strong
+          ><small class="text-[#65736c]">منصة التصدير الزراعي</small></span
+        >
+      </a>
+
       @if (submitted()) {
-        <div class="rounded-[28px] border border-[#dde6df] bg-white p-10 text-center shadow-[0_20px_50px_rgba(16,35,27,.08)]" role="status"><span class="mx-auto grid size-16 place-items-center rounded-full bg-[#e7f5eb] text-3xl font-black text-[#0f7a3d]">✓</span><h1 id="register-heading" class="mt-5 text-2xl font-black">تم إنشاء الحساب</h1><p class="mt-3 leading-7 text-[#65736c]">وصلتنا بياناتك بنجاح. يمكنك تسجيل الدخول بعد تفعيل حساب مزرعتك.</p><a routerLink="/auth/login" class="mt-7 inline-flex rounded-xl bg-[#0f7a3d] px-6 py-3 text-sm font-black text-white">الانتقال لتسجيل الدخول</a></div>
+        <div
+          class="rounded-[28px] border border-[#dde6df] bg-white p-10 text-center shadow-[0_20px_50px_rgba(16,35,27,.08)]"
+          role="status"
+          aria-live="polite"
+        >
+          <span
+            class="mx-auto grid size-16 place-items-center rounded-full bg-[#e7f5eb] text-3xl font-black text-[#0f7a3d]"
+            aria-hidden="true"
+            >✓</span
+          >
+          <h1 id="register-heading" class="mt-5 text-2xl font-black">تم إنشاء الحساب</h1>
+          <p class="mt-3 leading-7 text-[#65736c]">
+            وصلتنا بياناتك بنجاح. يمكنك تسجيل الدخول بعد تفعيل حساب مزرعتك.
+          </p>
+          <a
+            routerLink="/auth/login"
+            class="mt-7 inline-flex min-h-11 items-center rounded-xl bg-[#0f7a3d] px-6 py-3 text-sm font-black text-white"
+            >الانتقال لتسجيل الدخول</a
+          >
+        </div>
       } @else {
-        <header><p class="text-sm font-black text-[#0f7a3d]">ابدأ رحلتك</p><h1 id="register-heading" class="mt-2 text-3xl font-black tracking-tight sm:text-4xl">أنشئ حساب مزرعتك</h1><p class="mt-3 text-sm leading-6 text-[#65736c]">بضع بيانات فقط تفصلك عن أول خطة تصدير ذكية.</p></header>
-        <form class="mt-8" (ngSubmit)="onSubmit()" novalidate>
+        <header>
+          <p class="text-sm font-black text-[#0f7a3d]">ابدأ رحلتك</p>
+          <h1 id="register-heading" class="mt-2 text-3xl font-black tracking-tight sm:text-4xl">
+            أنشئ حساب مزرعتك
+          </h1>
+          <p id="register-intro" class="mt-3 text-sm leading-6 text-[#65736c]">
+            بضع بيانات فقط تفصلك عن أول خطة تصدير ذكية.
+          </p>
+        </header>
+
+        <form
+          class="mt-8"
+          (ngSubmit)="onSubmit()"
+          novalidate
+          [attr.aria-busy]="auth.loading()"
+          aria-describedby="register-intro"
+        >
           <div class="grid gap-5 sm:grid-cols-2">
-            <div><label class="mb-2 block text-sm font-bold" for="fullName">الاسم الكامل</label><input class="h-12 w-full rounded-xl border px-4 text-sm" id="fullName" type="text" [formField]="registerForm.fullName" placeholder="محمد أحمد" autocomplete="name" />@if (registerForm.fullName().touched() && registerForm.fullName().invalid()) {@for (err of registerForm.fullName().errors(); track err.kind) {<small class="mt-1.5 block text-xs text-[#be3a34]">{{ err.message }}</small>}}</div>
-            <div><label class="mb-2 block text-sm font-bold" for="farmName">اسم المزرعة</label><input class="h-12 w-full rounded-xl border px-4 text-sm" id="farmName" type="text" [formField]="registerForm.farmName" placeholder="مزرعة الأمل" autocomplete="organization" />@if (registerForm.farmName().touched() && registerForm.farmName().invalid()) {@for (err of registerForm.farmName().errors(); track err.kind) {<small class="mt-1.5 block text-xs text-[#be3a34]">{{ err.message }}</small>}}</div>
-            <div class="sm:col-span-2"><label class="mb-2 block text-sm font-bold" for="email">البريد الإلكتروني</label><input class="h-12 w-full rounded-xl border px-4 text-left text-sm" id="email" type="email" [formField]="registerForm.email" placeholder="name@email.com" autocomplete="email" dir="ltr" />@if (registerForm.email().touched() && registerForm.email().invalid()) {@for (err of registerForm.email().errors(); track err.kind) {<small class="mt-1.5 block text-xs text-[#be3a34]">{{ err.message }}</small>}}</div>
-            <div><label class="mb-2 block text-sm font-bold" for="password">كلمة المرور</label><div class="relative"><input class="h-12 w-full rounded-xl border pe-4 ps-11 text-left text-sm" id="password" [type]="passwordVisible() ? 'text' : 'password'" [formField]="registerForm.password" placeholder="••••••••" autocomplete="new-password" dir="ltr" /><button class="absolute inset-y-0 left-0 flex w-11 items-center justify-center text-[#65736c] transition hover:text-[#0f7a3d] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#0f7a3d] focus-visible:ring-inset" type="button" (click)="togglePasswordVisibility()" [attr.aria-label]="passwordVisible() ? 'إخفاء كلمة المرور' : 'إظهار كلمة المرور'" [attr.aria-pressed]="passwordVisible()"><svg class="size-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">@if (passwordVisible()) {<path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12Z" /><circle cx="12" cy="12" r="2.5" />} @else {<path d="m3 3 18 18" /><path d="M10.6 10.7a2 2 0 0 0 2.7 2.7" /><path d="M9.9 5.2A10.7 10.7 0 0 1 12 5c6.5 0 10 7 10 7a18.2 18.2 0 0 1-3.2 4.2" /><path d="M6.2 6.2C3.5 8 2 12 2 12s3.5 7 10 7a9.8 9.8 0 0 0 3-.5" />}</svg></button></div>@if (registerForm.password().touched() && registerForm.password().invalid()) {@for (err of registerForm.password().errors(); track err.kind) {<small class="mt-1.5 block text-xs text-[#be3a34]">{{ err.message }}</small>}}</div>
-            <div><label class="mb-2 block text-sm font-bold" for="confirmPassword">تأكيد كلمة المرور</label><div class="relative"><input class="h-12 w-full rounded-xl border pe-4 ps-11 text-left text-sm" id="confirmPassword" [type]="confirmPasswordVisible() ? 'text' : 'password'" [formField]="registerForm.confirmPassword" placeholder="••••••••" autocomplete="new-password" dir="ltr" /><button class="absolute inset-y-0 left-0 flex w-11 items-center justify-center text-[#65736c] transition hover:text-[#0f7a3d] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#0f7a3d] focus-visible:ring-inset" type="button" (click)="toggleConfirmPasswordVisibility()" [attr.aria-label]="confirmPasswordVisible() ? 'إخفاء تأكيد كلمة المرور' : 'إظهار تأكيد كلمة المرور'" [attr.aria-pressed]="confirmPasswordVisible()"><svg class="size-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">@if (confirmPasswordVisible()) {<path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12Z" /><circle cx="12" cy="12" r="2.5" />} @else {<path d="m3 3 18 18" /><path d="M10.6 10.7a2 2 0 0 0 2.7 2.7" /><path d="M9.9 5.2A10.7 10.7 0 0 1 12 5c6.5 0 10 7 10 7a18.2 18.2 0 0 1-3.2 4.2" /><path d="M6.2 6.2C3.5 8 2 12 2 12s3.5 7 10 7a9.8 9.8 0 0 0 3-.5" />}</svg></button></div>@if (registerForm.confirmPassword().touched() && registerForm.confirmPassword().invalid()) {@for (err of registerForm.confirmPassword().errors(); track err.kind) {<small class="mt-1.5 block text-xs text-[#be3a34]">{{ err.message }}</small>}}</div>
+            <div>
+              <label class="mb-2 block text-sm font-bold" for="register-full-name"
+                >الاسم الكامل</label
+              >
+              <input
+                class="h-12 w-full rounded-xl border px-4 text-sm"
+                id="register-full-name"
+                type="text"
+                [formField]="registerForm.fullName"
+                placeholder="محمد أحمد"
+                autocomplete="name"
+                [attr.aria-invalid]="
+                  registerForm.fullName().invalid() &&
+                  (registerForm.fullName().touched() || submitAttempted())
+                    ? 'true'
+                    : null
+                "
+                [attr.aria-describedby]="
+                  registerForm.fullName().invalid() &&
+                  (registerForm.fullName().touched() || submitAttempted())
+                    ? 'register-full-name-error'
+                    : null
+                "
+              />
+              @if (
+                registerForm.fullName().invalid() &&
+                (registerForm.fullName().touched() || submitAttempted())
+              ) {
+                <div
+                  id="register-full-name-error"
+                  class="mt-1.5 text-xs text-[#a92f2a]"
+                  role="alert"
+                >
+                  @for (err of registerForm.fullName().errors(); track err.kind) {
+                    <p>{{ err.message }}</p>
+                  }
+                </div>
+              }
+            </div>
+
+            <div>
+              <label class="mb-2 block text-sm font-bold" for="register-farm-name"
+                >اسم المزرعة</label
+              >
+              <input
+                class="h-12 w-full rounded-xl border px-4 text-sm"
+                id="register-farm-name"
+                type="text"
+                [formField]="registerForm.farmName"
+                placeholder="مزرعة الأمل"
+                autocomplete="organization"
+                [attr.aria-invalid]="
+                  registerForm.farmName().invalid() &&
+                  (registerForm.farmName().touched() || submitAttempted())
+                    ? 'true'
+                    : null
+                "
+                [attr.aria-describedby]="
+                  registerForm.farmName().invalid() &&
+                  (registerForm.farmName().touched() || submitAttempted())
+                    ? 'register-farm-name-error'
+                    : null
+                "
+              />
+              @if (
+                registerForm.farmName().invalid() &&
+                (registerForm.farmName().touched() || submitAttempted())
+              ) {
+                <div
+                  id="register-farm-name-error"
+                  class="mt-1.5 text-xs text-[#a92f2a]"
+                  role="alert"
+                >
+                  @for (err of registerForm.farmName().errors(); track err.kind) {
+                    <p>{{ err.message }}</p>
+                  }
+                </div>
+              }
+            </div>
+
+            <div class="sm:col-span-2">
+              <label class="mb-2 block text-sm font-bold" for="register-email"
+                >البريد الإلكتروني</label
+              >
+              <input
+                class="h-12 w-full rounded-xl border px-4 text-left text-sm"
+                id="register-email"
+                type="email"
+                [formField]="registerForm.email"
+                placeholder="name@email.com"
+                autocomplete="email"
+                inputmode="email"
+                dir="ltr"
+                [attr.aria-invalid]="
+                  registerForm.email().invalid() &&
+                  (registerForm.email().touched() || submitAttempted())
+                    ? 'true'
+                    : null
+                "
+                [attr.aria-describedby]="
+                  registerForm.email().invalid() &&
+                  (registerForm.email().touched() || submitAttempted())
+                    ? 'register-email-error'
+                    : null
+                "
+              />
+              @if (
+                registerForm.email().invalid() &&
+                (registerForm.email().touched() || submitAttempted())
+              ) {
+                <div id="register-email-error" class="mt-1.5 text-xs text-[#a92f2a]" role="alert">
+                  @for (err of registerForm.email().errors(); track err.kind) {
+                    <p>{{ err.message }}</p>
+                  }
+                </div>
+              }
+            </div>
+
+            <div>
+              <label class="mb-2 block text-sm font-bold" for="register-password"
+                >كلمة المرور</label
+              >
+              <div class="relative">
+                <input
+                  class="h-12 w-full rounded-xl border pe-4 ps-11 text-left text-sm"
+                  id="register-password"
+                  [type]="passwordVisible() ? 'text' : 'password'"
+                  [formField]="registerForm.password"
+                  placeholder="••••••••"
+                  autocomplete="new-password"
+                  dir="ltr"
+                  aria-describedby="register-password-help register-password-error"
+                  [attr.aria-invalid]="
+                    registerForm.password().invalid() &&
+                    (registerForm.password().touched() || submitAttempted())
+                      ? 'true'
+                      : null
+                  "
+                />
+                <button
+                  class="absolute inset-y-0 left-0 flex w-11 items-center justify-center text-[#65736c] hover:text-[#0f7a3d] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#0f7a3d] focus-visible:ring-inset"
+                  type="button"
+                  (click)="togglePasswordVisibility()"
+                  [attr.aria-label]="passwordVisible() ? 'إخفاء كلمة المرور' : 'إظهار كلمة المرور'"
+                  [attr.aria-pressed]="passwordVisible()"
+                >
+                  <span aria-hidden="true" class="text-lg">{{
+                    passwordVisible() ? '◉' : '◌'
+                  }}</span>
+                </button>
+              </div>
+              @if (
+                registerForm.password().invalid() &&
+                (registerForm.password().touched() || submitAttempted())
+              ) {
+                <div
+                  id="register-password-error"
+                  class="mt-1.5 text-xs text-[#a92f2a]"
+                  role="alert"
+                >
+                  @for (err of registerForm.password().errors(); track err.kind) {
+                    <p>{{ err.message }}</p>
+                  }
+                </div>
+              }
+            </div>
+
+            <div>
+              <label class="mb-2 block text-sm font-bold" for="register-confirm-password"
+                >تأكيد كلمة المرور</label
+              >
+              <div class="relative">
+                <input
+                  class="h-12 w-full rounded-xl border pe-4 ps-11 text-left text-sm"
+                  id="register-confirm-password"
+                  [type]="confirmPasswordVisible() ? 'text' : 'password'"
+                  [formField]="registerForm.confirmPassword"
+                  placeholder="••••••••"
+                  autocomplete="new-password"
+                  dir="ltr"
+                  [attr.aria-invalid]="
+                    registerForm.confirmPassword().invalid() &&
+                    (registerForm.confirmPassword().touched() || submitAttempted())
+                      ? 'true'
+                      : null
+                  "
+                  [attr.aria-describedby]="
+                    registerForm.confirmPassword().invalid() &&
+                    (registerForm.confirmPassword().touched() || submitAttempted())
+                      ? 'register-confirm-password-error'
+                      : null
+                  "
+                />
+                <button
+                  class="absolute inset-y-0 left-0 flex w-11 items-center justify-center text-[#65736c] hover:text-[#0f7a3d] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#0f7a3d] focus-visible:ring-inset"
+                  type="button"
+                  (click)="toggleConfirmPasswordVisibility()"
+                  [attr.aria-label]="
+                    confirmPasswordVisible() ? 'إخفاء تأكيد كلمة المرور' : 'إظهار تأكيد كلمة المرور'
+                  "
+                  [attr.aria-pressed]="confirmPasswordVisible()"
+                >
+                  <span aria-hidden="true" class="text-lg">{{
+                    confirmPasswordVisible() ? '◉' : '◌'
+                  }}</span>
+                </button>
+              </div>
+              @if (
+                registerForm.confirmPassword().invalid() &&
+                (registerForm.confirmPassword().touched() || submitAttempted())
+              ) {
+                <div
+                  id="register-confirm-password-error"
+                  class="mt-1.5 text-xs text-[#a92f2a]"
+                  role="alert"
+                >
+                  @for (err of registerForm.confirmPassword().errors(); track err.kind) {
+                    <p>{{ err.message }}</p>
+                  }
+                </div>
+              }
+            </div>
           </div>
-          <label class="mt-5 flex cursor-pointer items-start gap-2 text-sm leading-6 text-[#65736c]"><input class="mt-1 size-4" type="checkbox" [formField]="registerForm.terms" /><span>أوافق على <a class="font-bold text-[#0f7a3d] hover:underline" href="#terms">الشروط والأحكام</a> وسياسة الخصوصية.</span></label>
-          @if (registerForm.terms().touched() && registerForm.terms().invalid()) {@for (err of registerForm.terms().errors(); track err.kind) {<small class="mt-1.5 block text-xs text-[#be3a34]">{{ err.message }}</small>}}
-          @if (auth.error()) {<div class="mt-5 rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-[#be3a34]" role="alert">{{ auth.error() }}</div>}
-          <button type="submit" [disabled]="registerForm().invalid() || auth.loading()" class="mt-6 h-12 w-full rounded-xl bg-[#0f7a3d] text-sm font-black text-white shadow-[0_10px_25px_rgba(15,122,61,.2)] hover:bg-[#075d2d] disabled:cursor-not-allowed disabled:opacity-50">@if (auth.loading()) { جارٍ إنشاء الحساب... } @else { إنشاء الحساب }</button>
+
+          <div
+            id="register-password-help"
+            class="mt-4 rounded-xl border border-[#dce6df] bg-white/70 p-3"
+          >
+            <p class="text-xs font-bold text-[#526158]">متطلبات كلمة المرور</p>
+            <ul class="mt-2 grid gap-1.5 text-xs sm:grid-cols-2" aria-live="polite">
+              @for (check of passwordChecks(); track check.key) {
+                <li
+                  class="flex items-center gap-2"
+                  [class.text-[#0f7a3d]]="check.met"
+                  [class.text-[#7c8981]]="!check.met"
+                >
+                  <span aria-hidden="true">{{ check.met ? '✓' : '○' }}</span
+                  >{{ check.label }}
+                </li>
+              }
+            </ul>
+          </div>
+
+          <label
+            class="mt-5 flex min-h-11 cursor-pointer items-start gap-3 text-sm leading-6 text-[#526158]"
+            for="register-terms"
+          >
+            <input
+              id="register-terms"
+              class="mt-1 size-5 shrink-0"
+              type="checkbox"
+              [formField]="registerForm.terms"
+              [attr.aria-invalid]="
+                registerForm.terms().invalid() &&
+                (registerForm.terms().touched() || submitAttempted())
+                  ? 'true'
+                  : null
+              "
+              [attr.aria-describedby]="
+                registerForm.terms().invalid() &&
+                (registerForm.terms().touched() || submitAttempted())
+                  ? 'register-terms-error'
+                  : null
+              "
+            />
+            <span>
+              أوافق على
+              <a class="font-bold text-[#0f7a3d] hover:underline" routerLink="/legal/terms"
+                >الشروط والأحكام</a
+              >
+              و<a class="font-bold text-[#0f7a3d] hover:underline" routerLink="/legal/privacy"
+                >سياسة الخصوصية</a
+              >.
+            </span>
+          </label>
+          @if (
+            registerForm.terms().invalid() && (registerForm.terms().touched() || submitAttempted())
+          ) {
+            <div id="register-terms-error" class="mt-1.5 text-xs text-[#a92f2a]" role="alert">
+              @for (err of registerForm.terms().errors(); track err.kind) {
+                <p>{{ err.message }}</p>
+              }
+            </div>
+          }
+
+          @if (auth.error()) {
+            <div
+              id="register-form-error"
+              class="mt-5 rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-[#a92f2a]"
+              role="alert"
+              aria-live="assertive"
+              tabindex="-1"
+            >
+              {{ auth.error() }}
+            </div>
+          }
+
+          <button
+            type="submit"
+            [disabled]="auth.loading()"
+            class="mt-6 flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-[#0f7a3d] text-sm font-black text-white shadow-[0_10px_25px_rgba(15,122,61,.2)] hover:bg-[#075d2d] disabled:cursor-wait disabled:opacity-70"
+          >
+            @if (auth.loading()) {
+              <span
+                class="size-4 animate-spin rounded-full border-2 border-white/40 border-t-white"
+                aria-hidden="true"
+              ></span>
+              جارٍ إنشاء الحساب...
+            } @else {
+              إنشاء الحساب
+            }
+          </button>
         </form>
-        <p class="mt-7 text-center text-sm text-[#65736c]">لديك حساب بالفعل؟ <a class="font-black text-[#0f7a3d] hover:underline" routerLink="/auth/login">تسجيل الدخول</a></p>
+
+        <p class="mt-7 text-center text-sm text-[#65736c]">
+          لديك حساب بالفعل؟
+          <a
+            class="inline-flex min-h-11 items-center font-black text-[#0f7a3d] hover:underline"
+            routerLink="/auth/login"
+            >تسجيل الدخول</a
+          >
+        </p>
       }
     </div>
   </section>
-  <section class="relative hidden min-h-dvh overflow-hidden p-8 lg:block"><img class="absolute inset-0 size-full object-cover" src="/landing-page/greenhouse.png" alt="صوبة زراعية حديثة" /><div class="absolute inset-0 bg-gradient-to-t from-[#10231b]/95 via-[#10231b]/30 to-transparent"></div><div class="absolute inset-x-12 bottom-12 text-white"><span class="inline-flex rounded-full bg-white/15 px-3 py-1.5 text-xs font-black backdrop-blur">من البذرة إلى التصدير</span><h2 class="mt-5 max-w-xl text-4xl font-black leading-tight">اعمل بخطة واضحة، ودع البيانات تقود يومك.</h2><div class="mt-7 grid grid-cols-3 gap-3"><div class="rounded-2xl border border-white/15 bg-white/10 p-4 backdrop-blur"><b class="text-xl text-[#d8f36a]">01</b><p class="mt-2 text-xs text-white/70">أنشئ مزرعتك</p></div><div class="rounded-2xl border border-white/15 bg-white/10 p-4 backdrop-blur"><b class="text-xl text-[#d8f36a]">02</b><p class="mt-2 text-xs text-white/70">حدد سوقك</p></div><div class="rounded-2xl border border-white/15 bg-white/10 p-4 backdrop-blur"><b class="text-xl text-[#d8f36a]">03</b><p class="mt-2 text-xs text-white/70">تابع خطتك</p></div></div></div></section>
+
+  <section class="relative hidden min-h-dvh overflow-hidden p-8 lg:block" aria-label="خطوات البدء">
+    <img
+      class="absolute inset-0 size-full object-cover"
+      src="/landing-page/greenhouse.jpg"
+      width="1376"
+      height="768"
+      alt="صوبة زراعية حديثة"
+      fetchpriority="high"
+    />
+    <div
+      class="absolute inset-0 bg-gradient-to-t from-[#10231b]/95 via-[#10231b]/30 to-transparent"
+    ></div>
+    <div class="absolute inset-x-12 bottom-12 text-white">
+      <span
+        class="inline-flex rounded-full bg-white/15 px-3 py-1.5 text-xs font-black backdrop-blur"
+        >من البذرة إلى التصدير</span
+      >
+      <h2 class="mt-5 max-w-xl text-4xl font-black leading-tight">
+        اعمل بخطة واضحة، ودع البيانات تقود يومك.
+      </h2>
+      <div class="mt-7 grid grid-cols-3 gap-3">
+        <div class="rounded-2xl border border-white/15 bg-white/10 p-4 backdrop-blur">
+          <b class="text-xl text-[#d8f36a]">01</b>
+          <p class="mt-2 text-xs text-white/75">أنشئ مزرعتك</p>
+        </div>
+        <div class="rounded-2xl border border-white/15 bg-white/10 p-4 backdrop-blur">
+          <b class="text-xl text-[#d8f36a]">02</b>
+          <p class="mt-2 text-xs text-white/75">حدد سوقك</p>
+        </div>
+        <div class="rounded-2xl border border-white/15 bg-white/10 p-4 backdrop-blur">
+          <b class="text-xl text-[#d8f36a]">03</b>
+          <p class="mt-2 text-xs text-white/75">تابع خطتك</p>
+        </div>
+      </div>
+    </div>
+  </section>
 </main>

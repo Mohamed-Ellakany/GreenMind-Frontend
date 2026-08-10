@@ -5,6 +5,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { finalize, forkJoin } from 'rxjs';
 import { GreenmindApi } from '@core/api/greenmind-api.service';
 import { CreateTaskRequest, ExportPlan, FarmTask, ScheduleRevision, TaskType } from '@core/api/api.models';
+import { toLocalIsoDate } from '@shared/utils/local-date';
 import { taskPriorityLabel, taskStatusLabel, taskTypeLabel } from '@shared/utils/task-labels';
 
 type TaskStatus = FarmTask['status'];
@@ -54,7 +55,7 @@ export class Activities {
   });
 
   public readonly groupedTasks = computed(() => {
-    const today = new Date().toISOString().slice(0, 10);
+    const today = toLocalIsoDate();
     const groups: TaskGroups = { overdue: [], today: [], upcoming: [], postponed: [], finished: [] };
     for (const task of this.visibleTasks()) {
       if (task.status === 'Completed' || task.status === 'Skipped' || task.status === 'Cancelled') groups.finished.push(task);
@@ -142,6 +143,6 @@ export class Activities {
   }
 
   private emptyForm(exportPlanId = 0, taskTypeId = 0): CreateTaskRequest {
-    return { exportPlanId, taskTypeId, title: '', description: null, quantity: 1, unit: 'وحدة', plannedDate: new Date().toISOString().slice(0, 10), actualDate: null, status: 'Pending', priority: 'Medium', notes: null };
+    return { exportPlanId, taskTypeId, title: '', description: null, quantity: 1, unit: 'وحدة', plannedDate: toLocalIsoDate(), actualDate: null, status: 'Pending', priority: 'Medium', notes: null };
   }
 }

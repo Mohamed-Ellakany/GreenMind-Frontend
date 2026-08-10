@@ -8,6 +8,7 @@ import { catchError, finalize, forkJoin, map, of, switchMap } from 'rxjs';
 import { GreenmindApi } from '@core/api/greenmind-api.service';
 import { ApiError, ExportPlanDetails } from '@core/api/api.models';
 import { PlantGrowthLoader } from '@shared/components/plant-growth-loader/plant-growth-loader';
+import { toLocalIsoDate } from '@shared/utils/local-date';
 import { PhaseTwoApi } from './phase-two-api.service';
 import { Budget, CostDashboard, Expense, ExpenseAttachment, ExpenseAttachmentType, ExpenseCategory, PaymentMethod } from './phase-two.models';
 
@@ -77,7 +78,7 @@ export class BudgetExpensesPage {
   public readonly openRowMenuId = signal<number | null>(null);
   public readonly totalPulse = signal(false);
   public readonly reportFrom = signal('');
-  public readonly reportTo = signal(new Date().toISOString().slice(0, 10));
+  public readonly reportTo = signal(toLocalIsoDate());
   public readonly reportCategoryId = signal(0);
   public readonly exportingPdf = signal(false);
   public readonly exportingCsv = signal(false);
@@ -121,7 +122,7 @@ export class BudgetExpensesPage {
   public readonly allocatedBudget = computed(() => this.budget()?.lines.reduce((total, line) => total + line.plannedAmount, 0) ?? 0);
   public readonly latestActivity = computed(() => [...this.expenses()].sort((a, b) => (b.createdAt || b.expenseDate).localeCompare(a.createdAt || a.expenseDate)).slice(0, 4));
   public readonly todayExpenseCount = computed(() => {
-    const today = new Date().toISOString().slice(0, 10);
+    const today = toLocalIsoDate();
     return this.expenses().filter((expense) => expense.expenseDate === today).length;
   });
   public readonly categoryBars = computed(() => {
@@ -562,7 +563,7 @@ export class BudgetExpensesPage {
     });
   }
 
-  private emptyExpenseForm(categoryId = 0): ExpenseFormModel { return { expenseCategoryId: categoryId, expenseDate: new Date().toISOString().slice(0, 10), description: '', supplier: '', quantity: 1, unitPrice: 0, paymentMethod: 'نقدي', notes: '' }; }
+  private emptyExpenseForm(categoryId = 0): ExpenseFormModel { return { expenseCategoryId: categoryId, expenseDate: toLocalIsoDate(), description: '', supplier: '', quantity: 1, unitPrice: 0, paymentMethod: 'نقدي', notes: '' }; }
   private validateExpenseForm(form: ExpenseFormModel): ExpenseFormErrors {
     const errors: ExpenseFormErrors = {};
     if (!form.expenseCategoryId) errors.expenseCategoryId = 'اختر فئة المصروف.';

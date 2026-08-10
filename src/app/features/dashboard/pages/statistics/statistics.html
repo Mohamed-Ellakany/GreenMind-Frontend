@@ -1,4 +1,50 @@
-<section class="mx-auto max-w-4xl" dir="rtl">
-  <header class="mb-6"><p class="text-xs font-black text-[#0f7a3d]">بيانات مزرعتك</p><h1 class="text-3xl font-black">الإحصائيات والتقارير</h1><p class="mt-2 text-sm text-[#65736c]">أنشئ تقريراً يشمل المصروفات الفعلية والميزانيات وخطط التصدير والمهام.</p></header>
-  <article class="rounded-2xl border bg-white p-6"><div class="grid gap-4 sm:grid-cols-2"><label>من<input [(ngModel)]="from" type="date" class="mt-1 block w-full rounded-xl border p-3"></label><label>إلى<input [(ngModel)]="to" type="date" class="mt-1 block w-full rounded-xl border p-3"></label></div><div class="mt-5 flex flex-wrap gap-5"><label><input [(ngModel)]="spending" type="checkbox"> المصروفات والميزانيات</label><label><input [(ngModel)]="plans" type="checkbox"> خطط التصدير</label><label><input [(ngModel)]="tasks" type="checkbox"> المهام</label></div><div class="mt-6 flex gap-3"><select [(ngModel)]="format" class="rounded-xl border px-4"><option value="pdf">PDF</option><option value="xlsx">Excel</option><option value="csv">CSV</option></select><button (click)="download()" [disabled]="busy()" class="rounded-xl bg-[#0f7a3d] px-5 py-3 font-black text-white">{{busy() ? 'جارٍ الإنشاء...' : 'تنزيل التقرير'}}</button></div></article>
+<section class="mx-auto w-full max-w-[1180px] pb-12 text-[#10231b]" dir="rtl">
+  <header class="mb-7">
+    <p class="text-xs font-black text-[#0f7a3d]">بيانات مزرعتك</p>
+    <h1 class="mt-1 text-3xl font-black tracking-tight sm:text-4xl">الإحصائيات والتقارير</h1>
+    <p class="mt-3 max-w-2xl text-sm leading-7 text-[#65736c]">أنشئ ملفاً منظماً للفترة التي تهمك، واختر فقط البيانات التي تريد مشاركتها أو مراجعتها.</p>
+  </header>
+
+  <div class="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_300px]">
+    <form class="overflow-hidden rounded-2xl border border-[#dce6df] bg-white shadow-sm" (ngSubmit)="download()" novalidate>
+      <section class="border-b border-[#edf1ee] p-5 sm:p-6" aria-labelledby="report-period-heading">
+        <div class="mb-5 flex flex-wrap items-start justify-between gap-3">
+          <div><span class="text-xs font-black text-[#0f7a3d]">01 · الفترة</span><h2 id="report-period-heading" class="mt-1 text-lg font-black">حدد النطاق الزمني</h2><p class="mt-1 text-sm text-[#65736c]">اترك التاريخين فارغين لتضمين كل السجلات.</p></div>
+          @if (from || to) { <button type="button" class="rounded-lg bg-[#f3f6f3] px-3 py-2 text-xs font-black text-[#526158]" (click)="clearDates()">مسح التاريخ</button> }
+        </div>
+        <div class="grid gap-4 sm:grid-cols-2">
+          <label><span class="mb-2 block text-sm font-bold">من تاريخ</span><input [(ngModel)]="from" name="from" type="date" class="block w-full rounded-xl border px-4 py-3"></label>
+          <label><span class="mb-2 block text-sm font-bold">إلى تاريخ</span><input [(ngModel)]="to" name="to" type="date" [min]="from || null" class="block w-full rounded-xl border px-4 py-3"></label>
+        </div>
+      </section>
+
+      <section class="border-b border-[#edf1ee] p-5 sm:p-6" aria-labelledby="report-sections-heading">
+        <span class="text-xs font-black text-[#0f7a3d]">02 · المحتوى</span>
+        <h2 id="report-sections-heading" class="mt-1 text-lg font-black">ماذا يتضمن التقرير؟</h2>
+        <div class="mt-5 grid gap-3 sm:grid-cols-3">
+          <label class="flex cursor-pointer items-start gap-3 rounded-xl border p-4 transition" [class.border-[#8fc59c]]="plans" [class.bg-[#f3faf5]]="plans" [class.border-[#dce6df]]="!plans"><input [(ngModel)]="plans" name="plans" type="checkbox" class="mt-1 size-4"><span><b class="block text-sm">خطط التصدير</b><small class="mt-1 block text-xs leading-5 text-[#738078]">المحاصيل والوجهات والمواعيد</small></span></label>
+          <label class="flex cursor-pointer items-start gap-3 rounded-xl border p-4 transition" [class.border-[#8fc59c]]="tasks" [class.bg-[#f3faf5]]="tasks" [class.border-[#dce6df]]="!tasks"><input [(ngModel)]="tasks" name="tasks" type="checkbox" class="mt-1 size-4"><span><b class="block text-sm">المهام</b><small class="mt-1 block text-xs leading-5 text-[#738078]">الحالة والمواعيد والتنفيذ</small></span></label>
+          <label class="flex cursor-pointer items-start gap-3 rounded-xl border p-4 transition" [class.border-[#8fc59c]]="spending" [class.bg-[#f3faf5]]="spending" [class.border-[#dce6df]]="!spending"><input [(ngModel)]="spending" name="spending" type="checkbox" class="mt-1 size-4"><span><b class="block text-sm">المصروفات</b><small class="mt-1 block text-xs leading-5 text-[#738078]">الميزانيات والإنفاق الفعلي</small></span></label>
+        </div>
+      </section>
+
+      <section class="p-5 sm:p-6" aria-labelledby="report-format-heading">
+        <span class="text-xs font-black text-[#0f7a3d]">03 · الصيغة</span>
+        <h2 id="report-format-heading" class="mt-1 text-lg font-black">اختر نوع الملف</h2>
+        <div class="mt-4 grid grid-cols-3 gap-2 rounded-xl bg-[#f3f6f3] p-1.5">
+          <label class="cursor-pointer rounded-lg px-3 py-3 text-center text-sm font-black" [class.bg-white]="format === 'pdf'" [class.text-[#0f7a3d]]="format === 'pdf'" [class.shadow-sm]="format === 'pdf'"><input class="sr-only" [(ngModel)]="format" name="format" type="radio" value="pdf">PDF</label>
+          <label class="cursor-pointer rounded-lg px-3 py-3 text-center text-sm font-black" [class.bg-white]="format === 'xlsx'" [class.text-[#0f7a3d]]="format === 'xlsx'" [class.shadow-sm]="format === 'xlsx'"><input class="sr-only" [(ngModel)]="format" name="format" type="radio" value="xlsx">Excel</label>
+          <label class="cursor-pointer rounded-lg px-3 py-3 text-center text-sm font-black" [class.bg-white]="format === 'csv'" [class.text-[#0f7a3d]]="format === 'csv'" [class.shadow-sm]="format === 'csv'"><input class="sr-only" [(ngModel)]="format" name="format" type="radio" value="csv">CSV</label>
+        </div>
+        @if (error()) { <p class="mt-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-bold text-[#be3a34]" role="alert">{{ error() }}</p> }
+        <button type="submit" [disabled]="busy()" [attr.aria-busy]="busy()" class="mt-6 inline-flex min-h-12 w-full items-center justify-center rounded-xl bg-[#0f7a3d] px-6 text-sm font-black text-white shadow-[0_10px_24px_rgba(15,122,61,.2)] hover:bg-[#075d2d] disabled:opacity-60 sm:w-auto">{{ busy() ? 'جارٍ تجهيز التقرير...' : 'إنشاء وتنزيل التقرير' }}</button>
+      </section>
+    </form>
+
+    <aside class="overflow-hidden rounded-2xl border border-[#dce6df] bg-[#10231b] text-white shadow-sm lg:sticky lg:top-20">
+      <div class="p-6"><span class="grid size-12 place-items-center rounded-xl bg-[#d8f36a] font-black text-[#31430b]">{{ format.toUpperCase() }}</span><h2 class="mt-5 text-xl font-black">ملخص التقرير</h2><p class="mt-2 text-sm leading-7 text-white/60">سيُنشأ الملف مباشرةً من أحدث بيانات محفوظة في حسابك.</p></div>
+      <dl class="divide-y divide-white/10 border-t border-white/10 px-6 text-sm"><div class="flex justify-between gap-4 py-4"><dt class="text-white/50">الأقسام</dt><dd class="font-black">{{ selectedSectionCount() }} من 3</dd></div><div class="flex justify-between gap-4 py-4"><dt class="text-white/50">الفترة</dt><dd class="text-left font-black">{{ from || to ? 'فترة مخصصة' : 'كل السجلات' }}</dd></div><div class="flex justify-between gap-4 py-4"><dt class="text-white/50">الصيغة</dt><dd class="font-black">{{ format.toUpperCase() }}</dd></div></dl>
+      <p class="m-4 rounded-xl bg-white/[.07] p-4 text-xs leading-6 text-white/60">يحتوي التقرير على بيانات مزرعتك. شاركه فقط مع أشخاص موثوقين.</p>
+    </aside>
+  </div>
 </section>

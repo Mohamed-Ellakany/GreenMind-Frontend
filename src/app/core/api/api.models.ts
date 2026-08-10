@@ -39,6 +39,7 @@ export interface ExportPlan {
 
 export interface ExportPlanDetails extends ExportPlan {
   cropId: number;
+  supportsSmartDiagnosis: boolean;
   destinationId: number;
   governorate: string;
   city: string;

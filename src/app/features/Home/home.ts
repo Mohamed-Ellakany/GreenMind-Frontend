@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, HostListener, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 
 type Feature = {
@@ -19,6 +19,8 @@ type Benefit = {
   templateUrl: './home.html',
 })
 export class Home {
+  public readonly mobileNavigationOpen = signal(false);
+
   public readonly features: Feature[] = [
     {
       icon: '✦',
@@ -59,4 +61,17 @@ export class Home {
       description: 'إجابات سياقية عن العلاجات، الحصاد، الاشتراطات، وخطط التصدير المناسبة.',
     },
   ];
+
+  public toggleMobileNavigation(): void {
+    this.mobileNavigationOpen.update((open) => !open);
+  }
+
+  public closeMobileNavigation(): void {
+    this.mobileNavigationOpen.set(false);
+  }
+
+  @HostListener('document:keydown.escape')
+  public closeNavigationWithEscape(): void {
+    this.closeMobileNavigation();
+  }
 }

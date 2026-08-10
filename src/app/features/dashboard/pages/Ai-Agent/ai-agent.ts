@@ -10,7 +10,7 @@ import { markdownToHtml } from '../../../../shared/utils/markdown-to-html';
   selector: 'app-ai-agent',
   imports: [FormsModule],
   templateUrl: './ai-agent.html',
-  styleUrl: './ai-agent.css',
+  styleUrls: ['./ai-agent.css', './ai-agent-responsive.css'],
 })
 export class AiAgent {
   private readonly api = inject(PhaseTwoApi);
