@@ -1,34 +1,4 @@
 <section class="ai-shell" dir="rtl">
-  <header class="ai-hero">
-    <div class="hero-copy">
-      <div class="assistant-avatar assistant-avatar--hero" aria-hidden="true">
-        <svg viewBox="0 0 48 48" fill="none">
-          <path d="M11 22c1-8 6-13 13-13s12 5 13 13" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
-          <path d="M7 22h34M12 22v4h24v-4" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
-          <path d="M16 31c2 5 14 5 16 0M18 27h.1M30 27h.1" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
-          <path d="M24 9c1-4 4-5 7-5-1 3-3 6-7 5Z" fill="#d8f36a"/>
-        </svg>
-      </div>
-      <div>
-        <div class="hero-kicker"><span></span> متصل ببيانات مزرعتك</div>
-        <h1>اسأل عم خضر</h1>
-        <p>مساعدك الزراعي للخطط والتكاليف والقرارات التنظيمية — بإجابات مبنية على بيانات GreenMind الفعلية.</p>
-      </div>
-    </div>
-
-    <div class="hero-actions">
-      <div class="data-sources" aria-label="مصادر البيانات المتاحة">
-        <span><i>✓</i> المواد الفعالة</span>
-        <span><i>✓</i> حدود MRLs</span>
-        <span><i>✓</i> خطط المزرعة</span>
-      </div>
-      <button type="button" class="new-chat-button" (click)="createSession()" [disabled]="loading()">
-        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-        محادثة جديدة
-      </button>
-    </div>
-  </header>
-
   @if (error()) {
     <div class="error-banner" role="alert">
       <span>{{ error() }}</span>
@@ -36,10 +6,22 @@
     </div>
   }
 
-  <div class="ai-workspace">
-    <aside class="chat-sidebar">
-      <section class="sidebar-card sessions-card">
-        <header><div><span class="section-eyebrow">السجل</span><h2>المحادثات</h2></div><b>{{ sessions().length }}</b></header>
+  <div class="ai-workspace" [class.ai-workspace--history-collapsed]="historyCollapsed()">
+    <aside class="chat-sidebar" [class.chat-sidebar--collapsed]="historyCollapsed()">
+      <section id="chat-history" class="sidebar-card sessions-card">
+        <button type="button" class="new-chat-button" (click)="createSession()" [disabled]="loading()">
+          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+          محادثة جديدة
+        </button>
+        <header>
+          <div class="session-heading"><span class="section-eyebrow">السجل</span><h2>المحادثات</h2></div>
+          <div class="history-header-actions">
+            <b>{{ sessions().length }}</b>
+            <button type="button" class="history-toggle" aria-controls="chat-history" [attr.aria-expanded]="!historyCollapsed()" [attr.aria-label]="historyCollapsed() ? 'إظهار سجل المحادثات' : 'إخفاء سجل المحادثات'" (click)="toggleHistory()">
+              <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="m9 6 6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+          </div>
+        </header>
         <div class="sessions-list">
           @if (loading() && !sessions().length) {
             <div class="session-skeleton"></div><div class="session-skeleton"></div>
@@ -65,19 +47,6 @@
     </aside>
 
     <article class="chat-card">
-      <header class="chat-header">
-        <div class="chat-identity">
-          <div class="assistant-avatar" aria-hidden="true">
-            <svg viewBox="0 0 48 48" fill="none">
-              <path d="M11 22c1-8 6-13 13-13s12 5 13 13M7 22h34M12 22v4h24v-4M16 31c2 5 14 5 16 0M18 27h.1M30 27h.1" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
-              <path d="M24 9c1-4 4-5 7-5-1 3-3 6-7 5Z" fill="#d8f36a"/>
-            </svg>
-          </div>
-          <div><h2>عم خضر</h2><p><span></span> متاح الآن · يستند إلى بياناتك التنظيمية</p></div>
-        </div>
-        <div class="chat-source-badge"><span>قاعدة المعرفة</span><strong>محدّثة</strong></div>
-      </header>
-
       <div #messagesViewport class="messages-viewport" aria-live="polite" aria-label="رسائل المحادثة">
         @if (!messages().length && !loading()) {
           <div class="welcome-state">

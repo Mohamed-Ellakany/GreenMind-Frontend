@@ -10,7 +10,7 @@ import { markdownToHtml } from '../../../../shared/utils/markdown-to-html';
   selector: 'app-ai-agent',
   imports: [FormsModule],
   templateUrl: './ai-agent.html',
-  styleUrls: ['./ai-agent.css', './ai-agent-responsive.css'],
+  styleUrls: ['./ai-agent.css', './ai-agent-chat.css', './ai-agent-responsive.css'],
 })
 export class AiAgent {
   private readonly api = inject(PhaseTwoApi);
@@ -22,6 +22,7 @@ export class AiAgent {
   public readonly loading = signal(true);
   public readonly sending = signal(false);
   public readonly error = signal<string | null>(null);
+  public readonly historyCollapsed = signal(false);
   private readonly messagesViewport = viewChild<ElementRef<HTMLElement>>('messagesViewport');
   public messageInput = '';
   public selectedImages: File[] = [];
@@ -52,7 +53,7 @@ export class AiAgent {
           this.sessions.update((sessions) => [session, ...sessions]);
           this.selectedSession.set(session);
           this.messages.set([]);
-          this.scrollToLatest();
+          this.scrollToNewestMessageStart();
         },
         error: () => this.error.set('تعذر إنشاء محادثة جديدة.'),
       });
@@ -66,6 +67,10 @@ export class AiAgent {
 
   public useSuggestion(suggestion: string): void {
     this.messageInput = suggestion;
+  }
+
+  public toggleHistory(): void {
+    this.historyCollapsed.update((collapsed) => !collapsed);
   }
 
   public displaySessionTitle(title: string | null | undefined): string {
@@ -91,6 +96,9 @@ export class AiAgent {
     const content = this.messageInput.trim();
     const session = this.selectedSession();
     if ((!content && !this.selectedImages.length) || !session || this.sending()) return;
+    const questionTitle = content && !this.messages().some((message) => this.isUserMessage(message))
+      ? this.buildQuestionTitle(content)
+      : null;
     const selectedImageFiles = [...this.selectedImages];
     let images: Array<{ fileName: string; contentType: string; dataBase64: string }>;
     try {
@@ -108,6 +116,7 @@ export class AiAgent {
     this.messageInput = '';
     this.sending.set(true);
     this.error.set(null);
+    if (questionTitle) this.updateSessionTitle(session.id, questionTitle);
     const userId = -Date.now();
     const assistantId = userId - 1;
     this.messages.update((messages) => [
@@ -115,7 +124,7 @@ export class AiAgent {
       { id: userId, role: 'المستخدم', content, status: 'مكتمل', createdAt: new Date().toISOString() },
       { id: assistantId, role: 'المساعد', content: '', status: 'جارٍ الإرسال', createdAt: new Date().toISOString() },
     ]);
-    this.scrollToLatest();
+    this.scrollToNewestMessageStart();
 
     try {
       await this.api.streamFarmMessage(session.id, content, (event) => {
@@ -130,7 +139,7 @@ export class AiAgent {
             status: event.status,
           };
         }));
-        this.scrollToLatest();
+        this.scrollToNewestMessageStart();
       }, images);
       this.loadMessages(session.id);
       this.loadSessions(false);
@@ -140,6 +149,7 @@ export class AiAgent {
       this.error.set('تعذر الاتصال بعم خضر بعد عدة محاولات. رسالتك محفوظة وجاهزة لإعادة الإرسال.');
       this.messages.update((messages) => messages.filter((message) =>
         message.id !== userId && message.id !== assistantId));
+      if (questionTitle) this.loadSessions(false);
     } finally {
       this.sending.set(false);
     }
@@ -208,22 +218,45 @@ export class AiAgent {
       .subscribe({
         next: (page) => {
           this.messages.set(page.items);
-          this.scrollToLatest();
+          this.scrollToNewestMessageStart();
         },
         error: () => this.error.set('تعذر تحميل سجل المحادثة.'),
       });
   }
 
-  private scrollToLatest(): void {
-    queueMicrotask(() => {
+  private scrollToNewestMessageStart(): void {
+    const scroll = () => {
       const viewport = this.messagesViewport()?.nativeElement;
       if (!viewport) return;
-      if (typeof viewport.scrollTo === 'function') {
-        viewport.scrollTo({ top: viewport.scrollHeight, behavior: 'smooth' });
-      } else {
-        // JSDOM and older embedded browsers do not implement Element.scrollTo.
-        viewport.scrollTop = viewport.scrollHeight;
+      const newestMessage = viewport.querySelector<HTMLElement>('.message-row:last-child');
+      if (!newestMessage) {
+        viewport.scrollTop = 0;
+        return;
       }
+
+      // Keep the beginning of the newest response visible while it streams,
+      // instead of following the growing message down to its final line.
+      const viewportTop = viewport.getBoundingClientRect().top;
+      const messageTop = newestMessage.getBoundingClientRect().top;
+      viewport.scrollTop += messageTop - viewportTop;
+    };
+
+    // Signals schedule the template update after this method runs. Waiting for
+    // the next paint ensures scrollHeight includes the newly rendered message.
+    queueMicrotask(() => {
+      if (typeof requestAnimationFrame === 'function') requestAnimationFrame(scroll);
+      else setTimeout(scroll);
     });
+  }
+
+  private buildQuestionTitle(content: string): string {
+    return content.replace(/\s+/g, ' ').trim().slice(0, 200);
+  }
+
+  private updateSessionTitle(sessionId: number, title: string): void {
+    this.sessions.update((sessions) => sessions.map((session) =>
+      session.id === sessionId ? { ...session, title } : session));
+    this.selectedSession.update((session) =>
+      session?.id === sessionId ? { ...session, title } : session);
   }
 }
