@@ -72,4 +72,16 @@ describe('AiAgent', () => {
     expect(html).toContain('&lt;script&gt;alert(1)&lt;/script&gt;');
     expect(html).not.toContain('<script>');
   });
+
+  it('restores an unsent message when all connection attempts fail', async () => {
+    api.streamFarmMessage.mockRejectedValueOnce(new TypeError('connection refused'));
+    component.messageInput = 'راجع حالة المزرعة';
+
+    await component.send();
+
+    expect(component.messageInput).toBe('راجع حالة المزرعة');
+    expect(component.messages()).toEqual([]);
+    expect(component.error()).toContain('رسالتك محفوظة');
+    expect(component.sending()).toBe(false);
+  });
 });

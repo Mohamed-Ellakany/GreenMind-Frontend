@@ -1,9 +1,10 @@
+import { DecimalPipe } from '@angular/common';
 import { Component, DestroyRef, computed, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Subject, catchError, finalize, map, of, switchMap } from 'rxjs';
 import { GreenmindApi } from '@core/api/greenmind-api.service';
-import { DashboardTask, ExportPlan, ExportPlanDashboard } from '@core/api/api.models';
+import { DashboardTask, DashboardWeather, ExportPlan, ExportPlanDashboard } from '@core/api/api.models';
 import { AuthService } from '@features/auth/services/AuthService';
 import { toLocalIsoDate } from '@shared/utils/local-date';
 import { taskPriorityLabel, taskTypeLabel } from '@shared/utils/task-labels';
@@ -16,7 +17,7 @@ interface DashboardLoadResult {
 
 @Component({
   selector: 'app-dashboard',
-  imports: [RouterLink],
+  imports: [RouterLink, DecimalPipe],
   templateUrl: './dashboard-view.html',
 })
 export class Dashboard {
@@ -32,6 +33,7 @@ export class Dashboard {
   public readonly loading = signal(true);
   public readonly error = signal<string | null>(null);
   public readonly updatingTaskId = signal<number | null>(null);
+  public readonly taskFeedback = signal<string | null>(null);
   public readonly ownerName = computed(() => this.auth.accountProfile()?.fullName?.trim() || 'صاحب المزرعة');
   public readonly completionPercentage = computed(() => {
     const summary = this.data()?.taskSummary;
@@ -77,6 +79,7 @@ export class Dashboard {
     this.data.set(null);
     this.loading.set(true);
     this.error.set(null);
+    this.taskFeedback.set(null);
     this.planSelections.next({ id, requestId });
   }
 
@@ -92,30 +95,32 @@ export class Dashboard {
     this.api.exportPlans().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (plans) => {
         this.plans.set(plans);
-        const selected = plans.find((plan) => plan.planningStatus === 'Succeeded') ?? plans[0];
-        if (selected) this.selectPlan(selected.id);
-        else this.loading.set(false);
+        this.selectedPlanId.set(null);
+        this.data.set(null);
+        this.loading.set(false);
       },
       error: () => { this.error.set('تعذر تحميل خطط التصدير.'); this.loading.set(false); },
     });
   }
 
-  public toggleTask(task: DashboardTask): void {
+  public updateTaskStatus(task: DashboardTask, status: 'Completed' | 'Skipped'): void {
     if (this.updatingTaskId()) return;
     const selectedPlanId = this.selectedPlanId();
     if (!selectedPlanId) return;
     this.updatingTaskId.set(task.id);
-    const body = task.status === 'InProgress'
-      ? { status: 'Completed', actualDate: toLocalIsoDate() }
-      : task.status === 'Completed'
-        ? { status: 'Pending' }
-        : { status: 'InProgress' };
+    this.taskFeedback.set(null);
+    const body = status === 'Completed'
+      ? { status, actualDate: toLocalIsoDate() }
+      : { status, actualDate: undefined };
     this.api.updateTask(task.id, body).pipe(
       finalize(() => this.updatingTaskId.set(null)),
       takeUntilDestroyed(this.destroyRef),
     ).subscribe({
       next: () => {
         if (this.selectedPlanId() === selectedPlanId) this.selectPlan(selectedPlanId);
+        this.taskFeedback.set(status === 'Completed'
+          ? 'تم تسجيل تنفيذ المهمة، وسنستخدم هذه المعلومة لتحسين المهام القادمة.'
+          : 'تم تسجيل تخطي المهمة، وسنراعي هذا القرار عند إعداد المهام القادمة.');
       },
       error: () => this.error.set('تعذر تحديث المهمة.'),
     });
@@ -127,5 +132,16 @@ export class Dashboard {
 
   public priorityLabel(value: string): string {
     return taskPriorityLabel(value);
+  }
+
+  public weatherLabel(weather: DashboardWeather): string {
+    if (weather.precipitationMm >= 1) return 'أمطار متوقعة';
+    if (weather.tempMaxC >= 35) return 'حار';
+    if (weather.tempMaxC <= 18) return 'مائل للبرودة';
+    return 'طقس معتدل';
+  }
+
+  public weatherIcon(weather: DashboardWeather): string {
+    return weather.precipitationMm >= 1 ? '🌧️' : weather.tempMaxC >= 35 ? '☀️' : '🌤️';
   }
 }

@@ -1,1 +1,3 @@
 :host { display: block; }
+.register-page { scrollbar-width: none; }
+.register-page::-webkit-scrollbar { display: none; }

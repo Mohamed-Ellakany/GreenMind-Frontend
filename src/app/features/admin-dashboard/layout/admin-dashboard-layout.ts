@@ -23,7 +23,8 @@ import {
   faBell,
   faBrain,
   faBriefcase,
-  faChevronLeft,
+  faChartLine,
+  faChevronRight,
   faClockRotateLeft,
   faFileArrowUp,
   faGear,
@@ -71,10 +72,11 @@ export class AdminDashboardLayout {
   });
   public readonly icons = {
     accounts: faBriefcase,
+    aiUsage: faChartLine,
     bell: faBell,
     burger: faBars,
     close: faXmark,
-    collapse: faChevronLeft,
+    collapse: faChevronRight,
     dashboard: faTableCellsLarge,
     destinations: faShieldHalved,
     settings: faGear,

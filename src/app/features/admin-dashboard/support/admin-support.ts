@@ -117,7 +117,8 @@ export class AdminSupport {
   }
 
   protected isMine(message: SupportMessage): boolean {
-    return String(message.role).toLowerCase() === 'admin';
+    const role = String(message.role).toLowerCase();
+    return role === 'admin' || role === '2';
   }
 
   protected senderInitial(message: SupportMessage): string {
