@@ -64,6 +64,28 @@ describe('AiAgent', () => {
     expect(fixture.nativeElement.textContent).toContain('عم خضر');
   });
 
+  it('collapses and restores the conversation history', () => {
+    const toggle = fixture.nativeElement.querySelector('.history-toggle') as HTMLButtonElement;
+
+    toggle.click();
+    fixture.detectChanges();
+
+    expect(component.historyCollapsed()).toBe(true);
+    expect(fixture.nativeElement.querySelector('.chat-sidebar--collapsed')).not.toBeNull();
+    expect(toggle.getAttribute('aria-expanded')).toBe('false');
+
+    toggle.click();
+    expect(component.historyCollapsed()).toBe(false);
+  });
+
+  it('uses the first user question as the conversation title immediately', async () => {
+    component.messageInput = '  ما حالة   خطة التصدير اليوم؟  ';
+
+    await component.send();
+
+    expect(component.selectedSession()?.title).toBe('ما حالة خطة التصدير اليوم؟');
+  });
+
   it('renders assistant markdown as structured HTML and escapes raw tags', () => {
     const html = component.renderAssistantMessage('## ملخص\n- **مهم**\n<script>alert(1)</script>');
 
@@ -83,5 +105,31 @@ describe('AiAgent', () => {
     expect(component.messages()).toEqual([]);
     expect(component.error()).toContain('رسالتك محفوظة');
     expect(component.sending()).toBe(false);
+  });
+
+  it('scrolls to the beginning of the newest message after the updated view is painted', async () => {
+    const viewport = fixture.nativeElement.querySelector('.messages-viewport') as HTMLElement;
+    const newestMessage = document.createElement('div');
+    newestMessage.className = 'message-row';
+    viewport.appendChild(newestMessage);
+    let frameCallback: FrameRequestCallback | undefined;
+    vi.stubGlobal('requestAnimationFrame', vi.fn((callback: FrameRequestCallback) => {
+      frameCallback = callback;
+      return 1;
+    }));
+    vi.spyOn(viewport, 'getBoundingClientRect').mockReturnValue({ top: 100 } as DOMRect);
+    vi.spyOn(newestMessage, 'getBoundingClientRect').mockReturnValue({ top: 340 } as DOMRect);
+    viewport.scrollTop = 40;
+
+    (component as unknown as { scrollToNewestMessageStart(): void }).scrollToNewestMessageStart();
+    await Promise.resolve();
+
+    expect(viewport.scrollTop).toBe(40);
+    expect(frameCallback).toBeDefined();
+
+    frameCallback?.(0);
+
+    expect(viewport.scrollTop).toBe(280);
+    vi.unstubAllGlobals();
   });
 });

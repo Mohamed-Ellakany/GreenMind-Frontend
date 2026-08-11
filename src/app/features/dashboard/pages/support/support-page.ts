@@ -59,7 +59,7 @@ export class SupportPage {
       .subscribe({
         next: (page) => {
           this.messages.set(page.items);
-          this.scrollToLatest();
+          this.scrollToNewestMessageStart();
         },
         error: () => this.error.set('تعذر تحميل الرسائل.'),
       });
@@ -118,13 +118,24 @@ export class SupportPage {
       if (items.some((item) => item.id === message.id)) return items;
       return [...items, message].sort((a, b) => a.createdAt.localeCompare(b.createdAt));
     });
-    this.scrollToLatest(true);
+    this.scrollToNewestMessageStart(true);
   }
 
-  private scrollToLatest(smooth = false): void {
+  private scrollToNewestMessageStart(smooth = false): void {
     requestAnimationFrame(() => {
       const viewport = this.messagesViewport()?.nativeElement;
-      viewport?.scrollTo({ top: viewport.scrollHeight, behavior: smooth ? 'smooth' : 'auto' });
+      if (!viewport) return;
+      const newestMessage = viewport.querySelector<HTMLElement>('.support-message:last-child');
+      if (!newestMessage) {
+        viewport.scrollTo({ top: 0, behavior: 'auto' });
+        return;
+      }
+      const viewportTop = viewport.getBoundingClientRect().top;
+      const messageTop = newestMessage.getBoundingClientRect().top;
+      viewport.scrollTo({
+        top: viewport.scrollTop + messageTop - viewportTop,
+        behavior: smooth ? 'smooth' : 'auto',
+      });
     });
   }
 }
