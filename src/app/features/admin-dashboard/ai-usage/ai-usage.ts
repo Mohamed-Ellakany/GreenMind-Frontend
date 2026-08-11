@@ -6,10 +6,11 @@ import { RouterLink } from '@angular/router';
 import { finalize } from 'rxjs';
 import { GreenmindApi } from '@core/api/greenmind-api.service';
 import { AdminAiUsageOverview } from '@core/api/api.models';
+import { DatePickerDirective } from '@shared/components/platform-form-controls';
 
 @Component({
   selector: 'app-ai-usage',
-  imports: [CommonModule, FormsModule, RouterLink],
+  imports: [CommonModule, FormsModule, RouterLink, DatePickerDirective],
   templateUrl: './ai-usage.html',
 })
 export class AiUsage {

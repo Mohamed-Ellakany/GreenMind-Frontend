@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { Observable } from 'rxjs';
+import { map, Observable } from 'rxjs';
 import { ApiClient } from './api-client.service';
 import {
   ExportPlan, ExportPlanCreateRequest, ExportPlanDashboard, ExportPlanDetails,
@@ -60,7 +60,9 @@ export class GreenmindApi {
     return this.tasks(new URLSearchParams({
       exportPlanId: String(exportPlanId),
       pageSize: '100',
-    }).toString());
+    }).toString()).pipe(
+      map((tasks) => tasks.filter((task) => task.exportPlanId === exportPlanId)),
+    );
   }
 
   public task(id: number): Observable<FarmTask> {

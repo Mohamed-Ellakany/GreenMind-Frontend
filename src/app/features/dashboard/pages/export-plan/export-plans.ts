@@ -18,6 +18,7 @@ import {
   ExportPlanScheduleAnalysisRequest, MasterDataItem, PlanningStatus,
 } from '@core/api/api.models';
 import { EGYPT_GOVERNORATES, EgyptDistrict } from '@shared/data/egypt-locations';
+import { DatePickerDirective, NumericInputDirective } from '@shared/components/platform-form-controls';
 
 type PlanTab = 'all' | 'active' | 'completed' | 'planning';
 
@@ -35,7 +36,7 @@ interface FarmLocationPreset {
 
 @Component({
   selector: 'app-export-plans',
-  imports: [FormsModule, RouterLink],
+  imports: [FormsModule, RouterLink, DatePickerDirective, NumericInputDirective],
   templateUrl: './export-plans-view.html',
   styleUrl: './export-plans.css',
 })

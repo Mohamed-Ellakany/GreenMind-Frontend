@@ -3,8 +3,9 @@ import { FormsModule } from '@angular/forms';
 import { GreenmindApi } from '@core/api/greenmind-api.service';
 import { finalize } from 'rxjs';
 import { toLocalIsoDate } from '@shared/utils/local-date';
+import { DatePickerDirective } from '@shared/components/platform-form-controls';
 
-@Component({ selector: 'app-statistics', imports: [FormsModule], templateUrl: './statistics.html' })
+@Component({ selector: 'app-statistics', imports: [FormsModule, DatePickerDirective], templateUrl: './statistics.html' })
 export class Statistics {
   private readonly api = inject(GreenmindApi);
   public format: 'pdf' | 'xlsx' | 'csv' = 'pdf';

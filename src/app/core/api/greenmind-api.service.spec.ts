@@ -6,8 +6,9 @@ import { GreenmindApi } from './greenmind-api.service';
 
 describe('GreenmindApi RAG ingestion', () => {
   const client = {
-    get: vi.fn(() => of([])),
+    get: vi.fn(() => of([] as unknown[])),
     post: vi.fn(() => of({ chunksIngested: 3 })),
+    patch: vi.fn(() => of(undefined)),
   };
   let api: GreenmindApi;
 
@@ -43,9 +44,30 @@ describe('GreenmindApi RAG ingestion', () => {
   });
 
   it('requests tasks using the current export plan id', () => {
-    api.planTasks(42).subscribe();
+    client.get.mockReturnValueOnce(of([
+      { id: 1, exportPlanId: 42 },
+      { id: 2, exportPlanId: 7 },
+    ]));
+
+    let result: unknown[] = [];
+    api.planTasks(42).subscribe((tasks) => result = tasks);
 
     expect(client.get).toHaveBeenCalledWith('/api/Tasks?exportPlanId=42&pageSize=100');
+    expect(result).toEqual([{ id: 1, exportPlanId: 42 }]);
     expect(() => api.planTasks(0)).toThrowError('A valid export plan id is required.');
+  });
+
+  it('sends a selected task status with the required scheduling data', () => {
+    api.updateTask(9, { status: 'Completed', actualDate: '2026-08-11' }).subscribe();
+    api.updateTask(9, { status: 'Postponed', plannedDate: '2026-08-12' }).subscribe();
+
+    expect(client.patch).toHaveBeenNthCalledWith(1, '/api/Tasks/9', {
+      status: 'Completed',
+      actualDate: '2026-08-11',
+    });
+    expect(client.patch).toHaveBeenNthCalledWith(2, '/api/Tasks/9', {
+      status: 'Postponed',
+      plannedDate: '2026-08-12',
+    });
   });
 });

@@ -180,6 +180,34 @@ textarea:focus {
   outline-offset: 1px;
 }
 
+input[data-platform-numeric] {
+  direction: ltr;
+  text-align: start;
+  font-variant-numeric: tabular-nums;
+}
+
+input[data-platform-date] {
+  direction: ltr;
+  cursor: pointer;
+  padding-inline-end: 2.75rem !important;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%23087a42' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='5' width='18' height='16' rx='3'/%3E%3Cpath d='M16 3v4M8 3v4M3 10h18'/%3E%3Cpath d='M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01'/%3E%3C/svg%3E");
+  background-position: right .85rem center;
+  background-repeat: no-repeat;
+  background-size: 1.2rem;
+  font-variant-numeric: tabular-nums;
+}
+
+input[data-platform-date][aria-expanded='true'] {
+  border-color: var(--gm-primary) !important;
+  box-shadow: 0 0 0 3px rgb(8 122 66 / 0.18);
+}
+
+input[data-platform-numeric].ng-invalid.ng-touched,
+input[data-platform-date].ng-invalid.ng-touched {
+  border-color: var(--gm-danger) !important;
+  box-shadow: 0 0 0 3px rgb(190 58 52 / 0.12);
+}
+
 button {
   transition: transform 160ms ease, background-color 160ms ease, border-color 160ms ease, color 160ms ease, box-shadow 160ms ease;
 }
@@ -401,13 +429,14 @@ main [class*='bg-[#13a346]'] {
 
 .task-status-control {
   flex: none;
-  min-width: 5.4rem;
+  min-width: 8.5rem;
   min-height: 2.1rem;
   border: 1px solid #cfe2d3;
   border-radius: 0.55rem;
   background: #f2faf4;
-  padding: 0.35rem 0.55rem;
+  padding: 0.35rem 0.65rem;
   color: #0f7a3d;
+  cursor: pointer;
   font-size: 0.75rem;
   font-weight: 950;
 }

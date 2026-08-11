@@ -4,22 +4,36 @@
   } @else if (error() && !plan()) {
     <div class="grid min-h-[60vh] place-items-center">
       <div class="max-w-md rounded-3xl border border-red-100 bg-white p-8 text-center shadow-sm">
-        <span class="mx-auto grid size-14 place-items-center rounded-2xl bg-red-50 text-2xl font-black text-red-600">!</span>
+        <span
+          class="mx-auto grid size-14 place-items-center rounded-2xl bg-red-50 text-2xl font-black text-red-600"
+          >!</span
+        >
         <h1 class="mt-5 text-xl font-black">لم نتمكن من فتح الخطة</h1>
         <p class="mt-2 text-sm leading-6 text-slate-500">{{ error() }}</p>
-        <a routerLink="/export-plans" class="mt-6 inline-flex rounded-xl bg-[#0f7a3d] px-5 py-3 text-sm font-bold text-white">العودة إلى الخطط</a>
+        <a
+          routerLink="/export-plans"
+          class="mt-6 inline-flex rounded-xl bg-[#0f7a3d] px-5 py-3 text-sm font-bold text-white"
+          >العودة إلى الخطط</a
+        >
       </div>
     </div>
   } @else if (plan(); as currentPlan) {
     @if (dashboard(); as data) {
       <nav class="mb-3 flex items-center gap-2 text-xs text-slate-500" aria-label="مسار الصفحة">
-        <a routerLink="/export-plans" class="font-bold transition hover:text-[#0f7a3d]">خطط التصدير</a>
+        <a routerLink="/export-plans" class="font-bold transition hover:text-[#0f7a3d]"
+          >خطط التصدير</a
+        >
         <span aria-hidden="true">/</span>
         <span class="truncate">{{ currentPlan.name }}</span>
       </nav>
 
       <header class="plan-hero">
-        <img class="hero-crop-image" [src]="heroCropImage(currentPlan.crop)" alt="" aria-hidden="true" />
+        <img
+          class="hero-crop-image"
+          [src]="heroCropImage(currentPlan.crop)"
+          alt=""
+          aria-hidden="true"
+        />
         <div class="hero-image-shade" aria-hidden="true"></div>
         <div class="hero-glow" aria-hidden="true"></div>
         <div class="plan-hero-main relative z-10 grid gap-7">
@@ -28,8 +42,16 @@
               <span class="hero-status"><i></i>{{ statusLabel(currentPlan.status) }}</span>
               <span class="text-xs font-bold text-white/55">EX-{{ currentPlan.id }}</span>
             </div>
-            <h1 class="max-w-3xl text-3xl font-black leading-tight tracking-tight text-white sm:text-4xl">{{ currentPlan.name }}</h1>
-            <p class="mt-3 text-sm font-medium text-white/65">{{ currentPlan.crop }} <span class="mx-2 text-white/25">←</span> {{ currentPlan.destination }} <span class="mx-2 text-white/25">•</span> {{ currentPlan.city }}، {{ currentPlan.governorate }}</p>
+            <h1
+              class="max-w-3xl text-3xl font-black leading-tight tracking-tight text-white sm:text-4xl"
+            >
+              {{ currentPlan.name }}
+            </h1>
+            <p class="mt-3 text-sm font-medium text-white/65">
+              {{ currentPlan.crop }} <span class="mx-2 text-white/25">←</span>
+              {{ currentPlan.destination }} <span class="mx-2 text-white/25">•</span>
+              {{ currentPlan.city }}، {{ currentPlan.governorate }}
+            </p>
             <p class="mt-2 text-sm text-[#b8d6c6]">{{ statusMessage(currentPlan.status) }}</p>
 
             <a class="hero-primary-action" href="#today-tasks">
@@ -39,11 +61,22 @@
           </div>
 
           <div class="hero-progress-panel">
-            <div class="progress-ring" [style.background]="'conic-gradient(#73dc8b ' + data.season.progressPercentage + '%, rgba(255,255,255,.12) 0)'">
-              <div><strong>{{ data.season.progressPercentage }}%</strong><span>تقدم الموسم</span></div>
+            <div
+              class="progress-ring"
+              [style.background]="
+                'conic-gradient(#73dc8b ' +
+                data.season.progressPercentage +
+                '%, rgba(255,255,255,.12) 0)'
+              "
+            >
+              <div>
+                <strong>{{ data.season.progressPercentage }}%</strong><span>تقدم الموسم</span>
+              </div>
             </div>
             <div class="mt-4 text-center">
-              <strong class="block text-2xl font-black text-white">{{ daysUntil(currentPlan.expectedExportDate) }}</strong>
+              <strong class="block text-2xl font-black text-white">{{
+                daysUntil(currentPlan.expectedExportDate)
+              }}</strong>
               <span class="text-xs font-bold text-white/55">يومًا حتى التصدير</span>
             </div>
           </div>
@@ -53,20 +86,61 @@
           @for (insight of heroInsights(); track insight.title) {
             <div class="hero-insight" [attr.data-tone]="insight.tone">
               <span class="insight-indicator" aria-hidden="true"></span>
-              <div><strong>{{ insight.title }}</strong><small>{{ insight.detail }}</small></div>
+              <div>
+                <strong>{{ insight.title }}</strong
+                ><small>{{ insight.detail }}</small>
+              </div>
             </div>
           }
         </div>
       </header>
 
       @if (error()) {
-        <div class="mt-4 flex items-center justify-between gap-3 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-bold text-red-700" role="alert">
-          <span>{{ error() }}</span><button type="button" class="text-lg" aria-label="إخفاء الرسالة" (click)="error.set(null)">×</button>
+        <div
+          class="mt-4 flex items-center justify-between gap-3 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-bold text-red-700"
+          role="alert"
+        >
+          <span>{{ error() }}</span
+          ><button
+            type="button"
+            class="text-lg"
+            aria-label="إخفاء الرسالة"
+            (click)="error.set(null)"
+          >
+            ×
+          </button>
         </div>
       }
       @if (soilSuccess()) {
-        <div class="mt-4 flex items-center justify-between gap-3 rounded-xl border border-green-200 bg-green-50 px-4 py-3 text-sm font-bold text-green-800" role="status">
-          <span>✓ {{ soilSuccess() }}</span><button type="button" class="text-lg" aria-label="إخفاء الرسالة" (click)="soilSuccess.set(null)">×</button>
+        <div
+          class="mt-4 flex items-center justify-between gap-3 rounded-xl border border-green-200 bg-green-50 px-4 py-3 text-sm font-bold text-green-800"
+          role="status"
+        >
+          <span>✓ {{ soilSuccess() }}</span
+          ><button
+            type="button"
+            class="text-lg"
+            aria-label="إخفاء الرسالة"
+            (click)="soilSuccess.set(null)"
+          >
+            ×
+          </button>
+        </div>
+      }
+      @if (taskSuccess()) {
+        <div
+          class="mt-4 flex items-center justify-between gap-3 rounded-xl border border-green-200 bg-green-50 px-4 py-3 text-sm font-bold text-green-800"
+          role="status"
+        >
+          <span>✓ {{ taskSuccess() }}</span
+          ><button
+            type="button"
+            class="text-lg"
+            aria-label="إخفاء الرسالة"
+            (click)="taskSuccess.set(null)"
+          >
+            ×
+          </button>
         </div>
       }
 
@@ -79,20 +153,42 @@
                 <h2>اليوم وما تأخر</h2>
                 <p>الإجراءات التي قد تؤثر على جاهزية التصدير إذا لم تُنجز.</p>
               </div>
-              <div class="flex flex-wrap items-center gap-2"><a routerLink="/activities" class="quiet-link">+ إضافة مهمة غير مخططة</a><button type="button" class="quiet-link" (click)="taskDrawerOpen.set(true)">عرض جميع مهام هذه الخطة <span aria-hidden="true">←</span></button></div>
+              <div class="flex flex-wrap items-center gap-2">
+                <button type="button" class="quiet-link" (click)="openTaskForm()">
+                  + إضافة مهمة غير مخططة</button
+                ><button type="button" class="quiet-link" (click)="taskDrawerOpen.set(true)">
+                  عرض جميع مهام هذه الخطة <span aria-hidden="true">←</span>
+                </button>
+              </div>
             </header>
 
             @if (actionTasks().length) {
               <ul class="action-list">
                 @for (task of actionTasks(); track task.id) {
                   <li [class.is-overdue]="isOverdue(task)">
-                    <button type="button" class="task-status-control" [disabled]="updatingTaskId() === task.id" [attr.aria-label]="'تحديث حالة مهمة ' + task.title" (click)="toggleTask(task)">{{ task.status === 'InProgress' ? 'إكمال' : task.status === 'Completed' ? 'مكتملة' : 'بدء التنفيذ' }}</button>
+                    <select
+                      class="task-status-control"
+                      [disabled]="updatingTaskId() === task.id"
+                      [value]="task.status"
+                      [attr.aria-label]="'اختيار حالة مهمة ' + task.title"
+                      (change)="changeTaskStatus(task, $event)"
+                    >
+                      @for (status of taskStatusOptions; track status) {
+                        <option [value]="status">{{ farmTaskStatusLabel(status) }}</option>
+                      }
+                    </select>
                     <div class="min-w-0 flex-1">
                       <div class="flex flex-wrap items-center gap-2">
                         <h3>{{ task.title }}</h3>
-                        <span class="task-state">{{ taskStatusLabel(task) }}</span>
+                        <span class="task-state" [attr.data-status]="task.status">{{ taskStatusLabel(task) }}</span>
+                        @if (isOverdue(task)) {
+                          <span class="task-overdue">متأخرة عن الموعد</span>
+                        }
                       </div>
-                      <p>{{ taskTypeLabel(task.taskType) }} · أولوية {{ priorityLabel(task.priority) }} · {{ formatDate(task.plannedDate) }}</p>
+                      <p>
+                        {{ taskTypeLabel(task.taskType) }} · أولوية
+                        {{ priorityLabel(task.priority) }} · {{ formatDate(task.plannedDate) }}
+                      </p>
                     </div>
                   </li>
                 }
@@ -100,7 +196,10 @@
             } @else {
               <div class="clear-state">
                 <span aria-hidden="true">✓</span>
-                <div><h3>لا يوجد إجراء عاجل الآن</h3><p>يمكنك الانتقال للخطوات القادمة دون ضغط.</p></div>
+                <div>
+                  <h3>لا يوجد إجراء عاجل الآن</h3>
+                  <p>يمكنك الانتقال للخطوات القادمة دون ضغط.</p>
+                </div>
               </div>
             }
 
@@ -117,14 +216,29 @@
 
           <article class="timeline-card">
             <header class="section-heading compact">
-              <div><span class="eyebrow">الصورة الكبيرة</span><h2>مسار الموسم</h2></div>
+              <div>
+                <span class="eyebrow">الصورة الكبيرة</span>
+                <h2>مسار الموسم</h2>
+              </div>
               <span class="stage-pill">{{ data.season.growthStage }}</span>
             </header>
             <ol class="season-timeline">
-              <li class="is-complete"><i>✓</i><strong>الزراعة</strong><small>{{ compactDate(currentPlan.plantingDate) }}</small></li>
-              <li class="is-current"><i></i><strong>{{ data.season.growthStage }}</strong><small>اليوم {{ data.season.currentSeasonDay }}</small></li>
-              <li [class.is-complete]="daysUntil(currentPlan.expectedHarvestDate) === 0"><i></i><strong>الحصاد</strong><small>{{ compactDate(currentPlan.expectedHarvestDate) }}</small></li>
-              <li [class.is-complete]="daysUntil(currentPlan.expectedExportDate) === 0"><i></i><strong>التصدير</strong><small>{{ compactDate(currentPlan.expectedExportDate) }}</small></li>
+              <li class="is-complete">
+                <i>✓</i><strong>الزراعة</strong
+                ><small>{{ compactDate(currentPlan.plantingDate) }}</small>
+              </li>
+              <li class="is-current">
+                <i></i><strong>{{ data.season.growthStage }}</strong
+                ><small>اليوم {{ data.season.currentSeasonDay }}</small>
+              </li>
+              <li [class.is-complete]="daysUntil(currentPlan.expectedHarvestDate) === 0">
+                <i></i><strong>الحصاد</strong
+                ><small>{{ compactDate(currentPlan.expectedHarvestDate) }}</small>
+              </li>
+              <li [class.is-complete]="daysUntil(currentPlan.expectedExportDate) === 0">
+                <i></i><strong>التصدير</strong
+                ><small>{{ compactDate(currentPlan.expectedExportDate) }}</small>
+              </li>
             </ol>
           </article>
         </div>
@@ -149,38 +263,74 @@
                 }
               </div>
               <div class="health-score" [attr.data-tone]="planHealth().tone">
-                @if (latestSoil()) { <strong>{{ planHealth().score }}%</strong> } @else { <strong>—</strong> }
+                @if (latestSoil()) {
+                  <strong>{{ planHealth().score }}%</strong>
+                } @else {
+                  <strong>—</strong>
+                }
                 <span>{{ planHealth().label }}</span>
               </div>
-              <svg class="summary-chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="m8 10 4 4 4-4" /></svg>
+              <svg class="summary-chevron" viewBox="0 0 24 24" aria-hidden="true">
+                <path d="m8 10 4 4 4-4" />
+              </svg>
             </summary>
 
             <div class="disclosure-body">
               @if (latestSoil(); as soil) {
                 <div class="soil-grid">
-                  <div><span>pH</span><strong>{{ soil.ph }}</strong><small>المثالي 5.5–7.5</small></div>
-                  <div><span>EC</span><strong>{{ soil.ec }}</strong><small>الحد الآمن ≤ 3</small></div>
-                  <div><span>الرطوبة</span><strong>{{ soil.moisture }}%</strong><small>المثالي 45–85%</small></div>
+                  <div>
+                    <span>pH</span><strong>{{ soil.ph }}</strong
+                    ><small>المثالي 5.5–7.5</small>
+                  </div>
+                  <div>
+                    <span>EC</span><strong>{{ soil.ec }}</strong
+                    ><small>الحد الآمن ≤ 3</small>
+                  </div>
+                  <div>
+                    <span>الرطوبة</span><strong>{{ soil.moisture }}%</strong
+                    ><small>المثالي 45–85%</small>
+                  </div>
                 </div>
-                <div class="npk-row"><span>N <b>{{ soil.nitrogen }}</b></span><span>P <b>{{ soil.phosphorus }}</b></span><span>K <b>{{ soil.potassium }}</b></span></div>
+                <div class="npk-row">
+                  <span
+                    >N <b>{{ soil.nitrogen }}</b></span
+                  ><span
+                    >P <b>{{ soil.phosphorus }}</b></span
+                  ><span
+                    >K <b>{{ soil.potassium }}</b></span
+                  >
+                </div>
               } @else {
                 <p class="empty-copy">أضف أول قراءة كي تتمكن المنصة من تقييم صحة التربة.</p>
               }
 
               <div class="mt-4 flex flex-wrap items-center justify-between gap-3">
-                <button type="button" class="secondary-action" (click)="openSoilForm()">+ إضافة قراءة</button>
+                <button type="button" class="secondary-action" (click)="openSoilForm()">
+                  + إضافة قراءة
+                </button>
                 <span class="text-xs text-slate-400">سجل القياسات يظهر عند فتح هذا القسم فقط</span>
               </div>
 
               @if (soilHistoryLoading()) {
                 <div class="mt-4 h-20 animate-pulse rounded-xl bg-slate-100"></div>
               } @else if (soilHistoryError()) {
-                <p class="mt-4 rounded-xl bg-red-50 p-3 text-xs font-bold text-red-700">{{ soilHistoryError() }}</p>
+                <p class="mt-4 rounded-xl bg-red-50 p-3 text-xs font-bold text-red-700">
+                  {{ soilHistoryError() }}
+                </p>
               } @else if (soilMeasurements().length) {
                 <div class="soil-history">
                   <h3>القراءات السابقة</h3>
                   @for (reading of soilMeasurements().slice(0, 5); track reading.id) {
-                    <div><time>{{ compactDate(reading.measurementDate) }}</time><span>pH <b>{{ reading.ph }}</b></span><span>EC <b>{{ reading.ec }}</b></span><span>رطوبة <b>{{ reading.moisture }}%</b></span></div>
+                    <div>
+                      <time>{{ compactDate(reading.measurementDate) }}</time
+                      ><span
+                        >pH <b>{{ reading.ph }}</b></span
+                      ><span
+                        >EC <b>{{ reading.ec }}</b></span
+                      ><span
+                        >رطوبة <b>{{ reading.moisture }}%</b></span
+                      >
+                    </div>
                   }
                 </div>
               }
@@ -189,22 +339,50 @@
 
           <details class="disclosure-card plan-facts">
             <summary>
-              <div class="summary-copy"><span class="eyebrow">مرجع الخطة</span><h2>تفاصيل الخطة</h2><p>{{ currentPlan.areaInFeddan }} فدان · {{ currentPlan.city }}</p></div>
-              <svg class="summary-chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="m8 10 4 4 4-4" /></svg>
+              <div class="summary-copy">
+                <span class="eyebrow">مرجع الخطة</span>
+                <h2>تفاصيل الخطة</h2>
+                <p>{{ currentPlan.areaInFeddan }} فدان · {{ currentPlan.city }}</p>
+              </div>
+              <svg class="summary-chevron" viewBox="0 0 24 24" aria-hidden="true">
+                <path d="m8 10 4 4 4-4" />
+              </svg>
             </summary>
             <div class="disclosure-body">
               <dl>
-                <div><dt>المساحة</dt><dd>{{ currentPlan.areaInFeddan }} فدان</dd></div>
-                <div><dt>تاريخ الإنشاء الزراعي</dt><dd>{{ formatDate(currentPlan.plantingDate) }}</dd></div>
-                <div><dt>الإحداثيات</dt><dd dir="ltr">{{ currentPlan.latitude.toFixed(4) }}, {{ currentPlan.longitude.toFixed(4) }}</dd></div>
-                @if (currentPlan.notes) { <div class="full"><dt>ملاحظات</dt><dd>{{ currentPlan.notes }}</dd></div> }
+                <div>
+                  <dt>المساحة</dt>
+                  <dd>{{ currentPlan.areaInFeddan }} فدان</dd>
+                </div>
+                <div>
+                  <dt>تاريخ الإنشاء الزراعي</dt>
+                  <dd>{{ formatDate(currentPlan.plantingDate) }}</dd>
+                </div>
+                <div>
+                  <dt>الإحداثيات</dt>
+                  <dd dir="ltr">
+                    {{ currentPlan.latitude.toFixed(4) }}, {{ currentPlan.longitude.toFixed(4) }}
+                  </dd>
+                </div>
+                @if (currentPlan.notes) {
+                  <div class="full">
+                    <dt>ملاحظات</dt>
+                    <dd>{{ currentPlan.notes }}</dd>
+                  </div>
+                }
               </dl>
             </div>
           </details>
 
-          <a [routerLink]="['/export-plans', currentPlan.id, 'agricultural-advisor']" class="workspace-link">
+          <a
+            [routerLink]="['/export-plans', currentPlan.id, 'agricultural-advisor']"
+            class="workspace-link"
+          >
             <span class="workspace-icon">✦</span>
-            <span><strong>مساحة العمل الذكية</strong><small>تحليل الخطة، المصروفات، والمستندات</small></span>
+            <span
+              ><strong>مساحة العمل الذكية</strong
+              ><small>تحليل الخطة، المصروفات، والمستندات</small></span
+            >
             <span aria-hidden="true">←</span>
           </a>
         </aside>
@@ -216,25 +394,357 @@
     <div class="task-drawer-backdrop" (click)="taskDrawerOpen.set(false)">
       <aside class="plan-task-drawer" (click)="$event.stopPropagation()">
         <header>
-          <div><span class="eyebrow">الخطة الحالية فقط</span><h2>جميع مهام هذه الخطة</h2><p>{{ filteredPlanTasks().length }} من {{ planTasks().length }} مهام</p></div>
-          <button type="button" class="drawer-close" aria-label="إغلاق" (click)="taskDrawerOpen.set(false)">×</button>
+          <div>
+            <span class="eyebrow">الخطة الحالية فقط</span>
+            <h2>جميع مهام هذه الخطة</h2>
+            <p>{{ filteredPlanTasks().length }} من {{ planTasks().length }} مهام</p>
+          </div>
+          <button
+            type="button"
+            class="drawer-close"
+            aria-label="إغلاق"
+            (click)="taskDrawerOpen.set(false)"
+          >
+            ×
+          </button>
         </header>
         <div class="task-drawer-filters">
-          <label><span>الحالة</span><select [ngModel]="taskStatusFilter()" (ngModelChange)="taskStatusFilter.set($event)" [ngModelOptions]="{standalone: true}"><option value="all">كل الحالات</option><option value="Pending">معلقة</option><option value="InProgress">جارية</option><option value="Completed">مكتملة</option><option value="Cancelled">ملغاة</option></select></label>
-          <label><span>الأولوية</span><select [ngModel]="taskPriorityFilter()" (ngModelChange)="taskPriorityFilter.set($event)" [ngModelOptions]="{standalone: true}"><option value="all">كل الأولويات</option><option value="Critical">حرجة</option><option value="High">عالية</option><option value="Medium">متوسطة</option><option value="Low">منخفضة</option></select></label>
+          <label
+            ><span>الحالة</span
+            ><select
+              [ngModel]="taskStatusFilter()"
+              (ngModelChange)="taskStatusFilter.set($event)"
+              [ngModelOptions]="{ standalone: true }"
+            >
+              <option value="all">كل الحالات</option>
+              <option value="Pending">معلقة</option>
+              <option value="InProgress">جارية</option>
+              <option value="Completed">مكتملة</option>
+              <option value="Cancelled">ملغاة</option>
+            </select></label
+          >
+          <label
+            ><span>الأولوية</span
+            ><select
+              [ngModel]="taskPriorityFilter()"
+              (ngModelChange)="taskPriorityFilter.set($event)"
+              [ngModelOptions]="{ standalone: true }"
+            >
+              <option value="all">كل الأولويات</option>
+              <option value="Critical">حرجة</option>
+              <option value="High">عالية</option>
+              <option value="Medium">متوسطة</option>
+              <option value="Low">منخفضة</option>
+            </select></label
+          >
         </div>
         <div class="plan-task-list">
           @for (task of filteredPlanTasks(); track task.id) {
             <article>
               <span class="task-priority" [attr.data-priority]="task.priority"></span>
-              <div><div class="task-title-line"><h3>{{ task.title }}</h3><span>{{ farmTaskStatusLabel(task.status) }}</span></div><p>{{ taskTypeLabel(task.taskTypeName) }} · {{ priorityLabel(task.priority) }} · {{ task.origin === 'UserAdded' ? 'أضافها المستخدم' : 'مخططة بالذكاء الاصطناعي' }}</p><time>{{ formatDate(task.plannedDate) }}</time>@if (task.description) { <small>{{ task.description }}</small> }@if (task.notes) { <small>ملاحظة: {{ task.notes }}</small> }</div>
+              <div>
+                <div class="task-title-line">
+                  <h3>{{ task.title }}</h3>
+                  <span>{{ farmTaskStatusLabel(task.status) }}</span>
+                </div>
+                <p>
+                  {{ taskTypeLabel(task.taskTypeName) }} · {{ priorityLabel(task.priority) }} ·
+                  {{ task.origin === 'UserAdded' ? 'أضافها المستخدم' : 'مخططة بالذكاء الاصطناعي' }}
+                </p>
+                <time>{{ formatDate(task.plannedDate) }}</time>
+                @if (task.description) {
+                  <small>{{ task.description }}</small>
+                }
+                @if (task.notes) {
+                  <small>ملاحظة: {{ task.notes }}</small>
+                }
+              </div>
             </article>
           } @empty {
-            <div class="drawer-empty"><span>✓</span><h3>لا توجد مهام مطابقة</h3><p>غيّر الفلاتر لعرض بقية مهام الخطة.</p></div>
+            <div class="drawer-empty">
+              <span>✓</span>
+              <h3>لا توجد مهام مطابقة</h3>
+              <p>غيّر الفلاتر لعرض بقية مهام الخطة.</p>
+            </div>
           }
         </div>
       </aside>
     </div>
+  }
+
+  @if (postponeTaskFormOpen()) {
+    <dialog
+      #postponeTaskDialog
+      class="gm-modal-layer place-items-center p-4"
+      aria-labelledby="postpone-task-dialog-title"
+      aria-describedby="postpone-task-dialog-description"
+      (cancel)="cancelPostponeTaskForm($event)"
+      (click)="closePostponeTaskForm()"
+    >
+      <form
+        class="w-full max-w-md overflow-hidden rounded-3xl bg-white shadow-2xl"
+        (click)="$event.stopPropagation()"
+        (ngSubmit)="saveTaskPostponement()"
+      >
+        <header class="flex items-start justify-between gap-4 border-b border-slate-100 px-6 py-5">
+          <div>
+            <span class="text-xs font-bold text-[#0f7a3d]">تحديث موعد المهمة</span>
+            <h2 id="postpone-task-dialog-title" class="mt-1 text-xl font-black">تأجيل المهمة</h2>
+            <p id="postpone-task-dialog-description" class="mt-1 text-sm text-slate-500">
+              اختر موعداً جديداً بعد {{ formatDate(postponeTask()?.plannedDate || '') }} لمهمة
+              «{{ postponeTask()?.title }}».
+            </p>
+          </div>
+          <button
+            type="button"
+            class="grid size-10 shrink-0 place-items-center rounded-full border border-slate-200 text-xl text-slate-500"
+            aria-label="إغلاق"
+            (click)="closePostponeTaskForm()"
+          >
+            ×
+          </button>
+        </header>
+
+        <div class="px-6 py-6">
+          <label>
+            <span class="mb-2 block text-sm font-bold">الموعد الجديد</span>
+            <input
+              id="postpone-task-date"
+              required
+              type="text"
+              appDatePicker
+              name="postponeTaskDate"
+              [(ngModel)]="postponeTaskDate"
+              class="w-full rounded-xl border px-4 py-3"
+            />
+          </label>
+          @if (postponeTaskError()) {
+            <p class="mt-4 rounded-xl bg-red-50 px-4 py-3 text-sm font-bold text-red-700" role="alert">
+              {{ postponeTaskError() }}
+            </p>
+          }
+        </div>
+
+        <footer class="flex items-center justify-end gap-3 border-t border-slate-100 px-6 py-4">
+          <button
+            type="button"
+            class="rounded-xl px-4 py-3 text-sm font-bold text-slate-500 hover:bg-slate-50"
+            (click)="closePostponeTaskForm()"
+          >
+            إلغاء
+          </button>
+          <button
+            type="submit"
+            [disabled]="updatingTaskId() === postponeTask()?.id"
+            class="rounded-xl bg-[#0f7a3d] px-6 py-3 text-sm font-black text-white disabled:opacity-50"
+          >
+            {{ updatingTaskId() === postponeTask()?.id ? 'جارٍ الحفظ...' : 'تأكيد التأجيل' }}
+          </button>
+        </footer>
+      </form>
+    </dialog>
+  }
+
+  @if (taskFormOpen()) {
+    <dialog
+      #taskDialog
+      class="gm-modal-layer place-items-center p-0 sm:p-4"
+      aria-labelledby="task-dialog-title"
+      aria-describedby="task-dialog-description"
+      (cancel)="cancelTaskForm($event)"
+      (click)="closeTaskForm()"
+    >
+      <form
+        class="flex max-h-[100dvh] w-full max-w-2xl flex-col overflow-hidden bg-white shadow-2xl sm:max-h-[92dvh] sm:rounded-3xl"
+        (click)="$event.stopPropagation()"
+        (ngSubmit)="saveNewTask()"
+      >
+        <header
+          class="flex items-start justify-between gap-4 border-b border-slate-100 px-5 py-5 sm:px-7"
+        >
+          <div>
+            <span class="text-xs font-bold text-[#0f7a3d]">الخطة الحالية فقط</span>
+            <h2 id="task-dialog-title" class="mt-1 text-xl font-black">إضافة مهمة غير مخططة</h2>
+            <p id="task-dialog-description" class="mt-1 text-sm text-slate-500">
+              ستُضاف المهمة مباشرة إلى {{ plan()?.name }} من دون مغادرة هذه الصفحة.
+            </p>
+          </div>
+          <button
+            type="button"
+            class="grid size-10 shrink-0 place-items-center rounded-full border border-slate-200 text-xl text-slate-500"
+            aria-label="إغلاق"
+            (click)="closeTaskForm()"
+          >
+            ×
+          </button>
+        </header>
+
+        <div class="min-h-0 flex-1 overflow-y-auto px-5 py-6 sm:px-7">
+          <div class="grid gap-4 sm:grid-cols-2">
+            <label class="sm:col-span-2">
+              <span class="mb-2 block text-sm font-bold"
+                >العنوان <em class="not-italic text-red-500">*</em></span
+              >
+              <input
+                id="unplanned-task-title"
+                required
+                maxlength="200"
+                name="taskTitle"
+                [(ngModel)]="taskForm.title"
+                class="w-full rounded-xl border px-4 py-3"
+                placeholder="مثال: فحص إضافي للثمار"
+              />
+            </label>
+            <label>
+              <span class="mb-2 block text-sm font-bold"
+                >نوع المهمة <em class="not-italic text-red-500">*</em></span
+              >
+              <select
+                required
+                name="taskTypeId"
+                [(ngModel)]="taskForm.taskTypeId"
+                class="w-full rounded-xl border bg-white px-4 py-3"
+                [disabled]="taskTypesLoading()"
+              >
+                @if (taskTypesLoading()) {
+                  <option [ngValue]="0">جارٍ تحميل الأنواع...</option>
+                }
+                @for (type of taskTypes(); track type.id) {
+                  <option [ngValue]="type.id">{{ taskTypeLabel(type.name) }}</option>
+                }
+              </select>
+            </label>
+            <label>
+              <span class="mb-2 block text-sm font-bold"
+                >التاريخ المخطط <em class="not-italic text-red-500">*</em></span
+              >
+              <input
+                required
+                type="text"
+                appDatePicker
+                name="taskPlannedDate"
+                [(ngModel)]="taskForm.plannedDate"
+                class="w-full rounded-xl border px-4 py-3"
+              />
+            </label>
+            <label>
+              <span class="mb-2 block text-sm font-bold">الأولوية</span>
+              <select
+                name="taskPriority"
+                [(ngModel)]="taskForm.priority"
+                class="w-full rounded-xl border bg-white px-4 py-3"
+              >
+                <option value="Low">منخفضة</option>
+                <option value="Medium">متوسطة</option>
+                <option value="High">عالية</option>
+                <option value="Critical">حرجة</option>
+              </select>
+            </label>
+            <label>
+              <span class="mb-2 block text-sm font-bold">الحالة الابتدائية</span>
+              <select
+                name="taskStatus"
+                [(ngModel)]="taskForm.status"
+                class="w-full rounded-xl border bg-white px-4 py-3"
+              >
+                <option value="Pending">قيد الانتظار</option>
+                <option value="InProgress">قيد التنفيذ</option>
+                <option value="Completed">مكتملة</option>
+                <option value="Skipped">تم تجاوزها</option>
+                <option value="Cancelled">ملغاة</option>
+              </select>
+            </label>
+            @if (taskForm.status === 'Completed') {
+              <label class="sm:col-span-2">
+                <span class="mb-2 block text-sm font-bold"
+                  >تاريخ التنفيذ <em class="not-italic text-red-500">*</em></span
+                >
+                <input
+                  required
+                  type="text"
+                  appDatePicker
+                  name="taskActualDate"
+                  [(ngModel)]="taskForm.actualDate"
+                  class="w-full rounded-xl border px-4 py-3"
+                />
+              </label>
+            }
+            <label>
+              <span class="mb-2 block text-sm font-bold">الكمية</span>
+              <input
+                required
+                type="text"
+                appNumericInput
+                min="0.001"
+                step="0.001"
+                name="taskQuantity"
+                [(ngModel)]="taskForm.quantity"
+                class="w-full rounded-xl border px-4 py-3"
+              />
+            </label>
+            <label>
+              <span class="mb-2 block text-sm font-bold">الوحدة</span>
+              <input
+                required
+                maxlength="50"
+                name="taskUnit"
+                [(ngModel)]="taskForm.unit"
+                class="w-full rounded-xl border px-4 py-3"
+              />
+            </label>
+          </div>
+          <label class="mt-4 block"
+            ><span class="mb-2 block text-sm font-bold">الوصف</span
+            ><textarea
+              rows="3"
+              maxlength="1000"
+              name="taskDescription"
+              [(ngModel)]="taskForm.description"
+              class="w-full resize-y rounded-xl border px-4 py-3"
+              placeholder="ما الذي تم أو يجب تنفيذه؟"
+            ></textarea>
+          </label>
+          <label class="mt-4 block"
+            ><span class="mb-2 block text-sm font-bold"
+              >ملاحظة التنفيذ <small class="font-normal text-slate-400">(اختيارية)</small></span
+            ><textarea
+              rows="3"
+              maxlength="1000"
+              name="taskNotes"
+              [(ngModel)]="taskForm.notes"
+              class="w-full resize-y rounded-xl border px-4 py-3"
+              placeholder="تفاصيل إضافية للذكاء الاصطناعي..."
+            ></textarea>
+          </label>
+          @if (taskCreateError()) {
+            <p
+              class="mt-4 rounded-xl bg-red-50 px-4 py-3 text-sm font-bold text-red-700"
+              role="alert"
+            >
+              {{ taskCreateError() }}
+            </p>
+          }
+        </div>
+
+        <footer
+          class="flex items-center justify-between gap-3 border-t border-slate-100 px-5 py-4 sm:px-7"
+        >
+          <button
+            type="button"
+            class="rounded-xl px-4 py-3 text-sm font-bold text-slate-500 hover:bg-slate-50"
+            (click)="closeTaskForm()"
+          >
+            إلغاء</button
+          ><button
+            type="submit"
+            [disabled]="taskSaving() || taskTypesLoading() || !taskTypes().length"
+            class="rounded-xl bg-[#0f7a3d] px-6 py-3 text-sm font-black text-white shadow-[0_8px_20px_rgba(15,122,61,.18)] disabled:opacity-50"
+          >
+            {{ taskSaving() ? 'جارٍ إضافة المهمة...' : 'إضافة إلى هذه الخطة' }}
+          </button>
+        </footer>
+      </form>
+    </dialog>
   }
 
   @if (soilFormOpen()) {
@@ -246,26 +756,176 @@
       (cancel)="cancelSoilForm($event)"
       (click)="closeSoilForm()"
     >
-      <form class="flex max-h-[100dvh] w-full max-w-2xl flex-col overflow-hidden bg-white shadow-2xl sm:max-h-[92dvh] sm:rounded-3xl" (click)="$event.stopPropagation()" (ngSubmit)="saveSoilReading()">
-        <header class="flex items-start justify-between gap-4 border-b border-slate-100 px-5 py-5 sm:px-7">
-          <div><span class="text-xs font-bold text-[#0f7a3d]">تحديث ميداني</span><h2 id="soil-dialog-title" class="mt-1 text-xl font-black">إضافة قراءة تربة</h2><p id="soil-dialog-description" class="mt-1 text-sm text-slate-500">سجّل نتائج جهاز القياس أو تحليل المختبر لهذه الخطة. لا نملأ أي قيمة نيابةً عنك.</p></div>
-          <button type="button" class="grid size-10 shrink-0 place-items-center rounded-full border border-slate-200 text-xl text-slate-500" aria-label="إغلاق" (click)="closeSoilForm()">×</button>
+      <form
+        class="flex max-h-[100dvh] w-full max-w-2xl flex-col overflow-hidden bg-white shadow-2xl sm:max-h-[92dvh] sm:rounded-3xl"
+        (click)="$event.stopPropagation()"
+        (ngSubmit)="saveSoilReading()"
+      >
+        <header
+          class="flex items-start justify-between gap-4 border-b border-slate-100 px-5 py-5 sm:px-7"
+        >
+          <div>
+            <span class="text-xs font-bold text-[#0f7a3d]">تحديث ميداني</span>
+            <h2 id="soil-dialog-title" class="mt-1 text-xl font-black">إضافة قراءة تربة</h2>
+            <p id="soil-dialog-description" class="mt-1 text-sm text-slate-500">
+              سجّل نتائج جهاز القياس أو تحليل المختبر لهذه الخطة. لا نملأ أي قيمة نيابةً عنك.
+            </p>
+          </div>
+          <button
+            type="button"
+            class="grid size-10 shrink-0 place-items-center rounded-full border border-slate-200 text-xl text-slate-500"
+            aria-label="إغلاق"
+            (click)="closeSoilForm()"
+          >
+            ×
+          </button>
         </header>
         <div class="min-h-0 flex-1 overflow-y-auto px-5 py-6 sm:px-7">
-          <label class="mb-5 block"><span class="mb-2 block text-sm font-bold">تاريخ القياس <em class="not-italic text-red-500">*</em></span><input id="soil-measurement-date" required type="date" class="w-full rounded-xl border px-4 py-3" name="measurementDate" [(ngModel)]="soilForm.measurementDate" /></label>
+          <label class="mb-5 block"
+            ><span class="mb-2 block text-sm font-bold"
+              >تاريخ القياس <em class="not-italic text-red-500">*</em></span
+            ><input
+              id="soil-measurement-date"
+              required
+              type="text"
+              appDatePicker
+              class="w-full rounded-xl border px-4 py-3"
+              name="measurementDate"
+              [(ngModel)]="soilForm.measurementDate"
+          /></label>
           <div class="grid gap-4 sm:grid-cols-2">
-            <label><span class="mb-2 block text-sm font-bold">درجة الحموضة pH</span><span class="relative block"><input required type="number" min="0" max="14" step="0.01" class="w-full rounded-xl border px-4 py-3 pl-20" name="ph" [(ngModel)]="soilForm.ph" /><small class="field-unit">0–14</small></span></label>
-            <label><span class="mb-2 block text-sm font-bold">التوصيل الكهربائي EC</span><span class="relative block"><input required type="number" min="0" step="0.01" class="w-full rounded-xl border px-4 py-3 pl-24" name="ec" [(ngModel)]="soilForm.ec" /><small class="field-unit">dS/m</small></span></label>
-            <label><span class="mb-2 block text-sm font-bold">الرطوبة</span><span class="relative block"><input required type="number" min="0" max="100" step="0.1" class="w-full rounded-xl border px-4 py-3 pl-20" name="moisture" [(ngModel)]="soilForm.moisture" /><small class="field-unit">%</small></span></label>
+            <label
+              ><span class="mb-2 block text-sm font-bold">درجة الحموضة pH</span
+              ><span class="relative block"
+                ><input
+                  required
+                  type="text"
+                  appNumericInput
+                  min="0"
+                  max="14"
+                  step="0.01"
+                  class="w-full rounded-xl border px-4 py-3 pl-20"
+                  name="ph"
+                  [(ngModel)]="soilForm.ph"
+                /><small class="field-unit">0–14</small></span
+              ></label
+            >
+            <label
+              ><span class="mb-2 block text-sm font-bold">التوصيل الكهربائي EC</span
+              ><span class="relative block"
+                ><input
+                  required
+                  type="text"
+                  appNumericInput
+                  min="0"
+                  step="0.01"
+                  class="w-full rounded-xl border px-4 py-3 pl-24"
+                  name="ec"
+                  [(ngModel)]="soilForm.ec"
+                /><small class="field-unit">dS/m</small></span
+              ></label
+            >
+            <label
+              ><span class="mb-2 block text-sm font-bold">الرطوبة</span
+              ><span class="relative block"
+                ><input
+                  required
+                  type="text"
+                  appNumericInput
+                  min="0"
+                  max="100"
+                  step="0.1"
+                  class="w-full rounded-xl border px-4 py-3 pl-20"
+                  name="moisture"
+                  [(ngModel)]="soilForm.moisture"
+                /><small class="field-unit">%</small></span
+              ></label
+            >
             <div class="hidden sm:block"></div>
-            <label><span class="mb-2 block text-sm font-bold">النيتروجين N</span><span class="relative block"><input required type="number" min="0" step="0.1" class="w-full rounded-xl border px-4 py-3 pl-20" name="nitrogen" [(ngModel)]="soilForm.nitrogen" /><small class="field-unit">mg/kg</small></span></label>
-            <label><span class="mb-2 block text-sm font-bold">الفوسفور P</span><span class="relative block"><input required type="number" min="0" step="0.1" class="w-full rounded-xl border px-4 py-3 pl-20" name="phosphorus" [(ngModel)]="soilForm.phosphorus" /><small class="field-unit">mg/kg</small></span></label>
-            <label><span class="mb-2 block text-sm font-bold">البوتاسيوم K</span><span class="relative block"><input required type="number" min="0" step="0.1" class="w-full rounded-xl border px-4 py-3 pl-20" name="potassium" [(ngModel)]="soilForm.potassium" /><small class="field-unit">mg/kg</small></span></label>
+            <label
+              ><span class="mb-2 block text-sm font-bold">النيتروجين N</span
+              ><span class="relative block"
+                ><input
+                  required
+                  type="text"
+                  appNumericInput
+                  min="0"
+                  step="0.1"
+                  class="w-full rounded-xl border px-4 py-3 pl-20"
+                  name="nitrogen"
+                  [(ngModel)]="soilForm.nitrogen"
+                /><small class="field-unit">mg/kg</small></span
+              ></label
+            >
+            <label
+              ><span class="mb-2 block text-sm font-bold">الفوسفور P</span
+              ><span class="relative block"
+                ><input
+                  required
+                  type="text"
+                  appNumericInput
+                  min="0"
+                  step="0.1"
+                  class="w-full rounded-xl border px-4 py-3 pl-20"
+                  name="phosphorus"
+                  [(ngModel)]="soilForm.phosphorus"
+                /><small class="field-unit">mg/kg</small></span
+              ></label
+            >
+            <label
+              ><span class="mb-2 block text-sm font-bold">البوتاسيوم K</span
+              ><span class="relative block"
+                ><input
+                  required
+                  type="text"
+                  appNumericInput
+                  min="0"
+                  step="0.1"
+                  class="w-full rounded-xl border px-4 py-3 pl-20"
+                  name="potassium"
+                  [(ngModel)]="soilForm.potassium"
+                /><small class="field-unit">mg/kg</small></span
+              ></label
+            >
           </div>
-          <label class="mt-5 block"><span class="mb-2 block text-sm font-bold">ملاحظات <span class="font-normal text-slate-400">(اختياري)</span></span><textarea class="w-full resize-none rounded-xl border px-4 py-3" rows="3" maxlength="500" name="soilNotes" [(ngModel)]="soilForm.notes" placeholder="مكان أخذ العينة، ظروف الري، أو ملاحظات المختبر..."></textarea></label>
-          @if (soilError()) { <p class="mt-4 rounded-xl bg-red-50 px-4 py-3 text-sm font-bold text-red-700" role="alert">{{ soilError() }}</p> }
+          <label class="mt-5 block"
+            ><span class="mb-2 block text-sm font-bold"
+              >ملاحظات <span class="font-normal text-slate-400">(اختياري)</span></span
+            ><textarea
+              class="w-full resize-none rounded-xl border px-4 py-3"
+              rows="3"
+              maxlength="500"
+              name="soilNotes"
+              [(ngModel)]="soilForm.notes"
+              placeholder="مكان أخذ العينة، ظروف الري، أو ملاحظات المختبر..."
+            ></textarea>
+          </label>
+          @if (soilError()) {
+            <p
+              class="mt-4 rounded-xl bg-red-50 px-4 py-3 text-sm font-bold text-red-700"
+              role="alert"
+            >
+              {{ soilError() }}
+            </p>
+          }
         </div>
-        <footer class="flex items-center justify-between gap-3 border-t border-slate-100 px-5 py-4 sm:px-7"><button type="button" class="rounded-xl px-4 py-3 text-sm font-bold text-slate-500 hover:bg-slate-50" (click)="closeSoilForm()">إلغاء</button><button type="submit" [disabled]="soilSaving()" class="rounded-xl bg-[#0f7a3d] px-6 py-3 text-sm font-black text-white shadow-[0_8px_20px_rgba(15,122,61,.18)] disabled:opacity-50">{{ soilSaving() ? 'جارٍ حفظ القراءة...' : 'حفظ قراءة التربة' }}</button></footer>
+        <footer
+          class="flex items-center justify-between gap-3 border-t border-slate-100 px-5 py-4 sm:px-7"
+        >
+          <button
+            type="button"
+            class="rounded-xl px-4 py-3 text-sm font-bold text-slate-500 hover:bg-slate-50"
+            (click)="closeSoilForm()"
+          >
+            إلغاء</button
+          ><button
+            type="submit"
+            [disabled]="soilSaving()"
+            class="rounded-xl bg-[#0f7a3d] px-6 py-3 text-sm font-black text-white shadow-[0_8px_20px_rgba(15,122,61,.18)] disabled:opacity-50"
+          >
+            {{ soilSaving() ? 'جارٍ حفظ القراءة...' : 'حفظ قراءة التربة' }}
+          </button>
+        </footer>
       </form>
     </dialog>
   }

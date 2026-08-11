@@ -8,6 +8,7 @@ import { catchError, finalize, forkJoin, map, of, switchMap } from 'rxjs';
 import { GreenmindApi } from '@core/api/greenmind-api.service';
 import { ApiError, ExportPlanDetails } from '@core/api/api.models';
 import { PlantGrowthLoader } from '@shared/components/plant-growth-loader/plant-growth-loader';
+import { DatePickerDirective, NumericInputDirective } from '@shared/components/platform-form-controls';
 import { toLocalIsoDate } from '@shared/utils/local-date';
 import { PhaseTwoApi } from './phase-two-api.service';
 import { Budget, CostDashboard, Expense, ExpenseAttachment, ExpenseAttachmentType, ExpenseCategory, PaymentMethod } from './phase-two.models';
@@ -31,7 +32,7 @@ type ExpensePeriod = 'week' | 'month' | 'season';
 
 @Component({
   selector: 'app-budget-expenses-page',
-  imports: [FormsModule, RouterLink, PlantGrowthLoader],
+  imports: [FormsModule, RouterLink, PlantGrowthLoader, DatePickerDirective, NumericInputDirective],
   templateUrl: './budget-expenses-page.html',
   styleUrls: ['./plan-page.shared.css', './budget-expenses-page.css', './budget-expenses-insights.css', './budget-expenses-overlays.css', './budget-expenses-confirmation.css'],
 })

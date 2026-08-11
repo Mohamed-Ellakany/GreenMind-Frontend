@@ -13,8 +13,8 @@
           @if (from || to) { <button type="button" class="rounded-lg bg-[#f3f6f3] px-3 py-2 text-xs font-black text-[#526158]" (click)="clearDates()">مسح التاريخ</button> }
         </div>
         <div class="grid gap-4 sm:grid-cols-2">
-          <label><span class="mb-2 block text-sm font-bold">من تاريخ</span><input [(ngModel)]="from" name="from" type="date" class="block w-full rounded-xl border px-4 py-3"></label>
-          <label><span class="mb-2 block text-sm font-bold">إلى تاريخ</span><input [(ngModel)]="to" name="to" type="date" [min]="from || null" class="block w-full rounded-xl border px-4 py-3"></label>
+          <label><span class="mb-2 block text-sm font-bold">من تاريخ</span><input [(ngModel)]="from" name="from" type="text" appDatePicker class="block w-full rounded-xl border px-4 py-3"></label>
+          <label><span class="mb-2 block text-sm font-bold">إلى تاريخ</span><input [(ngModel)]="to" name="to" type="text" appDatePicker [min]="from || null" class="block w-full rounded-xl border px-4 py-3"></label>
         </div>
       </section>
 
