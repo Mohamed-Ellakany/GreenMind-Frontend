@@ -6,12 +6,13 @@ import { finalize, forkJoin, switchMap, timer } from 'rxjs';
 import { GreenmindApi } from '@core/api/greenmind-api.service';
 import { ExportPlanDetails } from '@core/api/api.models';
 import { PlantGrowthLoader } from '@shared/components/plant-growth-loader/plant-growth-loader';
+import { DatePickerDirective, NumericInputDirective } from '@shared/components/platform-form-controls';
 import { PhaseTwoApi } from './phase-two-api.service';
 import { DiagnosisDetail, DiagnosisImage, DiagnosisMessage, TaskProposal } from './phase-two.models';
 
 @Component({
   selector: 'app-diagnosis-chat-page',
-  imports: [FormsModule, RouterLink, PlantGrowthLoader],
+  imports: [FormsModule, RouterLink, PlantGrowthLoader, DatePickerDirective, NumericInputDirective],
   templateUrl: './diagnosis-chat-page.html',
   styleUrls: ['./plan-page.shared.css', './diagnosis-chat-page.css'],
 })

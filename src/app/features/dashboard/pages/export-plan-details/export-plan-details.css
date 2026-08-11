@@ -310,16 +310,30 @@
 
 .task-state {
   border-radius: 999px;
+  background: #eef2f0;
+  padding: 0.18rem 0.48rem;
+  color: #56635b;
+  font-size: 0.58rem;
+  font-weight: 900;
+}
+
+.task-state[data-status='InProgress'] {
+  background: #e9f7ed;
+  color: #16723b;
+}
+
+.task-state[data-status='Postponed'] {
+  background: #fff5e5;
+  color: #9b641b;
+}
+
+.task-overdue {
+  border-radius: 999px;
   background: #fff0ed;
   padding: 0.18rem 0.48rem;
   color: #b3473f;
   font-size: 0.58rem;
   font-weight: 900;
-}
-
-.action-list li:not(.is-overdue) .task-state {
-  background: #fff5e5;
-  color: #9b641b;
 }
 
 .clear-state {

@@ -7,6 +7,7 @@ import { GreenmindApi } from '@core/api/greenmind-api.service';
 import { CreateTaskRequest, ExportPlan, FarmTask, ScheduleRevision, TaskType } from '@core/api/api.models';
 import { toLocalIsoDate } from '@shared/utils/local-date';
 import { taskPriorityLabel, taskStatusLabel, taskTypeLabel } from '@shared/utils/task-labels';
+import { DatePickerDirective, NumericInputDirective } from '@shared/components/platform-form-controls';
 
 type TaskStatus = FarmTask['status'];
 type TaskGroupKey = 'overdue' | 'today' | 'upcoming' | 'postponed' | 'finished';
@@ -14,7 +15,7 @@ type TaskGroups = Record<TaskGroupKey, FarmTask[]>;
 
 @Component({
   selector: 'app-activities',
-  imports: [FormsModule, DatePipe],
+  imports: [FormsModule, DatePipe, DatePickerDirective, NumericInputDirective],
   templateUrl: './activities.html',
   styleUrl: './activities.css',
 })

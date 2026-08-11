@@ -7,10 +7,11 @@ import { finalize } from 'rxjs';
 import { ToastrService } from 'ngx-toastr';
 import { GreenmindApi } from '@core/api/greenmind-api.service';
 import { AdminUserDetails } from '@core/api/api.models';
+import { DatePickerDirective } from '@shared/components/platform-form-controls';
 
 @Component({
   selector: 'app-account-details',
-  imports: [CommonModule, FormsModule, RouterLink],
+  imports: [CommonModule, FormsModule, RouterLink, DatePickerDirective],
   templateUrl: './account-details.html',
 })
 export class AccountDetails {

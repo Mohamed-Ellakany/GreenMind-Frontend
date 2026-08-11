@@ -1,71 +1,360 @@
 <section class="activities-page" dir="rtl">
   <header class="activities-hero">
-    <div class="hero-copy"><span class="eyebrow">مساحة التنفيذ</span><h1>المهام والأنشطة</h1><p>سجل ما تم فعلياً، أضف أي عمل خارج الخطة، واترك للذكاء الاصطناعي صورة دقيقة عن المزرعة.</p></div>
-    <div class="hero-actions"><button type="button" class="primary-action" (click)="openCreateTask()">+ إضافة مهمة غير مخططة</button><button type="button" class="secondary-action" (click)="load()">تحديث البيانات</button></div>
+    <div class="hero-copy">
+      <span class="eyebrow">مساحة التنفيذ</span>
+      <h1>المهام والأنشطة</h1>
+      <p>سجل ما تم فعلياً، أضف أي عمل خارج الخطة، واترك للذكاء الاصطناعي صورة دقيقة عن المزرعة.</p>
+    </div>
+    <div class="hero-actions">
+      <button type="button" class="primary-action" (click)="openCreateTask()">
+        + إضافة مهمة غير مخططة</button
+      ><button type="button" class="secondary-action" (click)="load()">تحديث البيانات</button>
+    </div>
   </header>
 
-  @if (error()) { <p class="error-banner" role="alert">{{ error() }}</p> }
+  @if (error()) {
+    <p class="error-banner" role="alert">{{ error() }}</p>
+  }
 
   <section class="task-toolbar" aria-label="تصفية المهام">
-    <label class="search-field"><span>بحث</span><input [(ngModel)]="search" placeholder="ابحث باسم المهمة أو الوصف" /></label>
-    <label><span>الخطة</span><select [(ngModel)]="planFilter"><option value="">كل الخطط</option>@for (plan of plans(); track plan.id) { <option [value]="plan.id">{{ plan.name }}</option> }</select></label>
-    <label><span>الحالة</span><select [(ngModel)]="status"><option value="">كل الحالات</option><option value="Pending">قيد الانتظار</option><option value="InProgress">قيد التنفيذ</option><option value="Completed">مكتملة</option><option value="Postponed">مؤجلة</option><option value="Skipped">تم تجاوزها</option><option value="Cancelled">ملغاة</option></select></label>
-    <label><span>الأولوية</span><select [(ngModel)]="priority"><option value="">كل الأولويات</option><option value="Critical">حرجة</option><option value="High">عالية</option><option value="Medium">متوسطة</option><option value="Low">منخفضة</option></select></label>
-    <label><span>المصدر</span><select [(ngModel)]="origin"><option value="">كل المصادر</option><option value="AIPlanned">مخططة بالذكاء الاصطناعي</option><option value="UserAdded">أضافها المستخدم</option><option value="AIReplanned">عدّلها الذكاء الاصطناعي</option></select></label>
+    <label class="search-field"
+      ><span>بحث</span><input [(ngModel)]="search" placeholder="ابحث باسم المهمة أو الوصف"
+    /></label>
+    <label
+      ><span>الخطة</span
+      ><select [(ngModel)]="planFilter">
+        <option value="">كل الخطط</option>
+        @for (plan of plans(); track plan.id) {
+          <option [value]="plan.id">{{ plan.name }}</option>
+        }
+      </select></label
+    >
+    <label
+      ><span>الحالة</span
+      ><select [(ngModel)]="status">
+        <option value="">كل الحالات</option>
+        <option value="Pending">قيد الانتظار</option>
+        <option value="InProgress">قيد التنفيذ</option>
+        <option value="Completed">مكتملة</option>
+        <option value="Postponed">مؤجلة</option>
+        <option value="Skipped">تم تجاوزها</option>
+        <option value="Cancelled">ملغاة</option>
+      </select></label
+    >
+    <label
+      ><span>الأولوية</span
+      ><select [(ngModel)]="priority">
+        <option value="">كل الأولويات</option>
+        <option value="Critical">حرجة</option>
+        <option value="High">عالية</option>
+        <option value="Medium">متوسطة</option>
+        <option value="Low">منخفضة</option>
+      </select></label
+    >
+    <label
+      ><span>المصدر</span
+      ><select [(ngModel)]="origin">
+        <option value="">كل المصادر</option>
+        <option value="AIPlanned">مخططة بالذكاء الاصطناعي</option>
+        <option value="UserAdded">أضافها المستخدم</option>
+        <option value="AIReplanned">عدّلها الذكاء الاصطناعي</option>
+      </select></label
+    >
   </section>
 
-  @if (loading()) { <div class="loading-card">جارٍ تحميل مساحة المهام...</div> }
-  @else {
+  @if (loading()) {
+    <div class="loading-card">جارٍ تحميل مساحة المهام...</div>
+  } @else {
     <div class="task-workspace">
       <main class="task-groups">
-        @for (section of [{key:'overdue', title:'متأخرة', hint:'تحتاج قراراً الآن'}, {key:'today', title:'اليوم', hint:'إجراءات اليوم'}, {key:'postponed', title:'مؤجلة', hint:'بانتظار الموعد الجديد'}, {key:'upcoming', title:'قادمة', hint:'الخطوات التالية'}, {key:'finished', title:'منتهية', hint:'سجل التنفيذ'}]; track section.key) {
+        @for (
+          section of [
+            { key: 'overdue', title: 'متأخرة', hint: 'تحتاج قراراً الآن' },
+            { key: 'today', title: 'اليوم', hint: 'إجراءات اليوم' },
+            { key: 'postponed', title: 'مؤجلة', hint: 'بانتظار الموعد الجديد' },
+            { key: 'upcoming', title: 'قادمة', hint: 'الخطوات التالية' },
+            { key: 'finished', title: 'منتهية', hint: 'سجل التنفيذ' },
+          ];
+          track section.key
+        ) {
           @if (groupCount($any(section.key))) {
             <section class="task-group" [class.is-danger]="section.key === 'overdue'">
-              <header><div><h2>{{ section.title }}</h2><p>{{ section.hint }}</p></div><b>{{ groupCount($any(section.key)) }}</b></header>
+              <header>
+                <div>
+                  <h2>{{ section.title }}</h2>
+                  <p>{{ section.hint }}</p>
+                </div>
+                <b>{{ groupCount($any(section.key)) }}</b>
+              </header>
               <div class="task-table">
                 @for (task of tasksForGroup(section.key); track task.id) {
-                  <article class="task-row" [class.is-finished]="task.status === 'Completed' || task.status === 'Skipped' || task.status === 'Cancelled'" (click)="openTask(task)">
+                  <article
+                    class="task-row"
+                    [class.is-finished]="
+                      task.status === 'Completed' ||
+                      task.status === 'Skipped' ||
+                      task.status === 'Cancelled'
+                    "
+                    (click)="openTask(task)"
+                  >
                     <span class="priority-bar" [attr.data-priority]="task.priority"></span>
-                    <div class="task-row-main"><div class="task-row-title"><h3>{{ task.title }}</h3><span class="status-pill" [attr.data-status]="task.status">{{ statusLabel(task.status) }}</span></div><p>{{ taskTypeLabel(task.taskTypeName) }} · {{ task.plannedDate }} · {{ originLabel(task.origin) }}</p>@if (task.description) { <small>{{ task.description }}</small> }</div>
-                    <div class="task-row-meta"><span class="priority-label">{{ priorityLabel(task.priority) }}</span><button type="button" (click)="$event.stopPropagation(); openTask(task)" aria-label="فتح تفاصيل المهمة">تفاصيل <span aria-hidden="true">←</span></button></div>
+                    <div class="task-row-main">
+                      <div class="task-row-title">
+                        <h3>{{ task.title }}</h3>
+                        <span class="status-pill" [attr.data-status]="task.status">{{
+                          statusLabel(task.status)
+                        }}</span>
+                      </div>
+                      <p>
+                        {{ taskTypeLabel(task.taskTypeName) }} · {{ task.plannedDate }} ·
+                        {{ originLabel(task.origin) }}
+                      </p>
+                      @if (task.description) {
+                        <small>{{ task.description }}</small>
+                      }
+                    </div>
+                    <div class="task-row-meta">
+                      <span class="priority-label">{{ priorityLabel(task.priority) }}</span
+                      ><button
+                        type="button"
+                        (click)="$event.stopPropagation(); openTask(task)"
+                        aria-label="فتح تفاصيل المهمة"
+                      >
+                        تفاصيل <span aria-hidden="true">←</span>
+                      </button>
+                    </div>
                   </article>
                 }
               </div>
             </section>
           }
         }
-        @if (!visibleTasks().length) { <div class="empty-card"><strong>لا توجد مهام مطابقة</strong><span>غيّر الفلاتر أو أضف مهمة غير مخططة لتسجيل عمل جديد.</span></div> }
+        @if (!visibleTasks().length) {
+          <div class="empty-card">
+            <strong>لا توجد مهام مطابقة</strong
+            ><span>غيّر الفلاتر أو أضف مهمة غير مخططة لتسجيل عمل جديد.</span>
+          </div>
+        }
       </main>
-      <aside class="task-summary-rail"><article><span class="eyebrow">ملخص التنفيذ</span><strong>{{ visibleTasks().length }}</strong><p>مهمة مطابقة للبحث الحالي</p></article><article><span>قيد التنفيذ</span><b>{{ groupedTasks().today.length + groupedTasks().overdue.length }}</b><small>تحتاج متابعة</small></article><article><span>ملاحظات الذكاء الاصطناعي</span><p>كل تحديث تحفظه المنصة كسجل مستقل حتى لا تضيع تفاصيل ما حدث في الحقل.</p></article></aside>
+      <aside class="task-summary-rail">
+        <article>
+          <span class="eyebrow">ملخص التنفيذ</span><strong>{{ visibleTasks().length }}</strong>
+          <p>مهمة مطابقة للبحث الحالي</p>
+        </article>
+        <article>
+          <span>قيد التنفيذ</span
+          ><b>{{ groupedTasks().today.length + groupedTasks().overdue.length }}</b
+          ><small>تحتاج متابعة</small>
+        </article>
+        <article>
+          <span>ملاحظات الذكاء الاصطناعي</span>
+          <p>كل تحديث تحفظه المنصة كسجل مستقل حتى لا تضيع تفاصيل ما حدث في الحقل.</p>
+        </article>
+      </aside>
     </div>
   }
 </section>
 
 @if (detailOpen() && activeTask(); as task) {
-  <div class="drawer-backdrop" (click)="detailOpen.set(false)"><aside class="task-drawer" (click)="$event.stopPropagation()">
-    <header><div><span class="eyebrow">تفاصيل المهمة</span><h2>{{ task.title }}</h2><p>{{ taskTypeLabel(task.taskTypeName) }} · {{ originLabel(task.origin) }}</p></div><button type="button" class="drawer-close" (click)="detailOpen.set(false)">×</button></header>
-    <div class="drawer-body"><div class="detail-description">{{ task.description || 'لا يوجد وصف إضافي لهذه المهمة.' }}</div><div class="edit-grid"><label><span>الحالة</span><select [(ngModel)]="editStatus"><option value="Pending">قيد الانتظار</option><option value="InProgress">قيد التنفيذ</option><option value="Completed">مكتملة</option><option value="Postponed">مؤجلة</option><option value="Skipped">تم تجاوزها</option><option value="Cancelled">ملغاة</option></select></label><label><span>الموعد</span><input type="date" [(ngModel)]="editPlannedDate" /></label><label><span>تاريخ التنفيذ</span><input type="date" [(ngModel)]="editActualDate" /></label></div><label class="notes-field"><span>ملاحظة التنفيذ <small>اختيارية، لكنها تساعد الذكاء الاصطناعي</small></span><textarea rows="4" [(ngModel)]="editNotes" placeholder="ماذا حدث؟ ما الكمية؟ هل ظهرت مشكلة؟"></textarea></label><section class="activity-timeline"><h3>سجل التغييرات</h3>@for (activity of task.activities ?? []; track activity.id) { <article><i></i><div><strong>{{ activity.eventType === 'Created' ? 'تمت الإضافة' : activity.newStatus ? statusLabel(activity.newStatus) : 'تحديث المهمة' }}</strong><time>{{ activity.createdAt | date:'yyyy-MM-dd HH:mm' }}</time>@if (activity.note) { <p>{{ activity.note }}</p> }</div></article> } @empty { <p>لا توجد تحديثات مسجلة بعد.</p> }</section></div>
-    <footer><button type="button" class="secondary-action" (click)="detailOpen.set(false)">إلغاء</button><button type="button" class="primary-action" [disabled]="saving()" (click)="saveTaskUpdate()">{{ saving() ? 'جارٍ الحفظ...' : 'حفظ التحديث' }}</button></footer>
-  </aside></div>
+  <div class="drawer-backdrop" (click)="detailOpen.set(false)">
+    <aside class="task-drawer" (click)="$event.stopPropagation()">
+      <header>
+        <div>
+          <span class="eyebrow">تفاصيل المهمة</span>
+          <h2>{{ task.title }}</h2>
+          <p>{{ taskTypeLabel(task.taskTypeName) }} · {{ originLabel(task.origin) }}</p>
+        </div>
+        <button type="button" class="drawer-close" (click)="detailOpen.set(false)">×</button>
+      </header>
+      <div class="drawer-body">
+        <div class="detail-description">
+          {{ task.description || 'لا يوجد وصف إضافي لهذه المهمة.' }}
+        </div>
+        <div class="edit-grid">
+          <label
+            ><span>الحالة</span
+            ><select [(ngModel)]="editStatus">
+              <option value="Pending">قيد الانتظار</option>
+              <option value="InProgress">قيد التنفيذ</option>
+              <option value="Completed">مكتملة</option>
+              <option value="Postponed">مؤجلة</option>
+              <option value="Skipped">تم تجاوزها</option>
+              <option value="Cancelled">ملغاة</option>
+            </select></label
+          ><label><span>الموعد</span><input type="text" appDatePicker [(ngModel)]="editPlannedDate" /></label
+          ><label
+            ><span>تاريخ التنفيذ</span><input type="text" appDatePicker [(ngModel)]="editActualDate"
+          /></label>
+        </div>
+        <label class="notes-field"
+          ><span>ملاحظة التنفيذ <small>اختيارية، لكنها تساعد الذكاء الاصطناعي</small></span
+          ><textarea
+            rows="4"
+            [(ngModel)]="editNotes"
+            placeholder="ماذا حدث؟ ما الكمية؟ هل ظهرت مشكلة؟"
+          ></textarea>
+        </label>
+        <section class="activity-timeline">
+          <h3>سجل التغييرات</h3>
+          @for (activity of task.activities ?? []; track activity.id) {
+            <article>
+              <i></i>
+              <div>
+                <strong>{{
+                  activity.eventType === 'Created'
+                    ? 'تمت الإضافة'
+                    : activity.newStatus
+                      ? statusLabel(activity.newStatus)
+                      : 'تحديث المهمة'
+                }}</strong
+                ><time>{{ activity.createdAt | date: 'yyyy-MM-dd HH:mm' }}</time>
+                @if (activity.note) {
+                  <p>{{ activity.note }}</p>
+                }
+              </div>
+            </article>
+          } @empty {
+            <p>لا توجد تحديثات مسجلة بعد.</p>
+          }
+        </section>
+      </div>
+      <footer>
+        <button type="button" class="secondary-action" (click)="detailOpen.set(false)">إلغاء</button
+        ><button
+          type="button"
+          class="primary-action"
+          [disabled]="saving()"
+          (click)="saveTaskUpdate()"
+        >
+          {{ saving() ? 'جارٍ الحفظ...' : 'حفظ التحديث' }}
+        </button>
+      </footer>
+    </aside>
+  </div>
 }
 
 @if (revisionOpen() && revision(); as revision) {
   <div class="revision-toast" role="status">
     <div>
-      <strong>{{ revision.status === 'Succeeded' ? 'تم تحديث الجدول' : revision.status === 'Failed' ? 'تعذّر تحديث الجدول' : 'الذكاء الاصطناعي يراجع الجدول' }}</strong>
-      <p>{{ revision.status === 'Succeeded' ? 'التغييرات المقترحة طُبّقت مع الحفاظ على المهام التي أضفتها أو بدأت تنفيذها.' : revision.failureMessage || 'سيظهر هنا ملخص الإضافات والتعديلات فور اكتمال المراجعة.' }}</p>
+      <strong>{{
+        revision.status === 'Succeeded'
+          ? 'تم تحديث الجدول'
+          : revision.status === 'Failed'
+            ? 'تعذّر تحديث الجدول'
+            : 'الذكاء الاصطناعي يراجع الجدول'
+      }}</strong>
+      <p>
+        {{
+          revision.status === 'Succeeded'
+            ? 'التغييرات المقترحة طُبّقت مع الحفاظ على المهام التي أضفتها أو بدأت تنفيذها.'
+            : revision.failureMessage || 'سيظهر هنا ملخص الإضافات والتعديلات فور اكتمال المراجعة.'
+        }}
+      </p>
     </div>
     <button type="button" (click)="revisionOpen.set(false)" aria-label="إغلاق">×</button>
-    @if (revision.status === 'Failed') { <button type="button" class="secondary-action" (click)="retryRevision()">إعادة المحاولة</button> }
-    @if (revision.items.length) { <button type="button" class="primary-action" (click)="revisionOpen.set(false)">عرض الملخص</button> }
+    @if (revision.status === 'Failed') {
+      <button type="button" class="secondary-action" (click)="retryRevision()">
+        إعادة المحاولة
+      </button>
+    }
+    @if (revision.items.length) {
+      <button type="button" class="primary-action" (click)="revisionOpen.set(false)">
+        عرض الملخص
+      </button>
+    }
   </div>
   @if (revision.status === 'Succeeded' && revision.items.length) {
     <div class="revision-summary" role="region" aria-label="ملخص تحديث الجدول">
-      @for (item of revision.items; track item.id) { <article><b>{{ revisionLabel(item.operation) }}</b><span>{{ item.taskTitle }}</span><small>{{ item.previousPlannedDate || '—' }} ← {{ item.newPlannedDate || '—' }}</small></article> }
+      @for (item of revision.items; track item.id) {
+        <article>
+          <b>{{ revisionLabel(item.operation) }}</b
+          ><span>{{ item.taskTitle }}</span
+          ><small>{{ item.previousPlannedDate || '—' }} ← {{ item.newPlannedDate || '—' }}</small>
+        </article>
+      }
     </div>
   }
 }
 
 @if (createOpen()) {
-  <div class="drawer-backdrop" (click)="createOpen.set(false)"><aside class="task-drawer create-drawer" (click)="$event.stopPropagation()"><header><div><span class="eyebrow">تسجيل عمل جديد</span><h2>إضافة مهمة غير مخططة</h2><p>أضف أي عمل تم في المزرعة حتى يبقى ضمن سياق الخطة.</p></div><button type="button" class="drawer-close" (click)="createOpen.set(false)">×</button></header><div class="drawer-body"><div class="edit-grid"><label><span>الخطة</span><select [(ngModel)]="form.exportPlanId">@for (plan of plans(); track plan.id) { <option [ngValue]="plan.id">{{ plan.name }}</option> }</select></label><label><span>نوع المهمة</span><select [(ngModel)]="form.taskTypeId">@for (type of taskTypes(); track type.id) { <option [ngValue]="type.id">{{ taskTypeLabel(type.name) }}</option> }</select></label><label class="wide-field"><span>العنوان</span><input [(ngModel)]="form.title" maxlength="200" placeholder="مثال: فحص إضافي للثمار" /></label><label><span>التاريخ المخطط</span><input type="date" [(ngModel)]="form.plannedDate" /></label><label><span>الأولوية</span><select [(ngModel)]="form.priority"><option value="Low">منخفضة</option><option value="Medium">متوسطة</option><option value="High">عالية</option><option value="Critical">حرجة</option></select></label><label><span>الحالة الابتدائية</span><select [(ngModel)]="form.status"><option value="Pending">قيد الانتظار</option><option value="InProgress">قيد التنفيذ</option><option value="Completed">مكتملة</option><option value="Skipped">تم تجاوزها</option><option value="Cancelled">ملغاة</option></select></label><label><span>الكمية</span><input type="number" min="0.001" step="0.001" [(ngModel)]="form.quantity" /></label><label><span>الوحدة</span><input [(ngModel)]="form.unit" maxlength="50" /></label></div><label class="notes-field"><span>الوصف</span><textarea rows="3" [(ngModel)]="form.description" placeholder="ما الذي تم أو يجب تنفيذه؟"></textarea></label><label class="notes-field"><span>ملاحظة التنفيذ <small>اختيارية</small></span><textarea rows="3" [(ngModel)]="form.notes" placeholder="تفاصيل إضافية للذكاء الاصطناعي..."></textarea></label></div><footer><button type="button" class="secondary-action" (click)="createOpen.set(false)">إلغاء</button><button type="button" class="primary-action" [disabled]="saving()" (click)="saveNewTask()">{{ saving() ? 'جارٍ الإنشاء...' : 'إضافة المهمة' }}</button></footer></aside></div>
+  <div class="drawer-backdrop" (click)="createOpen.set(false)">
+    <aside class="task-drawer create-drawer" (click)="$event.stopPropagation()">
+      <header>
+        <div>
+          <span class="eyebrow">تسجيل عمل جديد</span>
+          <h2>إضافة مهمة غير مخططة</h2>
+          <p>أضف أي عمل تم في المزرعة حتى يبقى ضمن سياق الخطة.</p>
+        </div>
+        <button type="button" class="drawer-close" (click)="createOpen.set(false)">×</button>
+      </header>
+      <div class="drawer-body">
+        <div class="edit-grid">
+          <label
+            ><span>الخطة</span
+            ><select [(ngModel)]="form.exportPlanId">
+              @for (plan of plans(); track plan.id) {
+                <option [ngValue]="plan.id">{{ plan.name }}</option>
+              }
+            </select></label
+          ><label
+            ><span>نوع المهمة</span
+            ><select [(ngModel)]="form.taskTypeId">
+              @for (type of taskTypes(); track type.id) {
+                <option [ngValue]="type.id">{{ taskTypeLabel(type.name) }}</option>
+              }
+            </select></label
+          ><label class="wide-field"
+            ><span>العنوان</span
+            ><input
+              [(ngModel)]="form.title"
+              maxlength="200"
+              placeholder="مثال: فحص إضافي للثمار" /></label
+          ><label
+            ><span>التاريخ المخطط</span><input type="text" appDatePicker [(ngModel)]="form.plannedDate" /></label
+          ><label
+            ><span>الأولوية</span
+            ><select [(ngModel)]="form.priority">
+              <option value="Low">منخفضة</option>
+              <option value="Medium">متوسطة</option>
+              <option value="High">عالية</option>
+              <option value="Critical">حرجة</option>
+            </select></label
+          ><label
+            ><span>الحالة الابتدائية</span
+            ><select [(ngModel)]="form.status">
+              <option value="Pending">قيد الانتظار</option>
+              <option value="InProgress">قيد التنفيذ</option>
+              <option value="Completed">مكتملة</option>
+              <option value="Skipped">تم تجاوزها</option>
+              <option value="Cancelled">ملغاة</option>
+            </select></label
+          ><label
+            ><span>الكمية</span
+            ><input type="text" appNumericInput min="0.001" step="0.001" [(ngModel)]="form.quantity" /></label
+          ><label><span>الوحدة</span><input [(ngModel)]="form.unit" maxlength="50" /></label>
+        </div>
+        <label class="notes-field"
+          ><span>الوصف</span
+          ><textarea
+            rows="3"
+            [(ngModel)]="form.description"
+            placeholder="ما الذي تم أو يجب تنفيذه؟"
+          ></textarea></label
+        ><label class="notes-field"
+          ><span>ملاحظة التنفيذ <small>اختيارية</small></span
+          ><textarea
+            rows="3"
+            [(ngModel)]="form.notes"
+            placeholder="تفاصيل إضافية للذكاء الاصطناعي..."
+          ></textarea>
+        </label>
+      </div>
+      <footer>
+        <button type="button" class="secondary-action" (click)="createOpen.set(false)">إلغاء</button
+        ><button type="button" class="primary-action" [disabled]="saving()" (click)="saveNewTask()">
+          {{ saving() ? 'جارٍ الإنشاء...' : 'إضافة المهمة' }}
+        </button>
+      </footer>
+    </aside>
+  </div>
 }
