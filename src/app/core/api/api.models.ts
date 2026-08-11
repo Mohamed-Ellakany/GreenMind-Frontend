@@ -232,6 +232,7 @@ export interface ExportPlanDashboard {
     expectedHarvestDate: string; expectedExportDate: string;
   };
   season: { currentSeasonDay: number; totalSeasonDays: number; progressPercentage: number; growthStage: string };
+  todayWeather: DashboardWeather | null;
   latestSoilMeasurement: { measurementDate: string; ph: number; ec: number; nitrogen: number; phosphorus: number; potassium: number; moisture: number; notes: string | null } | null;
   taskSummary: { total: number; pending: number; inProgress: number; completed: number; cancelled: number; postponed?: number; skipped?: number };
   overdueTasks: DashboardTask[];
@@ -243,6 +244,15 @@ export interface DashboardTask {
   id: number; title: string; taskType: string; plannedDate: string;
   actualDate: string | null; status: FarmTask['status'] | string; priority: string;
   description?: string | null; notes?: string | null; origin?: FarmTask['origin'] | string;
+}
+
+export interface DashboardWeather {
+  date: string;
+  tempMinC: number;
+  tempMaxC: number;
+  precipitationMm: number;
+  humidityPercent: number;
+  windSpeedKmh: number;
 }
 
 export interface PlatformStatistics {
@@ -258,7 +268,51 @@ export interface AdminInvitation { id: number; fullName: string; email: string; 
 
 export interface FarmAccount {
   id: number; name: string; ownerUserId: string; ownerName: string; ownerEmail: string | null;
-  isApproved: boolean; approvedAtUtc: string | null; isActive: boolean; createdAt: string;
+  isApproved: boolean; approvedAtUtc: string | null; isActive: boolean; createdAt: string; isAiAccessSuspended: boolean;
+}
+
+export interface AiUsageTotals {
+  requestCount: number; inputTokens: number; outputTokens: number; totalTokens: number;
+  estimatedCostUsd: number; actualCostUsd: number; fallbackCount: number;
+}
+export interface AiUsageDaily { date: string; requestCount: number; totalTokens: number; actualCostUsd: number; }
+export interface AiUsageBreakdown { key: string; requestCount: number; totalTokens: number; actualCostUsd: number; }
+export interface AiUsageByUser {
+  userId: string | null; userName: string; email: string | null; farmName: string | null;
+  requestCount: number; totalTokens: number; actualCostUsd: number;
+}
+export interface AiUsageRequest {
+  id: number; providerRequestId: string; userId: string | null; userName: string | null; farmName: string | null;
+  exportPlanId: number | null; exportPlanName: string | null; feature: string; modelId: string; region: string | null;
+  inputTokens: number; outputTokens: number; totalTokens: number; stopReason: string | null; budgetState: string | null;
+  fallbackUsed: boolean; estimatedCostUsd: number; actualCostUsd: number; providerStatus: string; completedAtUtc: string;
+}
+export interface AdminAiUsageOverview {
+  totals: AiUsageTotals; dailyUsage: AiUsageDaily[]; usageByModel: AiUsageBreakdown[];
+  usageByFeature: AiUsageBreakdown[]; usageByUser: AiUsageByUser[]; requests: PagedResult<AiUsageRequest>;
+}
+export interface AdminUserProfile {
+  id: string; fullName: string; userName: string | null; email: string | null; emailConfirmed: boolean;
+  phoneNumber: string | null; phoneNumberConfirmed: boolean; twoFactorEnabled: boolean; isActive: boolean;
+  isAiAccessSuspended: boolean; lockoutEndUtc: string | null; registeredAtUtc: string | null;
+}
+export interface AdminFarmDetails {
+  id: number; name: string; isApproved: boolean; approvedAtUtc: string | null; createdAt: string; exportPlanCount: number;
+}
+export interface AdminExportPlanDetails {
+  id: number; farmId: number; farmName: string; name: string; crop: string; destination: string; governorate: string; city: string;
+  latitude: number; longitude: number; areaInFeddan: number; plantingDate: string; expectedHarvestDate: string;
+  expectedExportDate: string; status: string; notes: string | null; planningStatus: string;
+  planningRequestedAtUtc: string | null; planningStartedAtUtc: string | null; planningCompletedAtUtc: string | null;
+  planningAttemptCount: number; generatedTaskCount: number; planningFailureMessage: string | null;
+  taskCount: number; diseaseReportCount: number; createdAt: string;
+}
+export interface AdminUserDetails {
+  user: AdminUserProfile; farms: AdminFarmDetails[]; exportPlans: AdminExportPlanDetails[];
+  aiUsage: {
+    totals: AiUsageTotals; dailyUsage: AiUsageDaily[]; usageByModel: AiUsageBreakdown[];
+    usageByFeature: AiUsageBreakdown[]; requests: PagedResult<AiUsageRequest>;
+  };
 }
 
 export interface PagedResult<T> {

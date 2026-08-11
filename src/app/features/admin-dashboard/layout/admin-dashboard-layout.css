@@ -1,8 +1,8 @@
 :host { display: block; }
-.admin-aside { visibility: hidden; pointer-events: none; overflow: hidden; transform: translateX(102%); background: linear-gradient(180deg, #0d2c20 0%, #081f17 58%, #061b14 100%); box-shadow: -20px 0 50px rgb(16 35 27 / .18); transition: transform 260ms cubic-bezier(.22,1,.36,1), width 220ms cubic-bezier(.22,1,.36,1), visibility 0s linear 260ms; }
+.admin-aside { visibility: hidden; pointer-events: none; overflow: visible; transform: translateX(102%); background: linear-gradient(180deg, #0d2c20 0%, #081f17 58%, #061b14 100%); box-shadow: -20px 0 50px rgb(16 35 27 / .18); transition: transform 260ms cubic-bezier(.22,1,.36,1), width 220ms cubic-bezier(.22,1,.36,1), visibility 0s linear 260ms; }
 .admin-aside.is-open { visibility: visible; pointer-events: auto; transform: translateX(0); transition-delay: 0s; }
-.admin-collapse-button { position: absolute; left: -16px; top: 102px; width: 32px; height: 32px; place-items: center; border: 1px solid #d7e2da; border-radius: 10px; background: #fff; color: #526158; box-shadow: 0 6px 18px rgb(16 35 27 / .13); z-index: 2; transition: transform 240ms cubic-bezier(.22,1,.36,1), color 160ms ease, box-shadow 160ms ease; }
-.admin-collapse-button:hover { color: #0f7a3d; }
+.admin-collapse-button { position: absolute; left: -19px; top: 96px; width: 38px; height: 38px; place-items: center; border: 1px solid #cfe0d2; border-radius: 999px; background: #f8fcf9; color: #0f7a3d; box-shadow: 0 7px 20px rgb(16 35 27 / .16); z-index: 60; transition: transform 240ms cubic-bezier(.22,1,.36,1), background-color 160ms ease, box-shadow 160ms ease; }
+.admin-collapse-button:hover { background: #e9f6ec; box-shadow: 0 9px 24px rgb(16 35 27 / .2); }
 .admin-nav { scrollbar-color: rgb(255 255 255 / .15) transparent; scrollbar-width: thin; }
 .admin-nav-link { display: flex; min-height: 39px; align-items: center; gap: 10px; border: 1px solid transparent; border-radius: 10px; padding: 8px 10px; color: rgb(255 255 255 / .62); font-size: 13px; transition: background-color 180ms ease, border-color 180ms ease, color 180ms ease, transform 200ms cubic-bezier(.22,1,.36,1), box-shadow 180ms ease; }
 .admin-nav-link:hover { border-color: rgb(255 255 255 / .06); background: rgb(255 255 255 / .065); color: #fff; transform: translateX(-2px); }

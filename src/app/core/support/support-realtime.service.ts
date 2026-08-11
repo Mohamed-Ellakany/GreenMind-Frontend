@@ -25,13 +25,14 @@ export class SupportRealtimeService {
       .build();
 
     this.connection.on('SupportMessageReceived', (message: SupportMessage) => {
-      this.latestMessage.set(message);
-      const role = String(message.role).toLowerCase();
+      const normalizedMessage = this.normalizeMessage(message);
+      this.latestMessage.set(normalizedMessage);
+      const role = String(normalizedMessage.role).toLowerCase();
       if (this.auth.hasRole('FarmOwner') && role === 'admin') {
-        this.notifications.pushAdminReply(message.content);
+        this.notifications.pushAdminReply(normalizedMessage.content);
       }
       if (this.auth.hasRole('Admin') && role === 'customer') {
-        this.notifications.pushCustomerMessage(message.senderName, message.content);
+        this.notifications.pushCustomerMessage(normalizedMessage.senderName, normalizedMessage.content);
       }
     });
 
@@ -41,5 +42,12 @@ export class SupportRealtimeService {
   public async stop(): Promise<void> {
     if (!this.connection || this.connection.state === HubConnectionState.Disconnected) return;
     await this.connection.stop();
+  }
+
+  private normalizeMessage(message: SupportMessage): SupportMessage {
+    const role = String(message.role).toLowerCase();
+    if (role === '1') return { ...message, role: 'Customer' };
+    if (role === '2') return { ...message, role: 'Admin' };
+    return message;
   }
 }

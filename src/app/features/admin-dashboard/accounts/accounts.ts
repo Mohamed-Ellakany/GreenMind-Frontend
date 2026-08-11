@@ -2,10 +2,11 @@ import { Component, DestroyRef, computed, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { finalize } from 'rxjs';
 import { ToastrService } from 'ngx-toastr';
+import { RouterLink } from '@angular/router';
 import { GreenmindApi } from '@core/api/greenmind-api.service';
 import { FarmAccount } from '@core/api/api.models';
 
-@Component({ selector: 'app-accounts', templateUrl: './accounts.html' })
+@Component({ selector: 'app-accounts', imports: [RouterLink], templateUrl: './accounts.html' })
 export class Accounts {
   private readonly api = inject(GreenmindApi);
   private readonly destroyRef = inject(DestroyRef);

@@ -91,6 +91,7 @@ export class AiAgent {
     const content = this.messageInput.trim();
     const session = this.selectedSession();
     if ((!content && !this.selectedImages.length) || !session || this.sending()) return;
+    const selectedImageFiles = [...this.selectedImages];
     let images: Array<{ fileName: string; contentType: string; dataBase64: string }>;
     try {
       images = await Promise.all(this.selectedImages.map(async (file) => ({
@@ -134,11 +135,11 @@ export class AiAgent {
       this.loadMessages(session.id);
       this.loadSessions(false);
     } catch {
-      this.error.set('تعذر إكمال رد عم خضر. أعد المحاولة بعد لحظات.');
-      this.messages.update((messages) => messages.map((message) =>
-        message.id === assistantId
-          ? { ...message, content: 'تعذر إنشاء الرد حاليًا.', status: 'فشل' }
-          : message));
+      this.messageInput = content;
+      this.selectedImages = selectedImageFiles;
+      this.error.set('تعذر الاتصال بعم خضر بعد عدة محاولات. رسالتك محفوظة وجاهزة لإعادة الإرسال.');
+      this.messages.update((messages) => messages.filter((message) =>
+        message.id !== userId && message.id !== assistantId));
     } finally {
       this.sending.set(false);
     }

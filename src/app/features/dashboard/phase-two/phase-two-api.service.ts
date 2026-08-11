@@ -80,33 +80,66 @@ export class PhaseTwoApi {
     onEvent: (event: ChatStreamEvent) => void,
     images: Array<{ fileName: string; contentType: string; dataBase64: string }> = [],
   ): Promise<void> {
-    const token = localStorage.getItem('greenmind_access_token');
-    const response = await fetch(
-      url,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          ...(token ? { Authorization: `Bearer ${token}` } : {}),
-        },
-        body: JSON.stringify({ content, images, idempotencyKey: crypto.randomUUID() }),
-      },
-    );
-    if (!response.ok || !response.body) throw new Error('تعذر بدء المحادثة.');
+    // Login stores non-persistent sessions in sessionStorage. Reading only
+    // localStorage made every streamed chat request return 401 unless the user
+    // had selected "remember me", while the regular HttpClient calls worked.
+    const token = sessionStorage.getItem('greenmind_access_token')
+      ?? localStorage.getItem('greenmind_access_token');
+    const requestBody = JSON.stringify({
+      content,
+      images,
+      idempotencyKey: crypto.randomUUID(),
+    });
+    const retryDelaysMs = [0, 400, 1200];
 
-    const reader = response.body.getReader();
-    const decoder = new TextDecoder();
-    let buffer = '';
-    while (true) {
-      const result = await reader.read();
-      buffer += decoder.decode(result.value, { stream: !result.done });
-      const blocks = buffer.split('\n\n');
-      buffer = blocks.pop() ?? '';
-      for (const block of blocks) {
-        const dataLine = block.split('\n').find((line) => line.startsWith('data:'));
-        if (dataLine) onEvent(JSON.parse(dataLine.slice(5).trim()) as ChatStreamEvent);
+    for (let attempt = 0; attempt < retryDelaysMs.length; attempt += 1) {
+      if (retryDelaysMs[attempt]) {
+        await new Promise((resolve) => setTimeout(resolve, retryDelaysMs[attempt]));
       }
-      if (result.done) break;
+
+      let receivedEvent = false;
+      try {
+        const response = await fetch(
+          url,
+          {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              ...(token ? { Authorization: `Bearer ${token}` } : {}),
+            },
+            body: requestBody,
+          },
+        );
+        if (!response.ok || !response.body) {
+          const retryableStatus = [408, 429, 502, 503, 504].includes(response.status);
+          if (retryableStatus && attempt < retryDelaysMs.length - 1) {
+            await response.body?.cancel();
+            continue;
+          }
+          throw new Error('تعذر بدء المحادثة.');
+        }
+
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder();
+        let buffer = '';
+        while (true) {
+          const result = await reader.read();
+          buffer += decoder.decode(result.value, { stream: !result.done });
+          const blocks = buffer.split('\n\n');
+          buffer = blocks.pop() ?? '';
+          for (const block of blocks) {
+            const dataLine = block.split('\n').find((line) => line.startsWith('data:'));
+            if (dataLine) {
+              receivedEvent = true;
+              onEvent(JSON.parse(dataLine.slice(5).trim()) as ChatStreamEvent);
+            }
+          }
+          if (result.done) break;
+        }
+        return;
+      } catch (error) {
+        if (receivedEvent || attempt === retryDelaysMs.length - 1) throw error;
+      }
     }
   }
 

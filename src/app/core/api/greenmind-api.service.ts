@@ -4,7 +4,7 @@ import { ApiClient } from './api-client.service';
 import {
   ExportPlan, ExportPlanCreateRequest, ExportPlanDashboard, ExportPlanDetails,
   ExportPlanScheduleAnalysis, ExportPlanScheduleAnalysisRequest,
-  AdminInvitation, AdminUser, FarmAccount, FarmTask, MasterDataItem, PagedResult, PlanningStatus, PlatformStatistics,
+  AdminAiUsageOverview, AdminInvitation, AdminUser, AdminUserDetails, FarmAccount, FarmTask, MasterDataItem, PagedResult, PlanningStatus, PlatformStatistics,
   RagIngestionResult, RegulatoryImportResult, SoilMeasurement, SoilMeasurementRequest,
   SupportConversation, SupportMessage, SupportMessagePage, CreateTaskRequest, TaskType, ScheduleRevision,
 } from './api.models';
@@ -183,6 +183,28 @@ export class GreenmindApi {
 
   public setFarmStatus(id: number, isActive: boolean): Observable<FarmAccount> {
     return this.api.patch<FarmAccount>(`/api/admin/farms/${id}/status`, { isActive });
+  }
+
+  public adminAiUsage(params: { from?: string; to?: string; pageNumber?: number; pageSize?: number } = {}): Observable<AdminAiUsageOverview> {
+    const query = new URLSearchParams();
+    if (params.from) query.set('from', params.from);
+    if (params.to) query.set('to', params.to);
+    query.set('pageNumber', String(params.pageNumber ?? 1));
+    query.set('pageSize', String(params.pageSize ?? 20));
+    return this.api.get<AdminAiUsageOverview>(`/api/admin/ai-usage?${query.toString()}`);
+  }
+
+  public adminUserDetails(userId: string, params: { from?: string; to?: string; pageNumber?: number; pageSize?: number } = {}): Observable<AdminUserDetails> {
+    const query = new URLSearchParams();
+    if (params.from) query.set('from', params.from);
+    if (params.to) query.set('to', params.to);
+    query.set('pageNumber', String(params.pageNumber ?? 1));
+    query.set('pageSize', String(params.pageSize ?? 20));
+    return this.api.get<AdminUserDetails>(`/api/admin/users/${encodeURIComponent(userId)}?${query.toString()}`);
+  }
+
+  public setUserAiAccess(userId: string, isSuspended: boolean): Observable<void> {
+    return this.api.patch<void>(`/api/admin/users/${encodeURIComponent(userId)}/ai-access`, { isSuspended });
   }
 
   public uploadActiveSubstances(regionName: string, file: File): Observable<RegulatoryImportResult> {
