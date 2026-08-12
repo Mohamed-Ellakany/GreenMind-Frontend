@@ -30,6 +30,7 @@
 .mobile-tab:hover, .mobile-tab-active { background: #edf8f0; color: #087a42; }
 
 @media (min-width: 1024px) {
+  .mobile-aside-close { display: none; }
   .layout-content main { max-width: 1800px; margin-inline: auto; }
   .floating-aside-collapsed { width: 78px; }
   .floating-aside-collapsed .nav-link { min-height: 44px; }
