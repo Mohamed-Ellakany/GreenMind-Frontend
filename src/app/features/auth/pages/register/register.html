@@ -1,72 +1,72 @@
 <main
-  class="register-page grid h-dvh overflow-y-auto bg-[#f4f7f4] text-[#10231b] lg:grid-cols-[.95fr_1.05fr]"
+  class="register-page grid h-dvh max-h-dvh overflow-hidden bg-[#f4f7f4] text-[#10231b] lg:grid-cols-[.95fr_1.05fr]"
   dir="rtl"
 >
   <section
-    class="flex items-center justify-center px-5 py-10 sm:px-10"
+    class="register-form-section flex h-full w-full items-center justify-center overflow-y-auto px-4 py-4 sm:px-8 sm:py-6 lg:px-10 lg:py-6"
     aria-labelledby="register-heading"
   >
-    <div class="w-full max-w-[510px]">
+    <div class="my-auto w-full max-w-[500px] py-2">
       <a
         routerLink="/"
-        class="mb-8 flex min-h-11 items-center gap-3"
+        class="mb-3.5 inline-flex items-center gap-2.5 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#0f7a3d] rounded-xl"
         aria-label="جرين مايند - الرئيسية"
       >
-        <span class="grid size-10 place-items-center rounded-xl bg-[#e7f5eb]"
-          ><img class="size-7" src="/greenmind-leaf.svg" alt=""
+        <span class="grid size-9 place-items-center rounded-xl bg-[#e7f5eb]"
+          ><img class="size-6" src="/greenmind-leaf.svg" alt=""
         /></span>
         <span
-          ><strong class="block">جرين مايند</strong
-          ><small class="text-[#65736c]">منصة التصدير الزراعي</small></span
+          ><strong class="block text-sm font-black">جرين مايند</strong
+          ><small class="text-xs text-[#65736c]">منصة التصدير الزراعي</small></span
         >
       </a>
 
       @if (submitted()) {
         <div
-          class="rounded-[28px] border border-[#dde6df] bg-white p-10 text-center shadow-[0_20px_50px_rgba(16,35,27,.08)]"
+          class="rounded-[28px] border border-[#dde6df] bg-white p-8 text-center shadow-[0_20px_50px_rgba(16,35,27,.08)] sm:p-10"
           role="status"
           aria-live="polite"
         >
           <span
-            class="mx-auto grid size-16 place-items-center rounded-full bg-[#e7f5eb] text-3xl font-black text-[#0f7a3d]"
+            class="mx-auto grid size-14 place-items-center rounded-full bg-[#e7f5eb] text-2xl font-black text-[#0f7a3d]"
             aria-hidden="true"
             >✓</span
           >
-          <h1 id="register-heading" class="mt-5 text-2xl font-black">تم إنشاء الحساب</h1>
-          <p class="mt-3 leading-7 text-[#65736c]">
+          <h1 id="register-heading" class="mt-4 text-2xl font-black">تم إنشاء الحساب</h1>
+          <p class="mt-2 text-sm leading-6 text-[#65736c]">
             وصلتنا بياناتك بنجاح. يمكنك تسجيل الدخول بعد تفعيل حساب مزرعتك.
           </p>
           <a
             routerLink="/auth/login"
-            class="mt-7 inline-flex min-h-11 items-center rounded-xl bg-[#0f7a3d] px-6 py-3 text-sm font-black text-white"
+            class="mt-6 inline-flex min-h-11 items-center rounded-xl bg-[#0f7a3d] px-6 py-2.5 text-sm font-black text-white transition hover:bg-[#0c6633]"
             >الانتقال لتسجيل الدخول</a
           >
         </div>
       } @else {
         <header>
-          <p class="text-sm font-black text-[#0f7a3d]">ابدأ رحلتك</p>
-          <h1 id="register-heading" class="mt-2 text-3xl font-black tracking-tight sm:text-4xl">
+          <p class="text-xs font-black text-[#0f7a3d] sm:text-sm">ابدأ رحلتك</p>
+          <h1 id="register-heading" class="mt-1 text-2xl font-black tracking-tight sm:text-3xl">
             أنشئ حساب مزرعتك
           </h1>
-          <p id="register-intro" class="mt-3 text-sm leading-6 text-[#65736c]">
+          <p id="register-intro" class="mt-1 text-xs leading-5 text-[#65736c] sm:text-sm">
             بضع بيانات فقط تفصلك عن أول خطة تصدير ذكية.
           </p>
         </header>
 
         <form
-          class="mt-8"
+          class="mt-4 sm:mt-5"
           (ngSubmit)="onSubmit()"
           novalidate
           [attr.aria-busy]="auth.loading()"
           aria-describedby="register-intro"
         >
-          <div class="grid gap-5 sm:grid-cols-2">
+          <div class="grid gap-3 sm:grid-cols-2 sm:gap-3.5">
             <div>
-              <label class="mb-2 block text-sm font-bold" for="register-full-name"
+              <label class="mb-1.5 block text-xs font-bold sm:text-sm" for="register-full-name"
                 >الاسم الكامل</label
               >
               <input
-                class="h-12 w-full rounded-xl border px-4 text-sm"
+                class="h-10 w-full rounded-xl border border-[#dde6df] bg-white px-3.5 text-xs sm:h-11 sm:text-sm focus:border-[#0f7a3d] focus:outline-none focus:ring-2 focus:ring-[#0f7a3d]/20"
                 id="register-full-name"
                 type="text"
                 [formField]="registerForm.fullName"
@@ -91,7 +91,7 @@
               ) {
                 <div
                   id="register-full-name-error"
-                  class="mt-1.5 text-xs text-[#a92f2a]"
+                  class="mt-1 text-[11px] text-[#a92f2a] sm:text-xs"
                   role="alert"
                 >
                   @for (err of registerForm.fullName().errors(); track err.kind) {
@@ -102,11 +102,11 @@
             </div>
 
             <div>
-              <label class="mb-2 block text-sm font-bold" for="register-farm-name"
+              <label class="mb-1.5 block text-xs font-bold sm:text-sm" for="register-farm-name"
                 >اسم المزرعة</label
               >
               <input
-                class="h-12 w-full rounded-xl border px-4 text-sm"
+                class="h-10 w-full rounded-xl border border-[#dde6df] bg-white px-3.5 text-xs sm:h-11 sm:text-sm focus:border-[#0f7a3d] focus:outline-none focus:ring-2 focus:ring-[#0f7a3d]/20"
                 id="register-farm-name"
                 type="text"
                 [formField]="registerForm.farmName"
@@ -131,7 +131,7 @@
               ) {
                 <div
                   id="register-farm-name-error"
-                  class="mt-1.5 text-xs text-[#a92f2a]"
+                  class="mt-1 text-[11px] text-[#a92f2a] sm:text-xs"
                   role="alert"
                 >
                   @for (err of registerForm.farmName().errors(); track err.kind) {
@@ -142,11 +142,11 @@
             </div>
 
             <div class="sm:col-span-2">
-              <label class="mb-2 block text-sm font-bold" for="register-email"
+              <label class="mb-1.5 block text-xs font-bold sm:text-sm" for="register-email"
                 >البريد الإلكتروني</label
               >
               <input
-                class="h-12 w-full rounded-xl border px-4 text-left text-sm"
+                class="h-10 w-full rounded-xl border border-[#dde6df] bg-white px-3.5 text-left text-xs sm:h-11 sm:text-sm focus:border-[#0f7a3d] focus:outline-none focus:ring-2 focus:ring-[#0f7a3d]/20"
                 id="register-email"
                 type="email"
                 [formField]="registerForm.email"
@@ -171,7 +171,7 @@
                 registerForm.email().invalid() &&
                 (registerForm.email().touched() || submitAttempted())
               ) {
-                <div id="register-email-error" class="mt-1.5 text-xs text-[#a92f2a]" role="alert">
+                <div id="register-email-error" class="mt-1 text-[11px] text-[#a92f2a] sm:text-xs" role="alert">
                   @for (err of registerForm.email().errors(); track err.kind) {
                     <p>{{ err.message }}</p>
                   }
@@ -180,12 +180,12 @@
             </div>
 
             <div>
-              <label class="mb-2 block text-sm font-bold" for="register-password"
+              <label class="mb-1.5 block text-xs font-bold sm:text-sm" for="register-password"
                 >كلمة المرور</label
               >
               <div class="relative">
                 <input
-                  class="h-12 w-full rounded-xl border pe-4 ps-11 text-left text-sm"
+                  class="h-10 w-full rounded-xl border border-[#dde6df] bg-white pe-3.5 ps-10 text-left text-xs sm:h-11 sm:text-sm focus:border-[#0f7a3d] focus:outline-none focus:ring-2 focus:ring-[#0f7a3d]/20"
                   id="register-password"
                   [type]="passwordVisible() ? 'text' : 'password'"
                   [formField]="registerForm.password"
@@ -201,19 +201,19 @@
                   "
                 />
                 <button
-                  class="absolute inset-y-0 left-0 flex w-11 items-center justify-center text-[#65736c] hover:text-[#0f7a3d] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#0f7a3d] focus-visible:ring-inset"
+                  class="absolute inset-y-0 left-0 flex w-10 items-center justify-center text-[#65736c] hover:text-[#0f7a3d] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#0f7a3d] focus-visible:ring-inset"
                   type="button"
                   (click)="togglePasswordVisibility()"
                   [attr.aria-label]="passwordVisible() ? 'إخفاء كلمة المرور' : 'إظهار كلمة المرور'"
                   [attr.aria-pressed]="passwordVisible()"
                 >
                   @if (passwordVisible()) {
-                    <svg aria-hidden="true" class="size-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                    <svg aria-hidden="true" class="size-4 sm:size-4.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
                       <path d="M2.1 12s3.6-6 9.9-6 9.9 6 9.9 6-3.6 6-9.9 6-9.9-6-9.9-6Z" />
                       <circle cx="12" cy="12" r="2.7" />
                     </svg>
                   } @else {
-                    <svg aria-hidden="true" class="size-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                    <svg aria-hidden="true" class="size-4 sm:size-4.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
                       <path d="m3 3 18 18" />
                       <path d="M10.6 6.2A10.8 10.8 0 0 1 12 6c6.3 0 9.9 6 9.9 6a16.7 16.7 0 0 1-2.2 2.9M6.6 6.6C3.7 8.5 2.1 12 2.1 12s3.6 6 9.9 6a10.4 10.4 0 0 0 4.1-.8" />
                       <path d="M10.1 10.1a2.7 2.7 0 0 0 3.8 3.8" />
@@ -227,7 +227,7 @@
               ) {
                 <div
                   id="register-password-error"
-                  class="mt-1.5 text-xs text-[#a92f2a]"
+                  class="mt-1 text-[11px] text-[#a92f2a] sm:text-xs"
                   role="alert"
                 >
                   @for (err of registerForm.password().errors(); track err.kind) {
@@ -238,12 +238,12 @@
             </div>
 
             <div>
-              <label class="mb-2 block text-sm font-bold" for="register-confirm-password"
+              <label class="mb-1.5 block text-xs font-bold sm:text-sm" for="register-confirm-password"
                 >تأكيد كلمة المرور</label
               >
               <div class="relative">
                 <input
-                  class="h-12 w-full rounded-xl border pe-4 ps-11 text-left text-sm"
+                  class="h-10 w-full rounded-xl border border-[#dde6df] bg-white pe-3.5 ps-10 text-left text-xs sm:h-11 sm:text-sm focus:border-[#0f7a3d] focus:outline-none focus:ring-2 focus:ring-[#0f7a3d]/20"
                   id="register-confirm-password"
                   [type]="confirmPasswordVisible() ? 'text' : 'password'"
                   [formField]="registerForm.confirmPassword"
@@ -264,7 +264,7 @@
                   "
                 />
                 <button
-                  class="absolute inset-y-0 left-0 flex w-11 items-center justify-center text-[#65736c] hover:text-[#0f7a3d] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#0f7a3d] focus-visible:ring-inset"
+                  class="absolute inset-y-0 left-0 flex w-10 items-center justify-center text-[#65736c] hover:text-[#0f7a3d] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#0f7a3d] focus-visible:ring-inset"
                   type="button"
                   (click)="toggleConfirmPasswordVisibility()"
                   [attr.aria-label]="
@@ -273,12 +273,12 @@
                   [attr.aria-pressed]="confirmPasswordVisible()"
                 >
                   @if (confirmPasswordVisible()) {
-                    <svg aria-hidden="true" class="size-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                      <path d="M2.1 12s3.6-6 9.9-6 9.9 6 9.9 6-3.6 6-9.9 6-9.9-6-9.9-6Z" />
+                    <svg aria-hidden="true" class="size-4 sm:size-4.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M2.1 12s3.6-6 9.9-6 9.9 6 9.9 6-3.6 6-9.9 6-9.9-6Z" />
                       <circle cx="12" cy="12" r="2.7" />
                     </svg>
                   } @else {
-                    <svg aria-hidden="true" class="size-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                    <svg aria-hidden="true" class="size-4 sm:size-4.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
                       <path d="m3 3 18 18" />
                       <path d="M10.6 6.2A10.8 10.8 0 0 1 12 6c6.3 0 9.9 6 9.9 6a16.7 16.7 0 0 1-2.2 2.9M6.6 6.6C3.7 8.5 2.1 12 2.1 12s3.6 6 9.9 6a10.4 10.4 0 0 0 4.1-.8" />
                       <path d="M10.1 10.1a2.7 2.7 0 0 0 3.8 3.8" />
@@ -292,7 +292,7 @@
               ) {
                 <div
                   id="register-confirm-password-error"
-                  class="mt-1.5 text-xs text-[#a92f2a]"
+                  class="mt-1 text-[11px] text-[#a92f2a] sm:text-xs"
                   role="alert"
                 >
                   @for (err of registerForm.confirmPassword().errors(); track err.kind) {
@@ -305,30 +305,31 @@
 
           <div
             id="register-password-help"
-            class="mt-4 rounded-xl border border-[#dce6df] bg-white/70 p-3"
+            class="mt-2.5 rounded-xl border border-[#dce6df] bg-white/75 px-3 py-2"
           >
-            <p class="text-xs font-bold text-[#526158]">متطلبات كلمة المرور</p>
-            <ul class="mt-2 grid gap-1.5 text-xs sm:grid-cols-2" aria-live="polite">
+            <p class="text-[11px] font-bold text-[#526158] sm:text-xs">متطلبات كلمة المرور</p>
+            <ul class="mt-1 grid grid-cols-2 gap-x-2 gap-y-1 text-[11px] sm:text-xs" aria-live="polite">
               @for (check of passwordChecks(); track check.key) {
                 <li
-                  class="flex items-center gap-2"
+                  class="flex items-center gap-1.5"
                   [class.text-[#0f7a3d]]="check.met"
+                  [class.font-semibold]="check.met"
                   [class.text-[#7c8981]]="!check.met"
                 >
-                  <span aria-hidden="true">{{ check.met ? '✓' : '○' }}</span
-                  >{{ check.label }}
+                  <span class="text-xs" aria-hidden="true">{{ check.met ? '✓' : '○' }}</span
+                  ><span>{{ check.label }}</span>
                 </li>
               }
             </ul>
           </div>
 
           <label
-            class="mt-5 flex min-h-11 cursor-pointer items-start gap-3 text-sm leading-6 text-[#526158]"
+            class="mt-3 flex cursor-pointer items-start gap-2.5 text-xs text-[#526158] sm:text-sm leading-5"
             for="register-terms"
           >
             <input
               id="register-terms"
-              class="mt-1 size-5 shrink-0"
+              class="mt-0.5 size-4 shrink-0 rounded border-[#cad6cc] text-[#0f7a3d] focus:ring-[#0f7a3d]"
               type="checkbox"
               [formField]="registerForm.terms"
               [attr.aria-invalid]="
@@ -357,7 +358,7 @@
           @if (
             registerForm.terms().invalid() && (registerForm.terms().touched() || submitAttempted())
           ) {
-            <div id="register-terms-error" class="mt-1.5 text-xs text-[#a92f2a]" role="alert">
+            <div id="register-terms-error" class="mt-1 text-[11px] text-[#a92f2a] sm:text-xs" role="alert">
               @for (err of registerForm.terms().errors(); track err.kind) {
                 <p>{{ err.message }}</p>
               }
@@ -367,7 +368,7 @@
           @if (auth.error()) {
             <div
               id="register-form-error"
-              class="mt-5 rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-[#a92f2a]"
+              class="mt-3 rounded-xl border border-red-200 bg-red-50 p-2.5 text-xs text-[#a92f2a] sm:text-sm"
               role="alert"
               aria-live="assertive"
               tabindex="-1"
@@ -379,7 +380,7 @@
           <button
             type="submit"
             [disabled]="auth.loading()"
-            class="mt-6 flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-[#0f7a3d] text-sm font-black text-white shadow-[0_10px_25px_rgba(15,122,61,.2)] hover:bg-[#075d2d] disabled:cursor-wait disabled:opacity-70"
+            class="mt-3.5 flex h-10 w-full items-center justify-center gap-2 rounded-xl bg-[#0f7a3d] text-xs font-black text-white shadow-[0_10px_25px_rgba(15,122,61,.2)] transition hover:bg-[#075d2d] sm:h-11 sm:text-sm disabled:cursor-wait disabled:opacity-70"
           >
             @if (auth.loading()) {
               <span
@@ -393,10 +394,10 @@
           </button>
         </form>
 
-        <p class="mt-7 text-center text-sm text-[#65736c]">
+        <p class="mt-3 text-center text-xs text-[#65736c] sm:text-sm">
           لديك حساب بالفعل؟
           <a
-            class="inline-flex min-h-11 items-center font-black text-[#0f7a3d] hover:underline"
+            class="font-black text-[#0f7a3d] hover:underline"
             routerLink="/auth/login"
             >تسجيل الدخول</a
           >
@@ -405,7 +406,7 @@
     </div>
   </section>
 
-  <section class="relative hidden min-h-dvh overflow-hidden p-8 lg:block" aria-label="خطوات البدء">
+  <section class="relative hidden h-full w-full overflow-hidden p-6 lg:block lg:p-8" aria-label="خطوات البدء">
     <img
       class="absolute inset-0 size-full object-cover"
       src="/landing-page/greenhouse.jpg"
@@ -417,28 +418,29 @@
     <div
       class="absolute inset-0 bg-gradient-to-t from-[#10231b]/95 via-[#10231b]/30 to-transparent"
     ></div>
-    <div class="absolute inset-x-12 bottom-12 text-white">
+    <div class="absolute inset-x-8 bottom-8 text-white xl:inset-x-12 xl:bottom-12">
       <span
         class="inline-flex rounded-full bg-white/15 px-3 py-1.5 text-xs font-black backdrop-blur"
         >من البذرة إلى التصدير</span
       >
-      <h2 class="mt-5 max-w-xl text-4xl font-black leading-tight">
+      <h2 class="mt-4 max-w-xl text-3xl font-black leading-tight sm:text-4xl">
         اعمل بخطة واضحة، ودع البيانات تقود يومك.
       </h2>
-      <div class="mt-7 grid grid-cols-3 gap-3">
-        <div class="rounded-2xl border border-white/15 bg-white/10 p-4 backdrop-blur">
-          <b class="text-xl text-[#d8f36a]">01</b>
-          <p class="mt-2 text-xs text-white/75">أنشئ مزرعتك</p>
+      <div class="mt-6 grid grid-cols-3 gap-2.5 sm:gap-3">
+        <div class="rounded-2xl border border-white/15 bg-white/10 p-3.5 backdrop-blur sm:p-4">
+          <b class="text-lg font-bold text-[#d8f36a] sm:text-xl">01</b>
+          <p class="mt-1 text-xs text-white/80">أنشئ مزرعتك</p>
         </div>
-        <div class="rounded-2xl border border-white/15 bg-white/10 p-4 backdrop-blur">
-          <b class="text-xl text-[#d8f36a]">02</b>
-          <p class="mt-2 text-xs text-white/75">حدد سوقك</p>
+        <div class="rounded-2xl border border-white/15 bg-white/10 p-3.5 backdrop-blur sm:p-4">
+          <b class="text-lg font-bold text-[#d8f36a] sm:text-xl">02</b>
+          <p class="mt-1 text-xs text-white/80">حدد سوقك</p>
         </div>
-        <div class="rounded-2xl border border-white/15 bg-white/10 p-4 backdrop-blur">
-          <b class="text-xl text-[#d8f36a]">03</b>
-          <p class="mt-2 text-xs text-white/75">تابع خطتك</p>
+        <div class="rounded-2xl border border-white/15 bg-white/10 p-3.5 backdrop-blur sm:p-4">
+          <b class="text-lg font-bold text-[#d8f36a] sm:text-xl">03</b>
+          <p class="mt-1 text-xs text-white/80">تابع خطتك</p>
         </div>
       </div>
     </div>
   </section>
 </main>
+
