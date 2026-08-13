@@ -111,4 +111,17 @@ describe('AgriculturalAdvisorPage', () => {
     expect(api.messages).toHaveBeenCalledWith(2, 7, 2);
     expect(component.chatMessages()[0].content).toBe('آخر رسالة');
   });
+
+  it('removes an image from selected images on removeImage', () => {
+    const file1 = new File(['1'], 'test1.png', { type: 'image/png' });
+    const file2 = new File(['2'], 'test2.png', { type: 'image/png' });
+    component.selectedImages = [file1, file2];
+    component.removeImage(0);
+    expect(component.selectedImages.length).toBe(1);
+    expect(component.selectedImages[0].name).toBe('test2.png');
+  });
+
+  it('does not render consultation sessions history panel', () => {
+    expect(fixture.nativeElement.querySelector('.session-history')).toBeNull();
+  });
 });
