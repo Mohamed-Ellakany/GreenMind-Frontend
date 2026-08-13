@@ -79,11 +79,14 @@ export class ExportPlanDetailsPage {
   private readonly taskDialog = viewChild<ElementRef<HTMLDialogElement>>('taskDialog');
   private readonly postponeTaskDialog =
     viewChild<ElementRef<HTMLDialogElement>>('postponeTaskDialog');
+  private readonly todayTasksDialog =
+    viewChild<ElementRef<HTMLDialogElement>>('todayTasksDialog');
   private readonly today = this.localIsoDate(new Date());
   private planId = 0;
   private soilFormTrigger: HTMLElement | null = null;
   private taskFormTrigger: HTMLElement | null = null;
   private postponeTaskFormTrigger: HTMLElement | null = null;
+  private todayTasksTrigger: HTMLElement | null = null;
 
   public readonly plan = signal<ExportPlanDetails | null>(null);
   public readonly dashboard = signal<ExportPlanDashboard | null>(null);
@@ -97,6 +100,7 @@ export class ExportPlanDetailsPage {
   public readonly planTasks = signal<FarmTask[]>([]);
   public readonly taskTypes = signal<TaskType[]>([]);
   public readonly taskDrawerOpen = signal(false);
+  public readonly todayTasksModalOpen = signal(false);
   public readonly taskStatusFilter = signal('all');
   public readonly taskPriorityFilter = signal('all');
   public readonly taskFormOpen = signal(false);
@@ -268,6 +272,41 @@ export class ExportPlanDetailsPage {
       : '/landing-page/hero-farm.jpg';
   }
 
+  public openTodayTasksModal(): void {
+    this.todayTasksTrigger =
+      this.document.activeElement instanceof HTMLElement ? this.document.activeElement : null;
+    this.todayTasksModalOpen.set(true);
+    this.updateBodyDialogClass();
+    globalThis.setTimeout(() => this.showTodayTasksDialog());
+  }
+
+  public closeTodayTasksModal(): void {
+    this.dismissTodayTasksModal();
+  }
+
+  public cancelTodayTasksModal(event: Event): void {
+    event.preventDefault();
+    this.closeTodayTasksModal();
+  }
+
+  public openTaskFormFromTodayModal(): void {
+    this.dismissTodayTasksModal();
+    this.openTaskForm();
+  }
+
+  public openAllTasksFromTodayModal(): void {
+    this.dismissTodayTasksModal();
+    this.taskDrawerOpen.set(true);
+  }
+
+  public markTaskComplete(task: DashboardTask): void {
+    if (task.status === 'Completed' || this.updatingTaskId()) return;
+    this.persistTaskStatus(task, {
+      status: 'Completed',
+      actualDate: this.today,
+    });
+  }
+
   public openSoilForm(): void {
     this.soilFormTrigger =
       this.document.activeElement instanceof HTMLElement ? this.document.activeElement : null;
@@ -275,7 +314,7 @@ export class ExportPlanDetailsPage {
     this.soilError.set(null);
     this.soilSuccess.set(null);
     this.soilFormOpen.set(true);
-    this.document.body.classList.add('gm-dialog-open');
+    this.updateBodyDialogClass();
     globalThis.setTimeout(() => this.showSoilDialog());
   }
 
@@ -286,7 +325,7 @@ export class ExportPlanDetailsPage {
     this.taskCreateError.set(null);
     this.taskSuccess.set(null);
     this.taskFormOpen.set(true);
-    this.document.body.classList.add('gm-dialog-open');
+    this.updateBodyDialogClass();
     if (!this.taskTypes().length && !this.taskTypesLoading()) this.loadTaskTypes();
     globalThis.setTimeout(() => this.showTaskDialog());
   }
@@ -691,8 +730,30 @@ export class ExportPlanDetailsPage {
       task.plannedDate < this.today ? this.today : this.addDays(task.plannedDate, 1);
     this.postponeTaskError.set(null);
     this.postponeTaskFormOpen.set(true);
-    this.document.body.classList.add('gm-dialog-open');
+    this.updateBodyDialogClass();
     globalThis.setTimeout(() => this.showPostponeTaskDialog());
+  }
+
+  private showTodayTasksDialog(): void {
+    const dialog = this.todayTasksDialog()?.nativeElement;
+    if (!dialog?.isConnected) return;
+    if (!dialog.open) {
+      if (typeof dialog.showModal === 'function') dialog.showModal();
+      else dialog.setAttribute('open', '');
+    }
+  }
+
+  private dismissTodayTasksModal(): void {
+    const dialog = this.todayTasksDialog()?.nativeElement;
+    if (dialog?.open) {
+      if (typeof dialog.close === 'function') dialog.close();
+      else dialog.removeAttribute('open');
+    }
+    this.todayTasksModalOpen.set(false);
+    this.updateBodyDialogClass();
+    const trigger = this.todayTasksTrigger;
+    this.todayTasksTrigger = null;
+    globalThis.setTimeout(() => trigger?.focus());
   }
 
   private showSoilDialog(): void {
@@ -732,7 +793,7 @@ export class ExportPlanDetailsPage {
       else dialog.removeAttribute('open');
     }
     this.taskFormOpen.set(false);
-    this.document.body.classList.remove('gm-dialog-open');
+    this.updateBodyDialogClass();
     const trigger = this.taskFormTrigger;
     this.taskFormTrigger = null;
     globalThis.setTimeout(() => trigger?.focus());
@@ -747,7 +808,7 @@ export class ExportPlanDetailsPage {
     this.postponeTaskFormOpen.set(false);
     this.postponeTask.set(null);
     this.postponeTaskError.set(null);
-    this.document.body.classList.remove('gm-dialog-open');
+    this.updateBodyDialogClass();
     const trigger = this.postponeTaskFormTrigger;
     this.postponeTaskFormTrigger = null;
     globalThis.setTimeout(() => trigger?.focus());
@@ -760,10 +821,23 @@ export class ExportPlanDetailsPage {
       else dialog.removeAttribute('open');
     }
     this.soilFormOpen.set(false);
-    this.document.body.classList.remove('gm-dialog-open');
+    this.updateBodyDialogClass();
     const trigger = this.soilFormTrigger;
     this.soilFormTrigger = null;
     globalThis.setTimeout(() => trigger?.focus());
+  }
+
+  private updateBodyDialogClass(): void {
+    if (
+      this.todayTasksModalOpen() ||
+      this.taskFormOpen() ||
+      this.soilFormOpen() ||
+      this.postponeTaskFormOpen()
+    ) {
+      this.document.body.classList.add('gm-dialog-open');
+    } else {
+      this.document.body.classList.remove('gm-dialog-open');
+    }
   }
 
   private emptySoilForm(): SoilFormModel {

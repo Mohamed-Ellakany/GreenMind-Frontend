@@ -54,10 +54,15 @@
             </p>
             <p class="mt-2 text-sm text-[#b8d6c6]">{{ statusMessage(currentPlan.status) }}</p>
 
-            <a class="hero-primary-action" href="#today-tasks">
+            <button
+              type="button"
+              class="hero-primary-action"
+              (click)="openTodayTasksModal()"
+              [attr.aria-label]="actionTasks().length ? 'ابدأ مهام اليوم' : 'راجع الخطوات القادمة'"
+            >
               <span>{{ actionTasks().length ? 'ابدأ مهام اليوم' : 'راجع الخطوات القادمة' }}</span>
               <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
-            </a>
+            </button>
           </div>
 
           <div class="hero-progress-panel">
@@ -927,6 +932,227 @@
           </button>
         </footer>
       </form>
+    </dialog>
+  }
+
+  @if (todayTasksModalOpen()) {
+    <dialog
+      #todayTasksDialog
+      class="gm-modal-layer place-items-center p-0 sm:p-4"
+      aria-labelledby="today-tasks-dialog-title"
+      aria-describedby="today-tasks-dialog-description"
+      (cancel)="cancelTodayTasksModal($event)"
+      (click)="closeTodayTasksModal()"
+    >
+      <div
+        class="flex max-h-[100dvh] w-full max-w-3xl flex-col overflow-hidden bg-white shadow-2xl sm:max-h-[90dvh] sm:rounded-3xl"
+        (click)="$event.stopPropagation()"
+      >
+        <header
+          class="flex items-start justify-between gap-4 border-b border-slate-100 bg-gradient-to-l from-emerald-50/50 via-white to-white px-5 py-5 sm:px-7"
+        >
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="inline-flex items-center gap-1.5 rounded-full bg-emerald-100/80 px-2.5 py-0.5 text-xs font-black text-emerald-800">
+                <span class="size-1.5 rounded-full bg-emerald-600"></span>
+                مهام اليوم والإجراءات العاجلة
+              </span>
+              <span class="text-xs font-bold text-slate-400">EX-{{ plan()?.id }}</span>
+            </div>
+            <h2 id="today-tasks-dialog-title" class="mt-1.5 text-xl font-black text-slate-900">
+              {{ actionTasks().length ? 'مهام الخطة المستحقة لليوم' : 'متابعة مهام الخطة' }}
+            </h2>
+            <p id="today-tasks-dialog-description" class="mt-1 text-sm text-slate-500">
+              الإجراءات الميدانية والعمليات الزراعية المحددة في {{ plan()?.name }} للحفاظ على جاهزية التصدير.
+            </p>
+          </div>
+          <button
+            type="button"
+            class="grid size-10 shrink-0 place-items-center rounded-full border border-slate-200 text-xl font-bold text-slate-500 transition hover:bg-slate-100 hover:text-slate-800"
+            aria-label="إغلاق النافذة"
+            (click)="closeTodayTasksModal()"
+          >
+            ×
+          </button>
+        </header>
+
+        <!-- Stats Bar -->
+        <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 bg-slate-50/70 px-5 py-3 sm:px-7">
+          <div class="flex flex-wrap items-center gap-3 text-xs font-bold">
+            @if (actionTasks().length) {
+              <span class="inline-flex items-center gap-1.5 rounded-lg bg-emerald-100 px-2.5 py-1 text-emerald-800">
+                <span>{{ actionTasks().length }}</span> مهمة تحتاج متابعة
+              </span>
+            } @else {
+              <span class="inline-flex items-center gap-1.5 rounded-lg bg-emerald-100 px-2.5 py-1 text-emerald-800">
+                ✓ لا توجد مهام متأخرة اليوم
+              </span>
+            }
+
+            @if (dashboard()?.overdueTasks?.length) {
+              <span class="inline-flex items-center gap-1.5 rounded-lg bg-red-100 px-2.5 py-1 text-red-700">
+                ⚠️ {{ dashboard()!.overdueTasks.length }} متأخرة عن الموعد
+              </span>
+            }
+          </div>
+
+          @if (dashboard()?.season; as season) {
+            <span class="text-xs font-bold text-slate-600">
+              المرحلة الحالية: <strong class="text-emerald-700">{{ season.growthStage }}</strong> (اليوم {{ season.currentSeasonDay }} من {{ season.totalSeasonDays }})
+            </span>
+          }
+        </div>
+
+        <!-- Task List Content -->
+        <div class="min-h-0 flex-1 overflow-y-auto px-5 py-5 sm:px-7">
+          @if (actionTasks().length) {
+            <div class="space-y-3">
+              @for (task of actionTasks(); track task.id) {
+                <div
+                  class="relative flex flex-col gap-3 rounded-2xl border p-4 transition-all duration-200 sm:flex-row sm:items-center sm:justify-between"
+                  [class.border-red-200]="isOverdue(task)"
+                  [class.bg-red-50/40]="isOverdue(task)"
+                  [class.border-slate-200]="!isOverdue(task)"
+                  [class.bg-white]="!isOverdue(task)"
+                >
+                  <div class="min-w-0 flex-1">
+                    <div class="flex flex-wrap items-center gap-2">
+                      <h3 class="text-base font-black text-slate-900">{{ task.title }}</h3>
+                      <span class="task-state" [attr.data-status]="task.status">{{ taskStatusLabel(task) }}</span>
+                      @if (isOverdue(task)) {
+                        <span class="task-overdue">متأخرة عن الموعد</span>
+                      }
+                      <span class="rounded-md bg-slate-100 px-2 py-0.5 text-xs font-bold text-slate-600">
+                        {{ taskTypeLabel(task.taskType) }}
+                      </span>
+                      <span
+                        class="rounded-md px-2 py-0.5 text-xs font-bold"
+                        [class.bg-red-100]="task.priority === 'Critical' || task.priority === 'High'"
+                        [class.text-red-700]="task.priority === 'Critical' || task.priority === 'High'"
+                        [class.bg-amber-100]="task.priority === 'Medium'"
+                        [class.text-amber-800]="task.priority === 'Medium'"
+                        [class.bg-slate-100]="task.priority === 'Low'"
+                        [class.text-slate-600]="task.priority === 'Low'"
+                      >
+                        أولوية {{ priorityLabel(task.priority) }}
+                      </span>
+                    </div>
+
+                    <div class="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-slate-500">
+                      <span>📅 الموعد المخطط: <strong>{{ formatDate(task.plannedDate) }}</strong></span>
+                      @if (task.origin) {
+                        <span>✦ {{ task.origin === 'UserAdded' ? 'أضافها المستخدم' : 'مخططة ذكياً' }}</span>
+                      }
+                    </div>
+
+                    @if (task.description) {
+                      <p class="mt-2 text-xs leading-relaxed text-slate-600 bg-slate-50 rounded-lg p-2 border border-slate-100">
+                        {{ task.description }}
+                      </p>
+                    }
+
+                    @if (task.notes) {
+                      <p class="mt-1 text-xs text-slate-500">
+                        <strong class="font-bold text-slate-700">ملاحظة:</strong> {{ task.notes }}
+                      </p>
+                    }
+                  </div>
+
+                  <!-- Controls for this task -->
+                  <div class="flex flex-wrap items-center gap-2 border-t border-slate-100 pt-3 sm:border-t-0 sm:pt-0 shrink-0">
+                    <select
+                      class="task-status-control"
+                      [disabled]="updatingTaskId() === task.id"
+                      [value]="task.status"
+                      [attr.aria-label]="'تغيير حالة مهمة ' + task.title"
+                      (change)="changeTaskStatus(task, $event)"
+                    >
+                      @for (status of taskStatusOptions; track status) {
+                        <option [value]="status">{{ farmTaskStatusLabel(status) }}</option>
+                      }
+                    </select>
+
+                    @if (task.status !== 'Completed') {
+                      <button
+                        type="button"
+                        class="inline-flex items-center gap-1 rounded-xl bg-emerald-600 px-3.5 py-2 text-xs font-black text-white shadow-sm transition hover:bg-emerald-700 disabled:opacity-50"
+                        [disabled]="updatingTaskId() === task.id"
+                        (click)="markTaskComplete(task)"
+                      >
+                        @if (updatingTaskId() === task.id) {
+                          <span class="task-spinner inline-block"></span>
+                        } @else {
+                          <span>✓</span>
+                        }
+                        <span>إتمام</span>
+                      </button>
+                    } @else {
+                      <span class="inline-flex items-center gap-1 rounded-xl bg-emerald-50 px-3 py-2 text-xs font-black text-emerald-700 border border-emerald-200">
+                        ✓ مكتملة
+                      </span>
+                    }
+                  </div>
+                </div>
+              }
+            </div>
+          } @else {
+            <div class="flex flex-col items-center justify-center py-8 text-center">
+              <span class="grid size-16 place-items-center rounded-2xl bg-emerald-50 text-3xl font-black text-emerald-600 shadow-inner">
+                ✓
+              </span>
+              <h3 class="mt-4 text-lg font-black text-slate-800">لا توجد مهام مستحقة اليوم أو متأخرة</h3>
+              <p class="mt-1 max-w-md text-sm text-slate-500">
+                كل الخطوات المطلوبة حتى اليوم تم تنفيذها بنجاح، والمحصول يسير وفق الجدول المعتمد.
+              </p>
+
+              @if (nextTasks().length) {
+                <div class="mt-6 w-full max-w-md rounded-2xl border border-slate-200 bg-slate-50 p-4 text-right">
+                  <h4 class="text-xs font-black text-slate-700 mb-2">الخطوات القادمة في الأيام المقبلة:</h4>
+                  <div class="space-y-2">
+                    @for (nextTask of nextTasks(); track nextTask.id) {
+                      <div class="flex items-center justify-between gap-2 rounded-xl bg-white p-2.5 border border-slate-200/60 shadow-xs">
+                        <span class="text-xs font-bold text-slate-800">{{ nextTask.title }}</span>
+                        <span class="text-[11px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md">
+                          {{ compactDate(nextTask.plannedDate) }}
+                        </span>
+                      </div>
+                    }
+                  </div>
+                </div>
+              }
+            </div>
+          }
+        </div>
+
+        <footer
+          class="flex flex-wrap items-center justify-between gap-3 border-t border-slate-100 bg-slate-50/50 px-5 py-4 sm:px-7"
+        >
+          <div class="flex flex-wrap items-center gap-2">
+            <button
+              type="button"
+              class="rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-xs font-black text-slate-700 transition hover:bg-slate-50"
+              (click)="openTaskFormFromTodayModal()"
+            >
+              + إضافة مهمة غير مخططة
+            </button>
+            <button
+              type="button"
+              class="rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-xs font-black text-slate-700 transition hover:bg-slate-50"
+              (click)="openAllTasksFromTodayModal()"
+            >
+              عرض جميع مهام الخطة ({{ planTasks().length }}) ←
+            </button>
+          </div>
+
+          <button
+            type="button"
+            class="rounded-xl bg-slate-800 px-5 py-2.5 text-xs font-black text-white transition hover:bg-slate-900"
+            (click)="closeTodayTasksModal()"
+          >
+            إغلاق
+          </button>
+        </footer>
+      </div>
     </dialog>
   }
 </section>

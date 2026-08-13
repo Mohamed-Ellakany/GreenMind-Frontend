@@ -8,10 +8,10 @@
   border: 1px solid rgb(111 188 137 / 0.22);
   border-radius: 1.75rem;
   background:
-    radial-gradient(circle at 10% 0%, rgb(58 169 103 / 0.2), transparent 34%),
-    linear-gradient(135deg, #0d4935 0%, #062d22 54%, #041e18 100%);
-  padding: clamp(1.4rem, 3vw, 2.5rem);
-  box-shadow: 0 22px 60px rgb(7 42 30 / 0.16);
+    radial-gradient(circle at 10% 0%, rgb(58 169 103 / 0.25), transparent 34%),
+    linear-gradient(135deg, #0a402d 0%, #062b20 50%, #031813 100%);
+  padding: clamp(1.4rem, 3vw, 2.2rem);
+  box-shadow: 0 22px 60px rgb(7 42 30 / 0.2);
 }
 
 .plan-hero h1 {
@@ -22,31 +22,37 @@
   position: absolute;
   inset-block: 0;
   left: 0;
-  width: 48%;
+  width: 55%;
+  max-width: 580px;
   height: 100%;
   object-fit: cover;
-  object-position: 58% center;
-  opacity: 0.78;
-  filter: saturate(0.95) contrast(1.05);
+  object-position: 70% 52%;
+  opacity: 0.95;
+  filter: saturate(1.25) contrast(1.08) brightness(1.04);
+  mask-image: linear-gradient(to right, rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 0.95) 55%, rgba(0, 0, 0, 0) 100%);
+  -webkit-mask-image: linear-gradient(to right, rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 0.95) 55%, rgba(0, 0, 0, 0) 100%);
+  pointer-events: none;
 }
 
 .hero-image-shade {
   position: absolute;
   inset: 0;
   background:
-    linear-gradient(90deg, rgb(4 30 24 / 0.2) 0%, rgb(4 30 24 / 0.58) 28%, #062d22 56%, rgb(6 45 34 / 0.92) 100%),
-    linear-gradient(180deg, rgb(3 28 21 / 0.05), rgb(3 28 21 / 0.42));
+    linear-gradient(90deg, rgba(3, 24, 17, 0.08) 0%, rgba(3, 24, 17, 0.25) 30%, rgba(4, 28, 20, 0.8) 58%, rgba(4, 28, 20, 0.96) 80%, #031813 100%),
+    linear-gradient(180deg, rgba(3, 22, 16, 0) 0%, rgba(3, 22, 16, 0.3) 100%);
+  pointer-events: none;
 }
 
 .hero-glow {
   position: absolute;
-  width: 26rem;
-  height: 26rem;
-  top: -17rem;
-  left: -6rem;
+  width: 28rem;
+  height: 28rem;
+  top: -14rem;
+  left: -8rem;
   border-radius: 50%;
-  background: rgb(115 220 139 / 0.1);
-  filter: blur(4px);
+  background: radial-gradient(circle, rgba(115, 220, 139, 0.18) 0%, transparent 70%);
+  filter: blur(12px);
+  pointer-events: none;
 }
 
 .hero-status {
@@ -75,10 +81,10 @@
   min-height: 2.8rem;
   align-items: center;
   gap: 0.7rem;
-  margin-top: 1.4rem;
+  margin-top: 1.3rem;
   border-radius: 0.8rem;
   background: #fff;
-  padding: 0.75rem 1rem;
+  padding: 0.75rem 1.1rem;
   color: #073c2a;
   font-size: 0.82rem;
   font-weight: 900;
@@ -102,42 +108,50 @@
 }
 
 .hero-progress-panel {
-  display: grid;
-  place-items: center;
-  border-inline-start: 1px solid rgb(255 255 255 / 0.1);
-  padding-inline-start: 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-width: 175px;
+  border-radius: 1.25rem;
+  background: rgba(3, 26, 19, 0.65);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  padding: 1.2rem 1.4rem;
 }
 
 .progress-ring {
   display: grid;
-  width: 9.25rem;
-  height: 9.25rem;
+  width: 7.75rem;
+  height: 7.75rem;
   place-items: center;
   border-radius: 50%;
-  box-shadow: 0 0 0 1px rgb(255 255 255 / 0.08), inset 0 0 28px rgb(0 0 0 / 0.12);
+  box-shadow: 0 0 0 1px rgb(255 255 255 / 0.08), inset 0 0 24px rgb(0 0 0 / 0.16);
 }
 
 .progress-ring > div {
   display: grid;
-  width: 7.25rem;
-  height: 7.25rem;
+  width: 6.1rem;
+  height: 6.1rem;
   place-content: center;
   border-radius: 50%;
-  background: #083226;
+  background: #062b20;
   text-align: center;
 }
 
 .progress-ring strong {
   color: #fff;
-  font-size: 2rem;
+  font-size: 1.65rem;
   font-weight: 900;
   line-height: 1;
 }
 
 .progress-ring span {
-  margin-top: 0.45rem;
-  color: rgb(255 255 255 / 0.54);
-  font-size: 0.65rem;
+  margin-top: 0.35rem;
+  color: rgb(255 255 255 / 0.6);
+  font-size: 0.62rem;
   font-weight: 700;
 }
 
@@ -145,9 +159,9 @@
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   gap: 0.7rem;
-  margin-top: 1.75rem;
-  padding-top: 1.25rem;
-  border-top: 1px solid rgb(255 255 255 / 0.1);
+  margin-top: 1.4rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .hero-insight {
@@ -155,10 +169,12 @@
   min-width: 0;
   align-items: flex-start;
   gap: 0.7rem;
-  border: 1px solid rgb(255 255 255 / 0.09);
+  border: 1px solid rgba(255, 255, 255, 0.09);
   border-radius: 0.85rem;
-  background: rgb(255 255 255 / 0.045);
-  padding: 0.75rem;
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  padding: 0.75rem 0.85rem;
 }
 
 .hero-insight strong,
@@ -174,7 +190,7 @@
 .hero-insight small {
   overflow: hidden;
   margin-top: 0.2rem;
-  color: rgb(255 255 255 / 0.5);
+  color: rgb(255 255 255 / 0.55);
   font-size: 0.65rem;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -604,7 +620,7 @@
 
 @media (min-width: 900px) {
   .plan-hero-main {
-    grid-template-columns: minmax(0, 1fr) 220px;
+    grid-template-columns: minmax(0, 1fr) auto;
     align-items: center;
   }
 }
@@ -612,26 +628,27 @@
 @media (max-width: 899px) {
   .hero-crop-image {
     width: 100%;
-    opacity: 0.36;
+    max-width: 100%;
+    opacity: 0.42;
+    mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.8) 0%, rgba(0, 0, 0, 0) 100%);
+    -webkit-mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.8) 0%, rgba(0, 0, 0, 0) 100%);
   }
 
   .hero-image-shade {
-    background: linear-gradient(180deg, rgb(4 30 24 / 0.32), #062d22 58%, #062d22 100%);
+    background: linear-gradient(180deg, rgba(4, 30, 24, 0.32) 0%, #062d22 58%, #062d22 100%);
   }
 
   .hero-progress-panel {
+    display: grid;
     grid-template-columns: auto auto;
     justify-content: start;
     gap: 1.25rem;
-    border-inline-start: 0;
-    border-top: 1px solid rgb(255 255 255 / 0.1);
-    padding-block-start: 1.4rem;
-    padding-inline-start: 0;
+    padding: 1rem 1.25rem;
   }
 
-  .progress-ring { width: 6rem; height: 6rem; }
-  .progress-ring > div { width: 4.7rem; height: 4.7rem; }
-  .progress-ring strong { font-size: 1.35rem; }
+  .progress-ring { width: 5.5rem; height: 5.5rem; }
+  .progress-ring > div { width: 4.3rem; height: 4.3rem; }
+  .progress-ring strong { font-size: 1.25rem; }
 }
 
 @media (max-width: 639px) {
@@ -649,11 +666,7 @@
 }
 
 @media (min-width: 1200px) {
-  .plan-hero { min-height: 270px; border-radius: 1.1rem; padding: 1.35rem 1.6rem; }
-  .hero-crop-image { width: 35%; opacity: .42; }
-  .hero-image-shade { background: linear-gradient(90deg, rgb(4 30 24 / .4), #062d22 52%, #041e18 100%); }
-  .hero-primary-action { margin-top: 1rem; }
-  .progress-ring { width: 7.5rem; height: 7.5rem; }
-  .progress-ring > div { width: 5.8rem; height: 5.8rem; }
-  .hero-insights { margin-top: 1rem; }
+  .plan-hero { min-height: 270px; border-radius: 1.5rem; padding: 1.6rem 2rem; }
+  .hero-primary-action { margin-top: 1.2rem; }
+  .hero-insights { margin-top: 1.3rem; }
 }
