@@ -1,3 +1,28 @@
-:host { display: block; }
-.register-page { scrollbar-width: none; }
-.register-page::-webkit-scrollbar { display: none; }
+:host {
+  display: block;
+  height: 100dvh;
+  overflow: hidden;
+}
+
+/* Smooth & subtle scrollbar for the form section when overflow is needed on small screens */
+.register-form-section {
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e1 transparent;
+}
+
+.register-form-section::-webkit-scrollbar {
+  width: 4px;
+}
+
+.register-form-section::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.register-form-section::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 9999px;
+}
+
+.register-form-section::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
