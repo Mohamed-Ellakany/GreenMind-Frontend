@@ -33,37 +33,78 @@
         (navigated)="closeMobileMenu(false)"
       />
     } @else {
-
-    <div class="border-b border-[#edf1ee] px-4 py-4">
-      <a routerLink="/dashboard" class="brand-link flex items-center gap-3" title="جرين مايند" (click)="closeMobileMenu(false)">
-        <span class="grid size-10 shrink-0 place-items-center rounded-xl bg-[#e7f5eb] text-lg text-[#0f7a3d]" aria-hidden="true"><fa-icon [icon]="icons.leaf" /></span>
-        <span class="aside-text min-w-0"><strong class="block text-lg font-black tracking-tight text-[#10231b]">جرين مايند</strong><small class="block text-xs text-[#738078]">منصة التصدير الزراعي</small></span>
+    <div class="border-b border-[#edf2ee] px-4 py-4.5">
+      <a routerLink="/dashboard" class="brand-link group flex items-center gap-3.5" title="جرين مايند" (click)="closeMobileMenu(false)">
+        <span class="grid size-10 shrink-0 place-items-center rounded-xl bg-gradient-to-br from-[#087a42] to-[#04542c] text-white text-base shadow-sm shadow-emerald-900/15 transition-transform duration-200 group-hover:scale-105" aria-hidden="true">
+          <fa-icon [icon]="icons.leaf" />
+        </span>
+        <span class="aside-text min-w-0">
+          <strong class="block text-[1.05rem] font-black tracking-tight text-[#0c261b]">جرين مايند</strong>
+          <small class="block text-[11px] font-semibold text-[#66786e]">منصة التصدير الزراعي</small>
+        </span>
       </a>
     </div>
 
-    <div class="aside-text mx-3 mt-3 rounded-xl border border-[#dbe9de] bg-[#f3faf5] p-3">
-      <div class="flex items-center gap-3"><span class="grid size-9 place-items-center rounded-xl bg-white text-[#0f7a3d] shadow-sm"><fa-icon [icon]="icons.seedling" /></span><div class="min-w-0"><p class="truncate text-xs text-[#65736c]">مساحة العمل</p><p class="truncate text-sm font-bold text-[#10231b]">{{ farmName() }}</p></div></div>
+    <div class="aside-text mx-3 mt-3 rounded-xl border border-emerald-100/90 bg-gradient-to-b from-[#f3f9f5] to-[#eaf5ee] p-3 shadow-2xs">
+      <div class="flex items-center gap-2.5">
+        <span class="grid size-8 shrink-0 place-items-center rounded-lg bg-white text-[#087a42] shadow-xs ring-1 ring-emerald-900/5">
+          <fa-icon [icon]="icons.seedling" />
+        </span>
+        <div class="min-w-0">
+          <p class="truncate text-[10px] font-bold uppercase tracking-wider text-[#63756b]">مساحة العمل</p>
+          <p class="truncate text-xs font-black text-[#0c261b] mt-0.5">{{ farmName() }}</p>
+        </div>
+      </div>
     </div>
 
     <nav class="aside-scroll min-h-0 flex-1 overflow-y-auto overflow-x-hidden px-3 py-4 text-sm" aria-label="التنقل الرئيسي">
-      <p class="aside-text mb-2 px-3 text-[11px] font-bold text-[#8a968f]">نظرة عامة</p>
+      <p class="aside-text mb-2 px-2.5 text-[10px] font-extrabold uppercase tracking-widest text-[#85948b]">نظرة عامة</p>
       <div class="space-y-1">
-        <a routerLink="/dashboard" routerLinkActive="nav-link-active" ariaCurrentWhenActive="page" [routerLinkActiveOptions]="{ exact: true }" class="nav-link" title="لوحة التحكم" (click)="closeMobileMenu(false)"><fa-icon class="nav-fa" [icon]="icons.dashboard" /><span class="aside-text">لوحة التحكم</span></a>
-        <a routerLink="/activities" routerLinkActive="nav-link-active" ariaCurrentWhenActive="page" class="nav-link" title="المهام والأنشطة" (click)="closeMobileMenu(false)"><fa-icon class="nav-fa" [icon]="icons.activities" /><span class="aside-text">المهام والأنشطة</span></a>
-        <a routerLink="/statistics" routerLinkActive="nav-link-active" ariaCurrentWhenActive="page" class="nav-link" title="الإحصائيات والتقارير" (click)="closeMobileMenu(false)"><fa-icon class="nav-fa" [icon]="icons.reports" /><span class="aside-text">الإحصائيات والتقارير</span></a>
+        <a routerLink="/dashboard" routerLinkActive="nav-link-active" ariaCurrentWhenActive="page" [routerLinkActiveOptions]="{ exact: true }" class="nav-link" title="لوحة التحكم" (click)="closeMobileMenu(false)">
+          <fa-icon class="nav-fa" [icon]="icons.dashboard" />
+          <span class="aside-text">لوحة التحكم</span>
+        </a>
+        <a routerLink="/activities" routerLinkActive="nav-link-active" ariaCurrentWhenActive="page" class="nav-link" title="المهام والأنشطة" (click)="closeMobileMenu(false)">
+          <fa-icon class="nav-fa" [icon]="icons.activities" />
+          <span class="aside-text">المهام والأنشطة</span>
+        </a>
+        <a routerLink="/statistics" routerLinkActive="nav-link-active" ariaCurrentWhenActive="page" class="nav-link" title="الإحصائيات والتقارير" (click)="closeMobileMenu(false)">
+          <fa-icon class="nav-fa" [icon]="icons.reports" />
+          <span class="aside-text">الإحصائيات والتقارير</span>
+        </a>
       </div>
-      <p class="aside-text mb-2 mt-4 px-3 text-[11px] font-bold text-[#8a968f]">التصدير والامتثال</p>
+
+      <p class="aside-text mb-2 mt-5 px-2.5 text-[10px] font-extrabold uppercase tracking-widest text-[#85948b]">التصدير والامتثال</p>
       <div class="space-y-1">
-        <a routerLink="/export-plans" routerLinkActive="nav-link-active" ariaCurrentWhenActive="page" class="nav-link" title="خطط التصدير" (click)="closeMobileMenu(false)"><fa-icon class="nav-fa" [icon]="icons.exportPlans" /><span class="aside-text">خطط التصدير</span></a>
-        <a routerLink="/market-comparison" routerLinkActive="nav-link-active" ariaCurrentWhenActive="page" class="nav-link" title="مقارنة الأسواق" (click)="closeMobileMenu(false)"><fa-icon class="nav-fa" [icon]="icons.market" /><span class="aside-text">مقارنة الأسواق</span></a>
-        <a routerLink="/ai-agent" routerLinkActive="nav-link-active" ariaCurrentWhenActive="page" class="nav-link" title="المستشار الذكي" (click)="closeMobileMenu(false)"><fa-icon class="nav-fa" [icon]="icons.ai" /><span class="aside-text">المستشار الذكي</span><span class="aside-text mr-auto rounded-full bg-[#d8f36a] px-2 py-0.5 text-[9px] font-black text-[#31430b]">AI</span></a>
+        <a routerLink="/export-plans" routerLinkActive="nav-link-active" ariaCurrentWhenActive="page" class="nav-link" title="خطط التصدير" (click)="closeMobileMenu(false)">
+          <fa-icon class="nav-fa" [icon]="icons.exportPlans" />
+          <span class="aside-text">خطط التصدير</span>
+        </a>
+        <a routerLink="/market-comparison" routerLinkActive="nav-link-active" ariaCurrentWhenActive="page" class="nav-link" title="مقارنة الأسواق" (click)="closeMobileMenu(false)">
+          <fa-icon class="nav-fa" [icon]="icons.market" />
+          <span class="aside-text">مقارنة الأسواق</span>
+        </a>
+        <a routerLink="/ai-agent" routerLinkActive="nav-link-active" ariaCurrentWhenActive="page" class="nav-link" title="المستشار الذكي" (click)="closeMobileMenu(false)">
+          <fa-icon class="nav-fa" [icon]="icons.ai" />
+          <span class="aside-text">المستشار الذكي</span>
+          <span class="aside-text mr-auto inline-flex items-center rounded-md bg-gradient-to-r from-[#d2f848] to-[#9ee934] px-1.5 py-0.5 text-[9px] font-black text-[#1d3d05] shadow-2xs">AI</span>
+        </a>
       </div>
     </nav>
 
-    <div class="border-t border-[#edf1ee] p-3 text-sm">
-      <a routerLink="/account-settings" routerLinkActive="nav-link-active" ariaCurrentWhenActive="page" class="nav-link" title="إعدادات الحساب" (click)="closeMobileMenu(false)"><fa-icon class="nav-fa" [icon]="icons.settings" /><span class="aside-text">إعدادات الحساب</span></a>
-      <a routerLink="/support" routerLinkActive="nav-link-active" ariaCurrentWhenActive="page" class="nav-link" title="مركز المساعدة" (click)="closeMobileMenu(false)"><fa-icon class="nav-fa" [icon]="icons.help" /><span class="aside-text">مركز المساعدة</span></a>
-      <button type="button" class="nav-link w-full text-[#9c3732] hover:bg-red-50" title="تسجيل الخروج" (click)="logout()"><fa-icon class="nav-fa" [icon]="icons.logout" /><span class="aside-text">تسجيل الخروج</span></button>
+    <div class="border-t border-[#edf2ee] p-3 space-y-1 text-sm bg-[#fafcfa]/60">
+      <a routerLink="/account-settings" routerLinkActive="nav-link-active" ariaCurrentWhenActive="page" class="nav-link" title="إعدادات الحساب" (click)="closeMobileMenu(false)">
+        <fa-icon class="nav-fa" [icon]="icons.settings" />
+        <span class="aside-text">إعدادات الحساب</span>
+      </a>
+      <a routerLink="/support" routerLinkActive="nav-link-active" ariaCurrentWhenActive="page" class="nav-link" title="مركز المساعدة" (click)="closeMobileMenu(false)">
+        <fa-icon class="nav-fa" [icon]="icons.help" />
+        <span class="aside-text">مركز المساعدة</span>
+      </a>
+      <button type="button" class="nav-link w-full text-[#b83832] hover:bg-red-50/90 hover:text-red-700 hover:border-red-100 cursor-pointer" title="تسجيل الخروج" (click)="logout()">
+        <fa-icon class="nav-fa" [icon]="icons.logout" />
+        <span class="aside-text font-bold">تسجيل الخروج</span>
+      </button>
     </div>
     }
   </aside>

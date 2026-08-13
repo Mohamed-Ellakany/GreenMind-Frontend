@@ -2,6 +2,20 @@
   display: block;
 }
 
+.plan-card {
+  text-decoration: none;
+  color: inherit;
+  user-select: none;
+  -webkit-user-select: none;
+  backface-visibility: hidden;
+  will-change: transform, box-shadow, border-color;
+}
+
+.plan-card:hover {
+  text-decoration: none;
+  color: inherit;
+}
+
 .export-plan-modal {
   overflow: hidden;
 }

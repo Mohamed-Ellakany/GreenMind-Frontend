@@ -134,6 +134,16 @@ export class ExportPlans {
     return { x, y: markerPoint.y - centerPoint.y };
   });
 
+  public readonly planStats = computed(() => {
+    const list = this.plans();
+    return {
+      total: list.length,
+      active: list.filter((p) => ['InProgress', 'ReadyForExport'].includes(p.status)).length,
+      planning: list.filter((p) => p.status === 'Planning').length,
+      completed: list.filter((p) => p.status === 'Completed').length,
+    };
+  });
+
   public readonly tabs: readonly { value: PlanTab; label: string }[] = [
     { value: 'all', label: 'كل الخطط' },
     { value: 'active', label: 'نشطة' },
@@ -154,6 +164,68 @@ export class ExportPlans {
       return matchesSearch && matchesTab;
     });
   });
+
+  public statusBadgeStyle(status: string): string {
+    switch (status) {
+      case 'InProgress':
+        return 'bg-emerald-50 text-emerald-800 border-emerald-200/80 ring-1 ring-emerald-500/10';
+      case 'ReadyForExport':
+        return 'bg-teal-50 text-teal-800 border-teal-200/80 ring-1 ring-teal-500/10';
+      case 'Completed':
+        return 'bg-slate-100 text-slate-700 border-slate-200';
+      case 'Planning':
+        return 'bg-amber-50 text-amber-800 border-amber-200/80 ring-1 ring-amber-500/10';
+      case 'Draft':
+        return 'bg-slate-100 text-slate-700 border-slate-200';
+      default:
+        return 'bg-slate-50 text-slate-700 border-slate-200';
+    }
+  }
+
+  public statusDotStyle(status: string): string {
+    switch (status) {
+      case 'InProgress':
+        return 'bg-emerald-500';
+      case 'ReadyForExport':
+        return 'bg-teal-500';
+      case 'Completed':
+        return 'bg-slate-400';
+      case 'Planning':
+        return 'bg-amber-500 animate-pulse';
+      case 'Draft':
+        return 'bg-slate-400';
+      default:
+        return 'bg-slate-400';
+    }
+  }
+
+  public planningContainerStyle(status: string): string {
+    switch (status) {
+      case 'Succeeded':
+        return 'bg-emerald-50/80 border-emerald-200/70 text-emerald-900';
+      case 'Pending':
+      case 'InProgress':
+        return 'bg-sky-50/80 border-sky-200/70 text-sky-900';
+      case 'Failed':
+        return 'bg-red-50/80 border-red-200/70 text-red-900';
+      default:
+        return 'bg-slate-50 border-slate-200 text-slate-700';
+    }
+  }
+
+  public planningIconBg(status: string): string {
+    switch (status) {
+      case 'Succeeded':
+        return 'bg-emerald-100 text-emerald-700';
+      case 'Pending':
+      case 'InProgress':
+        return 'bg-sky-100 text-sky-700';
+      case 'Failed':
+        return 'bg-red-100 text-red-700';
+      default:
+        return 'bg-slate-100 text-slate-600';
+    }
+  }
 
   public constructor() {
     this.destroyRef.onDestroy(() => this.document.body.classList.remove('gm-dialog-open'));
