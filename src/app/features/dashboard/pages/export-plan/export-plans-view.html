@@ -255,32 +255,45 @@
               </div>
             </div>
 
-            <!-- AI Planning Task Banner -->
-            <div
-              class="mt-3 flex items-center justify-between rounded-xl border p-2.5 text-xs transition-colors"
-              [class]="planningContainerStyle(plan.planningStatus)"
-            >
-              <div class="flex items-center gap-2 min-w-0">
-                <span class="grid size-6 shrink-0 place-items-center rounded-lg shadow-2xs text-[11px]" [class]="planningIconBg(plan.planningStatus)">
-                  @if (plan.planningStatus === 'Succeeded') { ✓ }
-                  @else if (plan.planningStatus === 'Failed') { ! }
-                  @else { ⚙ }
-                </span>
+            <!-- Farm Data Awaiting Banner or AI Planning Task Banner -->
+            @if (plan.status === 'AwaitingFarmData') {
+              <div
+                class="mt-3 flex items-center gap-2 rounded-xl border border-amber-300/80 bg-amber-50/80 p-2.5 text-xs text-amber-900"
+              >
+                <span class="grid size-6 shrink-0 place-items-center rounded-lg bg-amber-200 text-amber-900 text-xs font-black shadow-2xs">⚠</span>
                 <div class="min-w-0">
-                  <p class="font-black leading-tight truncate">{{ planningLabel(plan.planningStatus) }}</p>
-                  <p class="text-[10.5px] opacity-80 truncate">{{ plan.generatedTaskCount }} مهمة منظمة</p>
+                  <p class="font-black leading-tight truncate">بانتظار استكمال بيانات المزرعة</p>
+                  <p class="text-[10.5px] text-amber-800 truncate">أكمل التحاليل لبدء توليد المهام بالذكاء الاصطناعي</p>
                 </div>
               </div>
-              @if (plan.planningStatus === 'Failed') {
-                <button
-                  type="button"
-                  class="shrink-0 mr-2 rounded-lg bg-red-600 px-2.5 py-1 text-[11px] font-bold text-white shadow-2xs hover:bg-red-700 transition cursor-pointer"
-                  (click)="$event.stopPropagation(); $event.preventDefault(); retry(plan.id)"
-                >
-                  إعادة المحاولة
-                </button>
-              }
-            </div>
+            } @else {
+              <!-- AI Planning Task Banner -->
+              <div
+                class="mt-3 flex items-center justify-between rounded-xl border p-2.5 text-xs transition-colors"
+                [class]="planningContainerStyle(plan.planningStatus)"
+              >
+                <div class="flex items-center gap-2 min-w-0">
+                  <span class="grid size-6 shrink-0 place-items-center rounded-lg shadow-2xs text-[11px]" [class]="planningIconBg(plan.planningStatus)">
+                    @if (plan.planningStatus === 'Succeeded') { ✓ }
+                    @else if (plan.planningStatus === 'Failed') { ! }
+                    @else { ⚙ }
+                  </span>
+                  <div class="min-w-0">
+                    <p class="font-black leading-tight truncate">{{ planningLabel(plan.planningStatus) }}</p>
+                    <p class="text-[10.5px] opacity-80 truncate">{{ plan.generatedTaskCount }} مهمة منظمة</p>
+                  </div>
+                </div>
+                @if (plan.planningStatus === 'Failed') {
+                  <button
+                    type="button"
+                    class="shrink-0 mr-2 rounded-lg bg-red-600 px-2.5 py-1 text-[11px] font-bold text-white shadow-2xs hover:bg-red-700 transition cursor-pointer"
+                    (click)="$event.stopPropagation(); $event.preventDefault(); retry(plan.id)"
+                  >
+                    إعادة المحاولة
+                  </button>
+                }
+              </div>
+            }
 
             <!-- Dates Grid -->
             <div class="mt-3.5 grid grid-cols-2 gap-2 border-t border-slate-100 pt-3 text-xs">
@@ -327,7 +340,7 @@
       aria-labelledby="export-plan-dialog-title"
       aria-describedby="export-plan-dialog-description"
       (cancel)="cancelForm($event)"
-      (click)="closeForm()"
+      (click)="handleBackdropClick($event)"
     >
       <form
         class="export-plan-modal__dialog w-full max-w-5xl overflow-hidden bg-white shadow-2xl sm:rounded-xl"
@@ -348,7 +361,7 @@
               id="export-plan-dialog-description"
               class="mt-1 text-xs leading-5 text-slate-500 sm:text-sm"
             >
-              ثلاث خطوات قصيرة، ثم يبدأ الذكاء الاصطناعي في بناء المهام.
+              أربع خطوات واضحة، ثم يبدأ الذكاء الاصطناعي في بناء المهام.
             </p>
           </div>
           <button
@@ -365,7 +378,7 @@
           class="export-plan-modal__steps border-b border-slate-100 bg-[#fbfdfb] px-4 py-3 sm:px-6"
           aria-label="خطوات إنشاء الخطة"
         >
-          <ol class="mx-auto grid max-w-3xl grid-cols-3">
+          <ol class="mx-auto grid max-w-3xl grid-cols-4">
             @for (step of formSteps; track step.number) {
               <li class="relative">
                 @if (!$last) {
@@ -392,12 +405,12 @@
                     >{{ formStep() > step.number ? '✓' : step.number }}</span
                   >
                   <strong
-                    class="mt-2 text-[11px] sm:text-xs"
+                    class="mt-2 text-[11px] sm:text-xs text-center"
                     [class.text-[#0f7a3d]]="formStep() === step.number"
                     [class.text-slate-700]="formStep() !== step.number"
                     >{{ step.label }}</strong
                   >
-                  <small class="mt-0.5 hidden text-[10px] text-slate-400 sm:block">{{
+                  <small class="mt-0.5 hidden text-[10px] text-slate-400 sm:block text-center">{{
                     step.hint
                   }}</small>
                 </button>
@@ -410,7 +423,7 @@
           @if (formStep() === 1) {
             <section class="mx-auto max-w-3xl">
               <div class="mb-4">
-                <span class="text-xs font-bold text-[#0f7a3d]">الخطوة 1 من 3</span>
+                <span class="text-xs font-bold text-[#0f7a3d]">الخطوة 1 من 4</span>
                 <h3 class="mt-1 text-xl font-black">لنبدأ بتعريف الخطة</h3>
                 <p class="mt-1 text-sm text-slate-500">
                   اختر اسمًا واضحًا يساعدك في العثور على الخطة ومتابعتها لاحقًا.
@@ -494,7 +507,7 @@
           @if (formStep() === 2) {
             <section>
               <div class="mb-5">
-                <span class="text-xs font-bold text-[#0f7a3d]">الخطوة 2 من 3</span>
+                <span class="text-xs font-bold text-[#0f7a3d]">الخطوة 2 من 4</span>
                 <h3 class="mt-1 text-xl font-black">أين تقع المزرعة؟</h3>
                 <p class="mt-1 text-sm text-slate-500">
                   اختر المحافظة والمدينة أولًا، ثم عدّل العلامة على الخريطة لتحديد موقع المزرعة
@@ -732,11 +745,386 @@
           }
 
           @if (formStep() === 3) {
+            <section class="mx-auto max-w-3xl">
+              <div class="mb-5">
+                <span class="text-xs font-bold text-[#0f7a3d]">الخطوة 3 من 4</span>
+                <h3 class="mt-1 text-xl font-black">بيانات المزرعة</h3>
+                <p class="mt-1 text-sm text-slate-500">
+                  أدخل بيانات التربة والمياه والري وبيئة الزراعة لتحصل على خطة زراعية أكثر دقة.
+                </p>
+              </div>
+
+              <!-- Notice Alert -->
+              <div
+                class="mb-6 flex items-start gap-3 rounded-2xl border border-amber-200/80 bg-amber-50/70 p-4 text-sm text-amber-900 shadow-2xs"
+              >
+                <span class="grid size-8 shrink-0 place-items-center rounded-xl bg-amber-100 text-amber-800 font-black">ℹ</span>
+                <div class="leading-relaxed">
+                  <strong class="block text-amber-950 font-bold mb-0.5">ملاحظة حول جاهزية المهام الزراعية</strong>
+                  تحاليل التربة والمياه وبيانات المزرعة اختيارية عند الإنشاء، ولكن الذكاء الاصطناعي لن يبدأ إنشاء أو تفعيل المهام الزراعية التنفيذية قبل اكتمال التحاليل والبيانات المطلوبة.
+                </div>
+              </div>
+
+              <div class="space-y-6">
+                <!-- 1. نوع المزرعة -->
+                <div class="rounded-2xl border border-slate-200/80 bg-slate-50/50 p-4 sm:p-5">
+                  <h4 class="mb-3 text-sm font-black text-slate-800 flex items-center gap-2">
+                    <span class="size-2 rounded-full bg-[#0f7a3d]"></span>
+                    1. نوع المزرعة
+                  </h4>
+                  <div class="grid grid-cols-2 gap-3 sm:grid-cols-4">
+                    @for (opt of farmTypeOptions; track opt.value) {
+                      <button
+                        type="button"
+                        class="flex cursor-pointer items-center justify-center gap-2 rounded-xl border p-3 text-center text-xs font-bold transition-all"
+                        [class.border-[#0f7a3d]]="form.farmType === opt.value"
+                        [class.bg-emerald-50/70]="form.farmType === opt.value"
+                        [class.text-[#086532]]="form.farmType === opt.value"
+                        [class.ring-1]="form.farmType === opt.value"
+                        [class.ring-[#0f7a3d]]="form.farmType === opt.value"
+                        [class.border-slate-200]="form.farmType !== opt.value"
+                        [class.bg-white]="form.farmType !== opt.value"
+                        [class.text-slate-600]="form.farmType !== opt.value"
+                        [attr.aria-pressed]="form.farmType === opt.value"
+                        (click)="form.farmType = opt.value"
+                      >
+                        <span>{{ opt.label }}</span>
+                      </button>
+                    }
+                  </div>
+                </div>
+
+                <!-- 2. بيانات التربة -->
+                <div class="rounded-2xl border border-slate-200/80 bg-slate-50/50 p-4 sm:p-5">
+                  <div class="mb-3 flex flex-wrap items-center justify-between gap-2">
+                    <h4 class="text-sm font-black text-slate-800 flex items-center gap-2">
+                      <span class="size-2 rounded-full bg-amber-600"></span>
+                      2. بيانات التربة
+                    </h4>
+                    @if (isSoilAnalysisCompleted()) {
+                      <span class="inline-flex items-center gap-1.5 rounded-full bg-emerald-100 px-3 py-1 text-xs font-bold text-emerald-800 border border-emerald-200">
+                        <span>✓</span> تم استكمال تحليل التربة
+                      </span>
+                    } @else {
+                      <span class="inline-flex items-center gap-1.5 rounded-full bg-amber-100/90 px-3 py-1 text-xs font-bold text-amber-800 border border-amber-200">
+                        <span>⚠</span> تحليل التربة غير مكتمل
+                      </span>
+                    }
+                  </div>
+
+                  <!-- نوع التربة -->
+                  <div class="mb-4">
+                    <label class="mb-2 block text-xs font-bold text-slate-700">نوع التربة</label>
+                    <div class="grid grid-cols-2 gap-2.5 sm:grid-cols-3">
+                      @for (opt of soilTypeOptions; track opt.value) {
+                        <button
+                          type="button"
+                          class="flex cursor-pointer items-center justify-center gap-1.5 rounded-xl border p-2.5 text-center text-xs font-bold transition-all"
+                          [class.border-[#0f7a3d]]="form.soilType === opt.value"
+                          [class.bg-emerald-50/70]="form.soilType === opt.value"
+                          [class.text-[#086532]]="form.soilType === opt.value"
+                          [class.ring-1]="form.soilType === opt.value"
+                          [class.ring-[#0f7a3d]]="form.soilType === opt.value"
+                          [class.border-slate-200]="form.soilType !== opt.value"
+                          [class.bg-white]="form.soilType !== opt.value"
+                          [class.text-slate-600]="form.soilType !== opt.value"
+                          [attr.aria-pressed]="form.soilType === opt.value"
+                          (click)="form.soilType = opt.value"
+                        >
+                          <span>{{ opt.label }}</span>
+                        </button>
+                      }
+                    </div>
+                  </div>
+
+                  <!-- تحليل التربة (إدخال يدوي) -->
+                  <div class="rounded-xl border border-slate-200/60 bg-white p-3.5 sm:p-4">
+                    <div class="mb-3 flex items-center justify-between">
+                      <span class="text-xs font-black text-slate-700">تحليل التربة (إدخال يدوي)</span>
+                      <span class="text-[11px] text-slate-400">قيم القياسات الكيميائية</span>
+                    </div>
+                    <div class="grid grid-cols-2 gap-3 sm:grid-cols-3">
+                      <label>
+                        <span class="mb-1 block text-[11px] font-bold text-slate-600">درجة الحموضة (pH)</span>
+                        <input
+                          type="number"
+                          step="0.1"
+                          min="0"
+                          max="14"
+                          placeholder="مثال: 6.8"
+                          class="w-full rounded-lg border border-slate-200 px-3 py-2 text-xs font-medium text-slate-800 placeholder-slate-400 focus:border-[#0f7a3d] focus:ring-1 focus:ring-[#0f7a3d]"
+                          name="soilPh"
+                          [(ngModel)]="form.soilPh"
+                        />
+                      </label>
+                      <label>
+                        <span class="mb-1 block text-[11px] font-bold text-slate-600">الملوحة (EC - dS/m)</span>
+                        <input
+                          type="number"
+                          step="0.01"
+                          min="0"
+                          placeholder="مثال: 1.5"
+                          class="w-full rounded-lg border border-slate-200 px-3 py-2 text-xs font-medium text-slate-800 placeholder-slate-400 focus:border-[#0f7a3d] focus:ring-1 focus:ring-[#0f7a3d]"
+                          name="soilEc"
+                          [(ngModel)]="form.soilEc"
+                        />
+                      </label>
+                      <label>
+                        <span class="mb-1 block text-[11px] font-bold text-slate-600">النيتروجين (N - ppm)</span>
+                        <input
+                          type="number"
+                          step="0.1"
+                          min="0"
+                          placeholder="مثال: 45"
+                          class="w-full rounded-lg border border-slate-200 px-3 py-2 text-xs font-medium text-slate-800 placeholder-slate-400 focus:border-[#0f7a3d] focus:ring-1 focus:ring-[#0f7a3d]"
+                          name="soilNitrogen"
+                          [(ngModel)]="form.soilNitrogen"
+                        />
+                      </label>
+                      <label>
+                        <span class="mb-1 block text-[11px] font-bold text-slate-600">الفوسفور (P - ppm)</span>
+                        <input
+                          type="number"
+                          step="0.1"
+                          min="0"
+                          placeholder="مثال: 25"
+                          class="w-full rounded-lg border border-slate-200 px-3 py-2 text-xs font-medium text-slate-800 placeholder-slate-400 focus:border-[#0f7a3d] focus:ring-1 focus:ring-[#0f7a3d]"
+                          name="soilPhosphorus"
+                          [(ngModel)]="form.soilPhosphorus"
+                        />
+                      </label>
+                      <label>
+                        <span class="mb-1 block text-[11px] font-bold text-slate-600">البوتاسيوم (K - ppm)</span>
+                        <input
+                          type="number"
+                          step="0.1"
+                          min="0"
+                          placeholder="مثال: 220"
+                          class="w-full rounded-lg border border-slate-200 px-3 py-2 text-xs font-medium text-slate-800 placeholder-slate-400 focus:border-[#0f7a3d] focus:ring-1 focus:ring-[#0f7a3d]"
+                          name="soilPotassium"
+                          [(ngModel)]="form.soilPotassium"
+                        />
+                      </label>
+                      <label>
+                        <span class="mb-1 block text-[11px] font-bold text-slate-600">المادة العضوية (%)</span>
+                        <input
+                          type="number"
+                          step="0.1"
+                          min="0"
+                          max="100"
+                          placeholder="مثال: 2.1"
+                          class="w-full rounded-lg border border-slate-200 px-3 py-2 text-xs font-medium text-slate-800 placeholder-slate-400 focus:border-[#0f7a3d] focus:ring-1 focus:ring-[#0f7a3d]"
+                          name="soilOrganicMatter"
+                          [(ngModel)]="form.soilOrganicMatter"
+                        />
+                      </label>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- 3. تحليل مياه الري -->
+                <div class="rounded-2xl border border-slate-200/80 bg-slate-50/50 p-4 sm:p-5">
+                  <div class="mb-3 flex flex-wrap items-center justify-between gap-2">
+                    <h4 class="text-sm font-black text-slate-800 flex items-center gap-2">
+                      <span class="size-2 rounded-full bg-sky-600"></span>
+                      3. تحليل مياه الري
+                    </h4>
+                    @if (isWaterAnalysisCompleted()) {
+                      <span class="inline-flex items-center gap-1.5 rounded-full bg-emerald-100 px-3 py-1 text-xs font-bold text-emerald-800 border border-emerald-200">
+                        <span>✓</span> تم استكمال تحليل المياه
+                      </span>
+                    } @else {
+                      <span class="inline-flex items-center gap-1.5 rounded-full bg-amber-100/90 px-3 py-1 text-xs font-bold text-amber-800 border border-amber-200">
+                        <span>⚠</span> تحليل المياه غير مكتمل
+                      </span>
+                    }
+                  </div>
+
+                  <div class="rounded-xl border border-slate-200/60 bg-white p-3.5 sm:p-4">
+                    <div class="mb-3 flex items-center justify-between">
+                      <span class="text-xs font-black text-slate-700">تحليل المياه (إدخال يدوي)</span>
+                      <span class="text-[11px] text-slate-400">9 مؤشرات لجودة مياه الري</span>
+                    </div>
+                    <div class="grid grid-cols-2 gap-3 sm:grid-cols-3">
+                      <label>
+                        <span class="mb-1 block text-[11px] font-bold text-slate-600">درجة الحموضة (pH)</span>
+                        <input
+                          type="number"
+                          step="0.1"
+                          min="0"
+                          max="14"
+                          placeholder="مثال: 7.2"
+                          class="w-full rounded-lg border border-slate-200 px-3 py-2 text-xs font-medium text-slate-800 placeholder-slate-400 focus:border-[#0f7a3d] focus:ring-1 focus:ring-[#0f7a3d]"
+                          name="waterPh"
+                          [(ngModel)]="form.waterPh"
+                        />
+                      </label>
+                      <label>
+                        <span class="mb-1 block text-[11px] font-bold text-slate-600">التوصيل الكهربي (EC - dS/m)</span>
+                        <input
+                          type="number"
+                          step="0.01"
+                          min="0"
+                          placeholder="مثال: 0.9"
+                          class="w-full rounded-lg border border-slate-200 px-3 py-2 text-xs font-medium text-slate-800 placeholder-slate-400 focus:border-[#0f7a3d] focus:ring-1 focus:ring-[#0f7a3d]"
+                          name="waterEc"
+                          [(ngModel)]="form.waterEc"
+                        />
+                      </label>
+                      <label>
+                        <span class="mb-1 block text-[11px] font-bold text-slate-600">الملوحة الكلية (Salinity - ppm)</span>
+                        <input
+                          type="number"
+                          step="1"
+                          min="0"
+                          placeholder="مثال: 550"
+                          class="w-full rounded-lg border border-slate-200 px-3 py-2 text-xs font-medium text-slate-800 placeholder-slate-400 focus:border-[#0f7a3d] focus:ring-1 focus:ring-[#0f7a3d]"
+                          name="waterSalinity"
+                          [(ngModel)]="form.waterSalinity"
+                        />
+                      </label>
+                      <label>
+                        <span class="mb-1 block text-[11px] font-bold text-slate-600">الصوديوم (Na - ppm)</span>
+                        <input
+                          type="number"
+                          step="0.1"
+                          min="0"
+                          placeholder="مثال: 28"
+                          class="w-full rounded-lg border border-slate-200 px-3 py-2 text-xs font-medium text-slate-800 placeholder-slate-400 focus:border-[#0f7a3d] focus:ring-1 focus:ring-[#0f7a3d]"
+                          name="waterSodium"
+                          [(ngModel)]="form.waterSodium"
+                        />
+                      </label>
+                      <label>
+                        <span class="mb-1 block text-[11px] font-bold text-slate-600">الكلوريد (Cl - ppm)</span>
+                        <input
+                          type="number"
+                          step="0.1"
+                          min="0"
+                          placeholder="مثال: 35"
+                          class="w-full rounded-lg border border-slate-200 px-3 py-2 text-xs font-medium text-slate-800 placeholder-slate-400 focus:border-[#0f7a3d] focus:ring-1 focus:ring-[#0f7a3d]"
+                          name="waterChloride"
+                          [(ngModel)]="form.waterChloride"
+                        />
+                      </label>
+                      <label>
+                        <span class="mb-1 block text-[11px] font-bold text-slate-600">البيكربونات (HCO3 - ppm)</span>
+                        <input
+                          type="number"
+                          step="0.1"
+                          min="0"
+                          placeholder="مثال: 130"
+                          class="w-full rounded-lg border border-slate-200 px-3 py-2 text-xs font-medium text-slate-800 placeholder-slate-400 focus:border-[#0f7a3d] focus:ring-1 focus:ring-[#0f7a3d]"
+                          name="waterBicarbonate"
+                          [(ngModel)]="form.waterBicarbonate"
+                        />
+                      </label>
+                      <label>
+                        <span class="mb-1 block text-[11px] font-bold text-slate-600">الكالسيوم (Ca - ppm)</span>
+                        <input
+                          type="number"
+                          step="0.1"
+                          min="0"
+                          placeholder="مثال: 45"
+                          class="w-full rounded-lg border border-slate-200 px-3 py-2 text-xs font-medium text-slate-800 placeholder-slate-400 focus:border-[#0f7a3d] focus:ring-1 focus:ring-[#0f7a3d]"
+                          name="waterCalcium"
+                          [(ngModel)]="form.waterCalcium"
+                        />
+                      </label>
+                      <label>
+                        <span class="mb-1 block text-[11px] font-bold text-slate-600">المغنيسيوم (Mg - ppm)</span>
+                        <input
+                          type="number"
+                          step="0.1"
+                          min="0"
+                          placeholder="مثال: 16"
+                          class="w-full rounded-lg border border-slate-200 px-3 py-2 text-xs font-medium text-slate-800 placeholder-slate-400 focus:border-[#0f7a3d] focus:ring-1 focus:ring-[#0f7a3d]"
+                          name="waterMagnesium"
+                          [(ngModel)]="form.waterMagnesium"
+                        />
+                      </label>
+                      <label>
+                        <span class="mb-1 block text-[11px] font-bold text-slate-600">نسبة الصوديوم الممتص (SAR)</span>
+                        <input
+                          type="number"
+                          step="0.01"
+                          min="0"
+                          placeholder="مثال: 1.3"
+                          class="w-full rounded-lg border border-slate-200 px-3 py-2 text-xs font-medium text-slate-800 placeholder-slate-400 focus:border-[#0f7a3d] focus:ring-1 focus:ring-[#0f7a3d]"
+                          name="waterSar"
+                          [(ngModel)]="form.waterSar"
+                        />
+                      </label>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- 4. نظام الري و Fertigation -->
+                <div class="rounded-2xl border border-slate-200/80 bg-slate-50/50 p-4 sm:p-5">
+                  <h4 class="mb-3 text-sm font-black text-slate-800 flex items-center gap-2">
+                    <span class="size-2 rounded-full bg-[#0f7a3d]"></span>
+                    4. نظام الري والتسميد
+                  </h4>
+                  <div class="grid gap-4 sm:grid-cols-2">
+                    <div>
+                      <label class="mb-2 block text-xs font-bold text-slate-700">نظام الري</label>
+                      <div class="grid grid-cols-2 gap-2">
+                        @for (opt of irrigationSystemOptions; track opt.value) {
+                          <button
+                            type="button"
+                            class="flex cursor-pointer items-center justify-center gap-1.5 rounded-xl border p-2.5 text-center text-xs font-bold transition-all"
+                            [class.border-[#0f7a3d]]="form.irrigationSystem === opt.value"
+                            [class.bg-emerald-50/70]="form.irrigationSystem === opt.value"
+                            [class.text-[#086532]]="form.irrigationSystem === opt.value"
+                            [class.ring-1]="form.irrigationSystem === opt.value"
+                            [class.ring-[#0f7a3d]]="form.irrigationSystem === opt.value"
+                            [class.border-slate-200]="form.irrigationSystem !== opt.value"
+                            [class.bg-white]="form.irrigationSystem !== opt.value"
+                            [class.text-slate-600]="form.irrigationSystem !== opt.value"
+                            [attr.aria-pressed]="form.irrigationSystem === opt.value"
+                            (click)="form.irrigationSystem = opt.value"
+                          >
+                            <span>{{ opt.label }}</span>
+                          </button>
+                        }
+                      </div>
+                    </div>
+
+                    <div>
+                      <label class="mb-2 block text-xs font-bold text-slate-700">التسميد مع مياه الري (Fertigation)</label>
+                      <div class="grid grid-cols-3 gap-2">
+                        @for (opt of fertigationOptions; track opt.value) {
+                          <button
+                            type="button"
+                            class="flex cursor-pointer items-center justify-center gap-1.5 rounded-xl border p-2.5 text-center text-xs font-bold transition-all"
+                            [class.border-[#0f7a3d]]="form.fertigation === opt.value"
+                            [class.bg-emerald-50/70]="form.fertigation === opt.value"
+                            [class.text-[#086532]]="form.fertigation === opt.value"
+                            [class.ring-1]="form.fertigation === opt.value"
+                            [class.ring-[#0f7a3d]]="form.fertigation === opt.value"
+                            [class.border-slate-200]="form.fertigation !== opt.value"
+                            [class.bg-white]="form.fertigation !== opt.value"
+                            [class.text-slate-600]="form.fertigation !== opt.value"
+                            [attr.aria-pressed]="form.fertigation === opt.value"
+                            (click)="form.fertigation = opt.value"
+                          >
+                            <span>{{ opt.label }}</span>
+                          </button>
+                        }
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </section>
+          }
+
+          @if (formStep() === 4) {
             @if (scheduleAnalysis(); as analysis) {
               <section>
                 <div class="mb-4 flex flex-wrap items-start justify-between gap-3">
                   <div>
-                    <span class="text-xs font-bold text-[#0f7a3d]">الخطوة 3 من 3</span>
+                    <span class="text-xs font-bold text-[#0f7a3d]">الخطوة 4 من 4</span>
                     <h3 class="mt-1 text-xl font-black">راجع تحليل الموسم والمواعيد</h3>
                     <p class="mt-1 text-sm text-slate-500">
                       الموقع النصي للعرض فقط؛ المناخ والطقس محسوبان من الإحداثيات المحفوظة.
@@ -966,9 +1354,9 @@
             </button>
             <div class="flex items-center gap-3">
               <span class="hidden text-xs text-slate-400 sm:inline"
-                >الخطوة {{ formStep() }} من 3</span
+                >الخطوة {{ formStep() }} من 4</span
               >
-              @if (formStep() < 3) {
+              @if (formStep() < 4) {
                 <button
                   type="button"
                   [disabled]="analyzing()"
@@ -976,13 +1364,13 @@
                   (click)="nextStep()"
                 >
                   {{
-                    formStep() === 2
+                    formStep() === 3
                       ? analyzing()
                         ? 'جارٍ تحليل الموسم...'
                         : 'تحليل واقتراح المواعيد'
                       : 'التالي'
                   }}
-                  <span aria-hidden="true">{{ formStep() === 2 ? '✦' : '←' }}</span>
+                  <span aria-hidden="true">{{ formStep() === 3 ? '✦' : '←' }}</span>
                 </button>
               } @else {
                 <button

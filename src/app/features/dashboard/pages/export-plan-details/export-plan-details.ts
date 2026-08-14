@@ -11,7 +11,7 @@ import {
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { catchError, finalize, forkJoin, of, switchMap } from 'rxjs';
+import { catchError, EMPTY, finalize, forkJoin, of, switchMap, takeWhile, timer } from 'rxjs';
 import { GreenmindApi } from '@core/api/greenmind-api.service';
 import { PhaseTwoApi } from '@features/dashboard/phase-two/phase-two-api.service';
 import { CostDashboard, DiseaseReport } from '@features/dashboard/phase-two/phase-two.models';
@@ -32,6 +32,7 @@ import {
   DashboardWeather,
   ExportPlanDashboard,
   ExportPlanDetails,
+  ExportPlanFarmDataUpdateRequest,
   FarmTask,
   SoilMeasurement,
   SoilMeasurementRequest,
@@ -83,12 +84,15 @@ export class ExportPlanDetailsPage {
     viewChild<ElementRef<HTMLDialogElement>>('postponeTaskDialog');
   private readonly todayTasksDialog =
     viewChild<ElementRef<HTMLDialogElement>>('todayTasksDialog');
+  private readonly farmDataDialog =
+    viewChild<ElementRef<HTMLDialogElement>>('farmDataDialog');
   private readonly today = this.localIsoDate(new Date());
   private planId = 0;
   private soilFormTrigger: HTMLElement | null = null;
   private taskFormTrigger: HTMLElement | null = null;
   private postponeTaskFormTrigger: HTMLElement | null = null;
   private todayTasksTrigger: HTMLElement | null = null;
+  private farmDataFormTrigger: HTMLElement | null = null;
 
   public readonly plan = signal<ExportPlanDetails | null>(null);
   public readonly dashboard = signal<ExportPlanDashboard | null>(null);
@@ -128,9 +132,46 @@ export class ExportPlanDetailsPage {
   public readonly soilSaving = signal(false);
   public readonly soilError = signal<string | null>(null);
   public readonly soilSuccess = signal<string | null>(null);
+  public readonly farmDataModalOpen = signal(false);
+  public readonly farmDataSaving = signal(false);
+  public readonly farmDataError = signal<string | null>(null);
+  public readonly farmDataSuccess = signal<string | null>(null);
+  public readonly startingTasks = signal(false);
+
+  public readonly farmTypeOptions = [
+    { value: 'أرض مفتوحة', label: 'أرض مفتوحة' },
+    { value: 'صوب زراعية', label: 'صوب زراعية' },
+    { value: 'زراعة مائية', label: 'زراعة مائية' },
+    { value: 'أخرى', label: 'أخرى' },
+  ] as const;
+
+  public readonly soilTypeOptions = [
+    { value: 'رملية', label: 'رملية' },
+    { value: 'طينية', label: 'طينية' },
+    { value: 'طميية', label: 'طميية' },
+    { value: 'رملية طميية', label: 'رملية طميية' },
+    { value: 'أخرى', label: 'أخرى' },
+    { value: 'غير معروف', label: 'غير معروف' },
+  ] as const;
+
+  public readonly irrigationSystemOptions = [
+    { value: 'تنقيط', label: 'تنقيط' },
+    { value: 'رش', label: 'رش' },
+    { value: 'ري سطحي', label: 'ري سطحي' },
+    { value: 'زراعة مائية', label: 'زراعة مائية' },
+    { value: 'أخرى', label: 'أخرى' },
+    { value: 'غير محدد', label: 'غير محدد' },
+  ] as const;
+
+  public readonly fertigationOptions = [
+    { value: 'نعم', label: 'نعم' },
+    { value: 'لا', label: 'لا' },
+    { value: 'غير محدد', label: 'غير محدد' },
+  ] as const;
 
   public soilForm: SoilFormModel = this.emptySoilForm();
   public taskForm: CreateTaskRequest = this.emptyTaskForm();
+  public farmDataForm: ExportPlanFarmDataUpdateRequest = this.emptyFarmDataForm();
   public postponeTaskDate = '';
 
   public readonly latestSoil = computed(() => this.dashboard()?.latestSoilMeasurement ?? null);
@@ -753,6 +794,226 @@ export class ExportPlanDetailsPage {
     globalThis.setTimeout(() => this.showPostponeTaskDialog());
   }
 
+  public isFormSoilAnalysisCompleted(): boolean {
+    const f = this.farmDataForm;
+    return f.soilPh != null && f.soilPh >= 0 && f.soilPh <= 14 &&
+      f.soilEc != null && f.soilEc >= 0 &&
+      f.soilNitrogen != null && f.soilNitrogen >= 0 &&
+      f.soilPhosphorus != null && f.soilPhosphorus >= 0 &&
+      f.soilPotassium != null && f.soilPotassium >= 0 &&
+      f.soilOrganicMatter != null && f.soilOrganicMatter >= 0;
+  }
+
+  public isFormWaterAnalysisCompleted(): boolean {
+    const f = this.farmDataForm;
+    return f.waterPh != null && f.waterPh >= 0 && f.waterPh <= 14 &&
+      f.waterEc != null && f.waterEc >= 0 &&
+      f.waterSalinity != null && f.waterSalinity >= 0 &&
+      f.waterSodium != null && f.waterSodium >= 0 &&
+      f.waterChloride != null && f.waterChloride >= 0 &&
+      f.waterBicarbonate != null && f.waterBicarbonate >= 0 &&
+      f.waterCalcium != null && f.waterCalcium >= 0 &&
+      f.waterMagnesium != null && f.waterMagnesium >= 0 &&
+      f.waterSar != null && f.waterSar >= 0;
+  }
+
+  public isFormFarmDataReady(): boolean {
+    return !!this.farmDataForm.farmType && !!this.farmDataForm.soilType && !!this.farmDataForm.irrigationSystem &&
+      this.isFormSoilAnalysisCompleted() && this.isFormWaterAnalysisCompleted();
+  }
+
+  public farmDataChecklist(plan: ExportPlanDetails): { label: string; completed: boolean }[] {
+    return [
+      { label: 'نوع المزرعة', completed: !!(plan.farmType || plan.farmData?.farmType) },
+      { label: 'نوع التربة', completed: !!(plan.soilType || plan.farmData?.soilType) },
+      { label: 'تحليل التربة (6 مؤشرات)', completed: !!(plan.soilAnalysis?.isCompleted ?? plan.isSoilAnalysisCompleted) },
+      { label: 'تحليل مياه الري (9 مؤشرات)', completed: !!(plan.waterAnalysis?.isCompleted ?? plan.isWaterAnalysisCompleted) },
+      { label: 'نظام الري', completed: !!(plan.irrigationSystem || plan.farmData?.irrigationSystem) },
+    ];
+  }
+
+  public farmDataChecklistProgress(plan: ExportPlanDetails): number {
+    const items = this.farmDataChecklist(plan);
+    const completed = items.filter((i) => i.completed).length;
+    return Math.round((completed / items.length) * 100);
+  }
+
+  public farmDataChecklistCount(plan: ExportPlanDetails): number {
+    return this.farmDataChecklist(plan).filter((i) => i.completed).length;
+  }
+
+  public openFarmDataModal(): void {
+    const current = this.plan();
+    this.farmDataFormTrigger = this.document.activeElement instanceof HTMLElement
+      ? this.document.activeElement
+      : null;
+    this.farmDataForm = {
+      farmType: current?.farmType ?? current?.farmData?.farmType ?? '',
+      soilType: current?.soilType ?? current?.farmData?.soilType ?? '',
+      irrigationSystem: current?.irrigationSystem ?? current?.farmData?.irrigationSystem ?? '',
+      fertigation: current?.fertigation ?? current?.farmData?.fertigation ?? '',
+      soilPh: current?.soilAnalysis?.ph ?? current?.soilPh ?? current?.farmData?.soilPh ?? null,
+      soilEc: current?.soilAnalysis?.ec ?? current?.soilEc ?? current?.farmData?.soilEc ?? null,
+      soilNitrogen: current?.soilAnalysis?.nitrogen ?? current?.soilNitrogen ?? current?.farmData?.soilNitrogen ?? null,
+      soilPhosphorus: current?.soilAnalysis?.phosphorus ?? current?.soilPhosphorus ?? current?.farmData?.soilPhosphorus ?? null,
+      soilPotassium: current?.soilAnalysis?.potassium ?? current?.soilPotassium ?? current?.farmData?.soilPotassium ?? null,
+      soilOrganicMatter: current?.soilAnalysis?.organicMatter ?? current?.soilOrganicMatter ?? current?.farmData?.soilOrganicMatter ?? null,
+      waterPh: current?.waterAnalysis?.ph ?? current?.waterPh ?? current?.farmData?.waterPh ?? null,
+      waterEc: current?.waterAnalysis?.ec ?? current?.waterEc ?? current?.farmData?.waterEc ?? null,
+      waterSalinity: current?.waterAnalysis?.salinity ?? current?.waterSalinity ?? current?.farmData?.waterSalinity ?? null,
+      waterSodium: current?.waterAnalysis?.sodium ?? current?.waterSodium ?? current?.farmData?.waterSodium ?? null,
+      waterChloride: current?.waterAnalysis?.chloride ?? current?.waterChloride ?? current?.farmData?.waterChloride ?? null,
+      waterBicarbonate: current?.waterAnalysis?.bicarbonate ?? current?.waterBicarbonate ?? current?.farmData?.waterBicarbonate ?? null,
+      waterCalcium: current?.waterAnalysis?.calcium ?? current?.waterCalcium ?? current?.farmData?.waterCalcium ?? null,
+      waterMagnesium: current?.waterAnalysis?.magnesium ?? current?.waterMagnesium ?? current?.farmData?.waterMagnesium ?? null,
+      waterSar: current?.waterAnalysis?.sar ?? current?.waterSar ?? current?.farmData?.waterSar ?? null,
+    };
+    this.farmDataError.set(null);
+    this.farmDataSuccess.set(null);
+    this.farmDataModalOpen.set(true);
+    this.updateBodyDialogClass();
+    globalThis.setTimeout(() => this.showFarmDataDialog());
+  }
+
+  public closeFarmDataModal(): void {
+    if (!this.farmDataSaving()) {
+      this.dismissFarmDataForm();
+    }
+  }
+
+  public handleFarmDataBackdropClick(event: MouseEvent): void {
+    if (event.target === this.farmDataDialog()?.nativeElement) {
+      this.closeFarmDataModal();
+    }
+  }
+
+  public handlePostponeTaskBackdropClick(event: MouseEvent): void {
+    if (event.target === this.postponeTaskDialog()?.nativeElement) {
+      this.closePostponeTaskForm();
+    }
+  }
+
+  public handleTaskBackdropClick(event: MouseEvent): void {
+    if (event.target === this.taskDialog()?.nativeElement) {
+      this.closeTaskForm();
+    }
+  }
+
+  public handleSoilBackdropClick(event: MouseEvent): void {
+    if (event.target === this.soilDialog()?.nativeElement) {
+      this.closeSoilForm();
+    }
+  }
+
+  public handleTodayTasksBackdropClick(event: MouseEvent): void {
+    if (event.target === this.todayTasksDialog()?.nativeElement) {
+      this.closeTodayTasksModal();
+    }
+  }
+
+  public saveFarmData(): void {
+    if (this.farmDataForm.soilPh != null && (this.farmDataForm.soilPh < 0 || this.farmDataForm.soilPh > 14)) {
+      this.farmDataError.set('درجة حموضة التربة (pH) يجب أن تكون بين 0 و 14.');
+      return;
+    }
+    if (this.farmDataForm.waterPh != null && (this.farmDataForm.waterPh < 0 || this.farmDataForm.waterPh > 14)) {
+      this.farmDataError.set('درجة حموضة المياه (pH) يجب أن تكون بين 0 و 14.');
+      return;
+    }
+    this.farmDataSaving.set(true);
+    this.farmDataError.set(null);
+    this.api.updateFarmData(this.planId, this.farmDataForm).pipe(
+      finalize(() => this.farmDataSaving.set(false)),
+      takeUntilDestroyed(this.destroyRef),
+    ).subscribe({
+      next: (updatedPlan) => {
+        this.plan.set(updatedPlan);
+        this.dismissFarmDataForm();
+        this.farmDataSuccess.set('تم حفظ وتحديث بيانات المزرعة والتحاليل بنجاح.');
+      },
+      error: (err) => {
+        this.farmDataError.set(err.error?.error?.message ?? 'تعذر حفظ بيانات المزرعة.');
+      },
+    });
+  }
+
+  public startTasks(): void {
+    if (this.startingTasks()) return;
+    this.startingTasks.set(true);
+    this.error.set(null);
+    this.api.startTasks(this.planId).pipe(
+      finalize(() => this.startingTasks.set(false)),
+      takeUntilDestroyed(this.destroyRef),
+    ).subscribe({
+      next: (updatedPlan) => {
+        this.plan.set(updatedPlan);
+        this.farmDataSuccess.set('تم تفعيل خطة المهام الزراعية، جارٍ الآن التوليد بالذكاء الاصطناعي.');
+        this.pollPlanning(this.planId);
+      },
+      error: (err) => {
+        this.error.set(err.error?.error?.message ?? 'تعذر بدء توليد المهام.');
+      },
+    });
+  }
+
+  private pollPlanning(planId: number): void {
+    timer(0, 2000).pipe(
+      switchMap(() => this.api.planningStatus(planId).pipe(catchError(() => EMPTY))),
+      takeWhile((status) => status.status === 'Pending' || status.status === 'InProgress', true),
+      takeUntilDestroyed(this.destroyRef),
+    ).subscribe((status) => {
+      if (status.status === 'Succeeded' || status.status === 'Failed') {
+        this.load();
+      }
+    });
+  }
+
+  private showFarmDataDialog(): void {
+    const dialog = this.farmDataDialog()?.nativeElement;
+    if (!dialog?.isConnected) return;
+    if (!dialog.open) {
+      if (typeof dialog.showModal === 'function') dialog.showModal();
+      else dialog.setAttribute('open', '');
+    }
+  }
+
+  private dismissFarmDataForm(): void {
+    const dialog = this.farmDataDialog()?.nativeElement;
+    if (dialog?.open) {
+      if (typeof dialog.close === 'function') dialog.close();
+      else dialog.removeAttribute('open');
+    }
+    this.farmDataModalOpen.set(false);
+    this.updateBodyDialogClass();
+    const trigger = this.farmDataFormTrigger;
+    this.farmDataFormTrigger = null;
+    globalThis.setTimeout(() => trigger?.focus());
+  }
+
+  private emptyFarmDataForm(): ExportPlanFarmDataUpdateRequest {
+    return {
+      farmType: '',
+      soilType: '',
+      irrigationSystem: '',
+      fertigation: '',
+      soilPh: null,
+      soilEc: null,
+      soilNitrogen: null,
+      soilPhosphorus: null,
+      soilPotassium: null,
+      soilOrganicMatter: null,
+      waterPh: null,
+      waterEc: null,
+      waterSalinity: null,
+      waterSodium: null,
+      waterChloride: null,
+      waterBicarbonate: null,
+      waterCalcium: null,
+      waterMagnesium: null,
+      waterSar: null,
+    };
+  }
+
   private showTodayTasksDialog(): void {
     const dialog = this.todayTasksDialog()?.nativeElement;
     if (!dialog?.isConnected) return;
@@ -851,7 +1112,8 @@ export class ExportPlanDetailsPage {
       this.todayTasksModalOpen() ||
       this.taskFormOpen() ||
       this.soilFormOpen() ||
-      this.postponeTaskFormOpen()
+      this.postponeTaskFormOpen() ||
+      this.farmDataModalOpen()
     ) {
       this.document.body.classList.add('gm-dialog-open');
     } else {

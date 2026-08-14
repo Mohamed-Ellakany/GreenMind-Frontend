@@ -54,7 +54,7 @@ describe('ExportPlans wizard', () => {
     expect(footer.querySelectorAll('button').length).toBeGreaterThanOrEqual(2);
   });
 
-  it('analyzes from the saved coordinates and invalidates edited dates', () => {
+  it('navigates through 4 steps: plan details -> location -> farm data -> schedule analysis', () => {
     const fixture = TestBed.createComponent(ExportPlans);
     const component = fixture.componentInstance;
     component.openForm();
@@ -70,6 +70,39 @@ describe('ExportPlans wizard', () => {
     component.mapLocationSelected.set(true);
     component.formStep.set(2);
 
+    // Step 2 -> Step 3 (Farm Data)
+    component.nextStep();
+    expect(component.formStep()).toBe(3);
+
+    // Enter farm data & soil/water measurements
+    component.form.farmType = 'أرض مفتوحة';
+    component.form.soilType = 'رملية';
+    component.form.irrigationSystem = 'تنقيط';
+    component.form.fertigation = 'نعم';
+    component.form.soilPh = 6.8;
+    component.form.soilEc = 1.2;
+    component.form.soilNitrogen = 40;
+    component.form.soilPhosphorus = 20;
+    component.form.soilPotassium = 200;
+    component.form.soilOrganicMatter = 2.0;
+
+    expect(component.isSoilAnalysisCompleted()).toBe(true);
+    expect(component.isWaterAnalysisCompleted()).toBe(false);
+
+    component.form.waterPh = 7.1;
+    component.form.waterEc = 0.8;
+    component.form.waterSalinity = 500;
+    component.form.waterSodium = 25;
+    component.form.waterChloride = 30;
+    component.form.waterBicarbonate = 120;
+    component.form.waterCalcium = 40;
+    component.form.waterMagnesium = 15;
+    component.form.waterSar = 1.2;
+
+    expect(component.isWaterAnalysisCompleted()).toBe(true);
+    expect(component.isFarmDataReady()).toBe(true);
+
+    // Step 3 -> Step 4 (Schedule Analysis)
     component.nextStep();
 
     expect(api.analyzeExportPlanSchedule).toHaveBeenCalledWith(expect.objectContaining({
@@ -77,7 +110,7 @@ describe('ExportPlans wizard', () => {
       longitude: 30.923456,
       city: district.name,
     }));
-    expect(component.formStep()).toBe(3);
+    expect(component.formStep()).toBe(4);
     expect(component.form.analysisToken).toBe('signed-token');
 
     component.form.plantingDate = '2026-09-02';
