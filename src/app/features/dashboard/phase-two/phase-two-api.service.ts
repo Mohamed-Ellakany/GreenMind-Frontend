@@ -17,6 +17,7 @@ import {
   ExpenseAttachmentType,
   ExpenseCategory,
   ExpensePage,
+  ExportPlanCostComparisonItem,
   PaymentMethod,
   PhaseApiResponse,
   TaskProposal,
@@ -80,9 +81,6 @@ export class PhaseTwoApi {
     onEvent: (event: ChatStreamEvent) => void,
     images: Array<{ fileName: string; contentType: string; dataBase64: string }> = [],
   ): Promise<void> {
-    // Login stores non-persistent sessions in sessionStorage. Reading only
-    // localStorage made every streamed chat request return 401 unless the user
-    // had selected "remember me", while the regular HttpClient calls worked.
     const token = sessionStorage.getItem('greenmind_access_token')
       ?? localStorage.getItem('greenmind_access_token');
     const requestBody = JSON.stringify({
@@ -305,6 +303,10 @@ export class PhaseTwoApi {
 
   public costDashboard(planId: number): Observable<CostDashboard> {
     return this.get(`/api/export-plans/${planId}/cost-dashboard`);
+  }
+
+  public farmCostComparison(): Observable<ExportPlanCostComparisonItem[]> {
+    return this.get('/api/farm/export-plan-cost-comparison');
   }
 
   public exportExpenses(planId: number): Observable<Blob> {

@@ -1,34 +1,277 @@
 <section class="mx-auto max-w-[1380px] space-y-4 pb-8" dir="rtl">
+  <!-- Header -->
   <header class="flex flex-col justify-between gap-3 md:flex-row md:items-end">
-    <div><div class="mb-1 flex items-center gap-2 text-xs font-bold text-[#0f7a3d]"><span class="size-1.5 rounded-full bg-[#20a958]" aria-hidden="true"></span><time [attr.datetime]="todayIsoDate">{{ todayLabel }}</time></div><h1 class="text-2xl font-black sm:text-3xl">{{ greeting }}، {{ ownerName() }}</h1><p class="mt-1 text-sm text-[#65736c]">إليك ما يحتاج انتباهك في المزرعة اليوم.</p></div>
-    <div class="flex flex-wrap items-end gap-2"><label class="block"><span class="mb-1.5 block text-xs font-black text-[#526158]">اختر خطة التصدير التي تريد عرضها</span><select class="min-w-64 rounded-lg border border-[#cbd9ce] bg-white px-3 py-2 text-sm font-bold text-[#10231b] shadow-sm" aria-label="اختيار خطة التصدير" [value]="selectedPlanId() ?? ''" (change)="selectPlan(+$any($event.target).value)"><option value="" disabled>اختر خطة التصدير</option>@for (plan of plans(); track plan.id) {<option [value]="plan.id">{{ plan.name }}</option>}</select></label><a routerLink="/activities" class="inline-flex min-h-10 items-center rounded-lg border border-[#cfe2d3] bg-white px-4 py-2 text-sm font-black text-[#0f7a3d]">+ إضافة مهمة</a><a routerLink="/export-plans" class="inline-flex min-h-10 items-center rounded-lg bg-[#0f7a3d] px-4 py-2 text-sm font-black text-white shadow-[0_8px_18px_rgba(15,122,61,.18)] hover:bg-[#075d2d]">+ خطة جديدة</a></div>
-  </header>
-
-  @if (error()) {<div class="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-red-200 bg-red-50 p-4 text-sm font-medium text-[#be3a34]" role="alert"><span>{{ error() }}</span><button type="button" class="rounded-lg border border-red-200 bg-white px-3 py-2 text-xs font-black text-red-700" (click)="retry()">إعادة المحاولة</button></div>}
-  @if (loading()) {
-    <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-4" aria-label="جارٍ التحميل">@for (item of [1,2,3,4]; track item) {<div class="h-28 animate-pulse rounded-xl border border-[#dde6df] bg-white p-4"><div class="h-3 w-24 rounded bg-slate-100"></div><div class="mt-5 h-8 w-16 rounded bg-slate-100"></div><div class="mt-3 h-2 w-full rounded bg-slate-100"></div></div>}</div>
-  } @else if (!data() && !error() && plans().length > 0) {
-    <div class="rounded-[28px] border-2 border-dashed border-[#cad6cc] bg-white px-6 py-16 text-center"><span class="mx-auto grid size-14 place-items-center rounded-2xl bg-[#e7f5eb] text-2xl">📋</span><h2 class="mt-5 text-xl font-black">اختر خطة التصدير لعرض تفاصيلها</h2><p class="mx-auto mt-2 max-w-md text-sm leading-6 text-[#65736c]">استخدم قائمة الاختيار أعلى الصفحة لمشاهدة الطقس والمهام ومؤشرات الخطة المطلوبة.</p></div>
-  } @else if (!data() && !error()) {
-    <div class="rounded-[28px] border-2 border-dashed border-[#cad6cc] bg-white px-6 py-16 text-center"><span class="mx-auto grid size-14 place-items-center rounded-2xl bg-[#e7f5eb] text-2xl">🌱</span><h2 class="mt-5 text-xl font-black">لا توجد خطة لعرضها</h2><p class="mx-auto mt-2 max-w-md text-sm leading-6 text-[#65736c]">أنشئ أول خطة تصدير لنرتب لك الموسم والمهام ومواعيد المتابعة.</p><a routerLink="/export-plans" class="mt-6 inline-flex rounded-xl bg-[#0f7a3d] px-5 py-3 text-sm font-black text-white">إنشاء أول خطة</a></div>
-  } @else if (data(); as dashboard) {
-    <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
-      <article class="relative overflow-hidden rounded-xl border border-[#d5e6d8] bg-[#eaf6ed] p-4"><div class="relative flex items-start justify-between"><div><span class="text-xs font-bold text-[#526158]">تقدم الموسم</span><strong class="mt-2 block text-3xl font-black">{{ dashboard.season.progressPercentage }}%</strong></div><span class="grid size-9 place-items-center rounded-lg bg-white text-base shadow-sm">↗</span></div><div class="mt-4 h-1.5 overflow-hidden rounded-full bg-white"><i class="block h-full rounded-full bg-[#0f7a3d]" [style.width.%]="dashboard.season.progressPercentage"></i></div><p class="mt-2 text-xs font-bold text-[#0f7a3d]">{{ dashboard.season.growthStage }}</p></article>
-      <article class="rounded-xl border border-[#dde6df] bg-white p-4"><div class="flex items-start justify-between"><span class="text-xs font-bold text-[#65736c]">إجمالي المهام</span><span class="grid size-9 place-items-center rounded-lg bg-[#edf2ff] text-[#4664a6]">✓</span></div><strong class="mt-2 block text-3xl font-black">{{ dashboard.taskSummary.total }}</strong><p class="mt-1 text-xs text-[#65736c]"><b class="text-[#b26414]">{{ dashboard.taskSummary.pending }}</b> مهمة تنتظر التنفيذ</p></article>
-      <article class="rounded-xl border border-[#dde6df] bg-white p-4"><div class="flex items-start justify-between"><span class="text-xs font-bold text-[#65736c]">نسبة إنجاز المهام</span><span class="grid size-9 place-items-center rounded-lg bg-[#e7f5eb] text-[#0f7a3d]">●</span></div><strong class="mt-2 block text-3xl font-black text-[#0f7a3d]">{{ completionPercentage() }}%</strong><p class="mt-1 text-xs text-[#65736c]">{{ dashboard.taskSummary.completed }} مكتملة · {{ dashboard.taskSummary.inProgress }} قيد التنفيذ</p></article>
-      <article class="rounded-xl border border-[#dde6df] bg-white p-4"><div class="flex items-start justify-between"><span class="text-xs font-bold text-[#65736c]">موعد التصدير</span><span class="grid size-9 place-items-center rounded-lg bg-[#fff3df] text-[#b26414]">↗</span></div><strong class="mt-2 block text-lg font-black">{{ dashboard.exportPlan.expectedExportDate }}</strong><p class="mt-1 text-xs text-[#65736c]">الوجهة: {{ dashboard.exportPlan.destination }}</p></article>
-      <article class="rounded-xl border border-[#d8e5ef] bg-[#f4f9fd] p-4"><div class="flex items-start justify-between"><span class="text-xs font-bold text-[#65736c]">طقس اليوم</span>@if (dashboard.todayWeather; as weather) {<span class="grid size-9 place-items-center rounded-lg bg-white text-xl shadow-sm">{{ weatherIcon(weather) }}</span>}</div>@if (dashboard.todayWeather; as weather) {<strong class="mt-2 block text-2xl font-black">{{ weather.tempMaxC | number:'1.0-0' }}° <small class="text-sm font-bold text-[#65736c]">/ {{ weather.tempMinC | number:'1.0-0' }}°</small></strong><p class="mt-1 text-xs text-[#65736c]">{{ weatherLabel(weather) }} · رطوبة {{ weather.humidityPercent | number:'1.0-0' }}%</p>} @else {<strong class="mt-3 block text-sm font-black text-[#65736c]">الطقس غير متاح الآن</strong><p class="mt-1 text-xs text-[#829087]">حاول تحديث الصفحة لاحقاً.</p>}</article>
+    <div>
+      <div class="mb-1 flex items-center gap-2 text-xs font-bold text-[#0f7a3d]">
+        <span class="size-1.5 rounded-full bg-[#20a958]" aria-hidden="true"></span>
+        <time [attr.datetime]="todayIsoDate">{{ todayLabel }}</time>
+        <span class="text-slate-300">·</span>
+        <span class="text-[#556b5d]">{{ farmName() }}</span>
+      </div>
+      <h1 class="text-2xl font-black text-[#10231b] sm:text-3xl">{{ greeting }}، {{ ownerName() }}</h1>
+      <p class="mt-1 text-sm text-[#65736c]">نظرة عامة على إحصائيات ومهام ومحاصيل المزرعة اليوم.</p>
     </div>
 
-    <div class="grid gap-4 xl:grid-cols-[1.55fr_1fr]">
-      <article class="rounded-xl border border-[#dde6df] bg-white p-4 shadow-[0_8px_28px_rgba(16,35,27,.045)]"><div class="mb-4 flex items-center justify-between gap-4"><div><h2 class="text-lg font-black">المهام القادمة</h2><p class="mt-1 text-xs text-[#65736c]">سجّل تنفيذ المهمة أو تخطيها لنحسّن اقتراحات المهام القادمة.</p></div><a routerLink="/activities" class="rounded-lg bg-[#f3f6f3] px-3 py-2 text-xs font-black text-[#0f7a3d]">عرض الكل</a></div>
-        @if (taskFeedback()) {<p class="mb-3 rounded-lg border border-[#cfe5d4] bg-[#f0faf3] px-3 py-2 text-xs font-bold text-[#0f7a3d]" aria-live="polite">{{ taskFeedback() }}</p>}
-        @if (dashboard.upcomingTasks.length === 0) {<p class="rounded-xl bg-[#f7f9f7] p-10 text-center text-sm text-[#65736c]">رائع، لا توجد مهام قادمة حالياً.</p>} @else {<ul class="space-y-2">@for (task of dashboard.upcomingTasks; track task.id) {<li class="group flex flex-wrap items-center gap-3 rounded-xl border border-[#e4ebe5] p-3.5 transition hover:border-[#bfd1c2] hover:bg-[#fbfdfb]"><div class="min-w-0 flex-1"><b class="block truncate text-sm">{{ task.title }}</b><p class="mt-1 text-[11px] text-[#738078]">{{ taskTypeLabel(task.taskType) }} · {{ task.plannedDate }} · {{ task.status === 'Postponed' ? 'مؤجلة' : task.status === 'InProgress' ? 'قيد التنفيذ' : 'قيد الانتظار' }}</p></div><span class="rounded-full bg-[#fff3df] px-2.5 py-1 text-[10px] font-black text-[#9b590f]">{{ priorityLabel(task.priority) }}</span><div class="flex gap-2"><button type="button" class="rounded-lg border border-[#bcd8c3] bg-[#f1faf3] px-3 py-2 text-xs font-black text-[#0f7a3d] transition hover:bg-[#e3f5e7] disabled:cursor-wait disabled:opacity-50" [disabled]="updatingTaskId() === task.id" [attr.aria-label]="'تسجيل تنفيذ مهمة ' + task.title" (click)="updateTaskStatus(task, 'Completed')">تم التنفيذ</button><button type="button" class="rounded-lg border border-[#dce3de] bg-white px-3 py-2 text-xs font-black text-[#65736c] transition hover:bg-[#f3f5f3] disabled:cursor-wait disabled:opacity-50" [disabled]="updatingTaskId() === task.id" [attr.aria-label]="'تخطي مهمة ' + task.title" (click)="updateTaskStatus(task, 'Skipped')">تخطي</button></div></li>}</ul>}
+    <div class="flex flex-wrap items-center gap-2.5">
+      <a routerLink="/activities" class="inline-flex min-h-10 items-center rounded-xl border border-[#cfe2d3] bg-white px-4 py-2 text-xs font-black text-[#0f7a3d] shadow-sm hover:bg-[#f5f9f6]">
+        + إضافة مهمة
+      </a>
+      <a routerLink="/export-plans" class="inline-flex min-h-10 items-center rounded-xl bg-[#0f7a3d] px-4 py-2 text-xs font-black text-white shadow-[0_8px_18px_rgba(15,122,61,.18)] transition hover:bg-[#075d2d]">
+        + خطة تصدير جديدة
+      </a>
+    </div>
+  </header>
+
+  @if (error()) {
+    <div class="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-red-200 bg-red-50 p-4 text-sm font-medium text-[#be3a34]" role="alert">
+      <span>{{ error() }}</span>
+      <button type="button" class="rounded-lg border border-red-200 bg-white px-3 py-1.5 text-xs font-black text-red-700 hover:bg-red-100" (click)="loadFarmDashboard()">
+        إعادة المحاولة
+      </button>
+    </div>
+  }
+
+  @if (loading()) {
+    <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-5" aria-label="جارٍ التحميل">
+      @for (item of [1,2,3,4,5]; track item) {
+        <div class="h-28 animate-pulse rounded-2xl border border-[#dde6df] bg-white p-4">
+          <div class="h-3 w-24 rounded bg-slate-100"></div>
+          <div class="mt-4 h-7 w-16 rounded bg-slate-100"></div>
+          <div class="mt-2 h-2 w-full rounded bg-slate-100"></div>
+        </div>
+      }
+    </div>
+  } @else if (plans().length === 0) {
+    <!-- Empty State -->
+    <div class="rounded-[28px] border-2 border-dashed border-[#cad6cc] bg-white px-6 py-16 text-center shadow-sm">
+      <span class="mx-auto grid size-14 place-items-center rounded-2xl bg-[#e7f5eb] text-2xl">🌱</span>
+      <h2 class="mt-5 text-xl font-black text-[#10231b]">لا توجد خطط تصدير في المزرعة بعد</h2>
+      <p class="mx-auto mt-2 max-w-md text-sm leading-6 text-[#65736c]">
+        أنشئ أول خطة تصدير للمزرعة لمتابعة المحاصيل، العمليات الزراعية، المهام، ومواعيد التصدير.
+      </p>
+      <a routerLink="/export-plans" class="mt-6 inline-flex rounded-xl bg-[#0f7a3d] px-5 py-3 text-sm font-black text-white shadow-sm hover:bg-[#095e2d]">
+        إنشاء أول خطة تصدير
+      </a>
+    </div>
+  } @else {
+    <!-- 5 Farm-Wide Executive KPI Cards -->
+    <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
+      <!-- 1. Active Plans & Total Plans -->
+      <article class="relative overflow-hidden rounded-2xl border border-[#d5e6d8] bg-[#eaf6ed] p-4 shadow-sm">
+        <div class="relative flex items-start justify-between">
+          <div>
+            <span class="text-xs font-bold text-[#526158]">خطط التصدير بالمزرعة</span>
+            <strong class="mt-2 block text-3xl font-black text-[#10231b]">{{ activePlansCount() }} <small class="text-sm font-bold text-[#526158]">نشطة</small></strong>
+          </div>
+          <span class="grid size-9 place-items-center rounded-xl bg-white text-base shadow-sm text-[#0f7a3d]">🌱</span>
+        </div>
+        <p class="mt-3 text-xs font-bold text-[#0f7a3d]">إجمالي الخطط: {{ totalPlansCount() }} خطة تصدير</p>
       </article>
 
+      <!-- 2. Total Tasks Across Farm -->
+      <article class="rounded-2xl border border-[#dde6df] bg-white p-4 shadow-sm">
+        <div class="flex items-start justify-between">
+          <span class="text-xs font-bold text-[#65736c]">إجمالي مهام المزرعة</span>
+          <span class="grid size-9 place-items-center rounded-xl bg-[#edf2ff] text-[#4664a6] text-base font-bold">✓</span>
+        </div>
+        <strong class="mt-2 block text-3xl font-black text-[#10231b]">{{ totalTasksCount() }}</strong>
+        <p class="mt-1 text-xs text-[#65736c]">
+          <b class="text-[#b26414]">{{ pendingTasksCount() }}</b> مهمة بالانتظار
+          @if (overdueTasksCount() > 0) {
+            · <span class="font-bold text-[#c81e1e]">{{ overdueTasksCount() }} متأخرة</span>
+          }
+        </p>
+      </article>
+
+      <!-- 3. Overall Task Completion Rate -->
+      <article class="rounded-2xl border border-[#dde6df] bg-white p-4 shadow-sm">
+        <div class="flex items-start justify-between">
+          <span class="text-xs font-bold text-[#65736c]">نسبة الإنجاز الكلية</span>
+          <span class="grid size-9 place-items-center rounded-xl bg-[#e7f5eb] text-sm text-[#0f7a3d]">●</span>
+        </div>
+        <strong class="mt-2 block text-3xl font-black text-[#0f7a3d]">{{ farmCompletionPercentage() }}%</strong>
+        <p class="mt-1 text-xs text-[#65736c]">{{ completedTasksCount() }} من {{ totalTasksCount() }} مهمة مكتملة</p>
+      </article>
+
+      <!-- 4. Next Upcoming Export -->
+      <article class="rounded-2xl border border-[#dde6df] bg-white p-4 shadow-sm">
+        <div class="flex items-start justify-between">
+          <span class="text-xs font-bold text-[#65736c]">أقرب موعد تصدير</span>
+          <span class="grid size-9 place-items-center rounded-xl bg-[#fff3df] text-[#b26414] text-base">↗</span>
+        </div>
+        @if (nearestExportPlan(); as nextPlan) {
+          <strong class="mt-2 block text-base font-black text-[#10231b] truncate">{{ nextPlan.name }}</strong>
+          <p class="mt-1 text-xs text-[#65736c]">
+            {{ nextPlan.crop }} · خلال <b class="text-[#b26414]">{{ daysUntil(nextPlan.expectedExportDate) }}</b> يومًا
+          </p>
+        } @else {
+          <strong class="mt-2 block text-sm font-black text-slate-400">لا توجد مواعيد محددة</strong>
+          <p class="mt-1 text-xs text-slate-400">حدد مواعيد التصدير في الخطط</p>
+        }
+      </article>
+
+      <!-- 5. Total Expenses Across Farm -->
+      <article class="rounded-2xl border border-[#dde6df] bg-white p-4 shadow-sm">
+        <div class="flex items-start justify-between">
+          <span class="text-xs font-bold text-[#65736c]">إجمالي المصروفات</span>
+          <span class="grid size-9 place-items-center rounded-xl bg-[#edf9f0] text-[#0f7a3d] text-base font-bold">💰</span>
+        </div>
+        <strong class="mt-2 block text-2xl font-black text-[#10231b]">
+          {{ totalFarmExpenses() | number:'1.0-0' }} <small class="text-xs font-bold text-[#65736c]">ج.م</small>
+        </strong>
+        <p class="mt-1 text-xs text-[#65736c]">
+          @if (totalFarmPlannedBudget() > 0) {
+            من ميزانية <b class="text-[#0f7a3d]">{{ totalFarmPlannedBudget() | number:'1.0-0' }} ج.م</b>
+          } @else {
+            إجمالي التكاليف المسجلة للخطط
+          }
+        </p>
+      </article>
+    </div>
+
+    <!-- Main Grid: Farm Tasks + Active Export Plans -->
+    <div class="grid gap-4 xl:grid-cols-[1.4fr_1fr]">
+      <!-- Upcoming Tasks Stream -->
+      <article class="rounded-2xl border border-[#dde6df] bg-white p-5 shadow-sm">
+        <div class="mb-4 flex items-center justify-between gap-4">
+          <div>
+            <h2 class="text-lg font-black text-[#10231b]">المهام القادمة والعاجلة في المزرعة</h2>
+            <p class="mt-1 text-xs text-[#65736c]">سجّل تنفيذ المهمة أو تخطيها لتحديث مؤشرات الموسم والعمليات فورياً.</p>
+          </div>
+          <a routerLink="/activities" class="rounded-xl bg-[#f3f6f3] px-3.5 py-2 text-xs font-black text-[#0f7a3d] hover:bg-[#e6efe8]">
+            عرض كافة المهام
+          </a>
+        </div>
+
+        @if (taskFeedback()) {
+          <p class="mb-3 rounded-xl border border-[#cfe5d4] bg-[#f0faf3] px-3.5 py-2.5 text-xs font-bold text-[#0f7a3d]" aria-live="polite">
+            {{ taskFeedback() }}
+          </p>
+        }
+
+        @if (upcomingFarmTasks().length === 0) {
+          <div class="rounded-xl bg-[#f7f9f7] p-10 text-center text-sm text-[#65736c]">
+            <span class="block text-2xl">✓</span>
+            <p class="mt-2 font-bold">رائع، لا توجد مهام معلقة بالمزرعة حالياً.</p>
+          </div>
+        } @else {
+          <ul class="space-y-2.5">
+            @for (task of upcomingFarmTasks(); track task.id) {
+              <li class="group flex flex-wrap items-center gap-3 rounded-xl border border-[#e4ebe5] p-3.5 transition hover:border-[#bfd1c2] hover:bg-[#fbfdfb]"
+                [ngClass]="{ 'border-red-200 bg-red-50/40': task.plannedDate < todayIsoDate }">
+                <div class="min-w-0 flex-1">
+                  <div class="flex items-center gap-2">
+                    <b class="truncate text-sm text-[#10231b]">{{ task.title }}</b>
+                    @if (task.plannedDate < todayIsoDate) {
+                      <span class="rounded bg-red-100 px-1.5 py-0.5 text-[10px] font-black text-red-700">متأخرة</span>
+                    }
+                  </div>
+                  <p class="mt-1 text-[11px] text-[#738078]">
+                    {{ taskTypeLabel(task.taskTypeName) }} · {{ task.plannedDate }}
+                    @if (planMap().get(task.exportPlanId); as plan) {
+                      · <span class="font-bold text-[#0f7a3d]">{{ plan.name }} ({{ plan.crop }})</span>
+                    }
+                  </p>
+                </div>
+
+                <span class="rounded-full px-2.5 py-1 text-[10px] font-black"
+                  [ngClass]="{
+                    'bg-[#fedede] text-[#c81e1e]': task.priority === 'Critical',
+                    'bg-[#fff3df] text-[#9b590f]': task.priority === 'High',
+                    'bg-[#eef4ff] text-[#3b5998]': task.priority === 'Medium',
+                    'bg-slate-100 text-slate-600': task.priority === 'Low'
+                  }">
+                  {{ priorityLabel(task.priority) }}
+                </span>
+
+                <div class="flex gap-2">
+                  <button type="button"
+                    class="rounded-xl border border-[#bcd8c3] bg-[#f1faf3] px-3 py-1.5 text-xs font-black text-[#0f7a3d] transition hover:bg-[#e3f5e7] disabled:opacity-50"
+                    [disabled]="updatingTaskId() === task.id"
+                    [attr.aria-label]="'تسجيل تنفيذ مهمة ' + task.title"
+                    (click)="updateTaskStatus(task, 'Completed')">
+                    تم التنفيذ
+                  </button>
+                  <button type="button"
+                    class="rounded-xl border border-[#dce3de] bg-white px-3 py-1.5 text-xs font-black text-[#65736c] transition hover:bg-[#f3f5f3] disabled:opacity-50"
+                    [disabled]="updatingTaskId() === task.id"
+                    [attr.aria-label]="'تخطي مهمة ' + task.title"
+                    (click)="updateTaskStatus(task, 'Skipped')">
+                    تخطي
+                  </button>
+                </div>
+              </li>
+            }
+          </ul>
+        }
+      </article>
+
+      <!-- Active Export Plans Cards & Soil Snapshot -->
       <div class="space-y-4">
-        <article class="rounded-xl border border-[#dde6df] bg-[#10231b] p-4 text-white shadow-[0_12px_35px_rgba(16,35,27,.14)]"><div class="flex items-center justify-between"><div><p class="text-xs font-bold text-white/50">الخطة الحالية</p><h2 class="mt-1 text-lg font-black">{{ dashboard.exportPlan.crop }}</h2></div><span class="rounded-full bg-[#d8f36a] px-3 py-1 text-[10px] font-black text-[#31430b]">نشطة</span></div><dl class="mt-4 space-y-3 text-sm"><div class="flex justify-between border-b border-white/10 pb-2"><dt class="text-white/45">الموقع</dt><dd class="font-bold">{{ dashboard.exportPlan.city }}، {{ dashboard.exportPlan.governorate }}</dd></div><div class="flex justify-between border-b border-white/10 pb-2"><dt class="text-white/45">المساحة</dt><dd class="font-bold">{{ dashboard.exportPlan.areaInFeddan }} فدان</dd></div><div class="flex justify-between"><dt class="text-white/45">يوم الموسم</dt><dd class="font-bold">{{ dashboard.season.currentSeasonDay }} / {{ dashboard.season.totalSeasonDays }}</dd></div></dl></article>
-        <article class="rounded-xl border border-[#dde6df] bg-white p-4"><div class="flex items-center justify-between"><h2 class="text-base font-black">آخر قياس للتربة</h2><span class="size-2 rounded-full bg-[#20a958]"></span></div>@if (dashboard.latestSoilMeasurement; as soil) {<div class="mt-4 grid grid-cols-3 gap-2 text-center"><div class="rounded-lg bg-[#f7f9f7] p-2.5"><span class="block text-[10px] text-[#738078]">الحموضة</span><b class="mt-1 block">{{ soil.ph }}</b></div><div class="rounded-lg bg-[#f7f9f7] p-2.5"><span class="block text-[10px] text-[#738078]">الرطوبة</span><b class="mt-1 block">{{ soil.moisture }}%</b></div><div class="rounded-lg bg-[#f7f9f7] p-2.5"><span class="block text-[10px] text-[#738078]">EC</span><b class="mt-1 block">{{ soil.ec }}</b></div></div>} @else {<p class="mt-3 rounded-lg bg-[#f7f9f7] p-3 text-sm text-[#65736c]">لم تُسجل قياسات تربة لهذه الخطة بعد.</p>}</article>
+        <!-- Export Plans List -->
+        <article class="rounded-2xl border border-[#dde6df] bg-white p-5 shadow-sm">
+          <div class="mb-3 flex items-center justify-between">
+            <h2 class="text-base font-black text-[#10231b]">خطط ومحاصيل المزرعة</h2>
+            <a routerLink="/export-plans" class="text-xs font-black text-[#0f7a3d] hover:underline">إدارة الخطط</a>
+          </div>
+
+          <div class="space-y-3">
+            @for (plan of plans(); track plan.id) {
+              <div class="flex items-center justify-between rounded-xl border border-[#e5ece6] p-3.5 transition hover:border-[#b8d6be] hover:bg-[#fafcfa]">
+                <div class="min-w-0 flex-1">
+                  <div class="flex items-center gap-2">
+                    <strong class="text-sm font-black text-[#10231b] truncate">{{ plan.name }}</strong>
+                    <span class="rounded-full bg-[#e8f6ec] px-2 py-0.5 text-[10px] font-black text-[#0f7a3d]">
+                      {{ plan.crop }}
+                    </span>
+                  </div>
+                  <p class="mt-1 text-xs text-[#65736c]">
+                    {{ plan.destination }} · موعد التصدير: {{ plan.expectedExportDate }}
+                  </p>
+                </div>
+                <a [routerLink]="['/export-plans', plan.id, 'overview']" class="shrink-0 rounded-xl bg-[#0f7a3d] px-3 py-1.5 text-xs font-black text-white hover:bg-[#0a6130]">
+                  لوحة المتابعة ←
+                </a>
+              </div>
+            }
+          </div>
+        </article>
+
+        <!-- Farm Soil Health Quick Snapshot -->
+        <article class="rounded-2xl border border-[#dde6df] bg-white p-5 shadow-sm">
+          <div class="flex items-center justify-between">
+            <h2 class="text-base font-black text-[#10231b]">آخر قياس للتربة بالمزرعة</h2>
+            <span class="size-2.5 rounded-full bg-[#20a958]"></span>
+          </div>
+
+          @if (latestSoil(); as soil) {
+            <div class="mt-4 grid grid-cols-3 gap-2 text-center">
+              <div class="rounded-xl bg-[#f7f9f7] p-2.5">
+                <span class="block text-[10px] font-bold text-[#738078]">الحموضة pH</span>
+                <b class="mt-1 block text-base font-black text-[#10231b]">{{ soil.ph }}</b>
+              </div>
+              <div class="rounded-xl bg-[#f7f9f7] p-2.5">
+                <span class="block text-[10px] font-bold text-[#738078]">الرطوبة</span>
+                <b class="mt-1 block text-base font-black text-[#10231b]">{{ soil.moisture }}%</b>
+              </div>
+              <div class="rounded-xl bg-[#f7f9f7] p-2.5">
+                <span class="block text-[10px] font-bold text-[#738078]">الملوحة EC</span>
+                <b class="mt-1 block text-base font-black text-[#10231b]">{{ soil.ec }}</b>
+              </div>
+            </div>
+            @if (plans().length > 0) {
+              <div class="mt-3 text-left">
+                <a [routerLink]="['/export-plans', plans()[0].id, 'soil-monitoring']" class="text-xs font-bold text-[#0f7a3d] hover:underline">
+                  عرض صفحة متابعة التربة الكاملة ←
+                </a>
+              </div>
+            }
+          } @else {
+            <p class="mt-3 rounded-xl bg-[#f7f9f7] p-3 text-xs text-[#65736c]">
+              لم تُسجل قياسات تربة حديثة بعد. يمكنك تسجيل قياسات التربة من صفحة متابعة التربة داخل أي خطة.
+            </p>
+          }
+        </article>
       </div>
     </div>
   }

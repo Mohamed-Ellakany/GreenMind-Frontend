@@ -135,6 +135,7 @@ export class MainLayout {
       { label: `لوحة متابعة ${planName}`, description: 'التقدم والمهام ومؤشرات الموسم', url: `${prefix}/overview`, keywords: 'خطة حالية متابعة تقدم مهام موسم' },
       { label: 'مستشار الخطة الذكي', description: 'محادثة مرتبطة بالخطة الحالية', url: `${prefix}/agricultural-advisor`, keywords: 'خطة مستشار محادثة سؤال ذكاء' },
       { label: 'صحة المحصول', description: 'التشخيص والصور والتحليلات', url: `${prefix}/crop-health`, keywords: 'صحة محصول تشخيص صور مرض' },
+      { label: 'متابعة التربة', description: 'الإحصائيات والقراءات وسجل القياسات', url: `${prefix}/soil-monitoring`, keywords: 'تربة قياسات حموضة رطوبة ملوحة قراءات' },
       { label: 'الميزانية والمصروفات', description: 'التكاليف والإيصالات والفواتير', url: `${prefix}/budget-expenses`, keywords: 'ميزانية تكلفة مصروف إيصال فاتورة' },
       ...this.baseSearchItems,
     ];

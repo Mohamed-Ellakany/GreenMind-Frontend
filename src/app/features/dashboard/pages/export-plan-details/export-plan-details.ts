@@ -1,4 +1,4 @@
-import { DOCUMENT } from '@angular/common';
+import { CommonModule, DOCUMENT } from '@angular/common';
 import {
   Component,
   DestroyRef,
@@ -29,6 +29,7 @@ import {
 import {
   CreateTaskRequest,
   DashboardTask,
+  DashboardWeather,
   ExportPlanDashboard,
   ExportPlanDetails,
   FarmTask,
@@ -59,6 +60,7 @@ interface PlanInsight {
 @Component({
   selector: 'app-export-plan-details',
   imports: [
+    CommonModule,
     FormsModule,
     RouterLink,
     ExportPlanOperationalSummary,
@@ -263,6 +265,23 @@ export class ExportPlanDetailsPage {
     this.load();
     this.loadTaskTypes();
     this.loadOperationalSummaries();
+  }
+
+  public readonly completionPercentage = computed(() => {
+    const summary = this.dashboard()?.taskSummary;
+    const percentage = summary?.total ? Math.round((summary.completed / summary.total) * 100) : 0;
+    return Math.max(0, Math.min(100, percentage));
+  });
+
+  public weatherLabel(weather: DashboardWeather): string {
+    if (weather.precipitationMm >= 1) return 'أمطار متوقعة';
+    if (weather.tempMaxC >= 35) return 'حار';
+    if (weather.tempMaxC <= 18) return 'مائل للبرودة';
+    return 'طقس معتدل';
+  }
+
+  public weatherIcon(weather: DashboardWeather): string {
+    return weather.precipitationMm >= 1 ? '🌧️' : weather.tempMaxC >= 35 ? '☀️' : '🌤️';
   }
 
   public heroCropImage(crop: string): string {

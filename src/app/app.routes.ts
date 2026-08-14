@@ -55,6 +55,7 @@ export const routes: Routes = [
       { path: 'export-plans/:id/agricultural-advisor', title: 'مستشار الخطة الذكي | جرين مايند', loadComponent: () => import('@features/dashboard/phase-two/agricultural-advisor-page').then((m) => m.AgriculturalAdvisorPage) },
       { path: 'export-plans/:id/crop-health', title: 'تشخيص ومتابعة المحصول | جرين مايند', loadComponent: () => import('@features/dashboard/phase-two/crop-health-page').then((m) => m.CropHealthPage) },
       { path: 'export-plans/:id/crop-health/diagnoses/:diagnosisId', title: 'جلسة تشخيص المحصول | جرين مايند', loadComponent: () => import('@features/dashboard/phase-two/diagnosis-chat-page').then((m) => m.DiagnosisChatPage) },
+      { path: 'export-plans/:id/soil-monitoring', title: 'متابعة التربة | جرين مايند', loadComponent: () => import('@features/dashboard/pages/export-plan-details/soil-monitoring/soil-monitoring-page').then((m) => m.SoilMonitoringPage) },
       { path: 'export-plans/:id/budget-expenses', title: 'الميزانية وسجل المصروفات | جرين مايند', loadComponent: () => import('@features/dashboard/phase-two/budget-expenses-page').then((m) => m.BudgetExpensesPage) },
       { path: 'export-plans/:id', pathMatch: 'full', redirectTo: 'export-plans/:id/overview' },
       { path: 'export-plans', title: 'خطط التصدير | جرين مايند', loadComponent: () => import('@features/dashboard/pages/export-plan/export-plans').then((m) => m.ExportPlans) },
