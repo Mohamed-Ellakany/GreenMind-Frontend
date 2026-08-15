@@ -256,3 +256,12 @@ export interface CostDashboard {
   expensesByIsoWeek: Array<{ period: string; total: number }>;
   latestExpenses: Expense[];
 }
+
+export interface ExportPlanCostComparisonItem {
+  exportPlanId: number;
+  exportPlanName: string;
+  plannedBudget: number | null;
+  totalExpenses: number;
+  budgetVariance: number | null;
+  costPerFeddan: number | null;
+}

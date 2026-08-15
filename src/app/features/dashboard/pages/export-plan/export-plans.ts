@@ -82,8 +82,67 @@ export class ExportPlans {
   public readonly formSteps = [
     { number: 1, label: 'بيانات الخطة', hint: 'المحصول والوجهة' },
     { number: 2, label: 'موقع المزرعة', hint: 'العنوان والخريطة' },
-    { number: 3, label: 'المواعيد', hint: 'الجدول والمراجعة' },
+    { number: 3, label: 'بيانات المزرعة', hint: 'التربة والمياه والري' },
+    { number: 4, label: 'المواعيد', hint: 'الجدول والمراجعة' },
   ] as const;
+
+  public readonly farmTypeOptions = [
+    { value: 'أرض مفتوحة', label: 'أرض مفتوحة' },
+    { value: 'صوب زراعية', label: 'صوب زراعية' },
+    { value: 'زراعة مائية', label: 'زراعة مائية' },
+    { value: 'أخرى', label: 'أخرى' },
+  ] as const;
+
+  public readonly soilTypeOptions = [
+    { value: 'رملية', label: 'رملية' },
+    { value: 'طينية', label: 'طينية' },
+    { value: 'طميية', label: 'طميية' },
+    { value: 'رملية طميية', label: 'رملية طميية' },
+    { value: 'أخرى', label: 'أخرى' },
+    { value: 'غير معروف', label: 'غير معروف' },
+  ] as const;
+
+  public readonly irrigationSystemOptions = [
+    { value: 'تنقيط', label: 'تنقيط' },
+    { value: 'رش', label: 'رش' },
+    { value: 'ري سطحي', label: 'ري سطحي' },
+    { value: 'زراعة مائية', label: 'زراعة مائية' },
+    { value: 'أخرى', label: 'أخرى' },
+  ] as const;
+
+  public readonly fertigationOptions = [
+    { value: 'نعم', label: 'نعم' },
+    { value: 'لا', label: 'لا' },
+    { value: 'غير محدد', label: 'غير محدد' },
+  ] as const;
+
+  public isSoilAnalysisCompleted(): boolean {
+    const f = this.form;
+    return f.soilPh != null && f.soilPh >= 0 && f.soilPh <= 14 &&
+      f.soilEc != null && f.soilEc >= 0 &&
+      f.soilNitrogen != null && f.soilNitrogen >= 0 &&
+      f.soilPhosphorus != null && f.soilPhosphorus >= 0 &&
+      f.soilPotassium != null && f.soilPotassium >= 0 &&
+      f.soilOrganicMatter != null && f.soilOrganicMatter >= 0;
+  }
+
+  public isWaterAnalysisCompleted(): boolean {
+    const f = this.form;
+    return f.waterPh != null && f.waterPh >= 0 && f.waterPh <= 14 &&
+      f.waterEc != null && f.waterEc >= 0 &&
+      f.waterSalinity != null && f.waterSalinity >= 0 &&
+      f.waterSodium != null && f.waterSodium >= 0 &&
+      f.waterChloride != null && f.waterChloride >= 0 &&
+      f.waterBicarbonate != null && f.waterBicarbonate >= 0 &&
+      f.waterCalcium != null && f.waterCalcium >= 0 &&
+      f.waterMagnesium != null && f.waterMagnesium >= 0 &&
+      f.waterSar != null && f.waterSar >= 0;
+  }
+
+  public isFarmDataReady(): boolean {
+    return !!this.form.farmType && !!this.form.soilType && !!this.form.irrigationSystem &&
+      this.isSoilAnalysisCompleted() && this.isWaterAnalysisCompleted();
+  }
 
   public readonly locationPresets: readonly FarmLocationPreset[] = [
     { label: 'القاهرة', governorate: 'القاهرة' },
@@ -138,8 +197,8 @@ export class ExportPlans {
     const list = this.plans();
     return {
       total: list.length,
-      active: list.filter((p) => ['InProgress', 'ReadyForExport'].includes(p.status)).length,
-      planning: list.filter((p) => p.status === 'Planning').length,
+      active: list.filter((p) => ['InProgress', 'ReadyForExport', 'Planning', 'AwaitingFarmData'].includes(p.status)).length,
+      planning: list.filter((p) => p.status === 'Planning' || p.status === 'AwaitingFarmData').length,
       completed: list.filter((p) => p.status === 'Completed').length,
     };
   });
@@ -158,9 +217,9 @@ export class ExportPlans {
       const matchesSearch = !term || [plan.name, plan.crop, plan.destination, String(plan.id)]
         .some((value) => value.toLocaleLowerCase().includes(term));
       const matchesTab = tab === 'all'
-        || (tab === 'active' && ['InProgress', 'ReadyForExport'].includes(plan.status))
+        || (tab === 'active' && ['InProgress', 'ReadyForExport', 'Planning', 'AwaitingFarmData'].includes(plan.status))
         || (tab === 'completed' && plan.status === 'Completed')
-        || (tab === 'planning' && plan.status === 'Planning');
+        || (tab === 'planning' && (plan.status === 'Planning' || plan.status === 'AwaitingFarmData'));
       return matchesSearch && matchesTab;
     });
   });
@@ -175,6 +234,8 @@ export class ExportPlans {
         return 'bg-slate-100 text-slate-700 border-slate-200';
       case 'Planning':
         return 'bg-amber-50 text-amber-800 border-amber-200/80 ring-1 ring-amber-500/10';
+      case 'AwaitingFarmData':
+        return 'bg-amber-100/80 text-amber-900 border-amber-300 ring-1 ring-amber-500/20';
       case 'Draft':
         return 'bg-slate-100 text-slate-700 border-slate-200';
       default:
@@ -192,6 +253,8 @@ export class ExportPlans {
         return 'bg-slate-400';
       case 'Planning':
         return 'bg-amber-500 animate-pulse';
+      case 'AwaitingFarmData':
+        return 'bg-amber-600 animate-pulse';
       case 'Draft':
         return 'bg-slate-400';
       default:
@@ -256,6 +319,12 @@ export class ExportPlans {
     if (!this.saving()) this.dismissForm();
   }
 
+  public handleBackdropClick(event: MouseEvent): void {
+    if (event.target === this.formDialog()?.nativeElement) {
+      this.closeForm();
+    }
+  }
+
   public cancelForm(event: Event): void {
     event.preventDefault();
     this.closeForm();
@@ -264,11 +333,11 @@ export class ExportPlans {
   public nextStep(): void {
     if (!this.validateStep(this.formStep())) return;
     this.stepError.set(null);
-    if (this.formStep() === 2) {
+    if (this.formStep() === 3) {
       this.analyzeSchedule(false);
       return;
     }
-    this.formStep.update((step) => Math.min(3, step + 1));
+    this.formStep.update((step) => Math.min(4, step + 1));
   }
 
   public previousStep(): void {
@@ -277,8 +346,8 @@ export class ExportPlans {
   }
 
   public goToStep(step: number): void {
-    if (step === 3 && (!this.scheduleAnalysis() || this.scheduleDirty())) {
-      if (this.validateStep(1) && this.validateStep(2)) this.analyzeSchedule(false);
+    if (step === 4 && (!this.scheduleAnalysis() || this.scheduleDirty())) {
+      if (this.validateStep(1) && this.validateStep(2) && this.validateStep(3)) this.analyzeSchedule(false);
       return;
     }
     if (step >= this.formStep()) {
@@ -420,7 +489,7 @@ export class ExportPlans {
   }
 
   public create(): void {
-    if (!this.validateStep(3)) return;
+    if (!this.validateStep(4)) return;
     const analysis = this.scheduleAnalysis();
     if (!analysis || this.scheduleDirty()) {
       this.stepError.set('أعد تقييم المواعيد قبل تأكيد إنشاء الخطة.');
@@ -443,14 +512,16 @@ export class ExportPlans {
       next: (plan) => {
         this.dismissForm();
         this.loadPlans();
-        this.pollPlanning(plan.id);
+        if (plan.status !== 'AwaitingFarmData') {
+          this.pollPlanning(plan.id);
+        }
       },
       error: (error) => this.error.set(error.error?.error?.message ?? 'تعذر إنشاء خطة التصدير.'),
     });
   }
 
   public analyzeSchedule(reEvaluate: boolean): void {
-    if (!this.validateStep(1) || !this.validateStep(2) || this.analyzing()) return;
+    if (!this.validateStep(1) || !this.validateStep(2) || !this.validateStep(3) || this.analyzing()) return;
     if (reEvaluate && !this.validateDateSequence()) return;
 
     this.analyzing.set(true);
@@ -484,7 +555,7 @@ export class ExportPlans {
         this.form.expectedExportDate = analysis.expectedExportDate;
         this.form.analysisToken = analysis.analysisToken;
         this.scheduleDirty.set(false);
-        this.formStep.set(3);
+        this.formStep.set(4);
       },
       error: (error) => {
         const validation = error.error?.error?.validationErrors as Record<string, string[]> | undefined;
@@ -535,7 +606,15 @@ export class ExportPlans {
   }
 
   public statusLabel(status: string): string {
-    return ({ Planning: 'قيد التخطيط', InProgress: 'قيد التنفيذ', ReadyForExport: 'جاهزة للتصدير', Completed: 'مكتملة', Draft: 'مسودة', Cancelled: 'ملغاة' } as Record<string, string>)[status] ?? status;
+    return ({
+      Planning: 'قيد التخطيط',
+      AwaitingFarmData: 'بانتظار اكتمال بيانات المزرعة',
+      InProgress: 'قيد التنفيذ',
+      ReadyForExport: 'جاهزة للتصدير',
+      Completed: 'مكتملة',
+      Draft: 'مسودة',
+      Cancelled: 'ملغاة',
+    } as Record<string, string>)[status] ?? status;
   }
 
   public planningLabel(status: string): string {
@@ -604,6 +683,24 @@ export class ExportPlans {
       return false;
     }
     if (step === 3) {
+      if (!this.form.farmType?.trim()) {
+        this.stepError.set('يرجى تحديد نوع المزرعة للمتابعة.');
+        return false;
+      }
+      if (!this.form.irrigationSystem?.trim()) {
+        this.stepError.set('يرجى تحديد نوع أو نظام الري للمتابعة.');
+        return false;
+      }
+      if (this.form.soilPh != null && (this.form.soilPh < 0 || this.form.soilPh > 14)) {
+        this.stepError.set('درجة حموضة التربة (pH) يجب أن تكون بين 0 و 14.');
+        return false;
+      }
+      if (this.form.waterPh != null && (this.form.waterPh < 0 || this.form.waterPh > 14)) {
+        this.stepError.set('درجة حموضة المياه (pH) يجب أن تكون بين 0 و 14.');
+        return false;
+      }
+    }
+    if (step === 4) {
       if (!this.scheduleAnalysis() || this.scheduleDirty()) {
         this.stepError.set('حلل المواعيد أو أعد تقييم تعديلاتك قبل إنشاء الخطة.');
         return false;
@@ -676,6 +773,9 @@ export class ExportPlans {
       latitude: 30.0444, longitude: 31.2357, areaInFeddan: 1,
       plantingDate: '', expectedHarvestDate: '', expectedExportDate: '', notes: null,
       analysisToken: '', acceptScheduleWarnings: false,
+      farmType: '', soilType: '', irrigationSystem: '', fertigation: '',
+      soilPh: null, soilEc: null, soilNitrogen: null, soilPhosphorus: null, soilPotassium: null, soilOrganicMatter: null,
+      waterPh: null, waterEc: null, waterSalinity: null, waterSodium: null, waterChloride: null, waterBicarbonate: null, waterCalcium: null, waterMagnesium: null, waterSar: null,
     };
   }
 }

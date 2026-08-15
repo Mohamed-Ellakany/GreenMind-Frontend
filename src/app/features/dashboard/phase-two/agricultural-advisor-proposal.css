@@ -1,0 +1,22 @@
+/* Proposal Modal & Overlay Styles */
+.error-banner { display: flex; align-items: center; justify-content: space-between; gap: 1rem; border-radius: .85rem; padding: .75rem .9rem; font-size: .75rem; font-weight: 800; border: 1px solid #fecaca; background: #fff1f2; color: #991b1b; }
+.error-banner button { font-size: 1.1rem; background: transparent; border: none; color: inherit; cursor: pointer; }
+.overlay { position: fixed; inset: 0; z-index: 80; display: grid; place-items: center; background: rgb(6 23 14 / .65); padding: 1rem; backdrop-filter: blur(4px); }
+.modal { width: min(720px, 100%); max-height: 92dvh; overflow: hidden; border-radius: 1.35rem; background: #fff; box-shadow: 0 28px 80px rgb(0 0 0 / .25); }
+.modal > header { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; border-bottom: 1px solid #edf1ee; background: linear-gradient(120deg, #edf9f0, #fff); padding: 1rem 1.2rem; }
+.modal > header h2 { font-size: 1.05rem; font-weight: 950; margin: 0; }
+.modal > header p { margin: .2rem 0 0; color: #718078; font-size: .68rem; }
+.close-button { display: grid; width: 36px; height: 36px; flex: none; place-items: center; border: 1px solid #dce6df; border-radius: 50%; background: #fff; font-size: 1.1rem; cursor: pointer; }
+.primary-action, .danger-action { display: inline-flex; min-height: 38px; align-items: center; justify-content: center; gap: .4rem; border-radius: .7rem; padding: .55rem .95rem; font-size: .72rem; font-weight: 900; cursor: pointer; transition: all .15s; border: none; }
+.primary-action { background: linear-gradient(135deg, #15934b, #0b7338); color: #fff; box-shadow: 0 6px 16px rgb(15 122 61 / .2); }
+.danger-action { background: #fff1f2; color: #b42318; border: 1px solid #fecaca; }
+.proposal-body { max-height: 60dvh; overflow-y: auto; padding: 1rem 1.2rem; }
+.proposal-status { display: inline-block; margin-bottom: .7rem; border-radius: 999px; background: #eef4f0; padding: .3rem .65rem; font-size: .62rem; font-weight: 850; }
+.proposal-body > article { margin-bottom: .75rem; border: 1px solid #dce6df; border-radius: .85rem; padding: .8rem; background: #fff; }
+.proposal-body small { color: #697a70; font-size: .6rem; font-weight: 850; }
+.proposal-body p { margin-top: .15rem; font-size: .68rem; }
+.proposal-values { display: grid; grid-template-columns: 1fr 1fr; gap: .6rem; margin-top: .6rem; }
+.proposal-values section { border-radius: .7rem; background: #f6f9f7; padding: .65rem; }
+.proposal-values section:last-child { background: #ecf9ef; border: 1px solid #bbf7d0; }
+.proposal-values b { display: block; margin-top: .2rem; font-size: .72rem; }
+.proposal-modal footer { display: flex; justify-content: space-between; gap: .7rem; border-top: 1px solid #edf1ee; padding: .85rem 1.2rem; }

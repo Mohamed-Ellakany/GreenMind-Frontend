@@ -1,4 +1,8 @@
-import { meetsPasswordPolicy, passwordRequirements } from './password-policy';
+import {
+  getPasswordStrength,
+  meetsPasswordPolicy,
+  passwordRequirements,
+} from './password-policy';
 
 describe('password policy', () => {
   it('does not count an Arabic letter as a symbol', () => {
@@ -11,4 +15,13 @@ describe('password policy', () => {
   it('accepts a real symbol when the remaining requirements are met', () => {
     expect(meetsPasswordPolicy('Abcdef1!')).toBe(true);
   });
+
+  it('correctly calculates password strength levels', () => {
+    expect(getPasswordStrength('').score).toBe(0);
+    expect(getPasswordStrength('abc').label).toBe('ضعيفة');
+    expect(getPasswordStrength('Abcdef1').label).toBe('متوسطة');
+    expect(getPasswordStrength('Abcdef1!').label).toBe('قوية جداً');
+    expect(getPasswordStrength('Abcdef1!').percentage).toBe(100);
+  });
 });
+

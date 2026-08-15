@@ -1,0 +1,412 @@
+<section class="soil-page mx-auto max-w-[1380px] pb-12 text-[#10231b]" dir="rtl">
+  @if (loading()) {
+    <app-plant-growth-loader message="جارٍ تحميل بيانات ومؤشرات التربة…" />
+  } @else if (error() && !plan()) {
+    <div class="grid min-h-[55vh] place-items-center">
+      <div class="max-w-md rounded-3xl border border-red-100 bg-white p-8 text-center shadow-sm">
+        <span class="mx-auto grid size-14 place-items-center rounded-2xl bg-red-50 text-2xl font-black text-red-600">!</span>
+        <h1 class="mt-5 text-xl font-black">لم نتمكن من فتح متابعة التربة</h1>
+        <p class="mt-2 text-sm leading-6 text-slate-500">{{ error() }}</p>
+        <a routerLink="/export-plans" class="mt-6 inline-flex rounded-xl bg-[#0f7a3d] px-5 py-3 text-sm font-bold text-white">العودة إلى الخطط</a>
+      </div>
+    </div>
+  } @else if (plan(); as currentPlan) {
+    <!-- Breadcrumb Header -->
+    <header class="mb-5 flex flex-col justify-between gap-4 md:flex-row md:items-center">
+      <div>
+        <nav class="mb-1 flex items-center gap-2 text-xs text-slate-500" aria-label="مسار الصفحة">
+          <a routerLink="/export-plans" class="font-bold transition hover:text-[#0f7a3d]">خطط التصدير</a>
+          <span aria-hidden="true">/</span>
+          <a [routerLink]="['/export-plans', currentPlan.id, 'overview']" class="font-bold transition hover:text-[#0f7a3d]">{{ currentPlan.name }}</a>
+          <span aria-hidden="true">/</span>
+          <span class="font-bold text-[#0f7a3d]">متابعة التربة</span>
+        </nav>
+        <h1 class="text-2xl font-black text-[#10231b] sm:text-3xl">متابعة وتحليل صحة التربة</h1>
+        <p class="mt-1 text-sm text-[#5a6b61]">
+          المحصول: <b class="text-[#0f7a3d]">{{ currentPlan.crop }}</b> · المساحة: {{ currentPlan.areaInFeddan }} فدان · {{ currentPlan.city }}، {{ currentPlan.governorate }}
+        </p>
+      </div>
+
+      <div class="flex flex-wrap items-center gap-3">
+        <a [routerLink]="['/export-plans', currentPlan.id, 'overview']" class="inline-flex min-h-10 items-center rounded-xl border border-[#cbd9ce] bg-white px-4 py-2 text-xs font-bold text-[#35463c] shadow-sm hover:bg-[#f5f8f5]">
+          ← العودة للوحة الخطة
+        </a>
+        <button type="button" class="inline-flex min-h-10 items-center gap-2 rounded-xl bg-[#0f7a3d] px-4 py-2 text-xs font-black text-white shadow-[0_8px_20px_rgba(15,122,61,.22)] transition hover:bg-[#095e2d]" (click)="openSoilForm()">
+          <span class="text-sm font-bold">+</span>
+          <span>تسجيل قراءة جديدة</span>
+        </button>
+      </div>
+    </header>
+
+    @if (error()) {
+      <div class="mb-4 flex items-center justify-between gap-3 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-bold text-red-700" role="alert">
+        <span>{{ error() }}</span>
+        <button type="button" class="text-lg" aria-label="إغلاق التنبيه" (click)="error.set(null)">×</button>
+      </div>
+    }
+
+    @if (soilSuccess()) {
+      <div class="mb-4 flex items-center justify-between gap-3 rounded-xl border border-green-200 bg-green-50 px-4 py-3 text-sm font-bold text-green-800" role="status">
+        <span>✓ {{ soilSuccess() }}</span>
+        <button type="button" class="text-lg" aria-label="إغلاق التنبيه" (click)="soilSuccess.set(null)">×</button>
+      </div>
+    }
+
+    <!-- Top Key Metrics Cards -->
+    <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <!-- Overall Health Score Card -->
+      <article class="relative overflow-hidden rounded-2xl border border-[#d6e5d9] bg-gradient-to-br from-[#ebf7ee] to-[#f7fbf8] p-5 shadow-sm">
+        <div class="flex items-start justify-between">
+          <div>
+            <span class="text-xs font-bold text-[#4e6457]">مؤشر جودة التربة</span>
+            <div class="mt-2 flex items-baseline gap-2">
+              <strong class="text-3xl font-black text-[#0f7a3d]">
+                @if (latestReading()) { {{ soilHealth().score }}% } @else { — }
+              </strong>
+              <span class="rounded-full px-2.5 py-0.5 text-xs font-black"
+                [ngClass]="{
+                  'bg-[#d5f3dd] text-[#0f7a3d]': soilHealth().tone === 'good',
+                  'bg-[#fef3d6] text-[#9b5e08]': soilHealth().tone === 'warning',
+                  'bg-[#fde8e8] text-[#c81e1e]': soilHealth().tone === 'danger',
+                  'bg-slate-100 text-slate-600': soilHealth().tone === 'neutral'
+                }">
+                {{ soilHealth().label }}
+              </span>
+            </div>
+          </div>
+          <span class="grid size-10 place-items-center rounded-xl bg-white text-xl shadow-sm">🌱</span>
+        </div>
+        <p class="mt-3 text-xs leading-relaxed text-[#5a6b61]">{{ soilHealth().description }}</p>
+      </article>
+
+      <!-- pH Card -->
+      <article class="rounded-2xl border border-[#dde6df] bg-white p-5 shadow-sm">
+        <div class="flex items-start justify-between">
+          <div>
+            <span class="text-xs font-bold text-[#65736c]">درجة الحموضة (pH)</span>
+            <strong class="mt-2 block text-3xl font-black text-[#10231b]">
+              @if (latestReading(); as soil) { {{ soil.ph | number:'1.1-2' }} } @else { — }
+            </strong>
+          </div>
+          <span class="grid size-10 place-items-center rounded-xl bg-[#eef4ff] text-base font-bold text-[#3b5998]">pH</span>
+        </div>
+        <div class="mt-3 flex items-center justify-between text-xs">
+          <span class="font-bold text-[#55695d]">المثالي: 5.5 - 7.5</span>
+          @if (latestReading(); as soil) {
+            <span class="font-black" [ngClass]="soil.ph >= 5.5 && soil.ph <= 7.5 ? 'text-[#0f7a3d]' : 'text-[#b26414]'">
+              {{ getPhAssessment(soil.ph).label }}
+            </span>
+          }
+        </div>
+      </article>
+
+      <!-- EC Salinity Card -->
+      <article class="rounded-2xl border border-[#dde6df] bg-white p-5 shadow-sm">
+        <div class="flex items-start justify-between">
+          <div>
+            <span class="text-xs font-bold text-[#65736c]">الملوحة والتوصيل (EC)</span>
+            <strong class="mt-2 block text-3xl font-black text-[#10231b]">
+              @if (latestReading(); as soil) { {{ soil.ec | number:'1.1-2' }} <small class="text-sm font-bold text-slate-400">dS/m</small> } @else { — }
+            </strong>
+          </div>
+          <span class="grid size-10 place-items-center rounded-xl bg-[#fff7e6] text-base font-bold text-[#b26414]">EC</span>
+        </div>
+        <div class="mt-3 flex items-center justify-between text-xs">
+          <span class="font-bold text-[#55695d]">الحد الآمن: ≤ 2.5 dS/m</span>
+          @if (latestReading(); as soil) {
+            <span class="font-black" [ngClass]="soil.ec <= 2.5 ? 'text-[#0f7a3d]' : 'text-[#c81e1e]'">
+              {{ getEcAssessment(soil.ec).label }}
+            </span>
+          }
+        </div>
+      </article>
+
+      <!-- Moisture Card -->
+      <article class="rounded-2xl border border-[#dde6df] bg-white p-5 shadow-sm">
+        <div class="flex items-start justify-between">
+          <div>
+            <span class="text-xs font-bold text-[#65736c]">رطوبة التربة (Moisture)</span>
+            <strong class="mt-2 block text-3xl font-black text-[#10231b]">
+              @if (latestReading(); as soil) { {{ soil.moisture | number:'1.0-0' }}% } @else { — }
+            </strong>
+          </div>
+          <span class="grid size-10 place-items-center rounded-xl bg-[#e6f7ff] text-base font-bold text-[#0077b6]">💧</span>
+        </div>
+        <div class="mt-3 flex items-center justify-between text-xs">
+          <span class="font-bold text-[#55695d]">النطاق المستهدف: 50% - 80%</span>
+          @if (latestReading(); as soil) {
+            <span class="font-black" [ngClass]="soil.moisture >= 50 && soil.moisture <= 80 ? 'text-[#0f7a3d]' : 'text-[#b26414]'">
+              {{ getMoistureAssessment(soil.moisture).label }}
+            </span>
+          }
+        </div>
+      </article>
+    </div>
+
+    <!-- Middle Section: NPK Breakdown & Agronomic Recommendations -->
+    <div class="mt-6 grid items-start gap-6 xl:grid-cols-[1.4fr_1fr]">
+      <!-- Left: Agronomic Advice & Parameter Analysis -->
+      <div class="space-y-6">
+        <!-- Agronomic Advice Section -->
+        <article class="rounded-2xl border border-[#dde6df] bg-white p-6 shadow-sm">
+          <div class="mb-4 flex items-center justify-between">
+            <div>
+              <span class="text-xs font-bold text-[#0f7a3d]">التحليل الذكي والتوصيات</span>
+              <h2 class="mt-1 text-lg font-black text-[#10231b]">إرشادات التربة والتسميد والري</h2>
+            </div>
+            <span class="rounded-full bg-[#f0faf2] px-3 py-1 text-xs font-black text-[#0f7a3d]">مُحدث فورياً</span>
+          </div>
+
+          <div class="space-y-3">
+            @for (rec of recommendations(); track rec.title) {
+              <div class="flex items-start gap-3.5 rounded-xl border p-4 transition"
+                [ngClass]="{
+                  'border-[#cfe5d4] bg-[#f7fcf8]': rec.tone === 'good',
+                  'border-[#fbe2b5] bg-[#fffcf5]': rec.tone === 'warning',
+                  'border-[#fbd0d0] bg-[#fff7f7]': rec.tone === 'danger',
+                  'border-slate-200 bg-slate-50': rec.tone === 'info'
+                }">
+                <span class="mt-0.5 grid size-7 shrink-0 place-items-center rounded-lg text-sm font-black"
+                  [ngClass]="{
+                    'bg-[#d5f3dd] text-[#0f7a3d]': rec.tone === 'good',
+                    'bg-[#fdecc4] text-[#9b5e08]': rec.tone === 'warning',
+                    'bg-[#fedede] text-[#c81e1e]': rec.tone === 'danger',
+                    'bg-slate-200 text-slate-700': rec.tone === 'info'
+                  }">
+                  @if (rec.tone === 'good') { ✓ }
+                  @else if (rec.tone === 'danger') { ✕ }
+                  @else if (rec.tone === 'warning') { ! }
+                  @else { ✦ }
+                </span>
+                <div class="min-w-0 flex-1">
+                  <strong class="block text-sm font-black text-[#10231b]">{{ rec.title }}</strong>
+                  <p class="mt-1 text-xs leading-relaxed text-[#55695d]">{{ rec.detail }}</p>
+                  @if (rec.action) {
+                    <button type="button" class="mt-3 inline-flex items-center gap-1.5 rounded-lg bg-[#0f7a3d] px-3 py-1.5 text-xs font-bold text-white hover:bg-[#0a6330]" (click)="openSoilForm()">
+                      {{ rec.action }}
+                    </button>
+                  }
+                </div>
+              </div>
+            }
+          </div>
+        </article>
+
+        <!-- Historical Measurements Table -->
+        <article class="rounded-2xl border border-[#dde6df] bg-white p-6 shadow-sm">
+          <div class="mb-4 flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <span class="text-xs font-bold text-[#0f7a3d]">البيانات المتسجلة</span>
+              <h2 class="mt-1 text-lg font-black text-[#10231b]">سجل قياسات التربة ({{ measurements().length }} قراءة)</h2>
+            </div>
+            <button type="button" class="inline-flex items-center gap-1.5 rounded-lg border border-[#cbe1d0] bg-[#f2faf4] px-3 py-1.5 text-xs font-black text-[#0f7a3d] hover:bg-[#e4f5e8]" (click)="openSoilForm()">
+              + إضافة قراءة
+            </button>
+          </div>
+
+          @if (measurements().length === 0) {
+            <div class="rounded-xl border border-dashed border-[#cad6cc] bg-[#fbfdfb] p-10 text-center">
+              <span class="mx-auto grid size-12 place-items-center rounded-xl bg-[#e7f5eb] text-2xl">🧪</span>
+              <h3 class="mt-3 text-sm font-black text-[#10231b]">لم تُسجل أي قراءات تربة لهذه الخطة حتى الآن</h3>
+              <p class="mt-1 text-xs text-[#65736c]">سجل قياسات الحقل لمراقبة تطور العناصر والمؤشرات طوال الموسم.</p>
+              <button type="button" class="mt-4 rounded-xl bg-[#0f7a3d] px-4 py-2 text-xs font-bold text-white shadow-sm" (click)="openSoilForm()">
+                تسجيل أول قراءة
+              </button>
+            </div>
+          } @else {
+            <div class="overflow-x-auto">
+              <table class="w-full text-right text-xs">
+                <thead>
+                  <tr class="border-b border-[#e2ece4] bg-[#f7f9f7] text-[#55695d]">
+                    <th class="py-3 px-3.5 font-bold">تاريخ القياس</th>
+                    <th class="py-3 px-3 font-bold">الحموضة (pH)</th>
+                    <th class="py-3 px-3 font-bold">الملوحة (EC)</th>
+                    <th class="py-3 px-3 font-bold">الرطوبة</th>
+                    <th class="py-3 px-3 font-bold">عناصر N-P-K</th>
+                    <th class="py-3 px-3 font-bold">ملاحظات</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-[#edf3ee]">
+                  @for (reading of measurements(); track reading.id) {
+                    <tr class="transition hover:bg-[#fbfdfb]">
+                      <td class="py-3 px-3.5 font-black text-[#10231b] whitespace-nowrap">
+                        {{ formatDate(reading.measurementDate) }}
+                      </td>
+                      <td class="py-3 px-3">
+                        <span class="inline-flex items-center gap-1 font-black" [ngClass]="reading.ph >= 5.5 && reading.ph <= 7.5 ? 'text-[#0f7a3d]' : 'text-[#b26414]'">
+                          {{ reading.ph }}
+                        </span>
+                      </td>
+                      <td class="py-3 px-3 font-black" [ngClass]="reading.ec <= 2.5 ? 'text-[#0f7a3d]' : 'text-[#c81e1e]'">
+                        {{ reading.ec }} <span class="text-[10px] font-normal text-slate-400">dS/m</span>
+                      </td>
+                      <td class="py-3 px-3 font-black" [ngClass]="reading.moisture >= 50 && reading.moisture <= 80 ? 'text-[#0f7a3d]' : 'text-[#b26414]'">
+                        {{ reading.moisture }}%
+                      </td>
+                      <td class="py-3 px-3">
+                        <div class="flex items-center gap-1 font-bold text-slate-700">
+                          <span class="rounded bg-slate-100 px-1 py-0.5 text-[10px]">N:{{ reading.nitrogen }}</span>
+                          <span class="rounded bg-slate-100 px-1 py-0.5 text-[10px]">P:{{ reading.phosphorus }}</span>
+                          <span class="rounded bg-slate-100 px-1 py-0.5 text-[10px]">K:{{ reading.potassium }}</span>
+                        </div>
+                      </td>
+                      <td class="py-3 px-3 text-[#65736c] max-w-xs truncate">
+                        {{ reading.notes || '—' }}
+                      </td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          }
+        </article>
+      </div>
+
+      <!-- Right Column: Nutrients NPK + Optimal Guidelines Reference -->
+      <aside class="space-y-6">
+        <!-- NPK Nutrients Card -->
+        <article class="rounded-2xl border border-[#dde6df] bg-white p-6 shadow-sm">
+          <span class="text-xs font-bold text-[#0f7a3d]">تغذية النبات</span>
+          <h2 class="mt-1 text-base font-black text-[#10231b]">العناصر الكبرى (N - P - K)</h2>
+          <p class="mt-1 text-xs text-[#65736c]">آخر مستويات مسجلة للعناصر المغذية في التربة (ppm / نسبة).</p>
+
+          @if (latestReading(); as soil) {
+            <div class="mt-5 space-y-4">
+              <div>
+                <div class="flex items-center justify-between text-xs font-bold">
+                  <span class="text-[#10231b]">النيتروجين (N)</span>
+                  <span class="text-[#0f7a3d] font-black">{{ soil.nitrogen }} ppm</span>
+                </div>
+                <div class="mt-2 h-2 overflow-hidden rounded-full bg-[#edf3ef]">
+                  <div class="h-full rounded-full bg-[#0f7a3d]" [style.width.%]="soil.nitrogen ? (soil.nitrogen / 60) * 100 : 40"></div>
+                </div>
+              </div>
+
+              <div>
+                <div class="flex items-center justify-between text-xs font-bold">
+                  <span class="text-[#10231b]">الفوسفور (P)</span>
+                  <span class="text-[#0f7a3d] font-black">{{ soil.phosphorus }} ppm</span>
+                </div>
+                <div class="mt-2 h-2 overflow-hidden rounded-full bg-[#edf3ef]">
+                  <div class="h-full rounded-full bg-[#20a958]" [style.width.%]="soil.phosphorus ? (soil.phosphorus / 40) * 100 : 50"></div>
+                </div>
+              </div>
+
+              <div>
+                <div class="flex items-center justify-between text-xs font-bold">
+                  <span class="text-[#10231b]">البوتاسيوم (K)</span>
+                  <span class="text-[#0f7a3d] font-black">{{ soil.potassium }} ppm</span>
+                </div>
+                <div class="mt-2 h-2 overflow-hidden rounded-full bg-[#edf3ef]">
+                  <div class="h-full rounded-full bg-[#34d399]" [style.width.%]="soil.potassium ? (soil.potassium / 80) * 100 : 60"></div>
+                </div>
+              </div>
+            </div>
+          } @else {
+            <p class="mt-4 rounded-xl bg-slate-50 p-4 text-xs text-slate-500 text-center">لا توجد بيانات NPK متوفرة بعد.</p>
+          }
+        </article>
+
+        <!-- Optimal Standards Reference Card for Crop -->
+        <article class="rounded-2xl border border-[#dde6df] bg-[#fbfdfb] p-6 shadow-sm">
+          <span class="text-xs font-bold text-[#445b4c]">المعايير المثالية لمحصول</span>
+          <h2 class="mt-1 text-base font-black text-[#10231b]">{{ currentPlan.crop }}</h2>
+          <p class="mt-1 text-xs text-[#65736c]">النطاقات الزراعية المعتمدة لإنتاج محصول تصديري عالي الجودة:</p>
+
+          <dl class="mt-4 space-y-3 text-xs">
+            <div class="flex items-center justify-between border-b border-[#e7efe9] pb-2.5">
+              <dt class="font-bold text-[#55695d]">الحموضة المثالية (pH)</dt>
+              <dd class="font-black text-[#10231b]">5.5 - 6.8</dd>
+            </div>
+            <div class="flex items-center justify-between border-b border-[#e7efe9] pb-2.5">
+              <dt class="font-bold text-[#55695d]">أقصى ملوحة مقبولة (EC)</dt>
+              <dd class="font-black text-[#10231b]">≤ 2.0 dS/m</dd>
+            </div>
+            <div class="flex items-center justify-between border-b border-[#e7efe9] pb-2.5">
+              <dt class="font-bold text-[#55695d]">الرطوبة المناسبة للجذور</dt>
+              <dd class="font-black text-[#10231b]">60% - 75%</dd>
+            </div>
+            <div class="flex items-center justify-between border-b border-[#e7efe9] pb-2.5">
+              <dt class="font-bold text-[#55695d]">قوام التربة المفضل</dt>
+              <dd class="font-black text-[#10231b]">طميية رملية جيدة الصرف</dd>
+            </div>
+            <div class="flex items-center justify-between">
+              <dt class="font-bold text-[#55695d]">دورية قياس التربة</dt>
+              <dd class="font-black text-[#0f7a3d]">كل 7 - 10 أيام</dd>
+            </div>
+          </dl>
+        </article>
+      </aside>
+    </div>
+  }
+
+  <!-- Add Soil Measurement Dialog Modal -->
+  <dialog #soilDialog class="modal-dialog fixed inset-0 z-50 m-auto max-h-[90vh] w-[92vw] max-w-lg rounded-2xl border border-[#cfe2d3] bg-white p-0 text-[#10231b] shadow-2xl backdrop:bg-black/45" (close)="soilFormOpen.set(false)">
+    <form (ngSubmit)="saveSoilMeasurement()" class="flex flex-col p-6">
+      <header class="mb-5 flex items-center justify-between border-b border-[#e6eee8] pb-4">
+        <div>
+          <span class="text-xs font-bold text-[#0f7a3d]">تسجيل ميداني</span>
+          <h2 class="text-lg font-black text-[#10231b]">إضافة قراءة تربة جديدة</h2>
+        </div>
+        <button type="button" class="grid size-8 place-items-center rounded-lg text-lg text-slate-400 hover:bg-slate-100 hover:text-slate-700" (click)="closeSoilForm()">×</button>
+      </header>
+
+      @if (soilError()) {
+        <div class="mb-4 rounded-xl border border-red-200 bg-red-50 p-3 text-xs font-bold text-red-700" role="alert">
+          {{ soilError() }}
+        </div>
+      }
+
+      <div class="space-y-4">
+        <div>
+          <label class="mb-1 block text-xs font-black text-[#3a4e40]">تاريخ القياس *</label>
+          <input type="text" appDatePicker class="w-full rounded-xl border border-[#c9d8cc] px-3 py-2 text-sm font-bold text-[#10231b]" [(ngModel)]="soilForm.measurementDate" name="measurementDate" required />
+        </div>
+
+        <div class="grid grid-cols-3 gap-3">
+          <div>
+            <label class="mb-1 block text-xs font-black text-[#3a4e40]">الحموضة (pH) *</label>
+            <input type="number" step="0.1" min="0" max="14" class="w-full rounded-xl border border-[#c9d8cc] px-3 py-2 text-sm font-bold text-[#10231b]" [(ngModel)]="soilForm.ph" name="ph" placeholder="6.5" required />
+          </div>
+          <div>
+            <label class="mb-1 block text-xs font-black text-[#3a4e40]">الملوحة (EC) *</label>
+            <input type="number" step="0.1" min="0" max="20" class="w-full rounded-xl border border-[#c9d8cc] px-3 py-2 text-sm font-bold text-[#10231b]" [(ngModel)]="soilForm.ec" name="ec" placeholder="1.2" required />
+          </div>
+          <div>
+            <label class="mb-1 block text-xs font-black text-[#3a4e40]">الرطوبة % *</label>
+            <input type="number" step="1" min="0" max="100" class="w-full rounded-xl border border-[#c9d8cc] px-3 py-2 text-sm font-bold text-[#10231b]" [(ngModel)]="soilForm.moisture" name="moisture" placeholder="65" required />
+          </div>
+        </div>
+
+        <div class="grid grid-cols-3 gap-3">
+          <div>
+            <label class="mb-1 block text-xs font-bold text-[#55695d]">النيتروجين N</label>
+            <input type="number" class="w-full rounded-xl border border-[#c9d8cc] px-3 py-2 text-sm font-bold text-[#10231b]" [(ngModel)]="soilForm.nitrogen" name="nitrogen" placeholder="25" />
+          </div>
+          <div>
+            <label class="mb-1 block text-xs font-bold text-[#55695d]">الفوسفور P</label>
+            <input type="number" class="w-full rounded-xl border border-[#c9d8cc] px-3 py-2 text-sm font-bold text-[#10231b]" [(ngModel)]="soilForm.phosphorus" name="phosphorus" placeholder="18" />
+          </div>
+          <div>
+            <label class="mb-1 block text-xs font-bold text-[#55695d]">البوتاسيوم K</label>
+            <input type="number" class="w-full rounded-xl border border-[#c9d8cc] px-3 py-2 text-sm font-bold text-[#10231b]" [(ngModel)]="soilForm.potassium" name="potassium" placeholder="35" />
+          </div>
+        </div>
+
+        <div>
+          <label class="mb-1 block text-xs font-bold text-[#55695d]">ملاحظات أو توصيات ميدانية</label>
+          <textarea rows="2" class="w-full rounded-xl border border-[#c9d8cc] px-3 py-2 text-sm text-[#10231b]" [(ngModel)]="soilForm.notes" name="notes" placeholder="مثال: تم أخذ العينة بعد الري بـ 24 ساعة"></textarea>
+        </div>
+      </div>
+
+      <footer class="mt-6 flex items-center justify-end gap-3 border-t border-[#e6eee8] pt-4">
+        <button type="button" class="rounded-xl border border-[#d2dfd5] bg-white px-4 py-2 text-xs font-bold text-slate-700 hover:bg-slate-50" (click)="closeSoilForm()">
+          إلغاء
+        </button>
+        <button type="submit" class="rounded-xl bg-[#0f7a3d] px-5 py-2 text-xs font-black text-white shadow-sm hover:bg-[#095e2d] disabled:opacity-50" [disabled]="soilSaving()">
+          @if (soilSaving()) { جارٍ الحفظ… } @else { حفظ القراءة }
+        </button>
+      </footer>
+    </form>
+  </dialog>
+</section>

@@ -4,6 +4,7 @@ import { ActivatedRoute, RouterLink } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 import { AuthService } from '../../services/AuthService';
 import {
+  getPasswordStrength,
   meetsPasswordPolicy,
   PASSWORD_POLICY_MESSAGE,
   passwordRequirements,
@@ -36,8 +37,16 @@ export class ResetPassword {
     return passwordRequirements(this.password);
   }
 
+  protected passwordStrength() {
+    return getPasswordStrength(this.password);
+  }
+
   protected passwordsMismatch(): boolean {
     return !!this.confirmPassword && this.confirmPassword !== this.password;
+  }
+
+  protected passwordsMatch(): boolean {
+    return !!this.password && !!this.confirmPassword && this.password === this.confirmPassword;
   }
 
   protected async submit(form: NgForm): Promise<void> {

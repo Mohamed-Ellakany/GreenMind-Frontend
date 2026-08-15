@@ -54,7 +54,7 @@ describe('ExportPlans wizard', () => {
     expect(footer.querySelectorAll('button').length).toBeGreaterThanOrEqual(2);
   });
 
-  it('analyzes from the saved coordinates and invalidates edited dates', () => {
+  it('navigates through 4 steps: plan details -> location -> farm data -> schedule analysis', () => {
     const fixture = TestBed.createComponent(ExportPlans);
     const component = fixture.componentInstance;
     component.openForm();
@@ -70,6 +70,39 @@ describe('ExportPlans wizard', () => {
     component.mapLocationSelected.set(true);
     component.formStep.set(2);
 
+    // Step 2 -> Step 3 (Farm Data)
+    component.nextStep();
+    expect(component.formStep()).toBe(3);
+
+    // Enter farm data & soil/water measurements
+    component.form.farmType = 'أرض مفتوحة';
+    component.form.soilType = 'رملية';
+    component.form.irrigationSystem = 'تنقيط';
+    component.form.fertigation = 'نعم';
+    component.form.soilPh = 6.8;
+    component.form.soilEc = 1.2;
+    component.form.soilNitrogen = 40;
+    component.form.soilPhosphorus = 20;
+    component.form.soilPotassium = 200;
+    component.form.soilOrganicMatter = 2.0;
+
+    expect(component.isSoilAnalysisCompleted()).toBe(true);
+    expect(component.isWaterAnalysisCompleted()).toBe(false);
+
+    component.form.waterPh = 7.1;
+    component.form.waterEc = 0.8;
+    component.form.waterSalinity = 500;
+    component.form.waterSodium = 25;
+    component.form.waterChloride = 30;
+    component.form.waterBicarbonate = 120;
+    component.form.waterCalcium = 40;
+    component.form.waterMagnesium = 15;
+    component.form.waterSar = 1.2;
+
+    expect(component.isWaterAnalysisCompleted()).toBe(true);
+    expect(component.isFarmDataReady()).toBe(true);
+
+    // Step 3 -> Step 4 (Schedule Analysis)
     component.nextStep();
 
     expect(api.analyzeExportPlanSchedule).toHaveBeenCalledWith(expect.objectContaining({
@@ -77,7 +110,7 @@ describe('ExportPlans wizard', () => {
       longitude: 30.923456,
       city: district.name,
     }));
-    expect(component.formStep()).toBe(3);
+    expect(component.formStep()).toBe(4);
     expect(component.form.analysisToken).toBe('signed-token');
 
     component.form.plantingDate = '2026-09-02';
@@ -85,4 +118,52 @@ describe('ExportPlans wizard', () => {
     expect(component.scheduleDirty()).toBe(true);
     expect(component.form.analysisToken).toBe('');
   });
+
+  it('requires farmType and irrigationSystem on step 3, but measurements remain optional', () => {
+    const fixture = TestBed.createComponent(ExportPlans);
+    const component = fixture.componentInstance;
+    component.openForm();
+    component.form.name = 'Test Plan';
+    component.form.cropId = 1;
+    component.form.destinationId = 1;
+    const governorate = component.governorates[0];
+    component.form.governorate = governorate.name;
+    const district = component.availableDistricts()[0];
+    component.form.city = district.name;
+    component.form.latitude = 30.0;
+    component.form.longitude = 31.0;
+    component.mapLocationSelected.set(true);
+
+    // Navigate to step 3
+    component.formStep.set(3);
+
+    // Case 1: Missing farmType -> validation fails
+    component.form.farmType = '';
+    component.form.irrigationSystem = 'تنقيط';
+    component.nextStep();
+    expect(component.formStep()).toBe(3);
+    expect(component.stepError()).toBe('يرجى تحديد نوع المزرعة للمتابعة.');
+
+    // Case 2: Missing irrigationSystem -> validation fails
+    component.form.farmType = 'أرض مفتوحة';
+    component.form.irrigationSystem = '';
+    component.nextStep();
+    expect(component.formStep()).toBe(3);
+    expect(component.stepError()).toBe('يرجى تحديد نوع أو نظام الري للمتابعة.');
+
+    // Case 3: farmType and irrigationSystem provided, but ALL measurements empty -> succeeds to step 4
+    component.form.farmType = 'أرض مفتوحة';
+    component.form.irrigationSystem = 'تنقيط';
+    component.form.soilPh = null;
+    component.form.soilEc = null;
+    component.form.soilNitrogen = null;
+    component.form.waterPh = null;
+    component.form.waterEc = null;
+
+    component.nextStep();
+    expect(component.stepError()).toBeNull();
+    expect(api.analyzeExportPlanSchedule).toHaveBeenCalled();
+    expect(component.formStep()).toBe(4);
+  });
 });
+

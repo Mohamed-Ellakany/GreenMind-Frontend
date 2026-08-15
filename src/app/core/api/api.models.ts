@@ -24,6 +24,73 @@ export interface MasterDataItem {
   createdAt: string;
 }
 
+export interface SoilAnalysisSummary {
+  ph: number | null;
+  ec: number | null;
+  nitrogen: number | null;
+  phosphorus: number | null;
+  potassium: number | null;
+  organicMatter: number | null;
+  isCompleted: boolean;
+}
+
+export interface WaterAnalysisSummary {
+  ph: number | null;
+  ec: number | null;
+  salinity: number | null;
+  sodium: number | null;
+  chloride: number | null;
+  bicarbonate: number | null;
+  calcium: number | null;
+  magnesium: number | null;
+  sar: number | null;
+  isCompleted: boolean;
+}
+
+export interface FarmDataSummary {
+  farmType?: string | null;
+  soilType?: string | null;
+  irrigationSystem?: string | null;
+  fertigation?: string | null;
+  soilPh?: number | null;
+  soilEc?: number | null;
+  soilNitrogen?: number | null;
+  soilPhosphorus?: number | null;
+  soilPotassium?: number | null;
+  soilOrganicMatter?: number | null;
+  waterPh?: number | null;
+  waterEc?: number | null;
+  waterSalinity?: number | null;
+  waterSodium?: number | null;
+  waterChloride?: number | null;
+  waterBicarbonate?: number | null;
+  waterCalcium?: number | null;
+  waterMagnesium?: number | null;
+  waterSar?: number | null;
+}
+
+export interface ExportPlanFarmDataUpdateRequest {
+  farmType?: string | null;
+  soilType?: string | null;
+  soilPh?: number | null;
+  soilEc?: number | null;
+  soilNitrogen?: number | null;
+  soilPhosphorus?: number | null;
+  soilPotassium?: number | null;
+  soilOrganicMatter?: number | null;
+  waterPh?: number | null;
+  waterEc?: number | null;
+  waterSalinity?: number | null;
+  waterSodium?: number | null;
+  waterChloride?: number | null;
+  waterBicarbonate?: number | null;
+  waterCalcium?: number | null;
+  waterMagnesium?: number | null;
+  waterSar?: number | null;
+  irrigationSystem?: string | null;
+  fertigation?: string | null;
+}
+
 export interface ExportPlan {
   id: number;
   name: string;
@@ -35,6 +102,13 @@ export interface ExportPlan {
   status: string;
   planningStatus: PlanningStatusName;
   generatedTaskCount: number;
+  isFarmDataReady?: boolean;
+  isSoilAnalysisCompleted?: boolean;
+  isWaterAnalysisCompleted?: boolean;
+  farmType?: string | null;
+  soilType?: string | null;
+  irrigationSystem?: string | null;
+  farmData?: FarmDataSummary | null;
 }
 
 export interface ExportPlanDetails extends ExportPlan {
@@ -48,6 +122,32 @@ export interface ExportPlanDetails extends ExportPlan {
   areaInFeddan: number;
   notes: string | null;
   planningFailureMessage: string | null;
+  farmType?: string | null;
+  soilType?: string | null;
+  soilPh?: number | null;
+  soilEc?: number | null;
+  soilNitrogen?: number | null;
+  soilPhosphorus?: number | null;
+  soilPotassium?: number | null;
+  soilOrganicMatter?: number | null;
+  waterPh?: number | null;
+  waterEc?: number | null;
+  waterSalinity?: number | null;
+  waterSodium?: number | null;
+  waterChloride?: number | null;
+  waterBicarbonate?: number | null;
+  waterCalcium?: number | null;
+  waterMagnesium?: number | null;
+  waterSar?: number | null;
+  irrigationSystem?: string | null;
+  fertigation?: string | null;
+  soilAnalysis?: SoilAnalysisSummary | null;
+  waterAnalysis?: WaterAnalysisSummary | null;
+  farmData?: FarmDataSummary | null;
+  isSoilAnalysisCompleted?: boolean;
+  isWaterAnalysisCompleted?: boolean;
+  isFarmDataReady?: boolean;
+  farmDataCompletedCount?: number;
 }
 
 export interface ExportPlanCreateRequest {
@@ -65,6 +165,25 @@ export interface ExportPlanCreateRequest {
   notes: string | null;
   analysisToken: string;
   acceptScheduleWarnings: boolean;
+  farmType?: string | null;
+  soilType?: string | null;
+  soilPh?: number | null;
+  soilEc?: number | null;
+  soilNitrogen?: number | null;
+  soilPhosphorus?: number | null;
+  soilPotassium?: number | null;
+  soilOrganicMatter?: number | null;
+  waterPh?: number | null;
+  waterEc?: number | null;
+  waterSalinity?: number | null;
+  waterSodium?: number | null;
+  waterChloride?: number | null;
+  waterBicarbonate?: number | null;
+  waterCalcium?: number | null;
+  waterMagnesium?: number | null;
+  waterSar?: number | null;
+  irrigationSystem?: string | null;
+  fertigation?: string | null;
 }
 
 export interface ExportPlanScheduleAnalysisRequest {
@@ -360,3 +479,29 @@ export interface SupportMessagePage {
   pageSize: number;
   totalCount: number;
 }
+
+export interface UserBudgetStatus {
+  limitUsd: number;
+  usedUsd: number;
+  isExceeded: boolean;
+  hasPendingRequest: boolean;
+}
+
+export type AiLimitRequestStatus = 'Pending' | 'Approved' | 'Rejected';
+
+export interface AiLimitRequestItem {
+  id: number;
+  userId: string;
+  userFullName: string;
+  userEmail: string | null;
+  contactName: string;
+  contactPhone: string;
+  currentLimitUsd: number;
+  usedUsd: number;
+  status: AiLimitRequestStatus;
+  adminNote: string | null;
+  newLimitUsd: number | null;
+  requestedAtUtc: string;
+  resolvedAtUtc: string | null;
+}
+

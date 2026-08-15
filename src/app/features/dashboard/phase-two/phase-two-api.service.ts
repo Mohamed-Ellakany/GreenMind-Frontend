@@ -17,10 +17,12 @@ import {
   ExpenseAttachmentType,
   ExpenseCategory,
   ExpensePage,
+  ExportPlanCostComparisonItem,
   PaymentMethod,
   PhaseApiResponse,
   TaskProposal,
 } from './phase-two.models';
+import { UserBudgetStatus } from '@core/api/api.models';
 
 @Injectable({ providedIn: 'root' })
 export class PhaseTwoApi {
@@ -59,6 +61,14 @@ export class PhaseTwoApi {
     return this.stream(`/api/farm/chat/sessions/${sessionId}/messages/stream`, content, onEvent, images);
   }
 
+  public budgetStatus(): Observable<UserBudgetStatus> {
+    return this.get('/api/farm/ai-budget');
+  }
+
+  public submitLimitRequest(contactName: string, contactPhone: string): Observable<void> {
+    return this.http.post<void>('/api/farm/ai-limit-requests', { contactName, contactPhone });
+  }
+
   public async streamMessage(
     planId: number,
     sessionId: number,
@@ -80,9 +90,6 @@ export class PhaseTwoApi {
     onEvent: (event: ChatStreamEvent) => void,
     images: Array<{ fileName: string; contentType: string; dataBase64: string }> = [],
   ): Promise<void> {
-    // Login stores non-persistent sessions in sessionStorage. Reading only
-    // localStorage made every streamed chat request return 401 unless the user
-    // had selected "remember me", while the regular HttpClient calls worked.
     const token = sessionStorage.getItem('greenmind_access_token')
       ?? localStorage.getItem('greenmind_access_token');
     const requestBody = JSON.stringify({
@@ -305,6 +312,10 @@ export class PhaseTwoApi {
 
   public costDashboard(planId: number): Observable<CostDashboard> {
     return this.get(`/api/export-plans/${planId}/cost-dashboard`);
+  }
+
+  public farmCostComparison(): Observable<ExportPlanCostComparisonItem[]> {
+    return this.get('/api/farm/export-plan-cost-comparison');
   }
 
   public exportExpenses(planId: number): Observable<Blob> {

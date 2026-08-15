@@ -6,6 +6,7 @@ import {
   faChartPie,
   faCoins,
   faComments,
+  faFlask,
   faLeaf,
   faSeedling,
 } from '@fortawesome/free-solid-svg-icons';
@@ -28,6 +29,7 @@ export class PlanContextNavigation {
     overview: faChartPie,
     advisor: faComments,
     health: faLeaf,
+    soil: faFlask,
     costs: faCoins,
     plan: faSeedling,
   };

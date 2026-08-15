@@ -87,18 +87,60 @@
           <img class="aspect-[5/4] w-full rounded-[28px] object-cover opacity-90 shadow-2xl" src="/landing-page/greenhouse.jpg" width="1376" height="768" loading="lazy" decoding="async" alt="صوبة زراعية حديثة تديرها تقنيات جرين مايند" />
           <div class="absolute -bottom-5 left-4 right-4 grid grid-cols-3 rounded-2xl border border-white/15 bg-white/95 p-4 text-center text-[#10231b] shadow-xl sm:left-8 sm:right-8"><div><b class="block text-sm text-[#0f7a3d]">متابعة</b><small class="text-xs text-[#738078]">صحة المحصول</small></div><div class="border-x border-[#dde6df]"><b class="block text-sm">امتثال</b><small class="text-xs text-[#738078]">متطلبات السوق</small></div><div><b class="block text-sm">مواعيد</b><small class="text-xs text-[#738078]">الحصاد والتصدير</small></div></div>
         </div>
-        <div><span class="inline-flex rounded-full bg-white/10 px-3 py-2 text-xs font-black text-[#d8f36a]">منصة واحدة، رؤية كاملة</span><h2 class="mt-5 text-3xl font-black leading-tight sm:text-4xl">من التخطيط إلى الشحنة، نرتب لك الصورة كاملة.</h2><p class="mt-5 leading-8 text-white/65">بدلاً من التنقل بين جداول وملفات متفرقة، تجمع جرين مايند الموسم والمهام والامتثال والأسواق في تجربة واحدة واضحة.</p><div class="mt-8 space-y-5">@for (benefit of benefits; track benefit.title; let i = $index) {<article class="flex gap-4"><span class="grid size-10 shrink-0 place-items-center rounded-xl bg-white/10 font-black text-[#d8f36a]">{{ i + 1 }}</span><div><h3 class="font-black">{{ benefit.title }}</h3><p class="mt-1 text-sm leading-6 text-white/55">{{ benefit.description }}</p></div></article>}</div></div>
+        <div>
+          <span class="inline-flex rounded-full bg-white/10 px-3 py-2 text-xs font-black text-[#d8f36a]">منصة واحدة، رؤية كاملة</span>
+          <h2 class="mt-5 text-3xl font-black leading-tight sm:text-4xl">من التخطيط إلى الشحنة، نرتب لك الصورة كاملة.</h2>
+          <p class="mt-5 leading-8 text-white/65">بدلاً من التنقل بين جداول وملفات متفرقة، تجمع جرين مايند الموسم والمهام والامتثال والأسواق في تجربة واحدة واضحة.</p>
+          <div class="mt-8 space-y-5">
+            @for (benefit of benefits; track benefit.title; let i = $index) {
+              <article class="flex gap-4">
+                <span class="grid size-10 shrink-0 place-items-center rounded-xl bg-white/10 font-black text-[#d8f36a]">{{ i + 1 }}</span>
+                <div>
+                  <h3 class="font-black">{{ benefit.title }}</h3>
+                  <p class="mt-1 text-sm leading-6 text-white/55">{{ benefit.description }}</p>
+                </div>
+              </article>
+            }
+          </div>
+        </div>
       </div>
     </section>
 
     <section class="px-4 py-14 sm:px-6 sm:py-20">
       <div class="mx-auto max-w-[1240px] rounded-xl bg-[#d8f36a] px-6 py-10 text-center shadow-[0_18px_44px_rgba(82,109,17,.14)] sm:px-12 sm:py-12">
-        <span class="text-xs font-black text-[#526d11]">موسمك القادم يبدأ بقرار</span><h2 class="mx-auto mt-3 max-w-3xl text-3xl font-black leading-tight tracking-tight sm:text-5xl">حوّل بيانات مزرعتك إلى خطة تصدير قابلة للتنفيذ.</h2><p class="mx-auto mt-5 max-w-xl leading-7 text-[#41530f]">ابدأ بخطوات بسيطة، واترك للمنصة ترتيب المهام والمواعيد ومتطلبات السوق.</p><a routerLink="/auth/register" class="mt-8 inline-flex min-h-13 items-center rounded-2xl bg-[#10231b] px-8 py-3.5 text-sm font-black text-white transition hover:-translate-y-0.5 hover:bg-[#0f7a3d]">ابدأ الآن مجاناً <span class="mr-3 text-lg">←</span></a>
+        <span class="text-xs font-black text-[#526d11]">موسمك القادم يبدأ بقرار</span>
+        <h2 class="mx-auto mt-3 max-w-3xl text-3xl font-black leading-tight tracking-tight sm:text-5xl">حوّل بيانات مزرعتك إلى خطة تصدير قابلة للتنفيذ.</h2>
+        <p class="mx-auto mt-5 max-w-xl leading-7 text-[#41530f]">ابدأ بخطوات بسيطة، واترك للمنصة ترتيب المهام والمواعيد ومتطلبات السوق.</p>
+        <a routerLink="/auth/register" class="mt-8 inline-flex min-h-13 items-center rounded-2xl bg-[#10231b] px-8 py-3.5 text-sm font-black text-white transition hover:-translate-y-0.5 hover:bg-[#0f7a3d]">ابدأ الآن مجاناً <span class="mr-3 text-lg">←</span></a>
       </div>
     </section>
   </main>
 
   <footer id="contact" class="border-t border-[#dde6df] bg-white px-4 py-12 sm:px-6">
-    <div class="mx-auto max-w-[1240px]"><div class="flex flex-col justify-between gap-8 md:flex-row md:items-center"><div class="max-w-md"><div class="flex items-center gap-2.5"><span class="grid size-10 place-items-center rounded-xl bg-[#e7f5eb]"><img class="size-7" src="/greenmind-leaf.svg" width="28" height="28" alt="" /></span><strong class="text-lg font-black">جرين مايند</strong></div><p class="mt-4 text-sm leading-7 text-[#65736c]">نبني مستقبلاً أوضح وأكثر استدامة لصادرات المحاصيل المصرية.</p></div><div class="flex flex-wrap gap-x-7 gap-y-3 text-sm font-bold text-[#526158]"><a href="#features" class="hover:text-[#0f7a3d]">الحلول</a><a href="#platform" class="hover:text-[#0f7a3d]">المنصة</a><a routerLink="/auth/login" class="hover:text-[#0f7a3d]">تسجيل الدخول</a><a routerLink="/legal/terms" class="hover:text-[#0f7a3d]">الشروط</a><a routerLink="/legal/privacy" class="hover:text-[#0f7a3d]">الخصوصية</a><a href="mailto:hello@greenmind.ag" class="hover:text-[#0f7a3d]">hello@greenmind.ag</a></div></div><div class="mt-10 flex flex-col justify-between gap-3 border-t border-[#edf1ee] pt-5 text-xs text-[#8a968f] sm:flex-row"><span>© 2026 جرين مايند. جميع الحقوق محفوظة.</span><span>صُنع للمزارع المصري</span></div></div>
+    <div class="mx-auto max-w-[1240px]">
+      <div class="flex flex-col justify-between gap-8 md:flex-row md:items-center">
+        <div class="max-w-md">
+          <div class="flex items-center gap-2.5">
+            <span class="grid size-10 place-items-center rounded-xl bg-[#e7f5eb]">
+              <img class="size-7" src="/greenmind-leaf.svg" width="28" height="28" alt="" />
+            </span>
+            <strong class="text-lg font-black">جرين مايند</strong>
+          </div>
+          <p class="mt-4 text-sm leading-7 text-[#65736c]">نبني مستقبلاً أوضح وأكثر استدامة لصادرات المحاصيل المصرية.</p>
+        </div>
+        <div class="flex flex-wrap gap-x-7 gap-y-3 text-sm font-bold text-[#526158]">
+          <a href="#features" class="hover:text-[#0f7a3d]">الحلول</a>
+          <a href="#platform" class="hover:text-[#0f7a3d]">المنصة</a>
+          <a routerLink="/auth/login" class="hover:text-[#0f7a3d]">تسجيل الدخول</a>
+          <a routerLink="/legal/terms" class="hover:text-[#0f7a3d]">الشروط</a>
+          <a routerLink="/legal/privacy" class="hover:text-[#0f7a3d]">الخصوصية</a>
+          <a href="mailto:uncle.khedr.greenmind@gmail.com" class="hover:text-[#0f7a3d]">uncle.khedr.greenmind@gmail.com</a>
+        </div>
+      </div>
+      <div class="mt-10 flex flex-col justify-between gap-3 border-t border-[#edf1ee] pt-5 text-xs text-[#8a968f] sm:flex-row">
+        <span>© 2026 جرين مايند. جميع الحقوق محفوظة.</span>
+        <span>صُنع للمزارع المصري</span>
+      </div>
+    </div>
   </footer>
 </div>

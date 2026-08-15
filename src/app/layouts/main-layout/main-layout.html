@@ -33,10 +33,10 @@
         (navigated)="closeMobileMenu(false)"
       />
     } @else {
-    <div class="border-b border-[#edf2ee] px-4 py-4.5">
+    <div class="border-b border-[#edf2ee] px-4 py-4.5" data-tour="brand">
       <a routerLink="/dashboard" class="brand-link group flex items-center gap-3.5" title="جرين مايند" (click)="closeMobileMenu(false)">
-        <span class="grid size-10 shrink-0 place-items-center rounded-xl bg-gradient-to-br from-[#087a42] to-[#04542c] text-white text-base shadow-sm shadow-emerald-900/15 transition-transform duration-200 group-hover:scale-105" aria-hidden="true">
-          <fa-icon [icon]="icons.leaf" />
+        <span class="grid size-10 shrink-0 place-items-center rounded-xl bg-[#e7f5eb] shadow-xs transition-transform duration-200 group-hover:scale-105" aria-hidden="true">
+          <img class="size-7 object-contain" src="/greenmind-leaf.svg" alt="جرين مايند" />
         </span>
         <span class="aside-text min-w-0">
           <strong class="block text-[1.05rem] font-black tracking-tight text-[#0c261b]">جرين مايند</strong>
@@ -60,15 +60,15 @@
     <nav class="aside-scroll min-h-0 flex-1 overflow-y-auto overflow-x-hidden px-3 py-4 text-sm" aria-label="التنقل الرئيسي">
       <p class="aside-text mb-2 px-2.5 text-[10px] font-extrabold uppercase tracking-widest text-[#85948b]">نظرة عامة</p>
       <div class="space-y-1">
-        <a routerLink="/dashboard" routerLinkActive="nav-link-active" ariaCurrentWhenActive="page" [routerLinkActiveOptions]="{ exact: true }" class="nav-link" title="لوحة التحكم" (click)="closeMobileMenu(false)">
+        <a routerLink="/dashboard" routerLinkActive="nav-link-active" ariaCurrentWhenActive="page" [routerLinkActiveOptions]="{ exact: true }" class="nav-link" data-tour="dashboard" title="لوحة التحكم" (click)="closeMobileMenu(false)">
           <fa-icon class="nav-fa" [icon]="icons.dashboard" />
           <span class="aside-text">لوحة التحكم</span>
         </a>
-        <a routerLink="/activities" routerLinkActive="nav-link-active" ariaCurrentWhenActive="page" class="nav-link" title="المهام والأنشطة" (click)="closeMobileMenu(false)">
+        <a routerLink="/activities" routerLinkActive="nav-link-active" ariaCurrentWhenActive="page" class="nav-link" data-tour="activities" title="المهام والأنشطة" (click)="closeMobileMenu(false)">
           <fa-icon class="nav-fa" [icon]="icons.activities" />
           <span class="aside-text">المهام والأنشطة</span>
         </a>
-        <a routerLink="/statistics" routerLinkActive="nav-link-active" ariaCurrentWhenActive="page" class="nav-link" title="الإحصائيات والتقارير" (click)="closeMobileMenu(false)">
+        <a routerLink="/statistics" routerLinkActive="nav-link-active" ariaCurrentWhenActive="page" class="nav-link" data-tour="statistics" title="الإحصائيات والتقارير" (click)="closeMobileMenu(false)">
           <fa-icon class="nav-fa" [icon]="icons.reports" />
           <span class="aside-text">الإحصائيات والتقارير</span>
         </a>
@@ -76,15 +76,11 @@
 
       <p class="aside-text mb-2 mt-5 px-2.5 text-[10px] font-extrabold uppercase tracking-widest text-[#85948b]">التصدير والامتثال</p>
       <div class="space-y-1">
-        <a routerLink="/export-plans" routerLinkActive="nav-link-active" ariaCurrentWhenActive="page" class="nav-link" title="خطط التصدير" (click)="closeMobileMenu(false)">
+        <a routerLink="/export-plans" routerLinkActive="nav-link-active" ariaCurrentWhenActive="page" class="nav-link" data-tour="export-plans" title="خطط التصدير" (click)="closeMobileMenu(false)">
           <fa-icon class="nav-fa" [icon]="icons.exportPlans" />
           <span class="aside-text">خطط التصدير</span>
         </a>
-        <a routerLink="/market-comparison" routerLinkActive="nav-link-active" ariaCurrentWhenActive="page" class="nav-link" title="مقارنة الأسواق" (click)="closeMobileMenu(false)">
-          <fa-icon class="nav-fa" [icon]="icons.market" />
-          <span class="aside-text">مقارنة الأسواق</span>
-        </a>
-        <a routerLink="/ai-agent" routerLinkActive="nav-link-active" ariaCurrentWhenActive="page" class="nav-link" title="المستشار الذكي" (click)="closeMobileMenu(false)">
+        <a routerLink="/ai-agent" routerLinkActive="nav-link-active" ariaCurrentWhenActive="page" class="nav-link" data-tour="ai-agent" title="المستشار الذكي" (click)="closeMobileMenu(false)">
           <fa-icon class="nav-fa" [icon]="icons.ai" />
           <span class="aside-text">المستشار الذكي</span>
           <span class="aside-text mr-auto inline-flex items-center rounded-md bg-gradient-to-r from-[#d2f848] to-[#9ee934] px-1.5 py-0.5 text-[9px] font-black text-[#1d3d05] shadow-2xs">AI</span>
@@ -93,11 +89,11 @@
     </nav>
 
     <div class="border-t border-[#edf2ee] p-3 space-y-1 text-sm bg-[#fafcfa]/60">
-      <a routerLink="/account-settings" routerLinkActive="nav-link-active" ariaCurrentWhenActive="page" class="nav-link" title="إعدادات الحساب" (click)="closeMobileMenu(false)">
+      <a routerLink="/account-settings" routerLinkActive="nav-link-active" ariaCurrentWhenActive="page" class="nav-link" data-tour="account-settings" title="إعدادات الحساب" (click)="closeMobileMenu(false)">
         <fa-icon class="nav-fa" [icon]="icons.settings" />
         <span class="aside-text">إعدادات الحساب</span>
       </a>
-      <a routerLink="/support" routerLinkActive="nav-link-active" ariaCurrentWhenActive="page" class="nav-link" title="مركز المساعدة" (click)="closeMobileMenu(false)">
+      <a routerLink="/support" routerLinkActive="nav-link-active" ariaCurrentWhenActive="page" class="nav-link" data-tour="support" title="مركز المساعدة" (click)="closeMobileMenu(false)">
         <fa-icon class="nav-fa" [icon]="icons.help" />
         <span class="aside-text">مركز المساعدة</span>
       </a>
@@ -110,8 +106,8 @@
   </aside>
 
   <div class="layout-content min-h-dvh" [attr.aria-hidden]="mobileDrawerActive() ? 'true' : null" [attr.inert]="mobileDrawerActive() ? '' : null" [class.layout-content-collapsed]="asideCollapsed() && !planContext()">
-    <main id="farmer-main-content" class="p-3 pb-24 sm:p-5 sm:pb-24 lg:p-6"><router-outlet /></main>
-    <nav class="mobile-bottom-nav fixed inset-x-0 bottom-0 z-30 grid grid-cols-5 border-t border-[#dce6df] bg-white/95 px-2 pt-1.5 backdrop-blur-xl lg:hidden" aria-label="التنقل السريع">
+    <main id="farmer-main-content" class="p-3 pb-20 sm:p-5 sm:pb-24 lg:p-6 lg:pb-8"><router-outlet /></main>
+    <nav class="mobile-bottom-nav fixed inset-x-0 bottom-0 z-30 grid grid-cols-5 border-t border-[#dce6df] bg-white/95 px-2 pt-1 backdrop-blur-xl lg:hidden" aria-label="التنقل السريع">
       <a routerLink="/dashboard" routerLinkActive="mobile-tab-active" ariaCurrentWhenActive="page" [routerLinkActiveOptions]="{ exact: true }" class="mobile-tab"><fa-icon [icon]="icons.dashboard" /><span>الرئيسية</span></a>
       <a routerLink="/export-plans" routerLinkActive="mobile-tab-active" ariaCurrentWhenActive="page" class="mobile-tab"><fa-icon [icon]="icons.exportPlans" /><span>الخطط</span></a>
       <a routerLink="/activities" routerLinkActive="mobile-tab-active" ariaCurrentWhenActive="page" class="mobile-tab"><fa-icon [icon]="icons.activities" /><span>المهام</span></a>
@@ -119,4 +115,6 @@
       <button type="button" class="mobile-tab" aria-controls="farmer-sidebar" [attr.aria-expanded]="mobileMenuOpen()" (click)="openMobileMenu()"><fa-icon [icon]="icons.burger" /><span>المزيد</span></button>
     </nav>
   </div>
+
+  <app-product-tour />
 </div>

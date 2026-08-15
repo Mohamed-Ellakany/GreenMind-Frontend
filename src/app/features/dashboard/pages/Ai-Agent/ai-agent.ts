@@ -1,10 +1,11 @@
-import { Component, DestroyRef, ElementRef, inject, signal, viewChild } from '@angular/core';
+import { Component, DestroyRef, ElementRef, OnInit, inject, signal, viewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { finalize } from 'rxjs/operators';
 import { PhaseTwoApi } from '../../phase-two/phase-two-api.service';
 import { ChatMessage, ChatSession } from '../../phase-two/phase-two.models';
 import { markdownToHtml } from '../../../../shared/utils/markdown-to-html';
+import { UserBudgetStatus } from '../../../../core/api/api.models';
 
 @Component({
   selector: 'app-ai-agent',
@@ -12,9 +13,10 @@ import { markdownToHtml } from '../../../../shared/utils/markdown-to-html';
   templateUrl: './ai-agent.html',
   styleUrls: ['./ai-agent.css', './ai-agent-chat.css', './ai-agent-responsive.css'],
 })
-export class AiAgent {
+export class AiAgent implements OnInit {
   private readonly api = inject(PhaseTwoApi);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly messagesViewport = viewChild<ElementRef<HTMLElement>>('messagesViewport');
 
   public readonly sessions = signal<ChatSession[]>([]);
   public readonly selectedSession = signal<ChatSession | null>(null);
@@ -23,7 +25,13 @@ export class AiAgent {
   public readonly sending = signal(false);
   public readonly error = signal<string | null>(null);
   public readonly historyCollapsed = signal(false);
-  private readonly messagesViewport = viewChild<ElementRef<HTMLElement>>('messagesViewport');
+  public readonly budgetStatus = signal<UserBudgetStatus | null>(null);
+
+  public readonly limitRequestSubmitted = signal(false);
+  public readonly submittingLimitRequest = signal(false);
+  public limitContactName = '';
+  public limitContactPhone = '';
+
   public messageInput = '';
   public selectedImages: File[] = [];
   public readonly recording = signal(false);
@@ -36,13 +44,38 @@ export class AiAgent {
     'ما الذي يجب مراجعته قبل تجهيز الشحنة القادمة؟',
   ];
 
-  public constructor() {
+  public ngOnInit(): void {
     this.loadSessions();
+    this.loadBudgetStatus();
+  }
+
+  public loadBudgetStatus(): void {
+    this.api.budgetStatus()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (status) => this.budgetStatus.set(status),
+        error: () => {},
+      });
+  }
+
+  public submitLimitRequest(): void {
+    if (this.submittingLimitRequest() || !this.limitContactName.trim() || !this.limitContactPhone.trim()) return;
+    this.submittingLimitRequest.set(true);
+    this.api.submitLimitRequest(this.limitContactName.trim(), this.limitContactPhone.trim())
+      .pipe(
+        finalize(() => this.submittingLimitRequest.set(false)),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe({
+        next: () => this.limitRequestSubmitted.set(true),
+        error: () => this.error.set('تعذر إرسال طلب الكوتا. يرجى المحاولة لاحقاً.'),
+      });
   }
 
   public createSession(): void {
     if (this.loading()) return;
     this.loading.set(true);
+    this.error.set(null);
     this.api.createFarmSession()
       .pipe(
         finalize(() => this.loading.set(false)),
@@ -173,8 +206,36 @@ export class AiAgent {
   public removeImage(index: number): void {
     this.selectedImages = this.selectedImages.filter((_, imageIndex) => imageIndex !== index);
   }
-  public toggleVoice(): void { const Speech = (globalThis as any).SpeechRecognition ?? (globalThis as any).webkitSpeechRecognition; if (!Speech) { this.error.set('المتصفح لا يدعم الإدخال الصوتي.'); return; } if (this.recording()) { this.recognition?.stop(); return; } this.recognition = new Speech(); this.recognition.lang = 'ar-EG'; this.recognition.continuous = false; this.recognition.onresult = (event: any) => { this.messageInput = `${this.messageInput} ${event.results[0][0].transcript}`.trim(); }; this.recognition.onend = () => this.recording.set(false); this.recording.set(true); this.recognition.start(); }
-  private toBase64(file: File): Promise<string> { return new Promise((resolve, reject) => { const reader = new FileReader(); reader.onload = () => resolve(String(reader.result).split(',')[1] ?? ''); reader.onerror = reject; reader.readAsDataURL(file); }); }
+
+  public toggleVoice(): void {
+    const Speech = (globalThis as any).SpeechRecognition ?? (globalThis as any).webkitSpeechRecognition;
+    if (!Speech) {
+      this.error.set('المتصفح لا يدعم الإدخال الصوتي.');
+      return;
+    }
+    if (this.recording()) {
+      this.recognition?.stop();
+      return;
+    }
+    this.recognition = new Speech();
+    this.recognition.lang = 'ar-EG';
+    this.recognition.continuous = false;
+    this.recognition.onresult = (event: any) => {
+      this.messageInput = `${this.messageInput} ${event.results[0][0].transcript}`.trim();
+    };
+    this.recognition.onend = () => this.recording.set(false);
+    this.recording.set(true);
+    this.recognition.start();
+  }
+
+  private toBase64(file: File): Promise<string> {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(String(reader.result).split(',')[1] ?? '');
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  }
 
   public formatSessionDate(value: string | null): string {
     if (!value) return 'محادثة جديدة';
@@ -196,9 +257,6 @@ export class AiAgent {
               this.selectedSession.set(sessions[0]);
               this.loadMessages(sessions[0].id);
             } else {
-              // The `next` handler runs before `finalize`, so loading is still true
-              // here. Release it before creating the initial session; otherwise
-              // createSession's guard leaves the composer disabled indefinitely.
               this.loading.set(false);
               this.createSession();
             }
@@ -234,15 +292,11 @@ export class AiAgent {
         return;
       }
 
-      // Keep the beginning of the newest response visible while it streams,
-      // instead of following the growing message down to its final line.
       const viewportTop = viewport.getBoundingClientRect().top;
       const messageTop = newestMessage.getBoundingClientRect().top;
       viewport.scrollTop += messageTop - viewportTop;
     };
 
-    // Signals schedule the template update after this method runs. Waiting for
-    // the next paint ensures scrollHeight includes the newly rendered message.
     queueMicrotask(() => {
       if (typeof requestAnimationFrame === 'function') requestAnimationFrame(scroll);
       else setTimeout(scroll);

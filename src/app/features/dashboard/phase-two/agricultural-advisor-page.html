@@ -1,50 +1,271 @@
-<section class="plan-page" dir="rtl">
-  <div class="page-crumbs"><a routerLink="/export-plans">خطط التصدير</a><i>/</i><a [routerLink]="['/export-plans', planId, 'overview']">{{ plan()?.name || 'الخطة الحالية' }}</a><i>/</i><span>مستشار الخطة الذكي</span></div>
-  <header class="page-heading advisor-hero"><div><span class="hero-kicker">مساعدك الزراعي الذكي</span><h1>مستشار الخطة الذكي – عم خضر</h1><p>اسأل عن المهام أو صحة المحصول أو متطلبات التصدير، وستحصل على إجابة مرتبطة ببيانات خطتك.</p></div><span class="heading-badge">متصل ببيانات الخطة فقط</span></header>
+<section class="plan-page advisor-plan-page" dir="rtl">
+  <header class="advisor-compact-hero">
+    <div class="hero-main-info">
+      <div class="page-crumbs">
+        <a routerLink="/export-plans">خطط التصدير</a>
+        <i class="crumb-sep">/</i>
+        <a [routerLink]="['/export-plans', planId, 'overview']">{{ plan()?.name || 'الخطة الحالية' }}</a>
+        <i class="crumb-sep">/</i>
+        <span>مستشار الخطة الذكي</span>
+      </div>
+      <div class="hero-title-row">
+        <div class="advisor-brand">
+          <div class="advisor-hero-avatar">
+            <span>خ</span>
+            <span class="pulse-indicator"></span>
+          </div>
+          <div>
+            <h1>مستشار الخطة الذكي – عم خضر</h1>
+            <p class="hero-desc">اسأل عن المهام، صحة المحصول، المواد الفعالة، ومتطلبات التصدير لهذه الخطة.</p>
+          </div>
+        </div>
+      </div>
+    </div>
 
-  @if (error()) { <div class="error-banner" role="alert"><span>{{ error() }}</span><button type="button" (click)="error.set(null)">×</button></div> }
-  @if (loading()) { <app-plant-growth-loader message="جارٍ تجهيز عم خضر ببيانات الخطة…" /> }
-  @else {
+    <div class="hero-badges">
+      <span class="heading-badge">
+        <span class="badge-dot"></span>
+        متصل ببيانات الخطة فقط
+      </span>
+      @if (plan(); as p) {
+        <span class="plan-quick-badge">
+          <b>{{ p.crop }}</b>
+          <i>·</i>
+          <span>{{ p.destination }}</span>
+          <i>·</i>
+          <span>{{ p.areaInFeddan }} فدان</span>
+        </span>
+      }
+    </div>
+  </header>
+
+  @if (error()) {
+    <div class="error-banner" role="alert">
+      <span>{{ error() }}</span>
+      <button type="button" (click)="error.set(null)" aria-label="إغلاق">×</button>
+    </div>
+  }
+
+  @if (loading()) {
+    <app-plant-growth-loader message="جارٍ تجهيز عم خضر ببيانات الخطة…" />
+  } @else {
     <div class="chat-layout">
-      <aside class="panel session-history"><header><div><small>المحادثات</small><h2>سجل المستشار</h2></div><span>{{ chatSessions().length }}</span></header><div class="session-list">@for (session of chatSessions(); track session.id) { <button type="button" [class.active]="chatSession()?.id === session.id" (click)="selectSession(session)"><span class="session-dot"></span><div><b>{{ session.title || 'محادثة الخطة' }}</b><small>{{ session.updatedAtUtc | date:'yyyy/MM/dd' }}</small></div></button> }</div></aside>
+      <!-- Main Chat Article -->
       <article class="panel chat-panel">
-        <header class="panel-heading chat-heading"><div class="advisor-title"><span class="advisor-avatar">خ</span><div><h2>عم خضر <small>· مساعد {{ plan()?.name }}</small></h2><p>إجاباته مبنية على الخطة الحالية والمحصول والوجهة</p></div></div><i class="online-dot"><span></span> متصل</i></header>
+        <header class="panel-heading chat-heading">
+          <div class="advisor-title">
+            <div class="advisor-avatar">
+              <span>خ</span>
+              <span class="online-indicator"></span>
+            </div>
+            <div>
+              <h2>عم خضر <small>· مستشار {{ plan()?.name }}</small></h2>
+              <p>إجابات فورية متخصصة ومبنية على بيانات محصولك وجهة التصدير</p>
+            </div>
+          </div>
+          <div class="chat-status-pill">
+            <span class="status-live-dot"></span>
+            <span>جاهز للمساعدة</span>
+          </div>
+        </header>
+
         <div #messagesViewport class="messages" aria-live="polite" aria-label="رسائل محادثة الخطة">
-          @if (!chatMessages().length) { <div class="empty-state welcome-state"><span class="welcome-icon">🌱</span><h3>أهلًا! أنا عم خضر</h3><p>اسألني عن مهام الخطة والتربة والمصروفات والمواد الفعالة وحدود متبقيات التصدير.</p><small>اختر سؤالًا مقترحًا بالأسفل أو اكتب سؤالك</small></div> }
+          @if (!chatMessages().length) {
+            <div class="empty-state welcome-state">
+              <div class="welcome-icon">🌱</div>
+              <h3>أهلًا بك! أنا عم خضر</h3>
+              <p>أنا مستشارك الزراعي الذكي المخصص لخطة <b>{{ plan()?.name }}</b>. اسألني عن المهام، قياسات التربة، المواد الفعالة، المصروفات، أو اشتراطات متبقيات المبيدات MRL.</p>
+              <span class="welcome-hint">اختر سؤالًا سريعًا من الأسفل أو اكتب استفسارك مباشرة</span>
+            </div>
+          }
+
           @for (message of chatMessages(); track message.id) {
             <div class="message-row" [class.user-message]="isUserMessage(message)">
               <span class="message-avatar" aria-hidden="true">{{ isUserMessage(message) ? 'أنت' : 'خ' }}</span>
               <div class="message-content">
-                <div class="message-meta"><b>{{ isUserMessage(message) ? 'أنت' : 'عم خضر' }}</b><time>{{ formatMessageTime(message.createdAt) }}</time></div>
+                <div class="message-meta">
+                  <b>{{ isUserMessage(message) ? 'أنت' : 'عم خضر' }}</b>
+                  <time>{{ formatMessageTime(message.createdAt) }}</time>
+                </div>
                 <div class="message-bubble">
-                  @if (message.content) { <p>{{ formatMessageContent(message.content) }}</p> }
-                  @else { <span class="typing-indicator" aria-label="عم خضر يكتب"><i></i><i></i><i></i></span> }
-                  @if (message.taskChangeProposalId) { <button type="button" class="proposal-link" (click)="openProposal(message.taskChangeProposalId)">مراجعة اقتراح تعديل مهام الخطة ←</button> }
-                  @if (message.status === 'فشل') { <em>تعذر إكمال الرد</em> }
+                  @if (message.content) {
+                    <p>{{ formatMessageContent(message.content) }}</p>
+                  } @else {
+                    <span class="typing-indicator" aria-label="عم خضر يكتب"><i></i><i></i><i></i></span>
+                  }
+                  @if (message.taskChangeProposalId) {
+                    <div class="proposal-card-link">
+                      <div class="proposal-info">
+                        <span class="proposal-icon">⚡</span>
+                        <span>يوجد مقترح لتعديل جدول مهام الخطة بناءً على الاستشارة</span>
+                      </div>
+                      <button type="button" class="proposal-link" (click)="openProposal(message.taskChangeProposalId)">مراجعة وتطبيق اقتراح المهام ←</button>
+                    </div>
+                  }
+                  @if (message.status === 'فشل') {
+                    <em class="error-msg">تعذر إكمال الرد، يرجى إعادة المحاولة</em>
+                  }
                 </div>
               </div>
             </div>
           }
         </div>
+
         <footer class="composer-area">
-          <div class="suggestion-row" aria-label="أسئلة مقترحة">@for (suggestion of suggestions; track suggestion) { <button type="button" (click)="useSuggestion(suggestion)">{{ suggestion }}</button> }</div>
+          <div class="suggestion-row" aria-label="أسئلة مقترحة">
+            @for (suggestion of suggestions; track suggestion) {
+              <button type="button" class="suggestion-chip" (click)="useSuggestion(suggestion)">
+                <span class="chip-sparkle">✦</span>
+                <span>{{ suggestion }}</span>
+              </button>
+            }
+          </div>
+
+          @if (selectedImages.length) {
+            <div class="attachment-preview-bar" aria-label="الصور المرفقة">
+              @for (image of selectedImages; track image.name + image.lastModified; let idx = $index) {
+                <span class="attachment-chip">
+                  <svg viewBox="0 0 24 24" fill="none" class="attach-icon" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="3" stroke="currentColor" stroke-width="1.8"/><circle cx="9" cy="10" r="2" stroke="currentColor" stroke-width="1.8"/><path d="m5 18 5-5 3 3 2-2 4 4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  <span class="attach-name">{{ image.name }}</span>
+                  <button type="button" class="remove-attach-btn" (click)="removeImage(idx)" [attr.aria-label]="'إلغاء ' + image.name">×</button>
+                </span>
+              }
+            </div>
+          }
+
           <form class="chat-composer" (ngSubmit)="sendChat()">
-            <label class="attachment-button" title="إضافة صور">
-              <input type="file" accept="image/*" multiple (change)="selectImages($event)" aria-label="إضافة صور" />
-              <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="m20.5 11.5-8.2 8.2a6 6 0 0 1-8.5-8.5l8.9-8.9a4 4 0 0 1 5.7 5.7l-9 9a2 2 0 0 1-2.8-2.8l8.2-8.2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
-              @if (selectedImages.length) { <span class="attachment-count">{{ selectedImages.length }}</span> }
-            </label>
-            <textarea #composerInput name="chatInput" [(ngModel)]="chatInput" (keydown)="onComposerKeydown($event)" maxlength="4000" rows="2" placeholder="اكتب سؤالك لعم خضر…" aria-label="اكتب رسالتك"></textarea>
-            <div class="composer-actions"><span>{{ chatInput.length }} / 4000</span><button type="submit" [disabled]="chatSending() || (!chatInput.trim() && !selectedImages.length)" aria-label="إرسال الرسالة">@if (chatSending()) { <span class="send-spinner"></span> } @else { <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="m5 12 14-7-4 14-3-5-7-2Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="m12 14 7-9" stroke="currentColor" stroke-width="2"/></svg> }</button></div>
+            <div class="composer-tools">
+              <label class="attachment-button" title="إرفاق صور">
+                <input type="file" accept="image/*" multiple (change)="selectImages($event)" aria-label="إضافة صور" />
+                <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="m20.5 11.5-8.2 8.2a6 6 0 0 1-8.5-8.5l8.9-8.9a4 4 0 0 1 5.7 5.7l-9 9a2 2 0 0 1-2.8-2.8l8.2-8.2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                @if (selectedImages.length) { <span class="attachment-count">{{ selectedImages.length }}</span> }
+              </label>
+
+              <button type="button" class="voice-button" [class.recording]="recording()" (click)="toggleVoice()" title="إملاء صوتي" aria-label="إملاء صوتي">
+                <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="9" y="3" width="6" height="12" rx="3" stroke="currentColor" stroke-width="1.8"/><path d="M5.5 11.5a6.5 6.5 0 0 0 13 0M12 18v3M9 21h6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+              </button>
+            </div>
+
+            <textarea
+              #composerInput
+              name="chatInput"
+              [(ngModel)]="chatInput"
+              (keydown)="onComposerKeydown($event)"
+              maxlength="4000"
+              rows="2"
+              placeholder="اكتب سؤالك لعم خضر عن المهام، المبيدات، MRL، أو أي تفصيلة في الخطة…"
+              aria-label="اكتب رسالتك"
+            ></textarea>
+
+            <div class="composer-actions">
+              <span class="char-counter">{{ chatInput.length }} / 4000</span>
+              <button type="submit" class="send-button" [disabled]="chatSending() || (!chatInput.trim() && !selectedImages.length)" aria-label="إرسال الرسالة">
+                @if (chatSending()) {
+                  <span class="send-spinner"></span>
+                } @else {
+                  <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="m5 12 14-7-4 14-3-5-7-2Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="m12 14 7-9" stroke="currentColor" stroke-width="2"/></svg>
+                }
+              </button>
+            </div>
           </form>
           <p class="composer-note"><kbd>Enter</kbd> للإرسال · <kbd>Shift + Enter</kbd> لسطر جديد</p>
         </footer>
       </article>
-      <aside class="panel context-card"><div class="context-heading"><span class="panel-icon">◎</span><div><small>مصادر الإجابة</small><h2>السياق المستخدم</h2></div></div><p>يُعاد بناء سياق آمن مع كل سؤال، ولا يطّلع النموذج على خطط المزارع الأخرى.</p><div class="plan-facts"><span><small>المحصول</small><b>{{ plan()?.crop }}</b></span><span><small>الوجهة</small><b>{{ plan()?.destination }}</b></span><span><small>المساحة</small><b>{{ plan()?.areaInFeddan }} فدان</b></span></div><ul><li>بيانات الخطة والموسم</li><li>المهام الخاصة بهذه الخطة وسجل التنفيذ</li><li>قياسات التربة وصحة المحصول</li><li>الميزانية والمصروفات</li><li>المواد الفعالة وحدود MRL</li></ul><div class="safety-note"><b>سجل التنفيذ محفوظ</b><p>كل تحديث للمهمة وملاحظتها يصل إلى سياق المستشار، والمهام التي أضفتها بنفسك تبقى محمية أثناء إعادة ترتيب الخطة.</p></div></aside>
+
+      <!-- Plan Context Sidebar -->
+      <aside class="panel context-card">
+        <header class="context-card-header">
+          <div class="context-heading">
+            <span class="panel-icon">◎</span>
+            <div>
+              <small>مصادر الاستشارة</small>
+              <h2>السياق المستخدم</h2>
+            </div>
+          </div>
+          <span class="context-shield-badge" title="بيانات معزولة">محمي</span>
+        </header>
+
+        <p class="context-intro">يُبنى سياق آمن ومخصص مع كل استشارة، ولا يطّلع النموذج على خطط المزارع الأخرى.</p>
+
+        <div class="plan-facts-grid">
+          <div class="fact-card">
+            <small>المحصول</small>
+            <b>{{ plan()?.crop || '—' }}</b>
+          </div>
+          <div class="fact-card">
+            <small>الوجهة</small>
+            <b>{{ plan()?.destination || '—' }}</b>
+          </div>
+          <div class="fact-card fact-card--wide">
+            <small>المساحة والموقع</small>
+            <b>{{ plan()?.areaInFeddan }} فدان · {{ plan()?.governorate || 'مصر' }}</b>
+          </div>
+        </div>
+
+        <div class="context-sources">
+          <h3 class="sources-title">البيانات المدمجة في المحادثة:</h3>
+          <ul class="sources-list">
+            <li><span>بيانات الخطة والموسم الزراعي</span></li>
+            <li><span>جدول المهام الخاص وسجل التنفيذ</span></li>
+            <li><span>قياسات التربة والفحوصات الصحية</span></li>
+            <li><span>الميزانية والمصروفات والتكاليف</span></li>
+            <li><span>المواد الفعالة وحدود متبقيات التصدير MRL</span></li>
+          </ul>
+        </div>
+
+        <div class="safety-note">
+          <div class="safety-title">
+            <span class="safety-icon">🔒</span>
+            <b>سجل التنفيذ والتعديلات محفوظ</b>
+          </div>
+          <p>تحديثات المهام تصل لمستشارك فوراً، ولن يُجرى أي تعديل على خطتك دون موافقتك الصريحة.</p>
+        </div>
+      </aside>
     </div>
   }
 
   @if (selectedProposal(); as proposal) {
-    <div class="overlay" (click)="selectedProposal.set(null)"><section class="modal proposal-modal" (click)="$event.stopPropagation()"><header><div><h2>اقتراح تعديل مهام الخطة</h2><p>راجع التغييرات قبل الموافقة؛ لن يُنفذ شيء تلقائيًا.</p></div><button class="close-button" type="button" (click)="selectedProposal.set(null)">×</button></header><div class="proposal-body"><span class="proposal-status">{{ proposal.status }}</span>@for (item of proposal.items; track item.id) { <article><div><small>سبب الاقتراح</small><p>{{ item.reason }}</p></div><div class="proposal-values"><section><small>قبل</small><b>{{ item.originalValues?.title || 'مهمة جديدة' }}</b><p>{{ item.originalValues?.plannedDate || '—' }}</p></section><section><small>بعد الموافقة</small><b>{{ item.proposedValues.title }}</b><p>{{ item.proposedValues.plannedDate }} · {{ item.proposedValues.priority }}</p></section></div></article> }</div><footer>@if (proposal.reviewedAtUtc === null) { <button class="danger-action" type="button" [disabled]="proposalLoading()" (click)="reviewProposal('reject')">رفض الاقتراح</button><button class="primary-action" type="button" [disabled]="proposalLoading()" (click)="reviewProposal('apply')">{{ proposalLoading() ? 'جارٍ التنفيذ…' : 'موافقة وتطبيق' }}</button> } @else { <p>تمت مراجعة الاقتراح: {{ proposal.status }}</p> }</footer></section></div>
+    <div class="overlay" (click)="selectedProposal.set(null)">
+      <section class="modal proposal-modal" (click)="$event.stopPropagation()">
+        <header>
+          <div>
+            <h2>اقتراح تعديل مهام الخطة</h2>
+            <p>راجع التغييرات قبل الموافقة؛ لن يُنفذ شيء تلقائيًا.</p>
+          </div>
+          <button class="close-button" type="button" (click)="selectedProposal.set(null)">×</button>
+        </header>
+        <div class="proposal-body">
+          <span class="proposal-status">{{ proposal.status }}</span>
+          @for (item of proposal.items; track item.id) {
+            <article>
+              <div>
+                <small>سبب الاقتراح</small>
+                <p>{{ item.reason }}</p>
+              </div>
+              <div class="proposal-values">
+                <section>
+                  <small>قبل</small>
+                  <b>{{ item.originalValues?.title || 'مهمة جديدة' }}</b>
+                  <p>{{ item.originalValues?.plannedDate || '—' }}</p>
+                </section>
+                <section>
+                  <small>بعد الموافقة</small>
+                  <b>{{ item.proposedValues.title }}</b>
+                  <p>{{ item.proposedValues.plannedDate }} · {{ item.proposedValues.priority }}</p>
+                </section>
+              </div>
+            </article>
+          }
+        </div>
+        <footer>
+          @if (proposal.reviewedAtUtc === null) {
+            <button class="danger-action" type="button" [disabled]="proposalLoading()" (click)="reviewProposal('reject')">رفض الاقتراح</button>
+            <button class="primary-action" type="button" [disabled]="proposalLoading()" (click)="reviewProposal('apply')">{{ proposalLoading() ? 'جارٍ التنفيذ…' : 'موافقة وتطبيق' }}</button>
+          } @else {
+            <p>تمت مراجعة الاقتراح: {{ proposal.status }}</p>
+          }
+        </footer>
+      </section>
+    </div>
   }
 </section>

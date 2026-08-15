@@ -3,8 +3,8 @@ import { map, Observable } from 'rxjs';
 import { ApiClient } from './api-client.service';
 import {
   ExportPlan, ExportPlanCreateRequest, ExportPlanDashboard, ExportPlanDetails,
-  ExportPlanScheduleAnalysis, ExportPlanScheduleAnalysisRequest,
-  AdminAiUsageOverview, AdminInvitation, AdminUser, AdminUserDetails, FarmAccount, FarmTask, MasterDataItem, PagedResult, PlanningStatus, PlatformStatistics,
+  ExportPlanScheduleAnalysis, ExportPlanScheduleAnalysisRequest, ExportPlanFarmDataUpdateRequest,
+  AdminAiUsageOverview, AdminInvitation, AdminUser, AdminUserDetails, AiLimitRequestItem, FarmAccount, FarmTask, MasterDataItem, PagedResult, PlanningStatus, PlatformStatistics,
   RagIngestionResult, RegulatoryImportResult, SoilMeasurement, SoilMeasurementRequest,
   SupportConversation, SupportMessage, SupportMessagePage, CreateTaskRequest, TaskType, ScheduleRevision,
 } from './api.models';
@@ -27,6 +27,14 @@ export class GreenmindApi {
 
   public exportPlan(id: number): Observable<ExportPlanDetails> {
     return this.api.get<ExportPlanDetails>(`/api/farm-owner/export-plans/${id}`);
+  }
+
+  public updateFarmData(id: number, request: ExportPlanFarmDataUpdateRequest): Observable<ExportPlanDetails> {
+    return this.api.put<ExportPlanDetails>(`/api/farm-owner/export-plans/${id}/farm-data`, request);
+  }
+
+  public startTasks(id: number): Observable<ExportPlanDetails> {
+    return this.api.post<ExportPlanDetails>(`/api/farm-owner/export-plans/${id}/start-tasks`, {});
   }
 
   public planningStatus(id: number): Observable<PlanningStatus> {
@@ -207,6 +215,14 @@ export class GreenmindApi {
 
   public setUserAiAccess(userId: string, isSuspended: boolean): Observable<void> {
     return this.api.patch<void>(`/api/admin/users/${encodeURIComponent(userId)}/ai-access`, { isSuspended });
+  }
+
+  public adminAiLimitRequests(pendingOnly = true): Observable<AiLimitRequestItem[]> {
+    return this.api.get<AiLimitRequestItem[]>(`/api/admin/ai-limit-requests?pendingOnly=${pendingOnly}`);
+  }
+
+  public resolveAiLimitRequest(requestId: number, body: { approved: boolean; newLimitUsd?: number; adminNote?: string }): Observable<void> {
+    return this.api.patch<void>(`/api/admin/ai-limit-requests/${requestId}`, body);
   }
 
   public uploadActiveSubstances(regionName: string, file: File): Observable<RegulatoryImportResult> {

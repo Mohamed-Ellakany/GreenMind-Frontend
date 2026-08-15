@@ -1,5 +1,4 @@
 import { Component, DestroyRef, ElementRef, inject, signal, viewChild } from '@angular/core';
-import { DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, RouterLink } from '@angular/router';
@@ -12,9 +11,9 @@ import { ChatHistoryPage, ChatMessage, ChatSession, TaskProposal } from './phase
 
 @Component({
   selector: 'app-agricultural-advisor-page',
-  imports: [FormsModule, RouterLink, PlantGrowthLoader, DatePipe],
+  imports: [FormsModule, RouterLink, PlantGrowthLoader],
   templateUrl: './agricultural-advisor-page.html',
-  styleUrls: ['./plan-page.shared.css', './agricultural-advisor-page.css'],
+  styleUrls: ['./agricultural-advisor-page.css', './agricultural-advisor-proposal.css'],
 })
 export class AgriculturalAdvisorPage {
   private readonly api = inject(PhaseTwoApi);
@@ -60,18 +59,23 @@ export class AgriculturalAdvisorPage {
     const content = this.chatInput.trim();
     const session = this.chatSession();
     if ((!content && !this.selectedImages.length) || !session || this.chatSending()) return;
-    const images = await Promise.all(this.selectedImages.map(async (file) => ({ fileName: file.name, contentType: file.type, dataBase64: await this.toBase64(file) })));
+    const images = await Promise.all(this.selectedImages.map(async (file) => ({
+      fileName: file.name,
+      contentType: file.type,
+      dataBase64: await this.toBase64(file),
+    })));
     this.selectedImages = [];
     this.chatInput = '';
     this.chatSending.set(true);
     this.error.set(null);
     const temporaryUserId = -Date.now();
     const temporaryAssistantId = temporaryUserId - 1;
-    this.chatMessages.update((messages) => [...messages,
+    this.chatMessages.update((messages) => [
+      ...messages,
       { id: temporaryUserId, role: 'المستخدم', content, status: 'مكتمل', createdAt: new Date().toISOString() },
       { id: temporaryAssistantId, role: 'المساعد', content: '', status: 'جارٍ الإرسال', createdAt: new Date().toISOString() },
     ]);
-    this.scrollToLatest();
+    this.scrollToNewestMessageStart('smooth');
     try {
       await this.api.streamMessage(this.planId, session.id, content, (event) => {
         this.chatMessages.update((messages) => messages.map((message) => message.id !== temporaryAssistantId ? message : ({
@@ -81,7 +85,6 @@ export class AgriculturalAdvisorPage {
           status: event.status,
           taskChangeProposalId: event.taskChangeProposalId ?? message.taskChangeProposalId,
         })));
-        this.scrollToLatest();
       }, images);
       this.refreshMessages();
     } catch {
@@ -94,9 +97,45 @@ export class AgriculturalAdvisorPage {
     }
   }
 
-  public selectImages(event: Event): void { this.selectedImages = Array.from((event.target as HTMLInputElement).files ?? []).filter(file => file.type.startsWith('image/')).slice(0, 4); }
-  public toggleVoice(): void { const Speech = (globalThis as any).SpeechRecognition ?? (globalThis as any).webkitSpeechRecognition; if (!Speech) { this.error.set('المتصفح لا يدعم الإدخال الصوتي.'); return; } if (this.recording()) { this.recognition?.stop(); return; } this.recognition = new Speech(); this.recognition.lang = 'ar-EG'; this.recognition.continuous = false; this.recognition.onresult = (event: any) => { this.chatInput = `${this.chatInput} ${event.results[0][0].transcript}`.trim(); }; this.recognition.onend = () => this.recording.set(false); this.recording.set(true); this.recognition.start(); }
-  private toBase64(file: File): Promise<string> { return new Promise((resolve, reject) => { const reader = new FileReader(); reader.onload = () => resolve(String(reader.result).split(',')[1] ?? ''); reader.onerror = reject; reader.readAsDataURL(file); }); }
+  public selectImages(event: Event): void {
+    this.selectedImages = Array.from((event.target as HTMLInputElement).files ?? [])
+      .filter((file) => file.type.startsWith('image/'))
+      .slice(0, 4);
+  }
+
+  public removeImage(index: number): void {
+    this.selectedImages.splice(index, 1);
+  }
+
+  public toggleVoice(): void {
+    const Speech = (globalThis as any).SpeechRecognition ?? (globalThis as any).webkitSpeechRecognition;
+    if (!Speech) {
+      this.error.set('المتصفح لا يدعم الإدخال الصوتي.');
+      return;
+    }
+    if (this.recording()) {
+      this.recognition?.stop();
+      return;
+    }
+    this.recognition = new Speech();
+    this.recognition.lang = 'ar-EG';
+    this.recognition.continuous = false;
+    this.recognition.onresult = (event: any) => {
+      this.chatInput = `${this.chatInput} ${event.results[0][0].transcript}`.trim();
+    };
+    this.recognition.onend = () => this.recording.set(false);
+    this.recording.set(true);
+    this.recognition.start();
+  }
+
+  private toBase64(file: File): Promise<string> {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(String(reader.result).split(',')[1] ?? '');
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  }
 
   public onComposerKeydown(event: KeyboardEvent): void {
     if (event.key !== 'Enter' || event.shiftKey || event.isComposing) return;
@@ -110,7 +149,7 @@ export class AgriculturalAdvisorPage {
   }
 
   public isUserMessage(message: ChatMessage): boolean {
-    return message.role === 'المستخدم';
+    return message.role === 'المستخدم' || message.role?.toLowerCase() === 'user';
   }
 
   public formatMessageContent(content: string): string {
@@ -164,7 +203,8 @@ export class AgriculturalAdvisorPage {
         this.chatSessions.set(sessions.length ? sessions : [session]);
         this.chatSession.set(session);
         this.chatMessages.set(messages);
-        this.scrollToLatest('auto');
+        this.loading.set(false);
+        this.scrollToNewestMessageStart('auto');
       },
       error: () => this.error.set('تعذر تحميل محادثة الخطة.'),
     });
@@ -173,7 +213,10 @@ export class AgriculturalAdvisorPage {
   public selectSession(session: ChatSession): void {
     this.chatSession.set(session);
     this.latestMessages(session.id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
-      next: (page) => { this.chatMessages.set(page.items); this.scrollToLatest('auto'); },
+      next: (page) => {
+        this.chatMessages.set(page.items);
+        this.scrollToNewestMessageStart('auto');
+      },
       error: () => this.error.set('تعذر تحميل المحادثة المحددة.'),
     });
   }
@@ -184,7 +227,6 @@ export class AgriculturalAdvisorPage {
     this.latestMessages(session.id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (page) => {
         this.chatMessages.set(page.items);
-        this.scrollToLatest();
       },
     });
   }
@@ -200,15 +242,41 @@ export class AgriculturalAdvisorPage {
     );
   }
 
-  private scrollToLatest(behavior: ScrollBehavior = 'smooth'): void {
-    queueMicrotask(() => {
+  public scrollToNewestMessageStart(behavior: ScrollBehavior = 'smooth'): void {
+    const doScroll = () => {
       const viewport = this.messagesViewport()?.nativeElement;
       if (!viewport) return;
-      if (typeof viewport.scrollTo === 'function') {
-        viewport.scrollTo({ top: viewport.scrollHeight, behavior });
-      } else {
-        viewport.scrollTop = viewport.scrollHeight;
+      const newestMessage = viewport.querySelector<HTMLElement>('.message-row:last-child');
+      if (!newestMessage) {
+        viewport.scrollTop = 0;
+        return;
       }
-    });
+
+      const viewportRect = viewport.getBoundingClientRect();
+      const messageRect = newestMessage.getBoundingClientRect();
+      const scrollOffset = messageRect.top - viewportRect.top - 8;
+
+      const targetTop = Math.max(0, viewport.scrollTop + scrollOffset);
+      if (typeof viewport.scrollTo === 'function') {
+        viewport.scrollTo({ top: targetTop, behavior });
+      } else {
+        viewport.scrollTop = targetTop;
+      }
+    };
+
+    queueMicrotask(doScroll);
+    if (typeof requestAnimationFrame === 'function') {
+      requestAnimationFrame(() => {
+        doScroll();
+        requestAnimationFrame(doScroll);
+      });
+    }
+    setTimeout(doScroll, 50);
+    setTimeout(doScroll, 160);
+    setTimeout(doScroll, 320);
+  }
+
+  public scrollToLatest(behavior: ScrollBehavior = 'smooth'): void {
+    this.scrollToNewestMessageStart(behavior);
   }
 }

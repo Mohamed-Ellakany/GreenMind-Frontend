@@ -1,6 +1,6 @@
 <div class="plan-navigation" dir="rtl">
   <div class="brand-block">
-    <span class="brand-icon"><fa-icon [icon]="icons.plan" /></span>
+    <span class="brand-icon"><img class="size-5 object-contain" src="/greenmind-leaf.svg" alt="" /></span>
     <div><strong>جرين مايند</strong><small>مساحة خطة التصدير</small></div>
   </div>
 
@@ -28,6 +28,9 @@
     </a>
     <a [routerLink]="['/export-plans', planId(), 'crop-health']" routerLinkActive="active" ariaCurrentWhenActive="page" (click)="navigated.emit()">
       <fa-icon [icon]="icons.health" /><span><b>تشخيص ومتابعة المحصول</b><small>الصور والتحليلات الصحية</small></span>
+    </a>
+    <a [routerLink]="['/export-plans', planId(), 'soil-monitoring']" routerLinkActive="active" ariaCurrentWhenActive="page" (click)="navigated.emit()">
+      <fa-icon [icon]="icons.soil" /><span><b>متابعة التربة</b><small>الإحصائيات والقراءات وسجل القياسات</small></span>
     </a>
     <a [routerLink]="['/export-plans', planId(), 'budget-expenses']" routerLinkActive="active" ariaCurrentWhenActive="page" (click)="navigated.emit()">
       <fa-icon [icon]="icons.costs" /><span><b>الميزانية وسجل المصروفات</b><small>التكاليف والإيصالات والفواتير</small></span>
