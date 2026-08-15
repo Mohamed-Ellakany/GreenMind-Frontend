@@ -748,30 +748,33 @@
             <section class="mx-auto max-w-3xl">
               <div class="mb-5">
                 <span class="text-xs font-bold text-[#0f7a3d]">الخطوة 3 من 4</span>
-                <h3 class="mt-1 text-xl font-black">بيانات المزرعة</h3>
+                <h3 class="mt-1 text-xl font-black">بيانات المزرعة والري</h3>
                 <p class="mt-1 text-sm text-slate-500">
-                  أدخل بيانات التربة والمياه والري وبيئة الزراعة لتحصل على خطة زراعية أكثر دقة.
+                  حدد نوع المزرعة ونظام الري للمتابعة. قياسات وتحاليل التربة والمياه اختيارية عند الإنشاء ويمكنك استكمالها لاحقاً.
                 </p>
               </div>
 
               <!-- Notice Alert -->
               <div
-                class="mb-6 flex items-start gap-3 rounded-2xl border border-amber-200/80 bg-amber-50/70 p-4 text-sm text-amber-900 shadow-2xs"
+                class="mb-6 flex items-start gap-3 rounded-2xl border border-emerald-200/80 bg-emerald-50/60 p-4 text-sm text-emerald-950 shadow-2xs"
               >
-                <span class="grid size-8 shrink-0 place-items-center rounded-xl bg-amber-100 text-amber-800 font-black">ℹ</span>
+                <span class="grid size-8 shrink-0 place-items-center rounded-xl bg-emerald-100 text-emerald-800 font-black">ℹ</span>
                 <div class="leading-relaxed">
-                  <strong class="block text-amber-950 font-bold mb-0.5">ملاحظة حول جاهزية المهام الزراعية</strong>
-                  تحاليل التربة والمياه وبيانات المزرعة اختيارية عند الإنشاء، ولكن الذكاء الاصطناعي لن يبدأ إنشاء أو تفعيل المهام الزراعية التنفيذية قبل اكتمال التحاليل والبيانات المطلوبة.
+                  <strong class="block text-emerald-950 font-bold mb-0.5">البيانات المطلوبة والاختيارية</strong>
+                  تحديد <strong>نوع المزرعة</strong> و<strong>نظام الري</strong> إلزامي للمتابعة إلى تحليل المواعيد وإنشاء الخطة. بينما <strong>تحاليل وقياسات التربة ومياه الري</strong> اختيارية عند الإنشاء ويمكنك استكمالها لاحقاً لتوليد المهام الزراعية الذكية.
                 </div>
               </div>
 
               <div class="space-y-6">
-                <!-- 1. نوع المزرعة -->
+                <!-- 1. نوع المزرعة (مطلوب) -->
                 <div class="rounded-2xl border border-slate-200/80 bg-slate-50/50 p-4 sm:p-5">
-                  <h4 class="mb-3 text-sm font-black text-slate-800 flex items-center gap-2">
-                    <span class="size-2 rounded-full bg-[#0f7a3d]"></span>
-                    1. نوع المزرعة
-                  </h4>
+                  <div class="mb-3 flex items-center justify-between">
+                    <h4 class="text-sm font-black text-slate-800 flex items-center gap-2">
+                      <span class="size-2 rounded-full bg-[#0f7a3d]"></span>
+                      1. نوع المزرعة
+                    </h4>
+                    <span class="rounded-full bg-emerald-100 px-2.5 py-0.5 text-[11px] font-bold text-emerald-800 border border-emerald-200">مطلوب</span>
+                  </div>
                   <div class="grid grid-cols-2 gap-3 sm:grid-cols-4">
                     @for (opt of farmTypeOptions; track opt.value) {
                       <button
@@ -786,7 +789,7 @@
                         [class.bg-white]="form.farmType !== opt.value"
                         [class.text-slate-600]="form.farmType !== opt.value"
                         [attr.aria-pressed]="form.farmType === opt.value"
-                        (click)="form.farmType = opt.value"
+                        (click)="form.farmType = opt.value; stepError.set(null)"
                       >
                         <span>{{ opt.label }}</span>
                       </button>
@@ -794,27 +797,90 @@
                   </div>
                 </div>
 
-                <!-- 2. بيانات التربة -->
+                <!-- 2. نظام الري والتسميد (نظام الري مطلوب) -->
+                <div class="rounded-2xl border border-slate-200/80 bg-slate-50/50 p-4 sm:p-5">
+                  <div class="mb-3 flex items-center justify-between">
+                    <h4 class="text-sm font-black text-slate-800 flex items-center gap-2">
+                      <span class="size-2 rounded-full bg-[#0f7a3d]"></span>
+                      2. نظام الري والتسميد
+                    </h4>
+                    <span class="rounded-full bg-emerald-100 px-2.5 py-0.5 text-[11px] font-bold text-emerald-800 border border-emerald-200">مطلوب لنظام الري</span>
+                  </div>
+                  <div class="grid gap-4 sm:grid-cols-2">
+                    <div>
+                      <label class="mb-2 block text-xs font-bold text-slate-700">نوع / نظام الري <span class="text-emerald-700">*</span></label>
+                      <div class="grid grid-cols-2 gap-2">
+                        @for (opt of irrigationSystemOptions; track opt.value) {
+                          <button
+                            type="button"
+                            class="flex cursor-pointer items-center justify-center gap-1.5 rounded-xl border p-2.5 text-center text-xs font-bold transition-all"
+                            [class.border-[#0f7a3d]]="form.irrigationSystem === opt.value"
+                            [class.bg-emerald-50/70]="form.irrigationSystem === opt.value"
+                            [class.text-[#086532]]="form.irrigationSystem === opt.value"
+                            [class.ring-1]="form.irrigationSystem === opt.value"
+                            [class.ring-[#0f7a3d]]="form.irrigationSystem === opt.value"
+                            [class.border-slate-200]="form.irrigationSystem !== opt.value"
+                            [class.bg-white]="form.irrigationSystem !== opt.value"
+                            [class.text-slate-600]="form.irrigationSystem !== opt.value"
+                            [attr.aria-pressed]="form.irrigationSystem === opt.value"
+                            (click)="form.irrigationSystem = opt.value; stepError.set(null)"
+                          >
+                            <span>{{ opt.label }}</span>
+                          </button>
+                        }
+                      </div>
+                    </div>
+
+                    <div>
+                      <label class="mb-2 block text-xs font-bold text-slate-700">التسميد مع مياه الري (Fertigation) <span class="text-slate-400 font-normal">(اختياري)</span></label>
+                      <div class="grid grid-cols-3 gap-2">
+                        @for (opt of fertigationOptions; track opt.value) {
+                          <button
+                            type="button"
+                            class="flex cursor-pointer items-center justify-center gap-1.5 rounded-xl border p-2.5 text-center text-xs font-bold transition-all"
+                            [class.border-[#0f7a3d]]="form.fertigation === opt.value"
+                            [class.bg-emerald-50/70]="form.fertigation === opt.value"
+                            [class.text-[#086532]]="form.fertigation === opt.value"
+                            [class.ring-1]="form.fertigation === opt.value"
+                            [class.ring-[#0f7a3d]]="form.fertigation === opt.value"
+                            [class.border-slate-200]="form.fertigation !== opt.value"
+                            [class.bg-white]="form.fertigation !== opt.value"
+                            [class.text-slate-600]="form.fertigation !== opt.value"
+                            [attr.aria-pressed]="form.fertigation === opt.value"
+                            (click)="form.fertigation = opt.value"
+                          >
+                            <span>{{ opt.label }}</span>
+                          </button>
+                        }
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- 3. بيانات وتحاليل التربة (اختياري عند الإنشاء) -->
                 <div class="rounded-2xl border border-slate-200/80 bg-slate-50/50 p-4 sm:p-5">
                   <div class="mb-3 flex flex-wrap items-center justify-between gap-2">
                     <h4 class="text-sm font-black text-slate-800 flex items-center gap-2">
                       <span class="size-2 rounded-full bg-amber-600"></span>
-                      2. بيانات التربة
+                      3. بيانات وتحاليل التربة
                     </h4>
-                    @if (isSoilAnalysisCompleted()) {
-                      <span class="inline-flex items-center gap-1.5 rounded-full bg-emerald-100 px-3 py-1 text-xs font-bold text-emerald-800 border border-emerald-200">
-                        <span>✓</span> تم استكمال تحليل التربة
-                      </span>
-                    } @else {
-                      <span class="inline-flex items-center gap-1.5 rounded-full bg-amber-100/90 px-3 py-1 text-xs font-bold text-amber-800 border border-amber-200">
-                        <span>⚠</span> تحليل التربة غير مكتمل
-                      </span>
-                    }
+                    <div class="flex items-center gap-2">
+                      <span class="rounded-full bg-slate-100 px-2.5 py-0.5 text-[11px] font-bold text-slate-600 border border-slate-200">اختياري عند الإنشاء</span>
+                      @if (isSoilAnalysisCompleted()) {
+                        <span class="inline-flex items-center gap-1.5 rounded-full bg-emerald-100 px-3 py-1 text-xs font-bold text-emerald-800 border border-emerald-200">
+                          <span>✓</span> تم استكمال تحليل التربة
+                        </span>
+                      } @else {
+                        <span class="inline-flex items-center gap-1.5 rounded-full bg-amber-100/90 px-3 py-1 text-xs font-bold text-amber-800 border border-amber-200">
+                          <span>⚠</span> تحليل التربة غير مكتمل
+                        </span>
+                      }
+                    </div>
                   </div>
 
                   <!-- نوع التربة -->
                   <div class="mb-4">
-                    <label class="mb-2 block text-xs font-bold text-slate-700">نوع التربة</label>
+                    <label class="mb-2 block text-xs font-bold text-slate-700">نوع التربة <span class="text-slate-400 font-normal">(اختياري)</span></label>
                     <div class="grid grid-cols-2 gap-2.5 sm:grid-cols-3">
                       @for (opt of soilTypeOptions; track opt.value) {
                         <button
@@ -840,8 +906,8 @@
                   <!-- تحليل التربة (إدخال يدوي) -->
                   <div class="rounded-xl border border-slate-200/60 bg-white p-3.5 sm:p-4">
                     <div class="mb-3 flex items-center justify-between">
-                      <span class="text-xs font-black text-slate-700">تحليل التربة (إدخال يدوي)</span>
-                      <span class="text-[11px] text-slate-400">قيم القياسات الكيميائية</span>
+                      <span class="text-xs font-black text-slate-700">قياسات تحليل التربة (إدخال يدوي)</span>
+                      <span class="text-[11px] text-slate-400">اختياري - 6 مؤشرات كيميائية</span>
                     </div>
                     <div class="grid grid-cols-2 gap-3 sm:grid-cols-3">
                       <label>
@@ -922,28 +988,31 @@
                   </div>
                 </div>
 
-                <!-- 3. تحليل مياه الري -->
+                <!-- 4. تحليل مياه الري (اختياري عند الإنشاء) -->
                 <div class="rounded-2xl border border-slate-200/80 bg-slate-50/50 p-4 sm:p-5">
                   <div class="mb-3 flex flex-wrap items-center justify-between gap-2">
                     <h4 class="text-sm font-black text-slate-800 flex items-center gap-2">
                       <span class="size-2 rounded-full bg-sky-600"></span>
-                      3. تحليل مياه الري
+                      4. تحليل مياه الري
                     </h4>
-                    @if (isWaterAnalysisCompleted()) {
-                      <span class="inline-flex items-center gap-1.5 rounded-full bg-emerald-100 px-3 py-1 text-xs font-bold text-emerald-800 border border-emerald-200">
-                        <span>✓</span> تم استكمال تحليل المياه
-                      </span>
-                    } @else {
-                      <span class="inline-flex items-center gap-1.5 rounded-full bg-amber-100/90 px-3 py-1 text-xs font-bold text-amber-800 border border-amber-200">
-                        <span>⚠</span> تحليل المياه غير مكتمل
-                      </span>
-                    }
+                    <div class="flex items-center gap-2">
+                      <span class="rounded-full bg-slate-100 px-2.5 py-0.5 text-[11px] font-bold text-slate-600 border border-slate-200">اختياري عند الإنشاء</span>
+                      @if (isWaterAnalysisCompleted()) {
+                        <span class="inline-flex items-center gap-1.5 rounded-full bg-emerald-100 px-3 py-1 text-xs font-bold text-emerald-800 border border-emerald-200">
+                          <span>✓</span> تم استكمال تحليل المياه
+                        </span>
+                      } @else {
+                        <span class="inline-flex items-center gap-1.5 rounded-full bg-amber-100/90 px-3 py-1 text-xs font-bold text-amber-800 border border-amber-200">
+                          <span>⚠</span> تحليل المياه غير مكتمل
+                        </span>
+                      }
+                    </div>
                   </div>
 
                   <div class="rounded-xl border border-slate-200/60 bg-white p-3.5 sm:p-4">
                     <div class="mb-3 flex items-center justify-between">
-                      <span class="text-xs font-black text-slate-700">تحليل المياه (إدخال يدوي)</span>
-                      <span class="text-[11px] text-slate-400">9 مؤشرات لجودة مياه الري</span>
+                      <span class="text-xs font-black text-slate-700">قياسات تحليل المياه (إدخال يدوي)</span>
+                      <span class="text-[11px] text-slate-400">اختياري - 9 مؤشرات لجودة مياه الري</span>
                     </div>
                     <div class="grid grid-cols-2 gap-3 sm:grid-cols-3">
                       <label>
@@ -1055,63 +1124,6 @@
                           [(ngModel)]="form.waterSar"
                         />
                       </label>
-                    </div>
-                  </div>
-                </div>
-
-                <!-- 4. نظام الري و Fertigation -->
-                <div class="rounded-2xl border border-slate-200/80 bg-slate-50/50 p-4 sm:p-5">
-                  <h4 class="mb-3 text-sm font-black text-slate-800 flex items-center gap-2">
-                    <span class="size-2 rounded-full bg-[#0f7a3d]"></span>
-                    4. نظام الري والتسميد
-                  </h4>
-                  <div class="grid gap-4 sm:grid-cols-2">
-                    <div>
-                      <label class="mb-2 block text-xs font-bold text-slate-700">نظام الري</label>
-                      <div class="grid grid-cols-2 gap-2">
-                        @for (opt of irrigationSystemOptions; track opt.value) {
-                          <button
-                            type="button"
-                            class="flex cursor-pointer items-center justify-center gap-1.5 rounded-xl border p-2.5 text-center text-xs font-bold transition-all"
-                            [class.border-[#0f7a3d]]="form.irrigationSystem === opt.value"
-                            [class.bg-emerald-50/70]="form.irrigationSystem === opt.value"
-                            [class.text-[#086532]]="form.irrigationSystem === opt.value"
-                            [class.ring-1]="form.irrigationSystem === opt.value"
-                            [class.ring-[#0f7a3d]]="form.irrigationSystem === opt.value"
-                            [class.border-slate-200]="form.irrigationSystem !== opt.value"
-                            [class.bg-white]="form.irrigationSystem !== opt.value"
-                            [class.text-slate-600]="form.irrigationSystem !== opt.value"
-                            [attr.aria-pressed]="form.irrigationSystem === opt.value"
-                            (click)="form.irrigationSystem = opt.value"
-                          >
-                            <span>{{ opt.label }}</span>
-                          </button>
-                        }
-                      </div>
-                    </div>
-
-                    <div>
-                      <label class="mb-2 block text-xs font-bold text-slate-700">التسميد مع مياه الري (Fertigation)</label>
-                      <div class="grid grid-cols-3 gap-2">
-                        @for (opt of fertigationOptions; track opt.value) {
-                          <button
-                            type="button"
-                            class="flex cursor-pointer items-center justify-center gap-1.5 rounded-xl border p-2.5 text-center text-xs font-bold transition-all"
-                            [class.border-[#0f7a3d]]="form.fertigation === opt.value"
-                            [class.bg-emerald-50/70]="form.fertigation === opt.value"
-                            [class.text-[#086532]]="form.fertigation === opt.value"
-                            [class.ring-1]="form.fertigation === opt.value"
-                            [class.ring-[#0f7a3d]]="form.fertigation === opt.value"
-                            [class.border-slate-200]="form.fertigation !== opt.value"
-                            [class.bg-white]="form.fertigation !== opt.value"
-                            [class.text-slate-600]="form.fertigation !== opt.value"
-                            [attr.aria-pressed]="form.fertigation === opt.value"
-                            (click)="form.fertigation = opt.value"
-                          >
-                            <span>{{ opt.label }}</span>
-                          </button>
-                        }
-                      </div>
                     </div>
                   </div>
                 </div>

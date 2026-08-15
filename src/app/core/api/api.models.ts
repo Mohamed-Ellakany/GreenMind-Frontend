@@ -479,3 +479,29 @@ export interface SupportMessagePage {
   pageSize: number;
   totalCount: number;
 }
+
+export interface UserBudgetStatus {
+  limitUsd: number;
+  usedUsd: number;
+  isExceeded: boolean;
+  hasPendingRequest: boolean;
+}
+
+export type AiLimitRequestStatus = 'Pending' | 'Approved' | 'Rejected';
+
+export interface AiLimitRequestItem {
+  id: number;
+  userId: string;
+  userFullName: string;
+  userEmail: string | null;
+  contactName: string;
+  contactPhone: string;
+  currentLimitUsd: number;
+  usedUsd: number;
+  status: AiLimitRequestStatus;
+  adminNote: string | null;
+  newLimitUsd: number | null;
+  requestedAtUtc: string;
+  resolvedAtUtc: string | null;
+}
+

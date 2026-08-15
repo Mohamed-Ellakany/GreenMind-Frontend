@@ -1,0 +1,365 @@
+<div class="product-tour-root" dir="rtl">
+  <!-- 1. Welcome Modal -->
+  @if (tour.isWelcomeOpen()) {
+    <div
+      class="tour-overlay-backdrop"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="tour-welcome-title"
+      tabindex="-1"
+    >
+      <div class="tour-modal-card tour-welcome-card animate-fade-in-up">
+        <button
+          type="button"
+          class="tour-close-btn"
+          aria-label="إغلاق والتخطي"
+          (click)="tour.skipTour()"
+        >
+          <fa-icon [icon]="icons.xmark" />
+        </button>
+
+        <div class="tour-welcome-header">
+          <div class="tour-welcome-icon-wrap">
+            <span class="tour-welcome-icon-glow"></span>
+            <div class="tour-welcome-icon-inner">
+              <span class="text-3xl">🌱</span>
+            </div>
+          </div>
+          <span class="tour-pill-badge">
+            <fa-icon [icon]="icons.compass" /> جولة سريعة للبدء
+          </span>
+          <h2 id="tour-welcome-title" class="tour-welcome-title">
+            أهلاً بك في جرين مايند، {{ ownerName() }}!
+          </h2>
+          <p class="tour-welcome-subtitle">
+            منصتك الذكية المتكاملة لإدارة المزرعة، التخطيط للمحاصيل، وضمان الامتثال لأعلى معايير التصدير الدولية.
+          </p>
+        </div>
+
+        <div class="tour-welcome-features">
+          <div class="tour-feature-chip">
+            <span class="tour-feature-emoji">⚡</span>
+            <div>
+              <strong>جولة سريعة في دقيقتين</strong>
+              <small>تعرّف على أهم الأدوات ومفاتيح العمل</small>
+            </div>
+          </div>
+          <div class="tour-feature-chip">
+            <span class="tour-feature-emoji">🎯</span>
+            <div>
+              <strong>توجيه تفاعلي مباشر</strong>
+              <small>تسليط الضوء على الأقسام الرئيسية خطوة بخطوة</small>
+            </div>
+          </div>
+          <div class="tour-feature-chip">
+            <span class="tour-feature-emoji">🤖</span>
+            <div>
+              <strong>مستشار ذكاء اصطناعي زراعي</strong>
+              <small>مساعد مخصص جاهز للإجابة على مدار الساعة</small>
+            </div>
+          </div>
+        </div>
+
+        <div class="tour-modal-actions">
+          <button
+            type="button"
+            class="tour-btn-primary tour-btn-lg"
+            (click)="tour.startTour()"
+          >
+            <fa-icon [icon]="icons.rocket" />
+            <span>ابدأ الجولة التفاعلية (2 دقيقة)</span>
+          </button>
+          <button
+            type="button"
+            class="tour-btn-secondary"
+            (click)="tour.skipTour()"
+          >
+            <span>استكشاف بنفسي لاحقاً</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- 2. Active Tour: Spotlight SVG + Target Ring + Popover Card -->
+  @if (tour.isActive()) {
+    <div
+      class="tour-spotlight-container"
+      role="region"
+      aria-label="جولة تعريفية بالمنصة"
+    >
+      <!-- SVG Spotlight Overlay with Animated Cutout -->
+      <svg
+        class="tour-spotlight-svg"
+        [attr.width]="tour.windowDimensions().width"
+        [attr.height]="tour.windowDimensions().height"
+        aria-hidden="true"
+      >
+        <defs>
+          <mask id="tour-spotlight-mask">
+            <!-- White reveals the dim backdrop -->
+            <rect
+              x="0"
+              y="0"
+              [attr.width]="tour.windowDimensions().width"
+              [attr.height]="tour.windowDimensions().height"
+              fill="white"
+            />
+            <!-- Black cuts out the spotlight hole -->
+            @if (tour.targetRect(); as rect) {
+              <rect
+                class="tour-cutout-rect"
+                [attr.x]="rect.left"
+                [attr.y]="rect.top"
+                [attr.width]="rect.width"
+                [attr.height]="rect.height"
+                rx="14"
+                ry="14"
+                fill="black"
+              />
+            }
+          </mask>
+        </defs>
+        <!-- Dark backdrop using the mask -->
+        <rect
+          x="0"
+          y="0"
+          [attr.width]="tour.windowDimensions().width"
+          [attr.height]="tour.windowDimensions().height"
+          fill="rgba(10, 26, 18, 0.76)"
+          mask="url(#tour-spotlight-mask)"
+          (click)="tour.skipTour()"
+        />
+      </svg>
+
+      <!-- Pulsing Highlight Ring around Active Element -->
+      @if (tour.targetRect(); as rect) {
+        <div
+          class="tour-target-ring"
+          [style.top.px]="rect.top"
+          [style.left.px]="rect.left"
+          [style.width.px]="rect.width"
+          [style.height.px]="rect.height"
+          aria-hidden="true"
+        >
+          <span class="tour-target-ping"></span>
+        </div>
+      }
+
+      <!-- Smart Anchored Popover Tooltip -->
+      @if (tour.currentStep(); as step) {
+        <div
+          #popoverCard
+          class="tour-popover-card animate-pop-in"
+          [class.placement-left]="tour.popoverPos()?.placement === 'left'"
+          [class.placement-right]="tour.popoverPos()?.placement === 'right'"
+          [class.placement-top]="tour.popoverPos()?.placement === 'top'"
+          [class.placement-bottom]="tour.popoverPos()?.placement === 'bottom'"
+          [style.top.px]="tour.popoverPos()?.top"
+          [style.left.px]="tour.popoverPos()?.left"
+          role="dialog"
+          aria-modal="false"
+          aria-live="polite"
+          aria-labelledby="tour-step-title"
+        >
+          <!-- Popover Header -->
+          <div class="tour-popover-header">
+            <div class="flex items-center gap-2">
+              <span class="tour-step-badge">{{ step.badge }}</span>
+              <span class="tour-step-count">
+                الخطوة {{ tour.currentStepIndex() + 1 }} من {{ tour.totalSteps() }}
+              </span>
+            </div>
+            <button
+              type="button"
+              class="tour-mini-close"
+              aria-label="تخطي الجولة"
+              (click)="tour.skipTour()"
+            >
+              <fa-icon [icon]="icons.xmark" />
+            </button>
+          </div>
+
+          <!-- Popover Body -->
+          <div class="tour-popover-body">
+            <div class="tour-title-row">
+              <span class="tour-step-icon">
+                @if (step.icon) {
+                  <fa-icon [icon]="step.icon" />
+                } @else {
+                  {{ step.iconEmoji }}
+                }
+              </span>
+              <h3 id="tour-step-title" class="tour-step-title">
+                {{ step.title }}
+              </h3>
+            </div>
+
+            <p class="tour-step-desc">
+              {{ step.description }}
+            </p>
+
+            @if (step.tip) {
+              <div class="tour-step-tip">
+                <fa-icon [icon]="icons.lightbulb" class="tour-tip-icon" />
+                <p>{{ step.tip }}</p>
+              </div>
+            }
+          </div>
+
+          <!-- Popover Footer -->
+          <div class="tour-popover-footer">
+            <!-- Interactive Step Dots -->
+            <div class="tour-step-dots" aria-label="مؤشر الخطوات">
+              @for (s of tour.steps; track s.id; let idx = $index) {
+                <button
+                  type="button"
+                  class="tour-step-dot"
+                  [class.is-active]="idx === tour.currentStepIndex()"
+                  [class.is-passed]="idx < tour.currentStepIndex()"
+                  [attr.aria-label]="'الانتقال للخطوة ' + (idx + 1) + ': ' + s.title"
+                  (click)="tour.goToStep(idx)"
+                ></button>
+              }
+            </div>
+
+            <div class="tour-footer-actions">
+              <button
+                type="button"
+                class="tour-btn-text"
+                (click)="tour.skipTour()"
+              >
+                تخطي
+              </button>
+
+              <div class="flex items-center gap-1.5">
+                @if (!tour.isFirstStep()) {
+                  <button
+                    type="button"
+                    class="tour-btn-nav"
+                    aria-label="الخطوة السابقة"
+                    (click)="tour.prevStep()"
+                  >
+                    <fa-icon [icon]="icons.chevronRight" />
+                    <span>السابق</span>
+                  </button>
+                }
+
+                @if (!tour.isLastStep()) {
+                  <button
+                    type="button"
+                    class="tour-btn-primary tour-btn-nav"
+                    aria-label="الخطوة التالية"
+                    (click)="tour.nextStep()"
+                  >
+                    <span>التالي</span>
+                    <fa-icon [icon]="icons.chevronLeft" />
+                  </button>
+                } @else {
+                  <button
+                    type="button"
+                    class="tour-btn-primary tour-btn-nav tour-btn-finish"
+                    aria-label="إنهاء الجولة"
+                    (click)="tour.completeTour()"
+                  >
+                    <fa-icon [icon]="icons.check" />
+                    <span>إنهاء الجولة</span>
+                  </button>
+                }
+              </div>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  }
+
+  <!-- 3. Completion Celebration Modal -->
+  @if (tour.isCompletedOpen()) {
+    <div
+      class="tour-overlay-backdrop"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="tour-completed-title"
+      tabindex="-1"
+    >
+      <div class="tour-modal-card tour-completed-card animate-fade-in-up">
+        <button
+          type="button"
+          class="tour-close-btn"
+          aria-label="إغلاق"
+          (click)="tour.closeAll()"
+        >
+          <fa-icon [icon]="icons.xmark" />
+        </button>
+
+        <div class="tour-completed-header">
+          <div class="tour-celebration-badge">
+            <span class="text-4xl">🎉</span>
+          </div>
+          <span class="tour-pill-badge tour-pill-success">
+            <fa-icon [icon]="icons.circleCheck" /> اكتملت الجولة بنجاح
+          </span>
+          <h2 id="tour-completed-title" class="tour-welcome-title">
+            أحسنت! أنت الآن جاهز للانطلاق في جرين مايند
+          </h2>
+          <p class="tour-welcome-subtitle">
+            لديك الآن نظرة شاملة على إمكانيات المنصة. اختر خطوتك القادمة لبدء إدارة وتصدير محاصيلك:
+          </p>
+        </div>
+
+        <div class="tour-quick-destinations">
+          <button
+            type="button"
+            class="tour-dest-card group"
+            (click)="navigateTo('/export-plans')"
+          >
+            <div class="tour-dest-icon bg-emerald-50 text-emerald-700">🌱</div>
+            <div class="tour-dest-info">
+              <strong class="group-hover:text-emerald-700">إنشاء أول خطة تصدير</strong>
+              <small>اختر المحصول والدولة المستهدفة واحصل على خطة متكاملة</small>
+            </div>
+            <fa-icon [icon]="icons.chevronLeft" class="tour-dest-arrow" />
+          </button>
+
+          <button
+            type="button"
+            class="tour-dest-card group"
+            (click)="navigateTo('/ai-agent')"
+          >
+            <div class="tour-dest-icon bg-blue-50 text-blue-700">🤖</div>
+            <div class="tour-dest-info">
+              <strong class="group-hover:text-blue-700">محادثة المستشار الذكي</strong>
+              <small>استشر الذكاء الاصطناعي في معاملات المحصول والتسميد</small>
+            </div>
+            <fa-icon [icon]="icons.chevronLeft" class="tour-dest-arrow" />
+          </button>
+
+          <button
+            type="button"
+            class="tour-dest-card group"
+            (click)="navigateTo('/activities')"
+          >
+            <div class="tour-dest-icon bg-amber-50 text-amber-700">📅</div>
+            <div class="tour-dest-info">
+              <strong class="group-hover:text-amber-700">جدول المهام والعمليات</strong>
+              <small>نظّم وسجّل مواعيد العمليات الحقلية والوقائية</small>
+            </div>
+            <fa-icon [icon]="icons.chevronLeft" class="tour-dest-arrow" />
+          </button>
+        </div>
+
+        <div class="tour-modal-actions mt-4">
+          <button
+            type="button"
+            class="tour-btn-primary tour-btn-lg"
+            (click)="tour.closeAll()"
+          >
+            <fa-icon [icon]="icons.check" />
+            <span>الانتقال للوحة التحكم</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+</div>

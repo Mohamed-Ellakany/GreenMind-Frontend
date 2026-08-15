@@ -4,7 +4,7 @@ import { ApiClient } from './api-client.service';
 import {
   ExportPlan, ExportPlanCreateRequest, ExportPlanDashboard, ExportPlanDetails,
   ExportPlanScheduleAnalysis, ExportPlanScheduleAnalysisRequest, ExportPlanFarmDataUpdateRequest,
-  AdminAiUsageOverview, AdminInvitation, AdminUser, AdminUserDetails, FarmAccount, FarmTask, MasterDataItem, PagedResult, PlanningStatus, PlatformStatistics,
+  AdminAiUsageOverview, AdminInvitation, AdminUser, AdminUserDetails, AiLimitRequestItem, FarmAccount, FarmTask, MasterDataItem, PagedResult, PlanningStatus, PlatformStatistics,
   RagIngestionResult, RegulatoryImportResult, SoilMeasurement, SoilMeasurementRequest,
   SupportConversation, SupportMessage, SupportMessagePage, CreateTaskRequest, TaskType, ScheduleRevision,
 } from './api.models';
@@ -215,6 +215,14 @@ export class GreenmindApi {
 
   public setUserAiAccess(userId: string, isSuspended: boolean): Observable<void> {
     return this.api.patch<void>(`/api/admin/users/${encodeURIComponent(userId)}/ai-access`, { isSuspended });
+  }
+
+  public adminAiLimitRequests(pendingOnly = true): Observable<AiLimitRequestItem[]> {
+    return this.api.get<AiLimitRequestItem[]>(`/api/admin/ai-limit-requests?pendingOnly=${pendingOnly}`);
+  }
+
+  public resolveAiLimitRequest(requestId: number, body: { approved: boolean; newLimitUsd?: number; adminNote?: string }): Observable<void> {
+    return this.api.patch<void>(`/api/admin/ai-limit-requests/${requestId}`, body);
   }
 
   public uploadActiveSubstances(regionName: string, file: File): Observable<RegulatoryImportResult> {

@@ -4,7 +4,11 @@ import { FormsModule, NgForm } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 import { AuthService } from '../../services/AuthService';
-import { meetsPasswordPolicy, passwordRequirements } from '../../utils/password-policy';
+import {
+  getPasswordStrength,
+  meetsPasswordPolicy,
+  passwordRequirements,
+} from '../../utils/password-policy';
 
 @Component({
   selector: 'app-accept-invitation',
@@ -33,8 +37,16 @@ export class AcceptInvitation {
     return passwordRequirements(this.password);
   }
 
+  protected passwordStrength() {
+    return getPasswordStrength(this.password);
+  }
+
   protected passwordsMismatch(): boolean {
     return !!this.confirmPassword && this.confirmPassword !== this.password;
+  }
+
+  protected passwordsMatch(): boolean {
+    return !!this.password && !!this.confirmPassword && this.password === this.confirmPassword;
   }
 
   protected async submit(form: NgForm): Promise<void> {

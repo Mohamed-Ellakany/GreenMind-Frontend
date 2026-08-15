@@ -5,6 +5,7 @@ import { finalize } from 'rxjs';
 import { GreenmindApi } from '@core/api/greenmind-api.service';
 import { SupportConversation, SupportMessage } from '@core/api/api.models';
 import { SupportRealtimeService } from '@core/support/support-realtime.service';
+import { ProductTourService } from '@core/tour/product-tour.service';
 
 @Component({
   selector: 'app-support-page',
@@ -13,6 +14,7 @@ import { SupportRealtimeService } from '@core/support/support-realtime.service';
   styleUrl: './support-page.css',
 })
 export class SupportPage {
+  public readonly tour = inject(ProductTourService);
   private readonly api = inject(GreenmindApi);
   private readonly realtime = inject(SupportRealtimeService);
   private readonly destroyRef = inject(DestroyRef);

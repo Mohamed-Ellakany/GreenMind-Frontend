@@ -108,7 +108,6 @@ export class ExportPlans {
     { value: 'ري سطحي', label: 'ري سطحي' },
     { value: 'زراعة مائية', label: 'زراعة مائية' },
     { value: 'أخرى', label: 'أخرى' },
-    { value: 'غير محدد', label: 'غير محدد' },
   ] as const;
 
   public readonly fertigationOptions = [
@@ -684,6 +683,14 @@ export class ExportPlans {
       return false;
     }
     if (step === 3) {
+      if (!this.form.farmType?.trim()) {
+        this.stepError.set('يرجى تحديد نوع المزرعة للمتابعة.');
+        return false;
+      }
+      if (!this.form.irrigationSystem?.trim()) {
+        this.stepError.set('يرجى تحديد نوع أو نظام الري للمتابعة.');
+        return false;
+      }
       if (this.form.soilPh != null && (this.form.soilPh < 0 || this.form.soilPh > 14)) {
         this.stepError.set('درجة حموضة التربة (pH) يجب أن تكون بين 0 و 14.');
         return false;

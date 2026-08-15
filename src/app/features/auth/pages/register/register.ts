@@ -89,7 +89,10 @@ export class Register {
         const { confirmPassword, terms, ...payload } = this.registerModel();
         await firstValueFrom(this.authService.register(payload));
         this.submitted.set(true);
-        await this.router.navigateByUrl('/auth/pending-approval', { replaceUrl: true });
+        await this.router.navigate(['/auth/activation-pending'], {
+          queryParams: { email: payload.email },
+          replaceUrl: true,
+        });
       } catch {
         // authService.error() already surfaces the message in the template.
         queueMicrotask(() => globalThis.document?.getElementById('register-form-error')?.focus());

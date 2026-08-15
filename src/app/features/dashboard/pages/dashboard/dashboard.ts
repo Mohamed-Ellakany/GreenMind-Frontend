@@ -7,6 +7,7 @@ import { GreenmindApi } from '@core/api/greenmind-api.service';
 import { ExportPlan, FarmTask } from '@core/api/api.models';
 import { PhaseTwoApi } from '@features/dashboard/phase-two/phase-two-api.service';
 import { AuthService } from '@features/auth/services/AuthService';
+import { ProductTourService } from '@core/tour/product-tour.service';
 import { toLocalIsoDate } from '@shared/utils/local-date';
 import { taskPriorityLabel, taskTypeLabel } from '@shared/utils/task-labels';
 
@@ -28,6 +29,7 @@ type SoilSnapshot = {
   templateUrl: './dashboard-view.html',
 })
 export class Dashboard {
+  public readonly tour = inject(ProductTourService);
   private readonly api = inject(GreenmindApi);
   private readonly phaseApi = inject(PhaseTwoApi);
   private readonly auth = inject(AuthService);

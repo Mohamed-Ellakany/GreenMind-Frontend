@@ -1,6 +1,6 @@
 :host { display: grid; gap: 1.25rem; }
-.operation-card { position: relative; display: block; overflow: hidden; min-height: 11.5rem; border: 1px solid #dce6df; border-radius: 1.1rem; background: #fff; padding: 1.1rem; color: #10231b; box-shadow: 0 8px 28px rgb(16 35 27 / .045); transition: transform 180ms, border-color 180ms, box-shadow 180ms; }
-.operation-card:hover { transform: translateY(-2px); border-color: #b9d5c1; box-shadow: 0 14px 34px rgb(16 35 27 / .08); }
+.operation-card { position: relative; display: block; overflow: hidden; min-height: 11.5rem; border: 1px solid #dce6df; border-radius: 1.2rem; background: #fff; padding: 1.1rem; color: #10231b; box-shadow: 0 1px 2px rgb(16 35 27 / .04), 0 8px 28px rgb(16 35 27 / .045); transition: transform 250ms cubic-bezier(0.22, 1, 0.36, 1), border-color 250ms ease, box-shadow 250ms ease; }
+.operation-card:hover { transform: translateY(-3px); border-color: #b3d4bc; box-shadow: 0 1px 2px rgb(16 35 27 / .04), 0 18px 44px rgb(16 35 27 / .09); }
 .cost-card { background: radial-gradient(circle at 0 0, rgb(52 145 83 / .11), transparent 35%), linear-gradient(145deg,#fff,#f5fbf7); }
 .disease-card { padding: 0; background: radial-gradient(circle at 0 100%,rgb(86 127 201 / .1),transparent 35%),linear-gradient(145deg,#fff,#f8fafc); }
 .operation-main-link { display: block; min-height: 11.5rem; padding: 1.1rem 1.1rem 4rem; color: inherit; }

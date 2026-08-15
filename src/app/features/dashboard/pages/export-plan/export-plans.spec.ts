@@ -118,4 +118,52 @@ describe('ExportPlans wizard', () => {
     expect(component.scheduleDirty()).toBe(true);
     expect(component.form.analysisToken).toBe('');
   });
+
+  it('requires farmType and irrigationSystem on step 3, but measurements remain optional', () => {
+    const fixture = TestBed.createComponent(ExportPlans);
+    const component = fixture.componentInstance;
+    component.openForm();
+    component.form.name = 'Test Plan';
+    component.form.cropId = 1;
+    component.form.destinationId = 1;
+    const governorate = component.governorates[0];
+    component.form.governorate = governorate.name;
+    const district = component.availableDistricts()[0];
+    component.form.city = district.name;
+    component.form.latitude = 30.0;
+    component.form.longitude = 31.0;
+    component.mapLocationSelected.set(true);
+
+    // Navigate to step 3
+    component.formStep.set(3);
+
+    // Case 1: Missing farmType -> validation fails
+    component.form.farmType = '';
+    component.form.irrigationSystem = 'تنقيط';
+    component.nextStep();
+    expect(component.formStep()).toBe(3);
+    expect(component.stepError()).toBe('يرجى تحديد نوع المزرعة للمتابعة.');
+
+    // Case 2: Missing irrigationSystem -> validation fails
+    component.form.farmType = 'أرض مفتوحة';
+    component.form.irrigationSystem = '';
+    component.nextStep();
+    expect(component.formStep()).toBe(3);
+    expect(component.stepError()).toBe('يرجى تحديد نوع أو نظام الري للمتابعة.');
+
+    // Case 3: farmType and irrigationSystem provided, but ALL measurements empty -> succeeds to step 4
+    component.form.farmType = 'أرض مفتوحة';
+    component.form.irrigationSystem = 'تنقيط';
+    component.form.soilPh = null;
+    component.form.soilEc = null;
+    component.form.soilNitrogen = null;
+    component.form.waterPh = null;
+    component.form.waterEc = null;
+
+    component.nextStep();
+    expect(component.stepError()).toBeNull();
+    expect(api.analyzeExportPlanSchedule).toHaveBeenCalled();
+    expect(component.formStep()).toBe(4);
+  });
 });
+

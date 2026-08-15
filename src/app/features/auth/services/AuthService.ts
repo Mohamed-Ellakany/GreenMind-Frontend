@@ -104,6 +104,18 @@ export class AuthService {
       .pipe(map(() => undefined));
   }
 
+  public activateAccount(payload: { email: string; token: string }): Observable<void> {
+    return this.http
+      .post<void>(`${this.baseUrl}/activate-account`, payload)
+      .pipe(map(() => undefined));
+  }
+
+  public resendActivation(payload: { email: string }): Observable<void> {
+    return this.http
+      .post<void>(`${this.baseUrl}/resend-activation`, payload)
+      .pipe(map(() => undefined));
+  }
+
   public loadProfile(): void {
     if (!this.isAuthenticated()) return;
     this.profile().subscribe({ error: () => this.accountProfile.set(this.profileFromToken()) });
@@ -225,11 +237,19 @@ export class AuthService {
     ) {
       return 'رابط الدعوة غير صالح أو انتهت صلاحيته.';
     }
-    if (normalized.includes('waiting for admin approval')) {
-      return 'الحساب ما زال بانتظار موافقة الإدارة.';
+    if (
+      normalized.includes('not activated') ||
+      normalized.includes('user account is not active') ||
+      normalized.includes('account is not active') ||
+      normalized.includes('waiting for admin approval')
+    ) {
+      return 'الحساب غير مفعّل بعد. يرجى الضغط على رابط التفعيل المرسل إلى بريدك الإلكتروني.';
     }
-    if (normalized.includes('user account is not active')) {
-      return 'هذا الحساب غير نشط. تواصل مع الدعم للمساعدة.';
+    if (
+      normalized.includes('activation token is invalid') ||
+      normalized.includes('invalid activation')
+    ) {
+      return 'رابط التفعيل غير صالح أو انتهت صلاحيته.';
     }
     return message;
   }

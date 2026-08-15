@@ -18,16 +18,18 @@ import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { NotificationCenterService } from '@core/settings/notification-center.service';
 import { SupportRealtimeService } from '@core/support/support-realtime.service';
 import { GreenmindApi } from '@core/api/greenmind-api.service';
+import { ProductTourComponent } from '@shared/components/product-tour/product-tour';
+import { ProductTourService } from '@core/tour/product-tour.service';
 import { ExportPlanDetails } from '@core/api/api.models';
 import { PlanContextNavigation } from './plan-context-navigation';
 import {
   faBars,
   faBell,
-  faChartLine,
   faChevronLeft,
   faCircle,
   faCircleQuestion,
   faCircleUser,
+  faCompass,
   faFileLines,
   faGear,
   faHouse,
@@ -51,7 +53,7 @@ type RouteSearchItem = {
 
 @Component({
   selector: 'app-main-layout',
-  imports: [FontAwesomeModule, RouterLink, RouterLinkActive, RouterOutlet, PlanContextNavigation],
+  imports: [FontAwesomeModule, RouterLink, RouterLinkActive, RouterOutlet, PlanContextNavigation, ProductTourComponent],
   templateUrl: './main-layout.html',
   styleUrl: './main-layout.css',
 })
@@ -62,6 +64,7 @@ export class MainLayout {
   private readonly destroyRef = inject(DestroyRef);
   private readonly document = inject(DOCUMENT);
   private readonly supportRealtime = inject(SupportRealtimeService);
+  public readonly tourService = inject(ProductTourService);
   private readonly desktopMedia = this.document.defaultView?.matchMedia?.('(min-width: 1024px)') ?? null;
   private previousBodyOverflow: string | null = null;
   private mobileMenuOpener: HTMLElement | null = null;
@@ -106,7 +109,6 @@ export class MainLayout {
     help: faCircleQuestion,
     leaf: faLeaf,
     logout: faRightFromBracket,
-    market: faChartLine,
     plus: faPlus,
     reports: faFileLines,
     search: faMagnifyingGlass,
@@ -120,7 +122,6 @@ export class MainLayout {
     { label: 'المهام والأنشطة', description: 'المواعيد والتنفيذ اليومي', url: '/activities', keywords: 'مهام نشاط مواعيد تنفيذ يومي' },
     { label: 'الإحصائيات والتقارير', description: 'مؤشرات الأداء والتقدم', url: '/statistics', keywords: 'احصائيات تقارير مؤشرات أداء تقدم' },
     { label: 'خطط التصدير', description: 'إدارة خطط المحاصيل والأسواق', url: '/export-plans', keywords: 'خطة تصدير محصول سوق' },
-    { label: 'مقارنة الأسواق', description: 'قارن وجهات وفرص التصدير', url: '/market-comparison', keywords: 'اسواق وجهات مقارنة فرص' },
     { label: 'المستشار الذكي', description: 'اسأل مساعد جرين مايند', url: '/ai-agent', keywords: 'ذكاء اصطناعي مساعد مستشار سؤال' },
     { label: 'إعدادات الحساب', description: 'بياناتك وبيانات المزرعة', url: '/account-settings', keywords: 'حساب ملف شخصي بيانات مزرعة' },
     { label: 'مركز المساعدة', description: 'تواصل مع فريق الدعم', url: '/support', keywords: 'مساعدة دعم تواصل مشكلة' },
@@ -161,6 +162,12 @@ export class MainLayout {
       if (typeof localStorage !== 'undefined') localStorage.setItem('greenmind.sidebar.collapsed', String(this.asideCollapsed()));
     });
     effect(() => this.setBodyScrollLocked(this.mobileDrawerActive()));
+    effect(() => {
+      const profile = this.profile();
+      if (profile) {
+        this.tourService.checkAndAutoStart(profile.farmId || profile.email || profile.fullName);
+      }
+    });
     const onViewportChange = (event: MediaQueryListEvent): void => {
       this.desktopViewport.set(event.matches);
       if (event.matches) this.mobileMenuOpen.set(false);

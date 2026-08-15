@@ -22,6 +22,7 @@ import {
   PhaseApiResponse,
   TaskProposal,
 } from './phase-two.models';
+import { UserBudgetStatus } from '@core/api/api.models';
 
 @Injectable({ providedIn: 'root' })
 export class PhaseTwoApi {
@@ -58,6 +59,14 @@ export class PhaseTwoApi {
     images: Array<{ fileName: string; contentType: string; dataBase64: string }> = [],
   ): Promise<void> {
     return this.stream(`/api/farm/chat/sessions/${sessionId}/messages/stream`, content, onEvent, images);
+  }
+
+  public budgetStatus(): Observable<UserBudgetStatus> {
+    return this.get('/api/farm/ai-budget');
+  }
+
+  public submitLimitRequest(contactName: string, contactPhone: string): Observable<void> {
+    return this.http.post<void>('/api/farm/ai-limit-requests', { contactName, contactPhone });
   }
 
   public async streamMessage(

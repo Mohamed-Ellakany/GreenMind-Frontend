@@ -94,6 +94,17 @@
         ></a
       >
       <a
+        routerLink="/admin-dashboard/ai-limit-requests"
+        routerLinkActive="admin-nav-link-active"
+        ariaCurrentWhenActive="page"
+        class="admin-nav-link"
+        title="طلبات الكوتا"
+        (click)="closeMobileMenu(false)"
+        ><fa-icon class="admin-nav-icon" [icon]="icons.aiUsage" /><span class="admin-nav-text"
+          >طلبات الكوتا</span
+        ></a
+      >
+      <a
         routerLink="/admin-dashboard/destinations"
         routerLinkActive="admin-nav-link-active"
         ariaCurrentWhenActive="page"

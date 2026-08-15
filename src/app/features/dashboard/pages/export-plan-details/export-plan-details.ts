@@ -314,15 +314,40 @@ export class ExportPlanDetailsPage {
     return Math.max(0, Math.min(100, percentage));
   });
 
-  public weatherLabel(weather: DashboardWeather): string {
+  public weatherLabel(weather: DashboardWeather | null | undefined): string {
+    if (!weather) return 'طقس معتدل';
     if (weather.precipitationMm >= 1) return 'أمطار متوقعة';
-    if (weather.tempMaxC >= 35) return 'حار';
+    if (weather.tempMaxC >= 35) return 'طقس حار';
     if (weather.tempMaxC <= 18) return 'مائل للبرودة';
     return 'طقس معتدل';
   }
 
-  public weatherIcon(weather: DashboardWeather): string {
+  public weatherIcon(weather: DashboardWeather | null | undefined): string {
+    if (!weather) return '🌤️';
     return weather.precipitationMm >= 1 ? '🌧️' : weather.tempMaxC >= 35 ? '☀️' : '🌤️';
+  }
+
+  public weatherAdvisory(weather: DashboardWeather | null | undefined): string {
+    if (!weather) return 'الظروف مستقرة لمتابعة الخطة';
+    if (weather.precipitationMm >= 5) return 'أمطار غزيرة · تجنب الري والرش اليوم';
+    if (weather.precipitationMm >= 1) return 'أمطار محتملة · تأكد من كفاءة الصرف';
+    if (weather.windSpeedKmh >= 25) return 'رياح نشطة · يُنصح بتأجيل رش المبيدات';
+    if (weather.tempMaxC >= 38) return 'موجة حارة · زيادة معدلات الري والتظليل';
+    if (weather.tempMaxC <= 12) return 'أجواء باردة · مراقبة درجات حرارة المحصول';
+    return 'الظروف الجوية مثالية للعمليات الزراعية اليوم';
+  }
+
+  public weatherConditionType(weather: DashboardWeather | null | undefined): 'rain' | 'sunny' | 'cloudy' {
+    if (!weather) return 'cloudy';
+    if (weather.precipitationMm >= 1) return 'rain';
+    if (weather.tempMaxC >= 35) return 'sunny';
+    return 'cloudy';
+  }
+
+  public weatherAdvisoryTone(weather: DashboardWeather | null | undefined): 'good' | 'warning' | 'info' {
+    if (!weather) return 'info';
+    if (weather.precipitationMm >= 3 || weather.tempMaxC >= 38 || weather.windSpeedKmh >= 25) return 'warning';
+    return 'good';
   }
 
   public heroCropImage(crop: string): string {

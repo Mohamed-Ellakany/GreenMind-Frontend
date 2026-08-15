@@ -32,3 +32,53 @@ export function passwordRequirements(password: string): PasswordRequirement[] {
 export function meetsPasswordPolicy(password: string): boolean {
   return passwordRequirements(password).every((requirement) => requirement.met);
 }
+
+export type PasswordStrength = {
+  score: number;
+  percentage: number;
+  label: string;
+  colorClass: string;
+  barColorClass: string;
+};
+
+export function getPasswordStrength(password: string): PasswordStrength {
+  if (!password) {
+    return {
+      score: 0,
+      percentage: 0,
+      label: '',
+      colorClass: 'text-[#7c8981]',
+      barColorClass: 'bg-[#dde6df]',
+    };
+  }
+
+  const reqs = passwordRequirements(password);
+  const metCount = reqs.filter((r) => r.met).length;
+
+  if (metCount <= 2) {
+    return {
+      score: metCount,
+      percentage: Math.max(20, metCount * 20),
+      label: 'ضعيفة',
+      colorClass: 'text-[#dc2626]',
+      barColorClass: 'bg-[#dc2626]',
+    };
+  }
+  if (metCount <= 4) {
+    return {
+      score: metCount,
+      percentage: metCount * 20,
+      label: 'متوسطة',
+      colorClass: 'text-[#d97706]',
+      barColorClass: 'bg-[#d97706]',
+    };
+  }
+  return {
+    score: 5,
+    percentage: 100,
+    label: 'قوية جداً',
+    colorClass: 'text-[#0f7a3d]',
+    barColorClass: 'bg-[#0f7a3d]',
+  };
+}
+

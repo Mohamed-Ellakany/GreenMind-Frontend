@@ -34,6 +34,16 @@
                 <button type="button" (click)="useTopic(topic)">{{ topic }}</button>
               }
             </div>
+            <div class="mt-4 flex flex-col items-center gap-2">
+              <button
+                type="button"
+                class="inline-flex items-center gap-2 rounded-xl bg-emerald-50 px-4 py-2 text-xs font-black text-emerald-800 border border-emerald-200 hover:bg-emerald-100 transition cursor-pointer"
+                (click)="tour.resetAndStartTour()"
+              >
+                <span>🎯</span>
+                <span>إعادة تشغيل الجولة التعريفية بالمنصة</span>
+              </button>
+            </div>
           </div>
         }
       }

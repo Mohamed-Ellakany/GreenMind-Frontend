@@ -34,6 +34,7 @@ export const routes: Routes = [
       { path: 'accounts', title: 'حسابات المزارع | جرين مايند', loadComponent: () => import('@features/admin-dashboard/accounts/accounts').then((m) => m.Accounts) },
       { path: 'accounts/:userId', title: 'تفاصيل حساب المزارع | جرين مايند', loadComponent: () => import('@features/admin-dashboard/accounts/account-details').then((m) => m.AccountDetails) },
       { path: 'ai-usage', title: 'استخدام الذكاء الاصطناعي | جرين مايند', loadComponent: () => import('@features/admin-dashboard/ai-usage/ai-usage').then((m) => m.AiUsage) },
+      { path: 'ai-limit-requests', title: 'طلبات كوتا الذكاء الاصطناعي | جرين مايند', loadComponent: () => import('@features/admin-dashboard/ai-limit-requests/ai-limit-requests').then((m) => m.AiLimitRequests) },
       { path: 'destinations', title: 'وجهات التصدير | جرين مايند', loadComponent: () => import('@features/admin-dashboard/destinations/destinations').then((m) => m.Destinations) },
       { path: 'products', title: 'إدارة المحاصيل | جرين مايند', loadComponent: () => import('@features/admin-dashboard/products/products').then((m) => m.Products) },
       { path: 'regulatory-data', title: 'البيانات التنظيمية | جرين مايند', loadComponent: () => import('@features/admin-dashboard/regulatory-data/regulatory-data').then((m) => m.RegulatoryData) },
