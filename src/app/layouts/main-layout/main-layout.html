@@ -108,11 +108,11 @@
   <div class="layout-content min-h-dvh" [attr.aria-hidden]="mobileDrawerActive() ? 'true' : null" [attr.inert]="mobileDrawerActive() ? '' : null" [class.layout-content-collapsed]="asideCollapsed() && !planContext()">
     <main id="farmer-main-content" class="p-3 pb-20 sm:p-5 sm:pb-24 lg:p-6 lg:pb-8"><router-outlet /></main>
     <nav class="mobile-bottom-nav fixed inset-x-0 bottom-0 z-30 grid grid-cols-5 border-t border-[#dce6df] bg-white/95 px-2 pt-1 backdrop-blur-xl lg:hidden" aria-label="التنقل السريع">
-      <a routerLink="/dashboard" routerLinkActive="mobile-tab-active" ariaCurrentWhenActive="page" [routerLinkActiveOptions]="{ exact: true }" class="mobile-tab"><fa-icon [icon]="icons.dashboard" /><span>الرئيسية</span></a>
-      <a routerLink="/export-plans" routerLinkActive="mobile-tab-active" ariaCurrentWhenActive="page" class="mobile-tab"><fa-icon [icon]="icons.exportPlans" /><span>الخطط</span></a>
-      <a routerLink="/activities" routerLinkActive="mobile-tab-active" ariaCurrentWhenActive="page" class="mobile-tab"><fa-icon [icon]="icons.activities" /><span>المهام</span></a>
-      <a routerLink="/ai-agent" routerLinkActive="mobile-tab-active" ariaCurrentWhenActive="page" class="mobile-tab"><fa-icon [icon]="icons.ai" /><span>المستشار</span></a>
-      <button type="button" class="mobile-tab" aria-controls="farmer-sidebar" [attr.aria-expanded]="mobileMenuOpen()" (click)="openMobileMenu()"><fa-icon [icon]="icons.burger" /><span>المزيد</span></button>
+      <a routerLink="/dashboard" routerLinkActive="mobile-tab-active" ariaCurrentWhenActive="page" [routerLinkActiveOptions]="{ exact: true }" class="mobile-tab" data-tour-mobile="dashboard"><fa-icon [icon]="icons.dashboard" /><span>الرئيسية</span></a>
+      <a routerLink="/export-plans" routerLinkActive="mobile-tab-active" ariaCurrentWhenActive="page" class="mobile-tab" data-tour-mobile="export-plans"><fa-icon [icon]="icons.exportPlans" /><span>الخطط</span></a>
+      <a routerLink="/activities" routerLinkActive="mobile-tab-active" ariaCurrentWhenActive="page" class="mobile-tab" data-tour-mobile="activities"><fa-icon [icon]="icons.activities" /><span>المهام</span></a>
+      <a routerLink="/ai-agent" routerLinkActive="mobile-tab-active" ariaCurrentWhenActive="page" class="mobile-tab" data-tour-mobile="ai-agent"><fa-icon [icon]="icons.ai" /><span>المستشار</span></a>
+      <button type="button" class="mobile-tab" aria-controls="farmer-sidebar" [attr.aria-expanded]="mobileMenuOpen()" (click)="openMobileMenu()" data-tour-mobile="more"><fa-icon [icon]="icons.burger" /><span>المزيد</span></button>
     </nav>
   </div>
 

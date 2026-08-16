@@ -505,3 +505,33 @@ export interface AiLimitRequestItem {
   resolvedAtUtc: string | null;
 }
 
+export interface CreateContactMessageRequest {
+  fullName: string;
+  email: string;
+  phoneNumber?: string | null;
+  subject?: string | null;
+  message: string;
+}
+
+export interface ContactMessage {
+  id: number;
+  fullName: string;
+  email: string;
+  phoneNumber: string | null;
+  subject: string | null;
+  message: string;
+  isRead: boolean;
+  readAtUtc: string | null;
+  createdAt: string;
+}
+
+export interface ContactMessagePage {
+  items: ContactMessage[];
+  pageNumber: number;
+  pageSize: number;
+  totalCount: number;
+  unreadCount: number;
+  totalPages: number;
+}
+
+

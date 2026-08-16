@@ -89,8 +89,7 @@ export class Register {
         const { confirmPassword, terms, ...payload } = this.registerModel();
         await firstValueFrom(this.authService.register(payload));
         this.submitted.set(true);
-        await this.router.navigate(['/auth/activation-pending'], {
-          queryParams: { email: payload.email },
+        await this.router.navigateByUrl('/auth/pending-approval', {
           replaceUrl: true,
         });
       } catch {

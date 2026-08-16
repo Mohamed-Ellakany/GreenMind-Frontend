@@ -199,10 +199,10 @@
               {{ step.description }}
             </p>
 
-            @if (step.tip) {
+            @if ((tour.isMobile() && step.mobileTip) || step.tip) {
               <div class="tour-step-tip">
                 <fa-icon [icon]="icons.lightbulb" class="tour-tip-icon" />
-                <p>{{ step.tip }}</p>
+                <p>{{ (tour.isMobile() && step.mobileTip) ? step.mobileTip : step.tip }}</p>
               </div>
             }
           </div>

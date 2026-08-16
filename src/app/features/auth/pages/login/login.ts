@@ -47,6 +47,10 @@ export class Login {
       try {
         await firstValueFrom(this.authService.login(this.loginModel()));
       } catch {
+        if (this.authService.errorCode() === 'account_pending_approval') {
+          await this.router.navigateByUrl('/auth/pending-approval', { replaceUrl: true });
+          return;
+        }
         this.focusFormError();
         return;
       }

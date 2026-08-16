@@ -1,14 +1,18 @@
+import { CommonModule } from '@angular/common';
 import { Component, DestroyRef, ElementRef, effect, inject, signal, viewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { finalize } from 'rxjs';
 import { GreenmindApi } from '@core/api/greenmind-api.service';
-import { SupportConversation, SupportMessage } from '@core/api/api.models';
+import { ContactMessage, SupportConversation, SupportMessage } from '@core/api/api.models';
 import { SupportRealtimeService } from '@core/support/support-realtime.service';
+
+type ActiveTab = 'support' | 'contact-messages';
 
 @Component({
   selector: 'app-admin-support',
-  imports: [FormsModule],
+  standalone: true,
+  imports: [CommonModule, FormsModule],
   templateUrl: './admin-support.html',
   styleUrl: './admin-support.css',
 })
@@ -17,6 +21,13 @@ export class AdminSupport {
   private readonly realtime = inject(SupportRealtimeService);
   private readonly destroyRef = inject(DestroyRef);
 
+  public readonly activeTab = signal<ActiveTab>('support');
+
+  public encodeURIComponent(val: string): string {
+    return encodeURIComponent(val || '');
+  }
+
+  // Support Conversations State
   protected readonly conversations = signal<SupportConversation[]>([]);
   protected readonly activeConversation = signal<SupportConversation | null>(null);
   protected readonly messages = signal<SupportMessage[]>([]);
@@ -27,9 +38,19 @@ export class AdminSupport {
   private readonly messagesViewport = viewChild<ElementRef<HTMLElement>>('messagesViewport');
   protected draft = '';
 
+  // Contact Inquiries State
+  public readonly contactMessages = signal<ContactMessage[]>([]);
+  public readonly activeContactMessage = signal<ContactMessage | null>(null);
+  public readonly loadingContactMessages = signal(false);
+  public readonly unreadContactCount = signal(0);
+  public readonly contactSearchQuery = signal('');
+  public readonly contactUnreadOnly = signal(false);
+  public readonly contactActionLoading = signal<number | null>(null);
+
   constructor() {
     void this.realtime.start();
     this.loadConversations();
+    this.loadContactMessages();
 
     effect(() => {
       const message = this.realtime.latestMessage();
@@ -42,6 +63,14 @@ export class AdminSupport {
     });
   }
 
+  public setTab(tab: ActiveTab): void {
+    this.activeTab.set(tab);
+    if (tab === 'contact-messages' && this.contactMessages().length === 0) {
+      this.loadContactMessages();
+    }
+  }
+
+  // --- Support Conversations ---
   protected loadConversations(selectFirst = true): void {
     this.loadingConversations.set(true);
     this.api
@@ -149,5 +178,95 @@ export class AdminSupport {
       const viewport = this.messagesViewport()?.nativeElement;
       viewport?.scrollTo({ top: viewport.scrollHeight, behavior: smooth ? 'smooth' : 'auto' });
     });
+  }
+
+  // --- Contact Inquiries Logic ---
+  public loadContactMessages(selectFirst = true): void {
+    this.loadingContactMessages.set(true);
+    this.api
+      .adminContactMessages({
+        unreadOnly: this.contactUnreadOnly() ? true : undefined,
+        search: this.contactSearchQuery().trim() || undefined,
+        pageNumber: 1,
+        pageSize: 50,
+      })
+      .pipe(
+        finalize(() => this.loadingContactMessages.set(false)),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe({
+        next: (page) => {
+          this.contactMessages.set(page.items);
+          this.unreadContactCount.set(page.unreadCount);
+          if (selectFirst && page.items.length > 0) {
+            this.selectContactMessage(page.items[0]);
+          } else if (page.items.length === 0) {
+            this.activeContactMessage.set(null);
+          }
+        },
+        error: () => this.error.set('تعذر تحميل رسائل تواصل معنا.'),
+      });
+  }
+
+  public selectContactMessage(msg: ContactMessage): void {
+    this.activeContactMessage.set(msg);
+    if (!msg.isRead) {
+      this.markContactAsRead(msg);
+    }
+  }
+
+  public markContactAsRead(msg: ContactMessage): void {
+    this.contactActionLoading.set(msg.id);
+    this.api
+      .markContactMessageRead(msg.id, true)
+      .pipe(
+        finalize(() => this.contactActionLoading.set(null)),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe({
+        next: (updated) => {
+          this.contactMessages.update((list) =>
+            list.map((item) => (item.id === updated.id ? updated : item))
+          );
+          if (this.activeContactMessage()?.id === updated.id) {
+            this.activeContactMessage.set(updated);
+          }
+          this.unreadContactCount.update((c) => Math.max(0, c - 1));
+        },
+      });
+  }
+
+  public deleteContactMessage(msg: ContactMessage): void {
+    if (!confirm(`هل أنت متأكد من حذف رسالة «${msg.fullName}»؟`)) return;
+
+    this.contactActionLoading.set(msg.id);
+    this.api
+      .deleteContactMessage(msg.id)
+      .pipe(
+        finalize(() => this.contactActionLoading.set(null)),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe({
+        next: () => {
+          this.contactMessages.update((list) => list.filter((item) => item.id !== msg.id));
+          if (this.activeContactMessage()?.id === msg.id) {
+            const remaining = this.contactMessages();
+            this.activeContactMessage.set(remaining.length > 0 ? remaining[0] : null);
+          }
+          if (!msg.isRead) {
+            this.unreadContactCount.update((c) => Math.max(0, c - 1));
+          }
+        },
+        error: () => alert('تعذر حذف الرسالة.'),
+      });
+  }
+
+  public onContactSearch(): void {
+    this.loadContactMessages(true);
+  }
+
+  public toggleUnreadFilter(): void {
+    this.contactUnreadOnly.update((v) => !v);
+    this.loadContactMessages(true);
   }
 }

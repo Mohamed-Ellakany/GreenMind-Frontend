@@ -5,10 +5,12 @@ export type TourPlacement = 'bottom' | 'top' | 'left' | 'right' | 'auto';
 export interface TourStep {
   id: string;
   targetSelector: string;
+  targetSelectorMobile?: string;
   title: string;
   badge: string;
   description: string;
   tip?: string;
+  mobileTip?: string;
   icon?: IconDefinition;
   iconEmoji?: string;
   placement?: TourPlacement;

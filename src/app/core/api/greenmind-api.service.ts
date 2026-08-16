@@ -7,6 +7,7 @@ import {
   AdminAiUsageOverview, AdminInvitation, AdminUser, AdminUserDetails, AiLimitRequestItem, FarmAccount, FarmTask, MasterDataItem, PagedResult, PlanningStatus, PlatformStatistics,
   RagIngestionResult, RegulatoryImportResult, SoilMeasurement, SoilMeasurementRequest,
   SupportConversation, SupportMessage, SupportMessagePage, CreateTaskRequest, TaskType, ScheduleRevision,
+  ContactMessage, ContactMessagePage, CreateContactMessageRequest,
 } from './api.models';
 
 @Injectable({ providedIn: 'root' })
@@ -181,6 +182,28 @@ export class GreenmindApi {
 
   public sendAdminSupportMessage(conversationId: number, content: string): Observable<SupportMessage> {
     return this.api.post<SupportMessage>(`/api/admin/support/conversations/${conversationId}/messages`, { content });
+  }
+
+  public submitContactMessage(body: CreateContactMessageRequest): Observable<ContactMessage> {
+    return this.api.post<ContactMessage>('/api/contact', body);
+  }
+
+  public adminContactMessages(params: { unreadOnly?: boolean; search?: string; pageNumber?: number; pageSize?: number } = {}): Observable<ContactMessagePage> {
+    const query = new URLSearchParams();
+    if (params.unreadOnly !== undefined) query.set('unreadOnly', String(params.unreadOnly));
+    if (params.search) query.set('search', params.search);
+    if (params.pageNumber) query.set('pageNumber', String(params.pageNumber));
+    if (params.pageSize) query.set('pageSize', String(params.pageSize));
+    const qs = query.toString();
+    return this.api.get<ContactMessagePage>(`/api/admin/contact-messages${qs ? `?${qs}` : ''}`);
+  }
+
+  public markContactMessageRead(id: number, isRead = true): Observable<ContactMessage> {
+    return this.api.patch<ContactMessage>(`/api/admin/contact-messages/${id}/read`, { isRead });
+  }
+
+  public deleteContactMessage(id: number): Observable<void> {
+    return this.api.delete<void>(`/api/admin/contact-messages/${id}`);
   }
 
   public farms(status?: 'Pending' | 'Active' | 'Inactive'): Observable<PagedResult<FarmAccount>> {

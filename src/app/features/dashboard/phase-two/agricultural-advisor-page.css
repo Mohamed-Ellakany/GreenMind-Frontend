@@ -134,6 +134,154 @@
 .safety-title { display: flex; align-items: center; gap: .35rem; font-size: .64rem; }
 .safety-note p { margin:.25rem 0 0; font-size: .59rem; line-height: 1.55; color: #856117; }
 
+/* Limit Exceeded State & Quota Request */
+.limit-exceeded-card {
+  display: flex;
+  flex-direction: column;
+  gap: .85rem;
+  padding: 1rem 1.1rem;
+  border: 1px solid #fbd5d0;
+  border-radius: 1rem;
+  background: linear-gradient(135deg, #fff8f7 0%, #fff 100%);
+  box-shadow: 0 6px 20px rgba(220, 53, 69, 0.05);
+}
+
+.limit-header {
+  display: flex;
+  align-items: flex-start;
+  gap: .75rem;
+}
+
+.limit-badge {
+  display: grid;
+  width: 2.35rem;
+  height: 2.35rem;
+  flex: none;
+  place-items: center;
+  border-radius: .75rem;
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+.limit-badge svg {
+  width: 1.35rem;
+  height: 1.35rem;
+}
+
+.limit-header h3 {
+  margin: 0;
+  color: #991b1b;
+  font-size: .95rem;
+  font-weight: 850;
+}
+
+.limit-header p {
+  margin: .25rem 0 0;
+  color: #55605a;
+  font-size: .74rem;
+  line-height: 1.6;
+}
+
+.limit-form {
+  display: flex;
+  flex-direction: column;
+  gap: .75rem;
+}
+
+.limit-form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
+  gap: .75rem;
+}
+
+.limit-form-field {
+  display: flex;
+  flex-direction: column;
+  gap: .3rem;
+}
+
+.limit-form-field label {
+  color: #1e2923;
+  font-size: .74rem;
+  font-weight: 750;
+}
+
+.limit-form-field label .required {
+  color: #dc2626;
+}
+
+.limit-form-field input {
+  padding: .55rem .75rem;
+  border: 1px solid #d0dcd5;
+  border-radius: .6rem;
+  background: #fff;
+  color: #1a2e26;
+  font-size: .78rem;
+  outline: none;
+  transition: border-color .15s ease, box-shadow .15s ease;
+}
+
+.limit-form-field input:focus {
+  border-color: #0b714a;
+  box-shadow: 0 0 0 3px rgba(11, 113, 74, 0.12);
+}
+
+.limit-submit-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: .45rem;
+  padding: .6rem 1.1rem;
+  border: none;
+  border-radius: .65rem;
+  background: #0b714a;
+  color: #fff;
+  font-size: .78rem;
+  font-weight: 800;
+  cursor: pointer;
+  transition: background .15s ease, transform .1s ease;
+}
+
+.limit-submit-btn:hover:not(:disabled) {
+  background: #07523a;
+  transform: translateY(-1px);
+}
+
+.limit-submit-btn:disabled {
+  opacity: .6;
+  cursor: not-allowed;
+}
+
+.limit-success-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: .65rem;
+  padding: .75rem .95rem;
+  border: 1px solid #bbf7d0;
+  border-radius: .75rem;
+  background: #f0fdf4;
+  color: #166534;
+}
+
+.limit-success-banner svg {
+  width: 1.35rem;
+  height: 1.35rem;
+  flex: none;
+  color: #16a34a;
+}
+
+.limit-success-banner strong {
+  display: block;
+  font-size: .8rem;
+  font-weight: 800;
+}
+
+.limit-success-banner p {
+  margin: .2rem 0 0;
+  color: #15803d;
+  font-size: .72rem;
+}
+
 /* Responsive Media Queries */
 @media (max-width: 1024px) {
   .chat-layout { grid-template-columns: 1fr; height: auto; min-height: auto; }

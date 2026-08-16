@@ -36,9 +36,8 @@ export class App {
       return;
     }
 
-    const heading = this.document.querySelector<HTMLElement>('main h1');
-    if (!heading) return;
-    if (!heading.hasAttribute('tabindex')) heading.tabIndex = -1;
-    heading.focus({ preventScroll: true });
+    if (typeof window !== 'undefined') {
+      window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+    }
   }
 }

@@ -12,7 +12,7 @@
       <p class="mt-0.5 sm:mt-1 text-xs sm:text-sm text-[#65736c]">نظرة عامة على إحصائيات ومهام ومحاصيل المزرعة اليوم.</p>
     </div>
 
-    <div class="flex items-center gap-1.5 sm:gap-2.5">
+    <div class="flex flex-wrap items-center gap-1.5 sm:gap-2.5">
       <a routerLink="/export-plans" class="flex-1 sm:flex-initial inline-flex h-9 sm:h-10 items-center justify-center gap-1.5 rounded-xl bg-[#0f7a3d] px-3 sm:px-4 text-xs font-black text-white shadow-sm transition hover:bg-[#075d2d] active:scale-95 whitespace-nowrap">
         <span>+</span>
         <span>خطة تصدير جديدة</span>
@@ -44,14 +44,17 @@
   }
 
   @if (loading()) {
-    <div class="grid grid-cols-2 gap-2 sm:gap-3.5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5" aria-label="جارٍ التحميل">
-      @for (item of [1,2,3,4,5]; track item) {
-        <div class="h-24 sm:h-28 animate-pulse rounded-xl sm:rounded-2xl border border-[#dde6df] bg-white p-3 sm:p-4" [class.col-span-2]="item === 1" [class.sm:col-span-1]="item === 1">
-          <div class="h-3 w-20 rounded bg-slate-100"></div>
-          <div class="mt-3 h-5 w-14 rounded bg-slate-100"></div>
-          <div class="mt-2 h-2 w-full rounded bg-slate-100"></div>
-        </div>
-      }
+    <div class="py-8" aria-label="جارٍ التحميل">
+      <app-plant-growth-loader message="جارٍ تجهيز لوحة التحكم ومؤشرات المزرعة الشاملة…" />
+      <div class="mt-8 grid grid-cols-2 gap-2 sm:gap-3.5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 opacity-40">
+        @for (item of [1,2,3,4,5]; track item) {
+          <div class="h-24 sm:h-28 animate-pulse rounded-xl sm:rounded-2xl border border-[#dde6df] bg-white p-3 sm:p-4" [class.col-span-2]="item === 1" [class.sm:col-span-1]="item === 1">
+            <div class="h-3 w-20 rounded bg-slate-200"></div>
+            <div class="mt-3 h-5 w-14 rounded bg-slate-200"></div>
+            <div class="mt-2 h-2 w-full rounded bg-slate-200"></div>
+          </div>
+        }
+      </div>
     </div>
   } @else if (plans().length === 0) {
     <!-- Empty State -->
@@ -79,24 +82,24 @@
     <!-- 5 Farm-Wide Executive KPI Cards -->
     <div class="grid grid-cols-2 gap-2 sm:gap-3 lg:gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5" data-tour="dashboard-kpis">
       <!-- 1. Active Plans & Total Plans -->
-      <article class="col-span-2 sm:col-span-1 xl:col-span-1 relative overflow-hidden rounded-xl sm:rounded-2xl border border-[#d5e6d8] bg-gradient-to-br from-[#eaf6ed] via-[#edf7ef] to-[#f4faf5] p-3 sm:p-4 shadow-2xs flex flex-col justify-between">
+      <article class="min-w-0 col-span-2 sm:col-span-1 xl:col-span-1 relative overflow-hidden rounded-xl sm:rounded-2xl border border-[#d5e6d8] bg-gradient-to-br from-[#eaf6ed] via-[#edf7ef] to-[#f4faf5] p-3 sm:p-4 shadow-2xs flex flex-col justify-between">
         <div class="relative flex items-start justify-between gap-2">
-          <div>
+          <div class="min-w-0">
             <span class="text-[11px] sm:text-xs font-bold text-[#526158]">خطط التصدير بالمزرعة</span>
-            <strong class="mt-1 sm:mt-1.5 block text-xl sm:text-2xl lg:text-3xl font-black text-[#10231b]">{{ activePlansCount() }} <small class="text-xs sm:text-sm font-bold text-[#526158]">نشطة</small></strong>
+            <strong class="mt-1 sm:mt-1.5 block text-xl sm:text-2xl lg:text-3xl font-black text-[#10231b] truncate">{{ activePlansCount() }} <small class="text-xs sm:text-sm font-bold text-[#526158]">نشطة</small></strong>
           </div>
           <span class="grid size-7 sm:size-9 shrink-0 place-items-center rounded-xl bg-white text-sm sm:text-base shadow-2xs text-[#0f7a3d]">🌱</span>
         </div>
-        <p class="mt-2 sm:mt-2.5 text-[10.5px] sm:text-xs font-bold text-[#0f7a3d]">إجمالي الخطط: {{ totalPlansCount() }} خطة تصدير</p>
+        <p class="mt-2 sm:mt-2.5 text-[10.5px] sm:text-xs font-bold text-[#0f7a3d] truncate">إجمالي الخطط: {{ totalPlansCount() }} خطة تصدير</p>
       </article>
 
       <!-- 2. Total Tasks Across Farm -->
-      <article class="col-span-1 rounded-xl sm:rounded-2xl border border-[#dde6df] bg-white p-3 sm:p-4 shadow-2xs flex flex-col justify-between">
+      <article class="min-w-0 col-span-1 rounded-xl sm:rounded-2xl border border-[#dde6df] bg-white p-3 sm:p-4 shadow-2xs flex flex-col justify-between">
         <div class="flex items-start justify-between gap-1.5">
-          <span class="text-[10.5px] sm:text-xs font-bold text-[#65736c] leading-tight">إجمالي مهام المزرعة</span>
+          <span class="text-[10.5px] sm:text-xs font-bold text-[#65736c] leading-tight truncate">إجمالي مهام المزرعة</span>
           <span class="grid size-6 sm:size-8 shrink-0 place-items-center rounded-lg sm:rounded-xl bg-[#edf2ff] text-[#4664a6] text-xs sm:text-sm font-bold">✓</span>
         </div>
-        <strong class="mt-1.5 block text-xl sm:text-2xl lg:text-3xl font-black text-[#10231b]">{{ totalTasksCount() }}</strong>
+        <strong class="mt-1.5 block text-xl sm:text-2xl lg:text-3xl font-black text-[#10231b] truncate">{{ totalTasksCount() }}</strong>
         <p class="mt-1 text-[10px] sm:text-xs text-[#65736c] truncate">
           <b class="text-[#b26414]">{{ pendingTasksCount() }}</b> انتظار
           @if (overdueTasksCount() > 0) {
@@ -106,19 +109,19 @@
       </article>
 
       <!-- 3. Overall Task Completion Rate -->
-      <article class="col-span-1 rounded-xl sm:rounded-2xl border border-[#dde6df] bg-white p-3 sm:p-4 shadow-2xs flex flex-col justify-between">
+      <article class="min-w-0 col-span-1 rounded-xl sm:rounded-2xl border border-[#dde6df] bg-white p-3 sm:p-4 shadow-2xs flex flex-col justify-between">
         <div class="flex items-start justify-between gap-1.5">
-          <span class="text-[10.5px] sm:text-xs font-bold text-[#65736c] leading-tight">نسبة الإنجاز الكلية</span>
+          <span class="text-[10.5px] sm:text-xs font-bold text-[#65736c] leading-tight truncate">نسبة الإنجاز الكلية</span>
           <span class="grid size-6 sm:size-8 shrink-0 place-items-center rounded-lg sm:rounded-xl bg-[#e7f5eb] text-xs text-[#0f7a3d]">●</span>
         </div>
-        <strong class="mt-1.5 block text-xl sm:text-2xl lg:text-3xl font-black text-[#0f7a3d]">{{ farmCompletionPercentage() }}%</strong>
+        <strong class="mt-1.5 block text-xl sm:text-2xl lg:text-3xl font-black text-[#0f7a3d] truncate">{{ farmCompletionPercentage() }}%</strong>
         <p class="mt-1 text-[10px] sm:text-xs text-[#65736c] truncate">{{ completedTasksCount() }} من {{ totalTasksCount() }} مكتملة</p>
       </article>
 
       <!-- 4. Next Upcoming Export -->
-      <article class="col-span-1 rounded-xl sm:rounded-2xl border border-[#dde6df] bg-white p-3 sm:p-4 shadow-2xs flex flex-col justify-between">
+      <article class="min-w-0 col-span-1 rounded-xl sm:rounded-2xl border border-[#dde6df] bg-white p-3 sm:p-4 shadow-2xs flex flex-col justify-between">
         <div class="flex items-start justify-between gap-1.5">
-          <span class="text-[10.5px] sm:text-xs font-bold text-[#65736c] leading-tight">أقرب موعد تصدير</span>
+          <span class="text-[10.5px] sm:text-xs font-bold text-[#65736c] leading-tight truncate">أقرب موعد تصدير</span>
           <span class="grid size-6 sm:size-8 shrink-0 place-items-center rounded-lg sm:rounded-xl bg-[#fff3df] text-[#b26414] text-xs">↗</span>
         </div>
         @if (nearestExportPlan(); as nextPlan) {
@@ -127,15 +130,15 @@
             <bdi>{{ nextPlan.crop }}</bdi> · <b class="text-[#b26414]">{{ daysUntil(nextPlan.expectedExportDate) }}</b> يوم
           </p>
         } @else {
-          <strong class="mt-1.5 block text-xs sm:text-sm font-black text-slate-400">لا توجد مواعيد</strong>
-          <p class="mt-1 text-[10px] sm:text-xs text-slate-400">غير محدد</p>
+          <strong class="mt-1.5 block text-xs sm:text-sm font-black text-slate-400 truncate">لا توجد مواعيد</strong>
+          <p class="mt-1 text-[10px] sm:text-xs text-slate-400 truncate">غير محدد</p>
         }
       </article>
 
       <!-- 5. Total Expenses Across Farm -->
-      <article class="col-span-1 rounded-xl sm:rounded-2xl border border-[#dde6df] bg-white p-3 sm:p-4 shadow-2xs flex flex-col justify-between">
+      <article class="min-w-0 col-span-1 rounded-xl sm:rounded-2xl border border-[#dde6df] bg-white p-3 sm:p-4 shadow-2xs flex flex-col justify-between">
         <div class="flex items-start justify-between gap-1.5">
-          <span class="text-[10.5px] sm:text-xs font-bold text-[#65736c] leading-tight">إجمالي المصروفات</span>
+          <span class="text-[10.5px] sm:text-xs font-bold text-[#65736c] leading-tight truncate">إجمالي المصروفات</span>
           <span class="grid size-6 sm:size-8 shrink-0 place-items-center rounded-lg sm:rounded-xl bg-[#edf9f0] text-[#0f7a3d] text-xs font-bold">💰</span>
         </div>
         <strong class="mt-1.5 block text-base sm:text-lg lg:text-2xl font-black text-[#10231b] truncate">

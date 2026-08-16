@@ -91,7 +91,7 @@
               </div>
             </div>
 
-            @if (limitRequestSubmitted()) {
+            @if (limitRequestSubmitted() || budgetStatus()?.hasPendingRequest) {
               <div class="limit-success-banner">
                 <svg viewBox="0 0 24 24" fill="none"><path d="m5 12 5 5L20 7" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
                 <div>
