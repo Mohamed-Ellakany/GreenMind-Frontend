@@ -1,9 +1,9 @@
-import { HttpClient } from '@angular/common/http';
 import { Component, inject, signal } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 import { AuthService } from '../../services/AuthService';
+import { AdminInvitationService } from '../../services/admin-invitation.service';
 import {
   getPasswordStrength,
   meetsPasswordPolicy,
@@ -16,7 +16,7 @@ import {
   templateUrl: './accept-invitation.html',
 })
 export class AcceptInvitation {
-  private readonly http = inject(HttpClient);
+  private readonly adminInvitation = inject(AdminInvitationService);
   private readonly auth = inject(AuthService);
   private readonly route = inject(ActivatedRoute);
   private readonly token = this.route.snapshot.queryParamMap.get('token') ?? '';
@@ -64,7 +64,7 @@ export class AcceptInvitation {
     this.loading.set(true);
     try {
       await firstValueFrom(
-        this.http.post('/api/admin-invitations/accept', {
+        this.adminInvitation.acceptInvitation({
           token: this.token,
           password: this.password,
         }),

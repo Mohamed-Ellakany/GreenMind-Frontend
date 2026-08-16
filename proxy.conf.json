@@ -1,11 +1,11 @@
 {
   "/api": {
-    "target": "https://localhost:7132",
+    "target": "https://green-mind.runasp.net",
     "secure": false,
     "changeOrigin": true
   },
   "/hubs": {
-    "target": "https://localhost:7132",
+    "target": "https://green-mind.runasp.net",
     "secure": false,
     "changeOrigin": true,
     "ws": true

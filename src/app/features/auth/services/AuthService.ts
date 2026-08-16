@@ -1,8 +1,8 @@
-import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { HttpErrorResponse } from '@angular/common/http';
 import { Injectable, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { Observable, catchError, finalize, map, tap, throwError } from 'rxjs';
-import { ApiResponse } from '@core/api/api.models';
+import { ApiClient } from '@core/api/api-client.service';
 import { AuthResponse } from '../models/auth-response';
 import { LoginRequest } from '../models/login-request';
 import { RegisterRequest } from '../models/register-request';
@@ -19,9 +19,8 @@ export interface AccountProfile {
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-  private readonly http = inject(HttpClient);
+  private readonly api = inject(ApiClient);
   private readonly router = inject(Router);
-  private readonly baseUrl = '/api/Auth';
   private readonly tokenKey = 'greenmind_access_token';
 
   public readonly loading = signal(false);
@@ -31,9 +30,7 @@ export class AuthService {
 
   public login(payload: LoginRequest): Observable<AuthResponse> {
     const { rememberMe, ...credentials } = payload;
-    const source = this.http
-      .post<ApiResponse<AuthResponse>>(`${this.baseUrl}/login`, credentials)
-      .pipe(map((response) => response.data));
+    const source = this.api.post<AuthResponse>('/api/Auth/login', credentials);
     return this.request(source, rememberMe);
   }
 
@@ -41,8 +38,7 @@ export class AuthService {
     this.loading.set(true);
     this.error.set(null);
     this.errorCode.set(null);
-    return this.http.post<ApiResponse<RegisterResponse>>(`${this.baseUrl}/register`, payload).pipe(
-      map((response) => response.data),
+    return this.api.post<RegisterResponse>('/api/Auth/register', payload).pipe(
       catchError((error: HttpErrorResponse) => {
         this.error.set(this.errorMessage(error));
         this.errorCode.set(this.extractErrorCode(error));
@@ -59,22 +55,19 @@ export class AuthService {
   }
 
   public profile(): Observable<AccountProfile> {
-    return this.http.get<ApiResponse<AccountProfile>>(`${this.baseUrl}/me`).pipe(
-      map((response) => response.data),
+    return this.api.get<AccountProfile>('/api/Auth/me').pipe(
       tap((profile) => this.accountProfile.set(profile)),
     );
   }
 
   public updateProfile(payload: { fullName: string; email: string }): Observable<AccountProfile> {
-    return this.http.put<ApiResponse<AccountProfile>>(`${this.baseUrl}/me/profile`, payload).pipe(
-      map((response) => response.data),
+    return this.api.put<AccountProfile>('/api/Auth/me/profile', payload).pipe(
       tap((profile) => this.accountProfile.set(profile)),
     );
   }
 
   public updateFarm(payload: { farmName: string }): Observable<AccountProfile> {
-    return this.http.put<ApiResponse<AccountProfile>>(`${this.baseUrl}/me/farm`, payload).pipe(
-      map((response) => response.data),
+    return this.api.put<AccountProfile>('/api/Auth/me/farm', payload).pipe(
       tap((profile) => this.accountProfile.set(profile)),
     );
   }
@@ -83,15 +76,11 @@ export class AuthService {
     currentPassword: string;
     newPassword: string;
   }): Observable<void> {
-    return this.http
-      .put<ApiResponse<void> | null>(`${this.baseUrl}/me/password`, payload)
-      .pipe(map(() => undefined));
+    return this.api.put<void>('/api/Auth/me/password', payload);
   }
 
   public forgotPassword(email: string): Observable<void> {
-    return this.http
-      .post<void>(`${this.baseUrl}/forgot-password`, { email })
-      .pipe(map(() => undefined));
+    return this.api.post<void>('/api/Auth/forgot-password', { email });
   }
 
   public resetPassword(payload: {
@@ -99,21 +88,15 @@ export class AuthService {
     token: string;
     newPassword: string;
   }): Observable<void> {
-    return this.http
-      .post<void>(`${this.baseUrl}/reset-password`, payload)
-      .pipe(map(() => undefined));
+    return this.api.post<void>('/api/Auth/reset-password', payload);
   }
 
   public activateAccount(payload: { email: string; token: string }): Observable<void> {
-    return this.http
-      .post<void>(`${this.baseUrl}/activate-account`, payload)
-      .pipe(map(() => undefined));
+    return this.api.post<void>('/api/Auth/activate-account', payload);
   }
 
   public resendActivation(payload: { email: string }): Observable<void> {
-    return this.http
-      .post<void>(`${this.baseUrl}/resend-activation`, payload)
-      .pipe(map(() => undefined));
+    return this.api.post<void>('/api/Auth/resend-activation', payload);
   }
 
   public loadProfile(): void {
