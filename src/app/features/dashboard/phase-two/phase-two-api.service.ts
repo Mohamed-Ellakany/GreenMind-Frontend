@@ -23,7 +23,7 @@ import {
   TaskProposal,
 } from './phase-two.models';
 import { UserBudgetStatus } from '@core/api/api.models';
-import { environment } from '../../../../environments/environment.prod';
+import { environment } from '../../../../environments/environment';
 
 @Injectable({ providedIn: 'root' })
 export class PhaseTwoApi {
