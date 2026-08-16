@@ -67,8 +67,14 @@ export class PhaseTwoApi {
     return this.get('/api/farm/ai-budget');
   }
 
+  private buildUrl(path: string): string {
+    const base = (this.baseUrl || '').replace(/\/+$/, '');
+    const cleanPath = path.startsWith('/') ? path : `/${path}`;
+    return base ? `${base}${cleanPath}` : cleanPath;
+  }
+
   public submitLimitRequest(contactName: string, contactPhone: string): Observable<void> {
-    return this.http.post<void>(`${this.baseUrl}/api/farm/ai-limit-requests`, { contactName, contactPhone });
+    return this.http.post<void>(this.buildUrl('/api/farm/ai-limit-requests'), { contactName, contactPhone });
   }
 
   public async streamMessage(
@@ -94,7 +100,7 @@ export class PhaseTwoApi {
   ): Promise<void> {
     const token = sessionStorage.getItem('greenmind_access_token')
       ?? localStorage.getItem('greenmind_access_token');
-    const fullUrl = `${this.baseUrl}${url}`;
+    const fullUrl = this.buildUrl(url);
     const requestBody = JSON.stringify({
       content,
       images,
@@ -223,7 +229,7 @@ export class PhaseTwoApi {
 
   public diagnosisImage(planId: number, diagnosisId: number, imageId: number): Observable<Blob> {
     return this.http.get(
-      `${this.baseUrl}/api/export-plans/${planId}/diagnoses/${diagnosisId}/images/${imageId}`,
+      this.buildUrl(`/api/export-plans/${planId}/diagnoses/${diagnosisId}/images/${imageId}`),
       { responseType: 'blob' },
     );
   }
@@ -253,7 +259,7 @@ export class PhaseTwoApi {
 
   public diseaseImage(planId: number, reportId: number, imageId: number): Observable<Blob> {
     return this.http.get(
-      `${this.baseUrl}/api/export-plans/${planId}/disease-reports/${reportId}/images/${imageId}`,
+      this.buildUrl(`/api/export-plans/${planId}/disease-reports/${reportId}/images/${imageId}`),
       { responseType: 'blob' },
     );
   }
@@ -310,7 +316,7 @@ export class PhaseTwoApi {
   }
 
   public deleteExpense(planId: number, expenseId: number): Observable<void> {
-    return this.http.delete<void>(`${this.baseUrl}/api/export-plans/${planId}/expenses/${expenseId}`);
+    return this.http.delete<void>(this.buildUrl(`/api/export-plans/${planId}/expenses/${expenseId}`));
   }
 
   public costDashboard(planId: number): Observable<CostDashboard> {
@@ -322,7 +328,7 @@ export class PhaseTwoApi {
   }
 
   public exportExpenses(planId: number): Observable<Blob> {
-    return this.http.get(`${this.baseUrl}/api/export-plans/${planId}/expenses/export.csv`, {
+    return this.http.get(this.buildUrl(`/api/export-plans/${planId}/expenses/export.csv`), {
       responseType: 'blob',
     });
   }
@@ -345,26 +351,26 @@ export class PhaseTwoApi {
 
   public downloadAttachment(planId: number, expenseId: number, attachmentId: number): Observable<Blob> {
     return this.http.get(
-      `${this.baseUrl}/api/export-plans/${planId}/expenses/${expenseId}/attachments/${attachmentId}/download`,
+      this.buildUrl(`/api/export-plans/${planId}/expenses/${expenseId}/attachments/${attachmentId}/download`),
       { responseType: 'blob' },
     );
   }
 
   public deleteAttachment(planId: number, expenseId: number, attachmentId: number): Observable<void> {
     return this.http.delete<void>(
-      `${this.baseUrl}/api/export-plans/${planId}/expenses/${expenseId}/attachments/${attachmentId}`,
+      this.buildUrl(`/api/export-plans/${planId}/expenses/${expenseId}/attachments/${attachmentId}`),
     );
   }
 
   private get<T>(url: string): Observable<T> {
-    return this.http.get<PhaseApiResponse<T>>(`${this.baseUrl}${url}`).pipe(map((response) => response.data));
+    return this.http.get<PhaseApiResponse<T>>(this.buildUrl(url)).pipe(map((response) => response.data));
   }
 
   private post<T>(url: string, body: unknown): Observable<T> {
-    return this.http.post<PhaseApiResponse<T>>(`${this.baseUrl}${url}`, body).pipe(map((response) => response.data));
+    return this.http.post<PhaseApiResponse<T>>(this.buildUrl(url), body).pipe(map((response) => response.data));
   }
 
   private put<T>(url: string, body: unknown): Observable<T> {
-    return this.http.put<PhaseApiResponse<T>>(`${this.baseUrl}${url}`, body).pipe(map((response) => response.data));
+    return this.http.put<PhaseApiResponse<T>>(this.buildUrl(url), body).pipe(map((response) => response.data));
   }
 }
