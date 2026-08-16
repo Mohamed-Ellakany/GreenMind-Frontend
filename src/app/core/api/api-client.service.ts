@@ -10,7 +10,9 @@ export class ApiClient {
   private readonly baseUrl = environment.apiBaseUrl;
 
   private buildUrl(path: string): string {
-    return `${this.baseUrl}${path}`;
+    const base = (this.baseUrl || '').replace(/\/+$/, '');
+    const cleanPath = path.startsWith('/') ? path : `/${path}`;
+    return base ? `${base}${cleanPath}` : cleanPath;
   }
 
   public get<T>(path: string): Observable<T> {

@@ -4,7 +4,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { finalize, forkJoin, map, Observable, of, switchMap } from 'rxjs';
 import { GreenmindApi } from '@core/api/greenmind-api.service';
-import { ExportPlanDetails } from '@core/api/api.models';
+import { ExportPlanDetails, UserBudgetStatus } from '@core/api/api.models';
 import { PlantGrowthLoader } from '@shared/components/plant-growth-loader/plant-growth-loader';
 import { PhaseTwoApi } from './phase-two-api.service';
 import { ChatHistoryPage, ChatMessage, ChatSession, TaskProposal } from './phase-two.models';
@@ -31,6 +31,12 @@ export class AgriculturalAdvisorPage {
   public readonly chatSending = signal(false);
   public readonly selectedProposal = signal<TaskProposal | null>(null);
   public readonly proposalLoading = signal(false);
+  public readonly budgetStatus = signal<UserBudgetStatus | null>(null);
+  public readonly limitRequestSubmitted = signal(false);
+  public readonly submittingLimitRequest = signal(false);
+  public limitContactName = '';
+  public limitContactPhone = '';
+
   private readonly messagesViewport = viewChild<ElementRef<HTMLElement>>('messagesViewport');
   private readonly composerInput = viewChild<ElementRef<HTMLTextAreaElement>>('composerInput');
   public chatInput = this.route.snapshot.queryParamMap.get('prompt') === 'disease'
@@ -53,12 +59,41 @@ export class AgriculturalAdvisorPage {
       return;
     }
     this.load();
+    this.loadBudgetStatus();
+  }
+
+  public loadBudgetStatus(): void {
+    this.api.budgetStatus()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (status) => {
+          this.budgetStatus.set(status);
+          if (status.hasPendingRequest) {
+            this.limitRequestSubmitted.set(true);
+          }
+        },
+        error: () => {},
+      });
+  }
+
+  public submitLimitRequest(): void {
+    if (this.submittingLimitRequest() || !this.limitContactName.trim() || !this.limitContactPhone.trim()) return;
+    this.submittingLimitRequest.set(true);
+    this.api.submitLimitRequest(this.limitContactName.trim(), this.limitContactPhone.trim())
+      .pipe(
+        finalize(() => this.submittingLimitRequest.set(false)),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe({
+        next: () => this.limitRequestSubmitted.set(true),
+        error: () => this.error.set('تعذر إرسال طلب الكوتا. يرجى المحاولة لاحقاً.'),
+      });
   }
 
   public async sendChat(): Promise<void> {
     const content = this.chatInput.trim();
     const session = this.chatSession();
-    if ((!content && !this.selectedImages.length) || !session || this.chatSending()) return;
+    if ((!content && !this.selectedImages.length) || !session || this.chatSending() || this.budgetStatus()?.isExceeded) return;
     const images = await Promise.all(this.selectedImages.map(async (file) => ({
       fileName: file.name,
       contentType: file.type,
@@ -87,11 +122,13 @@ export class AgriculturalAdvisorPage {
         })));
       }, images);
       this.refreshMessages();
+      this.loadBudgetStatus();
     } catch {
       this.error.set('تعذر إكمال رد عم خضر. يمكنك إعادة المحاولة.');
       this.chatMessages.update((messages) => messages.map((message) => message.id === temporaryAssistantId
         ? { ...message, status: 'فشل', content: 'تعذر إنشاء الرد حاليًا.' }
         : message));
+      this.loadBudgetStatus();
     } finally {
       this.chatSending.set(false);
     }

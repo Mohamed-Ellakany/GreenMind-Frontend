@@ -1,122 +1,571 @@
 <div class="min-h-dvh overflow-hidden bg-[#f6f8f5] text-[#10231b]" dir="rtl">
   <a class="skip-link" href="#home-content">تخطي إلى المحتوى</a>
+
+  <!-- Top Fixed Navbar -->
   <nav class="fixed inset-x-0 top-0 z-50 px-3 pt-3 sm:px-6" aria-label="التنقل الرئيسي">
-    <div class="mx-auto flex h-16 max-w-[1240px] items-center justify-between rounded-2xl border border-white/70 bg-white/90 px-4 shadow-[0_10px_40px_rgba(16,35,27,.08)] backdrop-blur-xl sm:px-5">
-      <a class="flex items-center gap-2.5" href="#top" aria-label="جرين مايند - الرئيسية">
-        <span class="grid size-10 place-items-center rounded-xl bg-[#e7f5eb]"><img class="size-7" src="/greenmind-leaf.svg" width="28" height="28" alt="" /></span>
-        <span><strong class="block text-base font-black leading-4">جرين مايند</strong><small class="hidden text-xs font-semibold text-[#738078] sm:block">زراعة أذكى. تصدير أقوى.</small></span>
+    <div
+      class="mx-auto flex h-16 max-w-[1240px] items-center justify-between rounded-2xl border border-white/70 bg-white/90 px-4 shadow-[0_10px_40px_rgba(16,35,27,.08)] backdrop-blur-xl sm:px-5">
+      <a class="flex items-center gap-2.5 transition hover:opacity-90" href="#top"
+        (click)="scrollToSection('top', $event)" aria-label="جرين مايند - الرئيسية">
+        <span class="grid size-10 place-items-center rounded-xl bg-[#e7f5eb] shadow-xs">
+          <img class="size-7" src="/greenmind-leaf.svg" width="28" height="28" alt="شعار جرين مايند" />
+        </span>
+        <span>
+          <strong class="block text-base font-black leading-4 text-[#10231b]">جرين مايند</strong>
+          <small class="hidden text-xs font-semibold text-[#738078] sm:block">زراعة أذكى. تصدير أقوى.</small>
+        </span>
       </a>
+
+      <!-- Desktop Nav links with dynamic active indicator -->
       <div class="hidden items-center gap-1 rounded-full bg-[#f3f6f3] p-1 text-sm font-bold text-[#65736c] md:flex">
-        <a class="rounded-full bg-white px-4 py-2 text-[#0f7a3d] shadow-sm" href="#top">الرئيسية</a>
-        <a class="rounded-full px-4 py-2 transition hover:bg-white hover:text-[#10231b]" href="#features">الحلول</a>
-        <a class="rounded-full px-4 py-2 transition hover:bg-white hover:text-[#10231b]" href="#platform">كيف تعمل؟</a>
-        <a class="rounded-full px-4 py-2 transition hover:bg-white hover:text-[#10231b]" href="#contact">تواصل معنا</a>
+        <a class="rounded-full px-4 py-2 transition-all duration-200" [class.bg-white]="activeSection() === 'top'"
+          [class.text-[#0f7a3d]]="activeSection() === 'top'" [class.shadow-sm]="activeSection() === 'top'"
+          [class.hover:bg-white]="activeSection() !== 'top'" [class.hover:text-[#10231b]]="activeSection() !== 'top'"
+          href="#top" (click)="scrollToSection('top', $event)">الرئيسية</a>
+
+        <a class="rounded-full px-4 py-2 transition-all duration-200" [class.bg-white]="activeSection() === 'features'"
+          [class.text-[#0f7a3d]]="activeSection() === 'features'" [class.shadow-sm]="activeSection() === 'features'"
+          [class.hover:bg-white]="activeSection() !== 'features'"
+          [class.hover:text-[#10231b]]="activeSection() !== 'features'" href="#features"
+          (click)="scrollToSection('features', $event)">الحلول</a>
+
+        <a class="rounded-full px-4 py-2 transition-all duration-200" [class.bg-white]="activeSection() === 'platform'"
+          [class.text-[#0f7a3d]]="activeSection() === 'platform'" [class.shadow-sm]="activeSection() === 'platform'"
+          [class.hover:bg-white]="activeSection() !== 'platform'"
+          [class.hover:text-[#10231b]]="activeSection() !== 'platform'" href="#platform"
+          (click)="scrollToSection('platform', $event)">كيف تعمل؟</a>
+
+        <a class="rounded-full px-4 py-2 transition-all duration-200" [class.bg-white]="activeSection() === 'contact'"
+          [class.text-[#0f7a3d]]="activeSection() === 'contact'" [class.shadow-sm]="activeSection() === 'contact'"
+          [class.hover:bg-white]="activeSection() !== 'contact'"
+          [class.hover:text-[#10231b]]="activeSection() !== 'contact'" href="#contact"
+          (click)="scrollToSection('contact', $event)">تواصل معنا</a>
       </div>
+
       <div class="flex items-center gap-2">
-        <a routerLink="/auth/login" class="hidden rounded-xl px-4 py-2.5 text-sm font-bold text-[#526158] transition hover:bg-[#f3f6f3] sm:inline-flex">تسجيل الدخول</a>
-        <a routerLink="/auth/register" class="hidden rounded-xl bg-[#10231b] px-4 py-2.5 text-sm font-bold text-white shadow-lg shadow-[#10231b]/15 transition hover:-translate-y-0.5 hover:bg-[#0f7a3d] sm:inline-flex sm:px-5">ابدأ مجاناً</a>
-        <button type="button" class="grid size-11 place-items-center rounded-xl border border-[#dce6df] bg-white text-xl md:hidden" aria-label="فتح قائمة التنقل" aria-controls="home-mobile-navigation" [attr.aria-expanded]="mobileNavigationOpen()" (click)="toggleMobileNavigation()">{{ mobileNavigationOpen() ? '×' : '☰' }}</button>
+        <a routerLink="/auth/login"
+          class="hidden rounded-xl px-4 py-2.5 text-sm font-bold text-[#526158] transition hover:bg-[#f3f6f3] sm:inline-flex">تسجيل
+          الدخول</a>
+        <a routerLink="/auth/register"
+          class="hidden rounded-xl bg-[#10231b] px-4 py-2.5 text-sm font-bold text-white shadow-lg shadow-[#10231b]/15 transition hover:-translate-y-0.5 hover:bg-[#0f7a3d] sm:inline-flex sm:px-5">ابدأ
+          مجاناً</a>
+        <button type="button"
+          class="grid size-11 place-items-center rounded-xl border border-[#dce6df] bg-white text-xl font-bold md:hidden"
+          aria-label="فتح قائمة التنقل" aria-controls="home-mobile-navigation"
+          [attr.aria-expanded]="mobileNavigationOpen()" (click)="toggleMobileNavigation()">{{ mobileNavigationOpen() ?
+          '×' : '☰' }}</button>
       </div>
     </div>
+
+    <!-- Mobile Navigation Drawer -->
     @if (mobileNavigationOpen()) {
-      <div id="home-mobile-navigation" class="mx-auto mt-2 grid max-w-[1240px] gap-1 rounded-2xl border border-[#dce6df] bg-white p-3 text-sm font-black shadow-[0_18px_45px_rgba(16,35,27,.13)] md:hidden">
-        <a class="rounded-xl px-4 py-3 hover:bg-[#f3faf5]" href="#features" (click)="closeMobileNavigation()">الحلول</a>
-        <a class="rounded-xl px-4 py-3 hover:bg-[#f3faf5]" href="#platform" (click)="closeMobileNavigation()">كيف تعمل المنصة؟</a>
-        <a class="rounded-xl px-4 py-3 hover:bg-[#f3faf5]" href="#contact" (click)="closeMobileNavigation()">تواصل معنا</a>
-        <div class="mt-1 grid grid-cols-2 gap-2 border-t border-[#edf1ee] pt-3">
-          <a routerLink="/auth/login" class="rounded-xl border border-[#dce6df] px-4 py-3 text-center" (click)="closeMobileNavigation()">تسجيل الدخول</a>
-          <a routerLink="/auth/register" class="rounded-xl bg-[#0f7a3d] px-4 py-3 text-center text-white" (click)="closeMobileNavigation()">ابدأ مجاناً</a>
-        </div>
+    <div id="home-mobile-navigation"
+      class="mx-auto mt-2 grid max-w-[1240px] gap-1 rounded-2xl border border-[#dce6df] bg-white p-3 text-sm font-black shadow-[0_18px_45px_rgba(16,35,27,.13)] md:hidden animate-in fade-in slide-in-from-top-2 duration-200">
+      <a class="rounded-xl px-4 py-3 transition" [class.bg-[#e7f5eb]]="activeSection() === 'top'"
+        [class.text-[#0f7a3d]]="activeSection() === 'top'" [class.hover:bg-[#f3faf5]]="activeSection() !== 'top'"
+        href="#top" (click)="scrollToSection('top', $event)">الرئيسية</a>
+      <a class="rounded-xl px-4 py-3 transition" [class.bg-[#e7f5eb]]="activeSection() === 'features'"
+        [class.text-[#0f7a3d]]="activeSection() === 'features'"
+        [class.hover:bg-[#f3faf5]]="activeSection() !== 'features'" href="#features"
+        (click)="scrollToSection('features', $event)">الحلول</a>
+      <a class="rounded-xl px-4 py-3 transition" [class.bg-[#e7f5eb]]="activeSection() === 'platform'"
+        [class.text-[#0f7a3d]]="activeSection() === 'platform'"
+        [class.hover:bg-[#f3faf5]]="activeSection() !== 'platform'" href="#platform"
+        (click)="scrollToSection('platform', $event)">كيف تعمل المنصة؟</a>
+      <a class="rounded-xl px-4 py-3 transition" [class.bg-[#e7f5eb]]="activeSection() === 'contact'"
+        [class.text-[#0f7a3d]]="activeSection() === 'contact'"
+        [class.hover:bg-[#f3faf5]]="activeSection() !== 'contact'" href="#contact"
+        (click)="scrollToSection('contact', $event)">تواصل معنا</a>
+      <div class="mt-1 grid grid-cols-2 gap-2 border-t border-[#edf1ee] pt-3">
+        <a routerLink="/auth/login" class="rounded-xl border border-[#dce6df] px-4 py-3 text-center"
+          (click)="closeMobileNavigation()">تسجيل الدخول</a>
+        <a routerLink="/auth/register" class="rounded-xl bg-[#0f7a3d] px-4 py-3 text-center text-white"
+          (click)="closeMobileNavigation()">ابدأ مجاناً</a>
       </div>
+    </div>
     }
   </nav>
 
   <main id="home-content">
     <span id="top" class="sr-only" aria-hidden="true"></span>
+
+    <!-- Hero Section -->
     <header class="relative px-4 pb-6 pt-20 sm:px-6 sm:pb-14 sm:pt-28">
       <div class="mx-auto grid max-w-[1240px] items-center gap-5 sm:gap-8 lg:grid-cols-[.86fr_1.14fr] lg:gap-10">
         <div class="relative z-10">
-          <span class="inline-flex items-center gap-2 rounded-full border border-[#cfe0d2] bg-white px-3 py-2 text-xs font-bold text-[#0f7a3d] shadow-sm"><i class="size-2 rounded-full bg-[#20a958]"></i> منصة عربية لإدارة التصدير الزراعي بالذكاء الاصطناعي</span>
-          <h1 class="mt-4 max-w-xl text-3xl font-black leading-[1.18] sm:text-5xl lg:text-[56px]">من المزرعة إلى الأسواق العالمية، <span class="text-[#0f7a3d]">بثقة.</span></h1>
-          <p class="mt-3 max-w-xl text-sm leading-6 text-[#65736c] sm:text-lg sm:leading-7">خطط موسمك، راقب متطلبات الجودة، واتخذ قرارات تصدير أفضل من مساحة عمل واحدة مصممة للمزارع المصري.</p>
+          <span
+            class="inline-flex items-center gap-2 rounded-full border border-[#cfe0d2] bg-white px-3 py-2 text-xs font-bold text-[#0f7a3d] shadow-sm">
+            <i class="size-2 rounded-full bg-[#20a958] animate-pulse"></i> منصة عربية لإدارة التصدير الزراعي بالذكاء
+            الاصطناعي
+          </span>
+          <h1 class="mt-4 max-w-xl text-3xl font-black leading-[1.18] sm:text-5xl lg:text-[56px]">
+            من المزرعة إلى الأسواق العالمية، <span class="text-[#0f7a3d]">بثقة.</span>
+          </h1>
+          <p class="mt-3 max-w-xl text-sm leading-6 text-[#65736c] sm:text-lg sm:leading-7">
+            خطط موسمك، راقب متطلبات الجودة، واتخذ قرارات تصدير أفضل من مساحة عمل واحدة مصممة للمزارع المصري.
+          </p>
           <div class="mt-5 flex flex-col gap-3 sm:flex-row">
-            <a routerLink="/auth/register" class="inline-flex min-h-13 items-center justify-center rounded-2xl bg-[#0f7a3d] px-7 py-3.5 text-sm font-black text-white shadow-[0_12px_30px_rgba(15,122,61,.22)] transition hover:-translate-y-0.5 hover:bg-[#075d2d]">أنشئ حسابك مجاناً <span class="mr-3 text-lg">←</span></a>
-            <a href="#platform" class="inline-flex min-h-13 items-center justify-center rounded-2xl border border-[#d3ddd5] bg-white px-7 py-3.5 text-sm font-black text-[#10231b] transition hover:border-[#a9bbaa] hover:bg-[#fbfdfb]">اكتشف طريقة العمل</a>
+            <a routerLink="/auth/register"
+              class="inline-flex min-h-13 items-center justify-center rounded-2xl bg-[#0f7a3d] px-7 py-3.5 text-sm font-black text-white shadow-[0_12px_30px_rgba(15,122,61,.22)] transition hover:-translate-y-0.5 hover:bg-[#075d2d]">
+              أنشئ حسابك مجاناً <span class="mr-3 text-lg">←</span>
+            </a>
+            <a href="#platform" (click)="scrollToSection('platform', $event)"
+              class="inline-flex min-h-13 items-center justify-center rounded-2xl border border-[#d3ddd5] bg-white px-7 py-3.5 text-sm font-black text-[#10231b] transition hover:border-[#a9bbaa] hover:bg-[#fbfdfb]">
+              اكتشف طريقة العمل
+            </a>
           </div>
-          <div class="mt-4 flex flex-wrap items-center gap-x-5 gap-y-2 text-xs font-bold text-[#65736c] sm:mt-6"><span class="flex items-center gap-2"><b class="grid size-5 place-items-center rounded-full bg-[#e7f5eb] text-[#0f7a3d]">✓</b> إعداد سريع</span><span class="flex items-center gap-2"><b class="grid size-5 place-items-center rounded-full bg-[#e7f5eb] text-[#0f7a3d]">✓</b> قرارات مبنية على البيانات</span><span class="flex items-center gap-2"><b class="grid size-5 place-items-center rounded-full bg-[#e7f5eb] text-[#0f7a3d]">✓</b> دعم باللغة العربية</span></div>
+          <div class="mt-4 flex flex-wrap items-center gap-x-5 gap-y-2 text-xs font-bold text-[#65736c] sm:mt-6">
+            <span class="flex items-center gap-2"><b
+                class="grid size-5 place-items-center rounded-full bg-[#e7f5eb] text-[#0f7a3d]">✓</b> إعداد سريع</span>
+            <span class="flex items-center gap-2"><b
+                class="grid size-5 place-items-center rounded-full bg-[#e7f5eb] text-[#0f7a3d]">✓</b> قرارات مبنية على
+              البيانات</span>
+            <span class="flex items-center gap-2"><b
+                class="grid size-5 place-items-center rounded-full bg-[#e7f5eb] text-[#0f7a3d]">✓</b> دعم باللغة
+              العربية</span>
+          </div>
         </div>
 
         <div class="relative lg:pl-4">
-          <div class="overflow-hidden rounded-2xl border-4 border-white bg-white shadow-[0_24px_60px_rgba(16,35,27,.16)] sm:rounded-[32px] sm:border-[6px]">
-            <img class="aspect-[16/9] size-full object-cover sm:aspect-[16/11]" src="/landing-page/hero-farm.jpg" width="1376" height="768" fetchpriority="high" decoding="async" alt="مزرعة فراولة تستخدم تقنيات الري والمراقبة الحديثة" />
-            <div class="absolute inset-x-8 bottom-8 flex items-center justify-between rounded-2xl border border-white/40 bg-[#10231b]/80 p-4 text-white shadow-xl backdrop-blur-xl sm:inset-x-auto sm:right-8 sm:w-[330px]">
-              <div><p class="text-xs text-white/65">مثال من لوحة المتابعة</p><strong class="mt-1 block text-lg">الموسم يسير بثبات</strong></div><div class="relative grid size-14 place-items-center rounded-full bg-white/10 text-sm font-black"><span>86%</span><i class="absolute inset-1 rounded-full border-2 border-[#d8f36a] border-r-transparent"></i></div>
+          <div
+            class="overflow-hidden rounded-2xl border-4 border-white bg-white shadow-[0_24px_60px_rgba(16,35,27,.16)] sm:rounded-[32px] sm:border-[6px]">
+            <img class="aspect-[16/9] size-full object-cover sm:aspect-[16/11]" src="/landing-page/hero-farm.jpg"
+              width="1376" height="768" fetchpriority="high" decoding="async"
+              alt="مزرعة فراولة تستخدم تقنيات الري والمراقبة الحديثة" />
+            <div
+              class="absolute inset-x-8 bottom-8 flex items-center justify-between rounded-2xl border border-white/40 bg-[#10231b]/80 p-4 text-white shadow-xl backdrop-blur-xl sm:inset-x-auto sm:right-8 sm:w-[330px]">
+              <div>
+                <p class="text-xs text-white/65">مثال من لوحة المتابعة</p>
+                <strong class="mt-1 block text-lg">الموسم يسير بثبات</strong>
+              </div>
+              <div class="relative grid size-14 place-items-center rounded-full bg-white/10 text-sm font-black">
+                <span>86%</span>
+                <i class="absolute inset-1 rounded-full border-2 border-[#d8f36a] border-r-transparent animate-spin"
+                  style="animation-duration: 6s;"></i>
+              </div>
             </div>
           </div>
-          <div class="absolute -left-3 top-8 hidden rounded-2xl border border-[#dbe5dd] bg-white p-3 shadow-[0_14px_35px_rgba(16,35,27,.12)] sm:flex sm:items-center sm:gap-3"><span class="grid size-10 place-items-center rounded-xl bg-[#fff3df] text-lg">☀</span><div><small class="text-[#738078]">طقس اليوم</small><strong class="block">28° · مناسب للري</strong></div></div>
+          <div
+            class="absolute -left-3 top-8 hidden rounded-2xl border border-[#dbe5dd] bg-white p-3 shadow-[0_14px_35px_rgba(16,35,27,.12)] sm:flex sm:items-center sm:gap-3">
+            <span class="grid size-10 place-items-center rounded-xl bg-[#fff3df] text-lg">☀</span>
+            <div><small class="text-[#738078]">طقس اليوم</small><strong class="block text-sm">28° · مناسب للري</strong>
+            </div>
+          </div>
         </div>
       </div>
     </header>
 
+    <!-- Stats Bar -->
     <section class="border-y border-[#e2e9e3] bg-white px-4 py-7 sm:px-6">
       <div class="mx-auto grid max-w-[1120px] grid-cols-2 gap-6 text-center md:grid-cols-4">
-        <div><strong class="text-2xl font-black text-[#0f7a3d] sm:text-3xl">24/7</strong><p class="mt-1 text-xs text-[#738078]">مراقبة مستمرة</p></div>
-        <div class="border-r border-[#e2e9e3]"><strong class="text-2xl font-black sm:text-3xl">مكان واحد</strong><p class="mt-1 text-xs text-[#738078]">للموسم والمهام والامتثال</p></div>
-        <div class="border-r border-[#e2e9e3] md:border-r"><strong class="text-2xl font-black sm:text-3xl">4</strong><p class="mt-1 text-xs text-[#738078]">أسواق متاحة للمقارنة</p></div>
-        <div class="border-r border-[#e2e9e3]"><strong class="text-2xl font-black sm:text-3xl">AI</strong><p class="mt-1 text-xs text-[#738078]">مستشار زراعي سياقي</p></div>
+        <div><strong class="text-2xl font-black text-[#0f7a3d] sm:text-3xl">24/7</strong>
+          <p class="mt-1 text-xs text-[#738078]">مراقبة مستمرة</p>
+        </div>
+        <div class="border-r border-[#e2e9e3]"><strong class="text-2xl font-black sm:text-3xl">مكان واحد</strong>
+          <p class="mt-1 text-xs text-[#738078]">للموسم والمهام والامتثال</p>
+        </div>
+        <div class="border-r border-[#e2e9e3] md:border-r"><strong class="text-2xl font-black sm:text-3xl">4
+            أسواق</strong>
+          <p class="mt-1 text-xs text-[#738078]">متاحة للمقارنة والاشتراطات</p>
+        </div>
+        <div class="border-r border-[#e2e9e3]"><strong class="text-2xl font-black sm:text-3xl">AI زراعي</strong>
+          <p class="mt-1 text-xs text-[#738078]">مستشار سياقي عم خضر</p>
+        </div>
       </div>
     </section>
 
+    <!-- Features Section -->
     <section id="features" class="px-4 py-14 sm:px-6 sm:py-20">
       <div class="mx-auto max-w-[1240px]">
-        <div class="mx-auto mb-8 max-w-2xl text-center"><span class="text-xs font-black text-[#0f7a3d]">قرارات أذكى في كل مرحلة</span><h2 class="mt-2 text-3xl font-black tracking-tight sm:text-4xl">كل ما تحتاجه لإدارة موسم ناجح</h2><p class="mt-3 leading-7 text-[#65736c]">أدوات عملية تحول البيانات الزراعية ومتطلبات الأسواق إلى خطوات واضحة قابلة للتنفيذ.</p></div>
+        <div class="mx-auto mb-8 max-w-2xl text-center">
+          <span class="text-xs font-black text-[#0f7a3d]">قرارات أذكى في كل مرحلة</span>
+          <h2 class="mt-2 text-3xl font-black tracking-tight sm:text-4xl">كل ما تحتاجه لإدارة موسم ناجح</h2>
+          <p class="mt-3 leading-7 text-[#65736c]">أدوات عملية تحول البيانات الزراعية ومتطلبات الأسواق إلى خطوات واضحة
+            قابلة للتنفيذ.</p>
+        </div>
         <div class="grid gap-5 md:grid-cols-3">
           @for (feature of features; track feature.title; let i = $index) {
-            <article class="group rounded-xl border border-[#dde6df] bg-white p-5 shadow-[0_10px_35px_rgba(16,35,27,.045)] transition hover:border-[#bdd2c1] hover:shadow-[0_14px_36px_rgba(16,35,27,.08)]">
-              <div class="mb-5 flex items-center justify-between"><span class="grid size-11 place-items-center rounded-xl text-xl font-black" [class.bg-[#e7f5eb]]="i === 0" [class.text-[#0f7a3d]]="i === 0" [class.bg-[#edf2ff]]="i === 1" [class.text-[#4664a6]]="i === 1" [class.bg-[#fff3df]]="i === 2" [class.text-[#b26414]]="i === 2">{{ feature.icon }}</span><span class="text-xs font-black text-[#c1cbc3]">0{{ i + 1 }}</span></div>
-              <h3 class="text-xl font-black">{{ feature.title }}</h3><p class="mt-3 text-sm leading-7 text-[#65736c]">{{ feature.description }}</p><a href="#platform" class="mt-6 inline-flex text-sm font-black text-[#0f7a3d]">شاهد طريقة العمل <b class="mr-2 transition group-hover:-translate-x-1">←</b></a>
-            </article>
+          <article
+            class="group rounded-2xl border border-[#dde6df] bg-white p-6 shadow-[0_10px_35px_rgba(16,35,27,.045)] transition duration-200 hover:-translate-y-1 hover:border-[#bdd2c1] hover:shadow-[0_18px_40px_rgba(16,35,27,.09)]">
+            <div class="mb-5 flex items-center justify-between">
+              <span class="grid size-12 place-items-center rounded-xl text-2xl font-black"
+                [class.bg-[#e7f5eb]]="i === 0" [class.text-[#0f7a3d]]="i === 0" [class.bg-[#edf2ff]]="i === 1"
+                [class.text-[#4664a6]]="i === 1" [class.bg-[#fff3df]]="i === 2" [class.text-[#b26414]]="i === 2">{{
+                feature.icon }}</span>
+              <span class="text-xs font-black text-[#c1cbc3]">0{{ i + 1 }}</span>
+            </div>
+            <h3 class="text-xl font-black text-[#10231b]">{{ feature.title }}</h3>
+            <p class="mt-3 text-sm leading-7 text-[#65736c]">{{ feature.description }}</p>
+            <a href="#platform" (click)="scrollToSection('platform', $event)"
+              class="mt-6 inline-flex items-center text-sm font-black text-[#0f7a3d]">
+              شاهد طريقة العمل <b class="mr-2 transition group-hover:-translate-x-1">←</b>
+            </a>
+          </article>
           }
         </div>
       </div>
     </section>
 
-    <section id="platform" class="bg-[#10231b] px-4 py-14 text-white sm:px-6 sm:py-20">
-      <div class="mx-auto grid max-w-[1240px] items-center gap-12 lg:grid-cols-2 lg:gap-20">
-        <div class="relative">
-          <img class="aspect-[5/4] w-full rounded-[28px] object-cover opacity-90 shadow-2xl" src="/landing-page/greenhouse.jpg" width="1376" height="768" loading="lazy" decoding="async" alt="صوبة زراعية حديثة تديرها تقنيات جرين مايند" />
-          <div class="absolute -bottom-5 left-4 right-4 grid grid-cols-3 rounded-2xl border border-white/15 bg-white/95 p-4 text-center text-[#10231b] shadow-xl sm:left-8 sm:right-8"><div><b class="block text-sm text-[#0f7a3d]">متابعة</b><small class="text-xs text-[#738078]">صحة المحصول</small></div><div class="border-x border-[#dde6df]"><b class="block text-sm">امتثال</b><small class="text-xs text-[#738078]">متطلبات السوق</small></div><div><b class="block text-sm">مواعيد</b><small class="text-xs text-[#738078]">الحصاد والتصدير</small></div></div>
+    <!-- Interactive Platform Showcase Slider Section -->
+    <section id="platform" class="relative overflow-hidden bg-[#10231b] px-4 py-14 text-white sm:px-6 sm:py-20">
+      <!-- Glow background highlights -->
+      <div class="pointer-events-none absolute -left-20 -top-20 size-96 rounded-full bg-[#20a958]/10 blur-3xl"></div>
+      <div class="pointer-events-none absolute -bottom-20 -right-20 size-96 rounded-full bg-[#d8f36a]/10 blur-3xl">
+      </div>
+
+      <div class="relative mx-auto max-w-[1240px]">
+        <div class="mb-10 text-center lg:text-right">
+          <span
+            class="inline-flex items-center gap-2 rounded-full bg-white/10 px-3.5 py-1.5 text-xs font-black text-[#d8f36a]">
+            <span>✨</span> منصة واحدة، رؤية كاملة
+          </span>
+          <h2 class="mt-4 text-3xl font-black leading-tight sm:text-4xl lg:text-5xl">
+            من التخطيط إلى الشحنة، <span class="text-[#8be6aa]">نرتب لك الصورة كاملة.</span>
+          </h2>
+          <p class="mt-4 max-w-3xl text-sm leading-7 text-white/70 sm:text-base">
+            استكشف كيف تجمع جرين مايند بين صحة المحصول، والامتثال للمواصفات الدولية، ومواعيد التصدير في واجهة تفاعلية
+            متناغمة.
+          </p>
         </div>
-        <div>
-          <span class="inline-flex rounded-full bg-white/10 px-3 py-2 text-xs font-black text-[#d8f36a]">منصة واحدة، رؤية كاملة</span>
-          <h2 class="mt-5 text-3xl font-black leading-tight sm:text-4xl">من التخطيط إلى الشحنة، نرتب لك الصورة كاملة.</h2>
-          <p class="mt-5 leading-8 text-white/65">بدلاً من التنقل بين جداول وملفات متفرقة، تجمع جرين مايند الموسم والمهام والامتثال والأسواق في تجربة واحدة واضحة.</p>
-          <div class="mt-8 space-y-5">
-            @for (benefit of benefits; track benefit.title; let i = $index) {
-              <article class="flex gap-4">
-                <span class="grid size-10 shrink-0 place-items-center rounded-xl bg-white/10 font-black text-[#d8f36a]">{{ i + 1 }}</span>
-                <div>
-                  <h3 class="font-black">{{ benefit.title }}</h3>
-                  <p class="mt-1 text-sm leading-6 text-white/55">{{ benefit.description }}</p>
-                </div>
-              </article>
+
+        <!-- Slider Navigation Tabs -->
+        <div class="mb-8 grid grid-cols-1 gap-3 sm:grid-cols-3">
+          @for (slide of showcaseSlides; track slide.id; let idx = $index) {
+          <button type="button"
+            class="group relative flex items-center justify-between rounded-2xl border p-4 text-right transition-all duration-300 cursor-pointer"
+            [class.bg-white/12]="activeSlideIndex() === idx" [class.border-[#8be6aa]]="activeSlideIndex() === idx"
+            [class.shadow-lg]="activeSlideIndex() === idx" [class.shadow-[#0f7a3d]/20]="activeSlideIndex() === idx"
+            [class.bg-white/5]="activeSlideIndex() !== idx" [class.border-white/10]="activeSlideIndex() !== idx"
+            [class.hover:bg-white/8]="activeSlideIndex() !== idx" (click)="selectSlide(idx)">
+            <div>
+              <strong class="block text-sm font-black transition" [class.text-[#d8f36a]]="activeSlideIndex() === idx"
+                [class.text-white]="activeSlideIndex() !== idx">
+                {{ slide.tabTitle }}
+              </strong>
+              <small class="mt-0.5 block text-xs text-white/60">{{ slide.tabSubtitle }}</small>
+            </div>
+            <span class="grid size-8 shrink-0 place-items-center rounded-xl font-black text-xs transition"
+              [class.bg-[#d8f36a]]="activeSlideIndex() === idx" [class.text-[#10231b]]="activeSlideIndex() === idx"
+              [class.bg-white/10]="activeSlideIndex() !== idx" [class.text-white/60]="activeSlideIndex() !== idx">
+              0{{ idx + 1 }}
+            </span>
+            @if (activeSlideIndex() === idx) {
+            <div class="absolute inset-x-0 bottom-0 h-1 rounded-b-2xl bg-gradient-to-r from-[#d8f36a] to-[#20a958]">
+            </div>
             }
+          </button>
+          }
+        </div>
+
+        <!-- Active Slide Viewport -->
+        @if (showcaseSlides[activeSlideIndex()]; as currentSlide) {
+        <div
+          class="relative grid items-center gap-8 rounded-3xl border border-white/15 bg-white/[0.04] p-6 shadow-2xl backdrop-blur-md lg:grid-cols-2 lg:gap-12 lg:p-8"
+          (mouseenter)="pauseSlider()" (mouseleave)="resumeSlider()">
+          <!-- Visuals & Live Overlays -->
+          <div class="relative overflow-hidden rounded-2xl border-2 border-white/20 shadow-2xl">
+            <img class="aspect-[4/3] size-full object-cover transition-transform duration-700 hover:scale-105"
+              [src]="currentSlide.imageSrc" [alt]="currentSlide.imageAlt" width="800" height="600" loading="lazy" />
+
+            <!-- Top floating status badge -->
+            <div
+              class="absolute right-4 top-4 rounded-xl border border-white/25 bg-[#10231b]/85 px-3.5 py-2 text-xs font-black text-[#d8f36a] shadow-lg backdrop-blur-md">
+              <span class="inline-block size-2 rounded-full bg-[#20a958] mr-1 animate-ping"></span>
+              {{ currentSlide.badge }}
+            </div>
+
+            <!-- Bottom overlay metrics card -->
+            <div
+              class="absolute inset-x-3 bottom-3 grid grid-cols-3 gap-2 rounded-xl border border-white/20 bg-[#10231b]/90 p-3 text-center shadow-xl backdrop-blur-xl sm:inset-x-5 sm:bottom-5 sm:p-4">
+              @for (m of currentSlide.metrics; track m.label) {
+              <div class="rounded-lg p-1.5" [class.bg-white/10]="m.highlight">
+                <strong class="block text-xs font-black sm:text-sm" [class.text-[#d8f36a]]="m.highlight"
+                  [class.text-white]="!m.highlight">
+                  {{ m.value }}
+                </strong>
+                <small class="block text-[10px] text-white/65 mt-0.5">{{ m.label }}</small>
+              </div>
+              }
+            </div>
+          </div>
+
+          <!-- Slide Description & Points -->
+          <div class="space-y-6">
+            <div>
+              <span class="inline-flex rounded-full bg-[#d8f36a]/15 px-3 py-1 text-xs font-black text-[#d8f36a]">
+                {{ currentSlide.tabTitle }}
+              </span>
+              <h3 class="mt-3 text-2xl font-black leading-tight sm:text-3xl text-white">
+                {{ currentSlide.headline }}
+              </h3>
+              <p class="mt-3 leading-7 text-white/70 text-sm sm:text-base">
+                {{ currentSlide.tagline }}
+              </p>
+            </div>
+
+            <div class="space-y-3 border-y border-white/10 py-5">
+              @for (note of currentSlide.highlightNotes; track note) {
+              <div class="flex items-start gap-3">
+                <span
+                  class="grid size-6 shrink-0 place-items-center rounded-full bg-[#20a958]/20 text-xs font-black text-[#8be6aa]">✓</span>
+                <span class="text-sm font-semibold text-white/85 leading-6">{{ note }}</span>
+              </div>
+              }
+            </div>
+
+            <!-- Slider Navigation Controls -->
+            <div class="flex flex-wrap items-center justify-between gap-4 pt-2">
+              <div class="flex items-center gap-2">
+                <button type="button"
+                  class="grid size-10 place-items-center rounded-xl border border-white/20 bg-white/10 text-white transition hover:bg-white/25 active:scale-95 cursor-pointer"
+                  aria-label="الشريحة السابقة" (click)="prevSlide()">
+                  →
+                </button>
+                <button type="button"
+                  class="grid size-10 place-items-center rounded-xl border border-white/20 bg-white/10 text-white transition hover:bg-white/25 active:scale-95 cursor-pointer"
+                  aria-label="الشريحة التالية" (click)="nextSlide()">
+                  ←
+                </button>
+                <div class="mr-2 flex items-center gap-1.5">
+                  @for (dot of showcaseSlides; track dot.id; let dotIdx = $index) {
+                  <button type="button" class="h-2 rounded-full transition-all duration-300 cursor-pointer"
+                    [class.w-6]="activeSlideIndex() === dotIdx" [class.bg-[#d8f36a]]="activeSlideIndex() === dotIdx"
+                    [class.w-2]="activeSlideIndex() !== dotIdx" [class.bg-white/30]="activeSlideIndex() !== dotIdx"
+                    [attr.aria-label]="'الانتقال للشريحة ' + (dotIdx + 1)" (click)="selectSlide(dotIdx)"></button>
+                  }
+                </div>
+              </div>
+
+              <a routerLink="/auth/register"
+                class="inline-flex items-center gap-2 rounded-xl bg-[#0f7a3d] px-5 py-2.5 text-xs font-black text-white shadow-md transition hover:bg-[#158f4a]">
+                <span>جرب هذه الميزة الآن</span>
+                <span>←</span>
+              </a>
+            </div>
+          </div>
+        </div>
+        }
+
+        <!-- Benefits Summary Cards -->
+        <div class="mt-14 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+          @for (benefit of benefits; track benefit.title; let i = $index) {
+          <article
+            class="flex gap-3.5 rounded-2xl border border-white/10 bg-white/[0.03] p-4 transition hover:bg-white/[0.06]">
+            <span
+              class="grid size-10 shrink-0 place-items-center rounded-xl bg-white/10 font-black text-[#d8f36a] text-sm">{{
+              i + 1 }}</span>
+            <div>
+              <h4 class="font-black text-sm text-white">{{ benefit.title }}</h4>
+              <p class="mt-1 text-xs leading-5 text-white/60">{{ benefit.description }}</p>
+            </div>
+          </article>
+          }
+        </div>
+      </div>
+    </section>
+
+    <!-- Green Call to Action Banner -->
+    <section class="px-4 py-14 sm:px-6 sm:py-20">
+      <div
+        class="mx-auto max-w-[1240px] rounded-3xl bg-gradient-to-br from-[#d8f36a] to-[#bfe845] px-6 py-12 text-center shadow-[0_20px_50px_rgba(82,109,17,.16)] sm:px-12 sm:py-16">
+        <span class="rounded-full bg-black/10 px-3.5 py-1.5 text-xs font-black text-[#3d500c]">
+          🌱 موسمك القادم يبدأ بقرار
+        </span>
+        <h2 class="mx-auto mt-4 max-w-3xl text-3xl font-black leading-tight tracking-tight sm:text-5xl text-[#10231b]">
+          حوّل بيانات مزرعتك إلى خطة تصدير قابلة للتنفيذ.
+        </h2>
+        <p class="mx-auto mt-4 max-w-xl text-sm leading-7 text-[#3f5012] sm:text-base">
+          ابدأ بخطوات بسيطة، واترك للمنصة ترتيب المهام والمواعيد والاشتراطات وحساب التكاليف.
+        </p>
+        <div class="mt-8 flex flex-wrap items-center justify-center gap-3">
+          <a routerLink="/auth/register"
+            class="inline-flex min-h-13 items-center justify-center rounded-2xl bg-[#10231b] px-8 py-3.5 text-sm font-black text-white shadow-xl shadow-[#10231b]/20 transition hover:-translate-y-0.5 hover:bg-[#0f7a3d]">
+            ابدأ الآن مجاناً <span class="mr-3 text-lg">←</span>
+          </a>
+          <a href="#contact" (click)="scrollToSection('contact', $event)"
+            class="inline-flex min-h-13 items-center justify-center rounded-2xl border border-[#3f5012]/30 bg-white/60 px-7 py-3.5 text-sm font-black text-[#10231b] transition hover:bg-white">
+            تواصل مع فريقنا
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Contact Us Section with Full Form & Info -->
+    <section id="contact" class="border-t border-[#dde6df] bg-white px-4 py-14 sm:px-6 sm:py-20">
+      <div class="mx-auto max-w-[1240px]">
+        <div class="mx-auto mb-12 max-w-2xl text-center">
+          <span class="text-xs font-black text-[#0f7a3d]">يسعدنا الاستماع إليك</span>
+          <h2 class="mt-2 text-3xl font-black tracking-tight sm:text-4xl text-[#10231b]">تواصل معنا</h2>
+          <p class="mt-3 text-sm leading-7 text-[#65736c] sm:text-base">
+            لديك استفسار عن خطط التصدير، أو ترغب في استشارة زراعية خاصة بمزرعتك؟ املأ النموذج وسيقوم فريقنا بالرد عليك
+            مباشرة.
+          </p>
+        </div>
+
+        <div class="grid gap-10 lg:grid-cols-[1.15fr_0.85fr]">
+          <!-- Contact Form Card -->
+          <div class="rounded-3xl border border-[#dde6df] bg-[#fbfdfb] p-6 shadow-sm sm:p-8">
+            <h3 class="text-xl font-black text-[#10231b]">أرسل لنا رسالة</h3>
+            <p class="mt-1 text-xs text-[#738078]">سنقوم بالرد عليك خلال أقل من 24 ساعة عمل.</p>
+
+            @if (contactSuccess()) {
+            <div
+              class="mt-6 rounded-2xl border border-emerald-200 bg-emerald-50 p-5 text-emerald-800 animate-in fade-in duration-300">
+              <div class="flex items-center gap-3">
+                <span
+                  class="grid size-8 place-items-center rounded-full bg-emerald-600 text-white font-black text-sm">✓</span>
+                <div>
+                  <strong class="block text-sm font-black">تم إرسال رسالتك بنجاح!</strong>
+                  <p class="mt-0.5 text-xs text-emerald-700">شكراً لتواصلك معنا. استلم المشرف رسالتك وسيتواصل معك
+                    قريباً.</p>
+                </div>
+              </div>
+            </div>
+            }
+
+            @if (contactError()) {
+            <div
+              class="mt-6 flex items-center justify-between rounded-2xl border border-red-200 bg-red-50 p-4 text-xs font-bold text-red-700">
+              <span>{{ contactError() }}</span>
+              <button type="button" class="text-red-900 hover:opacity-75 font-black text-sm"
+                (click)="contactError.set(null)">×</button>
+            </div>
+            }
+
+            <form class="mt-6 space-y-4" (ngSubmit)="submitContactForm($event)">
+              <div class="grid gap-4 sm:grid-cols-2">
+                <div>
+                  <label for="contact-name" class="block text-xs font-extrabold text-[#3b4a41]">
+                    الاسم بالكامل <span class="text-red-500">*</span>
+                  </label>
+                  <input id="contact-name" type="text" required [value]="contactFullName()"
+                    (input)="contactFullName.set($any($event.target).value)" placeholder="مثال: م. أحمد عبد الله"
+                    class="mt-1.5 w-full rounded-xl border border-[#cfe0d2] bg-white px-3.5 py-2.5 text-sm text-[#10231b] placeholder:text-[#99a69e] focus:border-[#0f7a3d] focus:outline-none focus:ring-2 focus:ring-[#0f7a3d]/20 transition" />
+                </div>
+
+                <div>
+                  <label for="contact-email" class="block text-xs font-extrabold text-[#3b4a41]">
+                    البريد الإلكتروني <span class="text-red-500">*</span>
+                  </label>
+                  <input id="contact-email" type="email" required [value]="contactEmail()"
+                    (input)="contactEmail.set($any($event.target).value)" placeholder="example@domain.com" dir="ltr"
+                    class="mt-1.5 w-full rounded-xl border border-[#cfe0d2] bg-white px-3.5 py-2.5 text-sm text-[#10231b] placeholder:text-[#99a69e] focus:border-[#0f7a3d] focus:outline-none focus:ring-2 focus:ring-[#0f7a3d]/20 transition text-right" />
+                </div>
+              </div>
+
+              <div class="grid gap-4 sm:grid-cols-2">
+                <div>
+                  <label for="contact-phone" class="block text-xs font-extrabold text-[#3b4a41]">
+                    رقم الهاتف / واتساب <span class="text-xs text-[#7f8e85] font-normal">(اختياري)</span>
+                  </label>
+                  <input id="contact-phone" type="tel" [value]="contactPhone()"
+                    (input)="contactPhone.set($any($event.target).value)" placeholder="010XXXXXXXX" dir="ltr"
+                    class="mt-1.5 w-full rounded-xl border border-[#cfe0d2] bg-white px-3.5 py-2.5 text-sm text-[#10231b] placeholder:text-[#99a69e] focus:border-[#0f7a3d] focus:outline-none focus:ring-2 focus:ring-[#0f7a3d]/20 transition text-right" />
+                </div>
+
+                <div>
+                  <label for="contact-subject" class="block text-xs font-extrabold text-[#3b4a41]">
+                    نوع الاستفسار / المحصول
+                  </label>
+                  <select id="contact-subject" [value]="contactSubject()"
+                    (change)="contactSubject.set($any($event.target).value)"
+                    class="mt-1.5 w-full rounded-xl border border-[#cfe0d2] bg-white px-3.5 py-2.5 text-sm text-[#10231b] focus:border-[#0f7a3d] focus:outline-none focus:ring-2 focus:ring-[#0f7a3d]/20 transition">
+                    <option value="استفسار عن المنصة">استفسار عام عن المنصة</option>
+                    <option value="تصدير فراولة">تصدير فراولة</option>
+                    <option value="تصدير برتقال وموالح">تصدير برتقال وموالح</option>
+                    <option value="تصدير عنب">تصدير عنب</option>
+                    <option value="تصدير بطاطس">تصدير بطاطس</option>
+                    <option value="دعم فني واستشارات">دعم فني واستشارات زراعية</option>
+                    <option value="شراكات وتكامل أنظمة">شراكات وتكامل أنظمة</option>
+                  </select>
+                </div>
+              </div>
+
+              <div>
+                <label for="contact-message" class="block text-xs font-extrabold text-[#3b4a41]">
+                  نص الرسالة أو الاستفسار <span class="text-red-500">*</span>
+                </label>
+                <textarea id="contact-message" required rows="4" [value]="contactMessage()"
+                  (input)="contactMessage.set($any($event.target).value)"
+                  placeholder="اكتب هنا تفاصيل استفسارك أو مساحة مزرعتك والأسواق المستهدفة..."
+                  class="mt-1.5 w-full resize-none rounded-xl border border-[#cfe0d2] bg-white p-3.5 text-sm text-[#10231b] placeholder:text-[#99a69e] focus:border-[#0f7a3d] focus:outline-none focus:ring-2 focus:ring-[#0f7a3d]/20 transition"></textarea>
+              </div>
+
+              <button type="submit" [disabled]="contactSubmitting()"
+                class="w-full sm:w-auto inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-[#0f7a3d] px-8 py-3 text-sm font-black text-white shadow-md shadow-[#0f7a3d]/20 transition hover:bg-[#075d2d] active:scale-95 disabled:opacity-50 cursor-pointer">
+                @if (contactSubmitting()) {
+                <span
+                  class="inline-block size-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+                <span>جارٍ إرسال الرسالة…</span>
+                } @else {
+                <span>إرسال الرسالة</span>
+                <span>←</span>
+                }
+              </button>
+            </form>
+          </div>
+
+          <!-- Contact Information & Channels -->
+          <div class="flex flex-col justify-between space-y-6">
+            <div class="space-y-4">
+              <div class="rounded-2xl border border-[#dde6df] bg-[#f9fbf9] p-5">
+                <div class="flex items-center gap-3">
+                  <span class="grid size-11 place-items-center rounded-xl bg-[#e7f5eb] text-lg text-[#0f7a3d]">✉</span>
+                  <div>
+                    <small class="block text-xs font-semibold text-[#738078]">البريد الإلكتروني المباشر</small>
+                    <a href="mailto:uncle.khedr.greenmind@gmail.com"
+                      class="mt-0.5 block text-sm font-black text-[#10231b] hover:text-[#0f7a3d]" dir="ltr">
+                      uncle.khedr.greenmind@gmail.com
+                    </a>
+                  </div>
+                </div>
+              </div>
+
+              <div class="rounded-2xl border border-[#dde6df] bg-[#f9fbf9] p-5">
+                <div class="flex items-center gap-3">
+                  <span class="grid size-11 place-items-center rounded-xl bg-[#e7f5eb] text-lg text-[#0f7a3d]">📍</span>
+                  <div>
+                    <small class="block text-xs font-semibold text-[#738078]">المقر والدعم الميداني</small>
+                    <strong class="mt-0.5 block text-sm font-black text-[#10231b]">
+                      طنطا
+                    </strong>
+                  </div>
+                </div>
+              </div>
+
+              <div class="rounded-2xl border border-[#dde6df] bg-[#f9fbf9] p-5">
+                <div class="flex items-center gap-3">
+                  <span class="grid size-11 place-items-center rounded-xl bg-[#e7f5eb] text-lg text-[#0f7a3d]">⏱</span>
+                  <div>
+                    <small class="block text-xs font-semibold text-[#738078]">أوقات استجابة المستشار الذكي</small>
+                    <strong class="mt-0.5 block text-sm font-black text-[#10231b]">
+                      متاح 24/7 للمزارعين المسجلين في المنصة
+                    </strong>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Quick registration card -->
+            <div class="rounded-2xl border border-emerald-200 bg-gradient-to-br from-[#e7f5eb] to-[#f4faf5] p-5">
+              <h4 class="text-sm font-black text-[#0f7a3d]">هل تمتلك مزرعة بالفعل؟</h4>
+              <p class="mt-1 text-xs text-[#526158] leading-5">
+                يمكنك التسجيل فوراً والبدء في إنشاء أول خطة تصدير وإدارة المهام وتشخيص المحاصيل بالذكاء الاصطناعي
+                مجاناً.
+              </p>
+              <a routerLink="/auth/register"
+                class="mt-3 inline-flex items-center gap-1.5 text-xs font-black text-[#0f7a3d] hover:underline">
+                إنشاء حساب مزرعة جديد <span>←</span>
+              </a>
+            </div>
           </div>
         </div>
       </div>
     </section>
-
-    <section class="px-4 py-14 sm:px-6 sm:py-20">
-      <div class="mx-auto max-w-[1240px] rounded-xl bg-[#d8f36a] px-6 py-10 text-center shadow-[0_18px_44px_rgba(82,109,17,.14)] sm:px-12 sm:py-12">
-        <span class="text-xs font-black text-[#526d11]">موسمك القادم يبدأ بقرار</span>
-        <h2 class="mx-auto mt-3 max-w-3xl text-3xl font-black leading-tight tracking-tight sm:text-5xl">حوّل بيانات مزرعتك إلى خطة تصدير قابلة للتنفيذ.</h2>
-        <p class="mx-auto mt-5 max-w-xl leading-7 text-[#41530f]">ابدأ بخطوات بسيطة، واترك للمنصة ترتيب المهام والمواعيد ومتطلبات السوق.</p>
-        <a routerLink="/auth/register" class="mt-8 inline-flex min-h-13 items-center rounded-2xl bg-[#10231b] px-8 py-3.5 text-sm font-black text-white transition hover:-translate-y-0.5 hover:bg-[#0f7a3d]">ابدأ الآن مجاناً <span class="mr-3 text-lg">←</span></a>
-      </div>
-    </section>
   </main>
 
-  <footer id="contact" class="border-t border-[#dde6df] bg-white px-4 py-12 sm:px-6">
+  <!-- Footer -->
+  <footer class="border-t border-[#dde6df] bg-white px-4 py-12 sm:px-6">
     <div class="mx-auto max-w-[1240px]">
       <div class="flex flex-col justify-between gap-8 md:flex-row md:items-center">
         <div class="max-w-md">
@@ -124,22 +573,26 @@
             <span class="grid size-10 place-items-center rounded-xl bg-[#e7f5eb]">
               <img class="size-7" src="/greenmind-leaf.svg" width="28" height="28" alt="" />
             </span>
-            <strong class="text-lg font-black">جرين مايند</strong>
+            <strong class="text-lg font-black text-[#10231b]">جرين مايند</strong>
           </div>
-          <p class="mt-4 text-sm leading-7 text-[#65736c]">نبني مستقبلاً أوضح وأكثر استدامة لصادرات المحاصيل المصرية.</p>
+          <p class="mt-4 text-sm leading-7 text-[#65736c]">نبني مستقبلاً أوضح وأكثر استدامة لصادرات المحاصيل المصرية
+            والعربية.</p>
         </div>
         <div class="flex flex-wrap gap-x-7 gap-y-3 text-sm font-bold text-[#526158]">
-          <a href="#features" class="hover:text-[#0f7a3d]">الحلول</a>
-          <a href="#platform" class="hover:text-[#0f7a3d]">المنصة</a>
+          <a href="#features" (click)="scrollToSection('features', $event)" class="hover:text-[#0f7a3d]">الحلول</a>
+          <a href="#platform" (click)="scrollToSection('platform', $event)" class="hover:text-[#0f7a3d]">المنصة</a>
+          <a href="#contact" (click)="scrollToSection('contact', $event)" class="hover:text-[#0f7a3d]">تواصل معنا</a>
           <a routerLink="/auth/login" class="hover:text-[#0f7a3d]">تسجيل الدخول</a>
           <a routerLink="/legal/terms" class="hover:text-[#0f7a3d]">الشروط</a>
           <a routerLink="/legal/privacy" class="hover:text-[#0f7a3d]">الخصوصية</a>
-          <a href="mailto:uncle.khedr.greenmind@gmail.com" class="hover:text-[#0f7a3d]">uncle.khedr.greenmind@gmail.com</a>
+          <a href="mailto:uncle.khedr.greenmind@gmail.com" class="hover:text-[#0f7a3d]"
+            dir="ltr">uncle.khedr.greenmind@gmail.com</a>
         </div>
       </div>
-      <div class="mt-10 flex flex-col justify-between gap-3 border-t border-[#edf1ee] pt-5 text-xs text-[#8a968f] sm:flex-row">
+      <div
+        class="mt-10 flex flex-col justify-between gap-3 border-t border-[#edf1ee] pt-5 text-xs text-[#8a968f] sm:flex-row">
         <span>© 2026 جرين مايند. جميع الحقوق محفوظة.</span>
-        <span>صُنع للمزارع المصري</span>
+        <span>صُنع بحب للمزارع المصري والعربي 🌱</span>
       </div>
     </div>
   </footer>

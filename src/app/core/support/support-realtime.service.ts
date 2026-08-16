@@ -3,6 +3,7 @@ import { HubConnection, HubConnectionBuilder, HubConnectionState } from '@micros
 import { SupportMessage } from '@core/api/api.models';
 import { AuthService } from '@features/auth/services/AuthService';
 import { NotificationCenterService } from '@core/settings/notification-center.service';
+import { environment } from '../../../environments/environment';
 
 @Injectable({ providedIn: 'root' })
 export class SupportRealtimeService {
@@ -17,8 +18,11 @@ export class SupportRealtimeService {
       return;
     }
 
+    const base = (environment.apiBaseUrl || '').replace(/\/+$/, '');
+    const hubUrl = base ? `${base}/hubs/support` : '/hubs/support';
+
     this.connection = new HubConnectionBuilder()
-      .withUrl('/hubs/support', {
+      .withUrl(hubUrl, {
         accessTokenFactory: () => this.auth.getToken() ?? '',
       })
       .withAutomaticReconnect()

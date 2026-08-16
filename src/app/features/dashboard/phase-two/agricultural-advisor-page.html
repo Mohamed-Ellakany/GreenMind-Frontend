@@ -112,63 +112,108 @@
         </div>
 
         <footer class="composer-area">
-          <div class="suggestion-row" aria-label="أسئلة مقترحة">
-            @for (suggestion of suggestions; track suggestion) {
-              <button type="button" class="suggestion-chip" (click)="useSuggestion(suggestion)">
-                <span class="chip-sparkle">✦</span>
-                <span>{{ suggestion }}</span>
-              </button>
-            }
-          </div>
+          @if (budgetStatus()?.isExceeded) {
+            <div class="limit-exceeded-card">
+              <div class="limit-header">
+                <div class="limit-badge">
+                  <svg viewBox="0 0 24 24" fill="none"><path d="M12 9v4m0 4h.01M12 3L2 20h20L12 3Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </div>
+                <div>
+                  <h3>استنفدت حد استخدام الذكاء الاصطناعي ($0.10)</h3>
+                  <p>وصلت إلى الحد الأقصى للاستخدام التجريبي المتاح لحسابك. يرجى إدخال بيانات التواصل لطلب كوتا إضافية من المسؤول.</p>
+                </div>
+              </div>
 
-          @if (selectedImages.length) {
-            <div class="attachment-preview-bar" aria-label="الصور المرفقة">
-              @for (image of selectedImages; track image.name + image.lastModified; let idx = $index) {
-                <span class="attachment-chip">
-                  <svg viewBox="0 0 24 24" fill="none" class="attach-icon" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="3" stroke="currentColor" stroke-width="1.8"/><circle cx="9" cy="10" r="2" stroke="currentColor" stroke-width="1.8"/><path d="m5 18 5-5 3 3 2-2 4 4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                  <span class="attach-name">{{ image.name }}</span>
-                  <button type="button" class="remove-attach-btn" (click)="removeImage(idx)" [attr.aria-label]="'إلغاء ' + image.name">×</button>
-                </span>
+              @if (limitRequestSubmitted() || budgetStatus()?.hasPendingRequest) {
+                <div class="limit-success-banner">
+                  <svg viewBox="0 0 24 24" fill="none"><path d="m5 12 5 5L20 7" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  <div>
+                    <strong>تم إرسال طلبك بنجاح إلى المسؤول!</strong>
+                    <p>طلبك قيد المراجعة حالياً من قبل الإدارة وسيقوم المسؤول بإضافة كوتا استخدام جديدة لحسابك قريباً.</p>
+                  </div>
+                </div>
+              } @else {
+                <form class="limit-form" (ngSubmit)="submitLimitRequest()">
+                  <div class="limit-form-grid">
+                    <div class="limit-form-field">
+                      <label for="advisorContactName">الاسم بالكامل <span class="required">*</span></label>
+                      <input id="advisorContactName" type="text" name="limitContactName" [(ngModel)]="limitContactName" placeholder="أدخل الاسم الكريم" required />
+                    </div>
+                    <div class="limit-form-field">
+                      <label for="advisorContactPhone">رقم الهاتف <span class="required">*</span></label>
+                      <input id="advisorContactPhone" type="tel" name="limitContactPhone" [(ngModel)]="limitContactPhone" placeholder="01xxxxxxxx" dir="ltr" required />
+                    </div>
+                  </div>
+                  <button type="submit" class="limit-submit-btn" [disabled]="submittingLimitRequest() || !limitContactName.trim() || !limitContactPhone.trim()">
+                    @if (submittingLimitRequest()) {
+                      <span class="send-spinner"></span>
+                      <span>جارٍ الإرسال...</span>
+                    } @else {
+                      <span>إرسال الطلب للمسؤول</span>
+                    }
+                  </button>
+                </form>
               }
             </div>
-          }
-
-          <form class="chat-composer" (ngSubmit)="sendChat()">
-            <div class="composer-tools">
-              <label class="attachment-button" title="إرفاق صور">
-                <input type="file" accept="image/*" multiple (change)="selectImages($event)" aria-label="إضافة صور" />
-                <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="m20.5 11.5-8.2 8.2a6 6 0 0 1-8.5-8.5l8.9-8.9a4 4 0 0 1 5.7 5.7l-9 9a2 2 0 0 1-2.8-2.8l8.2-8.2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                @if (selectedImages.length) { <span class="attachment-count">{{ selectedImages.length }}</span> }
-              </label>
-
-              <button type="button" class="voice-button" [class.recording]="recording()" (click)="toggleVoice()" title="إملاء صوتي" aria-label="إملاء صوتي">
-                <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="9" y="3" width="6" height="12" rx="3" stroke="currentColor" stroke-width="1.8"/><path d="M5.5 11.5a6.5 6.5 0 0 0 13 0M12 18v3M9 21h6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
-              </button>
+          } @else {
+            <div class="suggestion-row" aria-label="أسئلة مقترحة">
+              @for (suggestion of suggestions; track suggestion) {
+                <button type="button" class="suggestion-chip" (click)="useSuggestion(suggestion)">
+                  <span class="chip-sparkle">✦</span>
+                  <span>{{ suggestion }}</span>
+                </button>
+              }
             </div>
 
-            <textarea
-              #composerInput
-              name="chatInput"
-              [(ngModel)]="chatInput"
-              (keydown)="onComposerKeydown($event)"
-              maxlength="4000"
-              rows="2"
-              placeholder="اكتب سؤالك لعم خضر عن المهام، المبيدات، MRL، أو أي تفصيلة في الخطة…"
-              aria-label="اكتب رسالتك"
-            ></textarea>
-
-            <div class="composer-actions">
-              <span class="char-counter">{{ chatInput.length }} / 4000</span>
-              <button type="submit" class="send-button" [disabled]="chatSending() || (!chatInput.trim() && !selectedImages.length)" aria-label="إرسال الرسالة">
-                @if (chatSending()) {
-                  <span class="send-spinner"></span>
-                } @else {
-                  <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="m5 12 14-7-4 14-3-5-7-2Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="m12 14 7-9" stroke="currentColor" stroke-width="2"/></svg>
+            @if (selectedImages.length) {
+              <div class="attachment-preview-bar" aria-label="الصور المرفقة">
+                @for (image of selectedImages; track image.name + image.lastModified; let idx = $index) {
+                  <span class="attachment-chip">
+                    <svg viewBox="0 0 24 24" fill="none" class="attach-icon" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="3" stroke="currentColor" stroke-width="1.8"/><circle cx="9" cy="10" r="2" stroke="currentColor" stroke-width="1.8"/><path d="m5 18 5-5 3 3 2-2 4 4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    <span class="attach-name">{{ image.name }}</span>
+                    <button type="button" class="remove-attach-btn" (click)="removeImage(idx)" [attr.aria-label]="'إلغاء ' + image.name">×</button>
+                  </span>
                 }
-              </button>
-            </div>
-          </form>
-          <p class="composer-note"><kbd>Enter</kbd> للإرسال · <kbd>Shift + Enter</kbd> لسطر جديد</p>
+              </div>
+            }
+
+            <form class="chat-composer" (ngSubmit)="sendChat()">
+              <div class="composer-tools">
+                <label class="attachment-button" title="إرفاق صور">
+                  <input type="file" accept="image/*" multiple (change)="selectImages($event)" aria-label="إضافة صور" />
+                  <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="m20.5 11.5-8.2 8.2a6 6 0 0 1-8.5-8.5l8.9-8.9a4 4 0 0 1 5.7 5.7l-9 9a2 2 0 0 1-2.8-2.8l8.2-8.2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  @if (selectedImages.length) { <span class="attachment-count">{{ selectedImages.length }}</span> }
+                </label>
+
+                <button type="button" class="voice-button" [class.recording]="recording()" (click)="toggleVoice()" title="إملاء صوتي" aria-label="إملاء صوتي">
+                  <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="9" y="3" width="6" height="12" rx="3" stroke="currentColor" stroke-width="1.8"/><path d="M5.5 11.5a6.5 6.5 0 0 0 13 0M12 18v3M9 21h6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+                </button>
+              </div>
+
+              <textarea
+                #composerInput
+                name="chatInput"
+                [(ngModel)]="chatInput"
+                (keydown)="onComposerKeydown($event)"
+                maxlength="4000"
+                rows="2"
+                placeholder="اكتب سؤالك لعم خضر عن المهام، المبيدات، MRL، أو أي تفصيلة في الخطة…"
+                aria-label="اكتب رسالتك"
+              ></textarea>
+
+              <div class="composer-actions">
+                <span class="char-counter">{{ chatInput.length }} / 4000</span>
+                <button type="submit" class="send-button" [disabled]="chatSending() || (!chatInput.trim() && !selectedImages.length)" aria-label="إرسال الرسالة">
+                  @if (chatSending()) {
+                    <span class="send-spinner"></span>
+                  } @else {
+                    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="m5 12 14-7-4 14-3-5-7-2Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="m12 14 7-9" stroke="currentColor" stroke-width="2"/></svg>
+                  }
+                </button>
+              </div>
+            </form>
+            <p class="composer-note"><kbd>Enter</kbd> للإرسال · <kbd>Shift + Enter</kbd> لسطر جديد</p>
+          }
         </footer>
       </article>
 

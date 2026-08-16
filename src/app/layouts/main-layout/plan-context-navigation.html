@@ -9,14 +9,6 @@
     <span>العودة إلى جميع خطط التصدير</span>
   </a>
 
-  <section class="plan-summary">
-    <span class="summary-icon"><fa-icon [icon]="icons.plan" /></span>
-    <div>
-      <small>الخطة الحالية</small>
-      <strong>{{ planName() }}</strong>
-      @if (crop() || destination()) { <p>{{ crop() }} @if (destination()) { · {{ destination() }} }</p> }
-    </div>
-  </section>
 
   <nav aria-label="التنقل داخل خطة التصدير">
     <p class="nav-label">أقسام الخطة</p>

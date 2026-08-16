@@ -1,4 +1,4 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { of } from 'rxjs';
 import { vi } from 'vitest';
 
@@ -14,6 +14,8 @@ describe('AiAgent', () => {
     createFarmSession: ReturnType<typeof vi.fn>;
     farmMessages: ReturnType<typeof vi.fn>;
     streamFarmMessage: ReturnType<typeof vi.fn>;
+    budgetStatus: ReturnType<typeof vi.fn>;
+    submitLimitRequest: ReturnType<typeof vi.fn>;
   };
 
   const initialSession: ChatSession = {
@@ -30,6 +32,8 @@ describe('AiAgent', () => {
       createFarmSession: vi.fn(() => of(initialSession)),
       farmMessages: vi.fn(() => of({ items: [], pageNumber: 1, pageSize: 100, totalCount: 0 })),
       streamFarmMessage: vi.fn(() => Promise.resolve()),
+      budgetStatus: vi.fn(() => of({ limitUsd: 0.10, usedUsd: 0.05, isExceeded: false, hasPendingRequest: false })),
+      submitLimitRequest: vi.fn(() => of(undefined)),
     };
 
     await TestBed.configureTestingModule({
@@ -131,5 +135,29 @@ describe('AiAgent', () => {
 
     expect(viewport.scrollTop).toBe(280);
     vi.unstubAllGlobals();
+  });
+
+  it('renders quota exceeded card and form when budget is exceeded', () => {
+    component.budgetStatus.set({ limitUsd: 0.10, usedUsd: 0.12, isExceeded: true, hasPendingRequest: false });
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.querySelector('.limit-exceeded-card')).not.toBeNull();
+    expect(fixture.nativeElement.textContent).toContain('استنفدت حد استخدام الذكاء الاصطناعي');
+    expect(fixture.nativeElement.querySelector('textarea[name="messageInput"]')).toBeNull();
+  });
+
+  it('submits quota limit request and renders success banner', () => {
+    component.budgetStatus.set({ limitUsd: 0.10, usedUsd: 0.12, isExceeded: true, hasPendingRequest: false });
+    component.limitContactName = 'محمد أحمد';
+    component.limitContactPhone = '01012345678';
+    fixture.detectChanges();
+
+    component.submitLimitRequest();
+    fixture.detectChanges();
+
+    expect(api.submitLimitRequest).toHaveBeenCalledWith('محمد أحمد', '01012345678');
+    expect(component.limitRequestSubmitted()).toBe(true);
+    expect(fixture.nativeElement.querySelector('.limit-success-banner')).not.toBeNull();
+    expect(fixture.nativeElement.textContent).toContain('تم إرسال طلبك بنجاح إلى المسؤول');
   });
 });

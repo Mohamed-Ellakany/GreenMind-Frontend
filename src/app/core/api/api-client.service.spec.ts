@@ -27,7 +27,7 @@ describe('ApiClient', () => {
       error: () => { failed = true; },
     });
 
-    http.expectOne('/api/Tasks/1').flush(null, { status: 204, statusText: 'No Content' });
+    http.expectOne((req) => req.url.endsWith('/api/Tasks/1')).flush(null, { status: 204, statusText: 'No Content' });
 
     expect(completed).toBe(true);
     expect(failed).toBe(false);

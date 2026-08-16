@@ -24,6 +24,7 @@ export class ProductTourService {
     {
       id: 'dashboard',
       targetSelector: '[data-tour="dashboard"]',
+      targetSelectorMobile: '[data-tour="dashboard-header"]',
       title: 'لوحة التحكم والمؤشرات الحية',
       badge: 'نظرة عامة',
       icon: faHouse,
@@ -31,13 +32,14 @@ export class ProductTourService {
       description:
         'نقطة انطلاقك اليومية! تمنحك لوحة التحكم ملخصاً فورياً عن جاهزية التصدير، تنبيهات الطقس الاستباقية، ومؤشرات الإنجاز لجميع محاصيل مزرعتك.',
       tip: 'تُحدّث المؤشرات تلقائياً فور تسجيل المهام والقراءات الحقلية.',
-      placement: 'left',
+      placement: 'bottom',
       route: '/dashboard',
       highlightPadding: 8,
     },
     {
       id: 'activities',
       targetSelector: '[data-tour="activities"]',
+      targetSelectorMobile: '[data-tour-mobile="activities"]',
       title: 'المهام والأنشطة الزراعية',
       badge: 'التنفيذ والمتابعة',
       icon: faTruckFast,
@@ -52,6 +54,7 @@ export class ProductTourService {
     {
       id: 'statistics',
       targetSelector: '[data-tour="statistics"]',
+      targetSelectorMobile: '[data-tour-mobile="more"]',
       title: 'الإحصائيات والتقارير',
       badge: 'تحليل الأداء',
       icon: faFileLines,
@@ -59,6 +62,7 @@ export class ProductTourService {
       description:
         'لوحات تحليلية دقيقة تتابع حجم الإنتاجية، التكاليف والمصروفات، ومؤشرات الامتثال لمعايير الجودة والتصدير.',
       tip: 'يمكنك استخراج تقارير تفصيلية جاهزة للجهات التفتيشية والرقابية.',
+      mobileTip: 'تجد الإحصائيات والتقارير داخل قائمة "المزيد" أو عبر بطاقات لوحة التحكم.',
       placement: 'left',
       route: '/dashboard',
       highlightPadding: 8,
@@ -66,6 +70,7 @@ export class ProductTourService {
     {
       id: 'export-plans',
       targetSelector: '[data-tour="export-plans"]',
+      targetSelectorMobile: '[data-tour-mobile="export-plans"]',
       title: 'خطط التصدير الذكية',
       badge: 'المحاصيل والأسواق',
       icon: faShop,
@@ -80,6 +85,7 @@ export class ProductTourService {
     {
       id: 'ai-agent',
       targetSelector: '[data-tour="ai-agent"]',
+      targetSelectorMobile: '[data-tour-mobile="ai-agent"]',
       title: 'المستشار الزراعي الذكي',
       badge: 'ذكاء اصطناعي 24/7',
       icon: faRobot,
@@ -94,6 +100,7 @@ export class ProductTourService {
     {
       id: 'account-settings',
       targetSelector: '[data-tour="account-settings"]',
+      targetSelectorMobile: '[data-tour-mobile="more"]',
       title: 'إعدادات الحساب والمزرعة',
       badge: 'الملف والتخصيص',
       icon: faGear,
@@ -101,6 +108,7 @@ export class ProductTourService {
       description:
         'إدارة بيانات المزرعة، المساحة، المواقع الجغرافية، الملف الشخصي، وتفضيلات الإشعارات والأمان.',
       tip: 'تأكد من اكتمال بيانات المزرعة لتوليد خطط تصدير بدقة أعلى.',
+      mobileTip: 'يمكنك الوصول لإعدادات الحساب والمزرعة في أي وقت عبر قائمة "المزيد".',
       placement: 'left',
       route: '/dashboard',
       highlightPadding: 8,
@@ -108,6 +116,7 @@ export class ProductTourService {
     {
       id: 'support-center',
       targetSelector: '[data-tour="support"]',
+      targetSelectorMobile: '[data-tour-mobile="more"]',
       title: 'مركز المساعدة وإعادة الجولة',
       badge: 'الدعم والمساعدة',
       icon: faCircleQuestion,
@@ -115,6 +124,7 @@ export class ProductTourService {
       description:
         'فريق الدعم الفني والزراعي في خدمتك دائماً عبر الشات المباشر. كما يمكنك إعادة تشغيل هذه الجولة التعريفية في أي وقت بنقرة واحدة من هنا.',
       tip: 'يمكنك أيضاً استخدام شريط البحث السريع أعلى المنصة للتنقل الفوري.',
+      mobileTip: 'مركز المساعدة وإعادة تشغيل الجولة متوفران دائماً في قائمة "المزيد".',
       placement: 'left',
       route: '/dashboard',
       highlightPadding: 8,
@@ -133,6 +143,7 @@ export class ProductTourService {
   });
 
   public readonly totalSteps = computed(() => this.steps.length);
+  public readonly isMobile = computed(() => this.windowDimensions().width < 1024);
   public readonly currentStep = computed<TourStep | null>(() => {
     const idx = this.currentStepIndex();
     return this.steps[idx] ?? null;
@@ -256,7 +267,7 @@ export class ProductTourService {
     const step = this.currentStep();
     if (!step) return;
 
-    const el = this.document.querySelector(step.targetSelector) as HTMLElement | null;
+    const el = this.getTargetElement(step);
     if (!el) {
       this.targetRect.set(null);
       this.popoverPos.set(this.getCenterFallbackPosition());
@@ -264,19 +275,84 @@ export class ProductTourService {
     }
 
     const rect = el.getBoundingClientRect();
-    const padding = step.highlightPadding ?? 8;
+    const winWidth = typeof window !== 'undefined' ? window.innerWidth : 1280;
+    const winHeight = typeof window !== 'undefined' ? window.innerHeight : 800;
+    const isMobileView = winWidth < 1024;
+    const padding = isMobileView ? Math.min(step.highlightPadding ?? 5, 5) : (step.highlightPadding ?? 8);
+
+    const rawTop = rect.top - padding;
+    const rawLeft = rect.left - padding;
+    const rawRight = rect.right + padding;
+    const rawBottom = rect.bottom + padding;
+
+    const top = Math.max(2, rawTop);
+    const left = Math.max(2, rawLeft);
+    const right = Math.min(winWidth - 2, rawRight);
+    const bottom = Math.min(winHeight - 2, rawBottom);
 
     const targetRect: TargetRect = {
-      top: Math.max(0, rect.top - padding),
-      left: Math.max(0, rect.left - padding),
-      width: rect.width + padding * 2,
-      height: rect.height + padding * 2,
-      bottom: rect.bottom + padding,
-      right: rect.right + padding,
+      top,
+      left,
+      width: Math.max(24, right - left),
+      height: Math.max(24, bottom - top),
+      bottom,
+      right,
     };
 
     this.targetRect.set(targetRect);
     this.popoverPos.set(this.computePopoverPosition(targetRect, step.placement || 'auto'));
+  }
+
+  private getTargetElement(step: TourStep): HTMLElement | null {
+    const isMobileView = typeof window !== 'undefined' && window.innerWidth < 1024;
+
+    // On mobile, prioritize targetSelectorMobile if available
+    if (isMobileView && step.targetSelectorMobile) {
+      const mobileEl = this.document.querySelector(step.targetSelectorMobile) as HTMLElement | null;
+      if (mobileEl && this.isElementVisible(mobileEl)) {
+        return mobileEl;
+      }
+    }
+
+    // Try primary targetSelector
+    const primaryEl = this.document.querySelector(step.targetSelector) as HTMLElement | null;
+    if (primaryEl && this.isElementVisible(primaryEl)) {
+      return primaryEl;
+    }
+
+    // Secondary fallback for mobile if primary was queried first
+    if (step.targetSelectorMobile) {
+      const mobileEl = this.document.querySelector(step.targetSelectorMobile) as HTMLElement | null;
+      if (mobileEl && this.isElementVisible(mobileEl)) {
+        return mobileEl;
+      }
+    }
+
+    return null;
+  }
+
+  private isElementVisible(el: HTMLElement | null): boolean {
+    if (!el) return false;
+    if (typeof window === 'undefined') return true;
+
+    const style = window.getComputedStyle(el);
+    if (
+      style.display === 'none' ||
+      style.visibility === 'hidden' ||
+      parseFloat(style.opacity || '1') === 0
+    ) {
+      return false;
+    }
+
+    const rect = el.getBoundingClientRect();
+    if (rect.width === 0 || rect.height === 0) return false;
+
+    // Check if positioned completely outside viewport horizontally
+    if (rect.right <= 0 || rect.left >= window.innerWidth) {
+      return false;
+    }
+
+    return true;
   }
 
   private navigateToStep(index: number): void {
@@ -294,9 +370,22 @@ export class ProductTourService {
   }
 
   private locateTargetWithScroll(step: TourStep): void {
-    const el = this.document.querySelector(step.targetSelector) as HTMLElement | null;
+    const el = this.getTargetElement(step);
     if (el) {
-      el.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'nearest' });
+      const isFixed = typeof window !== 'undefined' && (
+        window.getComputedStyle(el).position === 'fixed' ||
+        Boolean(el.closest('.mobile-bottom-nav, .floating-aside, header.fixed, nav.fixed'))
+      );
+
+      if (!isFixed) {
+        // If element is already in viewport, don't scroll unnecessarily
+        const rect = el.getBoundingClientRect();
+        const winHeight = typeof window !== 'undefined' ? window.innerHeight : 800;
+        const inView = rect.top >= 40 && rect.bottom <= (winHeight - 40);
+        if (!inView) {
+          el.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'nearest' });
+        }
+      }
       setTimeout(() => this.recalculateTargetPosition(), 220);
     } else {
       this.targetRect.set(null);
@@ -308,42 +397,70 @@ export class ProductTourService {
     const winWidth = typeof window !== 'undefined' ? window.innerWidth : 1280;
     const winHeight = typeof window !== 'undefined' ? window.innerHeight : 800;
 
-    const popoverWidth = Math.min(390, winWidth - 32);
+    const margin = winWidth < 768 ? 12 : 16;
+    const popoverWidth = Math.min(390, winWidth - margin * 2);
+    
     // Measure or estimate height with safety margin
     const cardEl = this.document.querySelector('.tour-popover-card') as HTMLElement | null;
-    const popoverHeight = cardEl ? Math.max(320, cardEl.offsetHeight) : 340;
-    const margin = 16;
+    const popoverHeight = cardEl ? Math.max(260, cardEl.offsetHeight) : 290;
 
     let placement: 'bottom' | 'top' | 'left' | 'right' = 'bottom';
     let top = 0;
     let left = 0;
 
-    // Mobile fallback: position nicely centered or above bottom navigation
+    // Mobile specific smart positioning
     if (winWidth < 768) {
-      const maxMobileTop = Math.max(margin, winHeight - popoverHeight - 75);
-      return {
-        top: Math.max(margin, Math.min(maxMobileTop, target.bottom + margin)),
-        left: (winWidth - popoverWidth) / 2,
-        placement: 'bottom',
-      };
+      left = (winWidth - popoverWidth) / 2;
+
+      // Case 1: Target is near the bottom (e.g. mobile bottom navigation bar)
+      if (target.top > winHeight * 0.52) {
+        placement = 'top';
+        const spaceAbove = target.top - margin;
+        if (spaceAbove >= popoverHeight) {
+          top = target.top - popoverHeight - 12;
+        } else {
+          // If height is tight, pin near the top
+          top = margin;
+        }
+        return { top: Math.max(margin, top), left, placement };
+      }
+
+      // Case 2: Target is near the top
+      if (target.bottom < winHeight * 0.48) {
+        placement = 'bottom';
+        const maxAllowedTop = Math.max(margin, winHeight - popoverHeight - 65);
+        top = Math.min(maxAllowedTop, target.bottom + 12);
+        return { top: Math.max(margin, top), left, placement };
+      }
+
+      // Case 3: Target is in the middle of screen - pick whichever side has more room
+      const roomAbove = target.top;
+      const roomBelow = winHeight - target.bottom;
+      if (roomAbove > roomBelow) {
+        placement = 'top';
+        top = Math.max(margin, target.top - popoverHeight - 12);
+      } else {
+        placement = 'bottom';
+        const maxAllowedTop = Math.max(margin, winHeight - popoverHeight - 65);
+        top = Math.min(maxAllowedTop, target.bottom + 12);
+      }
+
+      return { top, left, placement };
     }
 
-    // Determine vertical position with smart bottom-alignment for items near the viewport bottom
+    // Desktop positioning logic
     const calculateVerticalPlacement = (): number => {
       const maxAllowedTop = Math.max(margin, winHeight - popoverHeight - margin);
 
-      // If target is in the lower 40% of the screen, align popover's bottom with target's bottom
       if (target.bottom > winHeight * 0.6) {
         const bottomAlignedTop = target.bottom - popoverHeight;
         return Math.max(margin, Math.min(maxAllowedTop, bottomAlignedTop));
       }
 
-      // Otherwise center popover with target
       const centeredTop = target.top + (target.height - popoverHeight) / 2;
       return Math.max(margin, Math.min(maxAllowedTop, centeredTop));
     };
 
-    // Determine horizontal placement
     if (preferredPlacement === 'left' && target.left > popoverWidth + margin) {
       placement = 'left';
       top = calculateVerticalPlacement();
@@ -377,11 +494,14 @@ export class ProductTourService {
   private getCenterFallbackPosition(): PopoverPosition {
     const winWidth = typeof window !== 'undefined' ? window.innerWidth : 1280;
     const winHeight = typeof window !== 'undefined' ? window.innerHeight : 800;
-    const popoverWidth = Math.min(390, winWidth - 32);
-    const popoverHeight = 340;
+    const margin = winWidth < 768 ? 12 : 16;
+    const popoverWidth = Math.min(390, winWidth - margin * 2);
+    const popoverHeight = winWidth < 768 ? 280 : 340;
+
+    const availableHeight = winWidth < 768 ? winHeight - 70 : winHeight;
 
     return {
-      top: Math.max(16, (winHeight - popoverHeight) / 2),
+      top: Math.max(16, (availableHeight - popoverHeight) / 2),
       left: (winWidth - popoverWidth) / 2,
       placement: 'bottom',
     };

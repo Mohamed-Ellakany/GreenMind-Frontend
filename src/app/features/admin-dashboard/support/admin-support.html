@@ -1,88 +1,331 @@
 <section class="admin-support-page" dir="rtl">
+  <!-- Top Page Header & Tabs -->
   <header class="page-heading">
-    <div><p>مركز المساعدة</p><h1>رسائل الدعم</h1></div>
-    <button type="button" class="refresh-button" (click)="loadConversations()" [disabled]="loadingConversations()" aria-label="تحديث المحادثات">
-      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 11a8.1 8.1 0 0 0-15.5-2M4 4v5h5M4 13a8.1 8.1 0 0 0 15.5 2M20 20v-5h-5"/></svg><span>تحديث</span>
+    <div>
+      <p>مركز المساعدة والتواصل</p>
+      <h1>رسائل الدعم والاستفسارات</h1>
+    </div>
+
+    <!-- Switcher Tabs -->
+    <div class="support-tabs-bar">
+      <button
+        type="button"
+        class="tab-btn"
+        [class.tab-btn--active]="activeTab() === 'support'"
+        (click)="setTab('support')"
+      >
+        <span>💬 محادثات الدعم الفني</span>
+        <span class="badge">{{ conversations().length }}</span>
+      </button>
+
+      <button
+        type="button"
+        class="tab-btn"
+        [class.tab-btn--active]="activeTab() === 'contact-messages'"
+        (click)="setTab('contact-messages')"
+      >
+        <span>📬 رسائل تواصل معنا</span>
+        @if (unreadContactCount() > 0) {
+          <span class="badge badge--unread">{{ unreadContactCount() }} جديد</span>
+        } @else {
+          <span class="badge">{{ contactMessages().length }}</span>
+        }
+      </button>
+    </div>
+
+    <button
+      type="button"
+      class="refresh-button"
+      (click)="activeTab() === 'support' ? loadConversations() : loadContactMessages()"
+      [disabled]="loadingConversations() || loadingContactMessages()"
+      aria-label="تحديث البيانات"
+    >
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M20 11a8.1 8.1 0 0 0-15.5-2M4 4v5h5M4 13a8.1 8.1 0 0 0 15.5 2M20 20v-5h-5"/>
+      </svg>
+      <span>تحديث</span>
     </button>
   </header>
 
-  @if (error()) { <p class="chat-error" role="alert">{{ error() }}</p> }
+  @if (error()) {
+    <p class="chat-error" role="alert">{{ error() }}</p>
+  }
 
-  <div class="support-workspace">
-    <aside class="conversations-panel">
-      <header class="conversations-header">
-        <div><h2>المحادثات</h2><p>{{ conversations().length }} محادثة</p></div>
-        <span class="live-dot" title="متصل لحظيًا"></span>
-      </header>
-
-      <div class="conversation-list">
-        @if (loadingConversations()) {
-          <div class="list-loading"><i></i><i></i><i></i></div>
-        } @else {
-          @for (conversation of conversations(); track conversation.id) {
-            <button type="button" class="conversation-card" [class.conversation-card--active]="activeConversation()?.id === conversation.id" (click)="selectConversation(conversation)">
-              <span class="conversation-avatar">{{ conversation.ownerName.charAt(0) || 'م' }}</span>
-              <span class="conversation-copy">
-                <span class="conversation-line"><b>{{ conversation.ownerName }}</b><time>{{ messageTime(conversation.lastMessageAtUtc) }}</time></span>
-                <strong>{{ conversation.farmName }}</strong>
-                <small>{{ conversation.lastMessagePreview || 'لا توجد رسائل بعد' }}</small>
-              </span>
-            </button>
-          } @empty {
-            <div class="empty-list"><span>💬</span><p>لا توجد محادثات دعم حتى الآن.</p></div>
-          }
-        }
-      </div>
-    </aside>
-
-    <article class="support-chat">
-      @if (activeConversation(); as conversation) {
-        <header class="chat-header">
-          <div class="chat-identity">
-            <span class="header-avatar">{{ conversation.ownerName.charAt(0) || 'م' }}</span>
-            <div class="identity-copy"><h2>{{ conversation.ownerName }}</h2><p><i></i> {{ conversation.farmName }}</p></div>
+  <!-- TAB 1: Support Conversations -->
+  @if (activeTab() === 'support') {
+    <div class="support-workspace">
+      <aside class="conversations-panel">
+        <header class="conversations-header">
+          <div>
+            <h2>المحادثات المباشرة</h2>
+            <p>{{ conversations().length }} محادثة</p>
           </div>
-          <span class="conversation-status">{{ conversation.isClosed ? 'مغلقة' : 'مفتوحة' }}</span>
+          <span class="live-dot" title="متصل لحظيًا"></span>
         </header>
 
-        <div #messagesViewport class="messages-viewport" aria-live="polite" aria-label="رسائل المحادثة">
-          @if (loadingMessages()) {
-            <div class="loading-state"><i></i><i></i><i></i><span>جاري تحميل الرسائل</span></div>
+        <div class="conversation-list">
+          @if (loadingConversations()) {
+            <div class="list-loading"><i></i><i></i><i></i></div>
           } @else {
-            @for (message of messages(); track message.id) {
-              <div class="support-message" [class.support-message--mine]="isMine(message)">
-                <span class="message-avatar" aria-hidden="true">{{ senderInitial(message) }}</span>
-                <div class="message-stack">
-                  @if (!isMine(message)) { <b class="sender-name">{{ message.senderName || conversation.ownerName }}</b> }
-                  <div class="message-bubble">
-                    <p>{{ message.content }}</p>
-                    <div class="message-meta">
-                      <time [attr.datetime]="message.createdAt">{{ messageTime(message.createdAt) }}</time>
-                      @if (isMine(message)) { <span class="delivery-check" title="تم الإرسال" aria-label="تم الإرسال">✓✓</span> }
-                    </div>
-                  </div>
-                </div>
-              </div>
+            @for (conversation of conversations(); track conversation.id) {
+              <button
+                type="button"
+                class="conversation-card"
+                [class.conversation-card--active]="activeConversation()?.id === conversation.id"
+                (click)="selectConversation(conversation)"
+              >
+                <span class="conversation-avatar">{{ conversation.ownerName.charAt(0) || 'م' }}</span>
+                <span class="conversation-copy">
+                  <span class="conversation-line">
+                    <b>{{ conversation.ownerName }}</b>
+                    <time>{{ messageTime(conversation.lastMessageAtUtc) }}</time>
+                  </span>
+                  <strong>{{ conversation.farmName }}</strong>
+                  <small>{{ conversation.lastMessagePreview || 'لا توجد رسائل بعد' }}</small>
+                </span>
+              </button>
             } @empty {
-              <div class="empty-chat"><span>👋</span><h3>ابدأ المحادثة</h3><p>لم تُرسل أي رسائل في هذه المحادثة بعد.</p></div>
+              <div class="empty-list">
+                <span>💬</span>
+                <p>لا توجد محادثات دعم حتى الآن.</p>
+              </div>
             }
           }
         </div>
+      </aside>
 
-        <form class="chat-composer" (ngSubmit)="send()" novalidate>
-          <div class="composer-field">
-            <textarea [(ngModel)]="draft" name="draft" rows="1" placeholder="اكتب ردك..." maxlength="2000" aria-label="نص الرد" (keydown)="onComposerKeydown($event)" required></textarea>
-            <span class="character-count">{{ draft.length }}/2000</span>
+      <article class="support-chat">
+        @if (activeConversation(); as conversation) {
+          <header class="chat-header">
+            <div class="chat-identity">
+              <span class="header-avatar">{{ conversation.ownerName.charAt(0) || 'م' }}</span>
+              <div class="identity-copy">
+                <h2>{{ conversation.ownerName }}</h2>
+                <p><i></i> {{ conversation.farmName }}</p>
+              </div>
+            </div>
+            <span class="conversation-status">{{ conversation.isClosed ? 'مغلقة' : 'مفتوحة' }}</span>
+          </header>
+
+          <div #messagesViewport class="messages-viewport" aria-live="polite" aria-label="رسائل المحادثة">
+            @if (loadingMessages()) {
+              <div class="loading-state"><i></i><i></i><i></i><span>جاري تحميل الرسائل</span></div>
+            } @else {
+              @for (message of messages(); track message.id) {
+                <div class="support-message" [class.support-message--mine]="isMine(message)">
+                  <span class="message-avatar" aria-hidden="true">{{ senderInitial(message) }}</span>
+                  <div class="message-stack">
+                    @if (!isMine(message)) {
+                      <b class="sender-name">{{ message.senderName || conversation.ownerName }}</b>
+                    }
+                    <div class="message-bubble">
+                      <p>{{ message.content }}</p>
+                      <div class="message-meta">
+                        <time [attr.datetime]="message.createdAt">{{ messageTime(message.createdAt) }}</time>
+                        @if (isMine(message)) {
+                          <span class="delivery-check" title="تم الإرسال" aria-label="تم الإرسال">✓✓</span>
+                        }
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              } @empty {
+                <div class="empty-chat">
+                  <span>👋</span>
+                  <h3>ابدأ المحادثة</h3>
+                  <p>لم تُرسل أي رسائل في هذه المحادثة بعد.</p>
+                </div>
+              }
+            }
           </div>
-          <button type="submit" class="send-button" [disabled]="!draft.trim() || sending()" [attr.aria-label]="sending() ? 'جاري الإرسال' : 'إرسال الرد'">
-            @if (sending()) { <span class="send-spinner" aria-hidden="true"></span> }
-            @else { <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m22 2-7 20-4-9-9-4 20-7Z"/><path d="M22 2 11 13"/></svg> }
+
+          <form class="chat-composer" (ngSubmit)="send()" novalidate>
+            <div class="composer-field">
+              <textarea
+                [(ngModel)]="draft"
+                name="draft"
+                rows="1"
+                placeholder="اكتب ردك..."
+                maxlength="2000"
+                aria-label="نص الرد"
+                (keydown)="onComposerKeydown($event)"
+                required
+              ></textarea>
+              <span class="character-count">{{ draft.length }}/2000</span>
+            </div>
+            <button
+              type="submit"
+              class="send-button"
+              [disabled]="!draft.trim() || sending()"
+              [attr.aria-label]="sending() ? 'جاري الإرسال' : 'إرسال الرد'"
+            >
+              @if (sending()) {
+                <span class="send-spinner" aria-hidden="true"></span>
+              } @else {
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="m22 2-7 20-4-9-9-4 20-7Z"/>
+                  <path d="M22 2 11 13"/>
+                </svg>
+              }
+            </button>
+          </form>
+          <p class="composer-hint">Enter للإرسال · Shift + Enter لسطر جديد</p>
+        } @else {
+          <div class="no-conversation">
+            <span>💬</span>
+            <h2>اختر محادثة</h2>
+            <p>اختر أحد العملاء لعرض الرسائل والرد عليها.</p>
+          </div>
+        }
+      </article>
+    </div>
+  }
+
+  <!-- TAB 2: Contact Form Inquiries -->
+  @if (activeTab() === 'contact-messages') {
+    <div class="support-workspace contact-workspace">
+      <!-- Contact Messages List Panel -->
+      <aside class="conversations-panel">
+        <header class="conversations-header">
+          <div>
+            <h2>رسائل تواصل معنا</h2>
+            <p>{{ contactMessages().length }} رسالة مستلمة</p>
+          </div>
+          <button
+            type="button"
+            class="filter-pill"
+            [class.filter-pill--active]="contactUnreadOnly()"
+            (click)="toggleUnreadFilter()"
+          >
+            {{ contactUnreadOnly() ? 'عرض الكل' : 'غير المقروء فقط' }}
           </button>
-        </form>
-        <p class="composer-hint">Enter للإرسال · Shift + Enter لسطر جديد</p>
-      } @else {
-        <div class="no-conversation"><span>💬</span><h2>اختر محادثة</h2><p>اختر أحد العملاء لعرض الرسائل والرد عليها.</p></div>
-      }
-    </article>
-  </div>
+        </header>
+
+        <!-- Search box -->
+        <div class="contact-search-box">
+          <input
+            type="search"
+            placeholder="بحث بالاسم أو البريد أو النص…"
+            [value]="contactSearchQuery()"
+            (input)="contactSearchQuery.set($any($event.target).value)"
+            (keydown.enter)="onContactSearch()"
+          />
+        </div>
+
+        <div class="conversation-list">
+          @if (loadingContactMessages()) {
+            <div class="list-loading"><i></i><i></i><i></i></div>
+          } @else {
+            @for (msg of contactMessages(); track msg.id) {
+              <button
+                type="button"
+                class="conversation-card contact-card"
+                [class.conversation-card--active]="activeContactMessage()?.id === msg.id"
+                [class.contact-card--unread]="!msg.isRead"
+                (click)="selectContactMessage(msg)"
+              >
+                <span class="conversation-avatar" [class.contact-avatar--unread]="!msg.isRead">
+                  {{ msg.fullName.charAt(0) || 'ز' }}
+                </span>
+                <span class="conversation-copy">
+                  <span class="conversation-line">
+                    <b>{{ msg.fullName }}</b>
+                    <time>{{ messageTime(msg.createdAt) }}</time>
+                  </span>
+                  <strong>{{ msg.subject || 'استفسار عام' }}</strong>
+                  <small>{{ msg.message }}</small>
+                </span>
+                @if (!msg.isRead) {
+                  <span class="unread-dot" title="غير مقروء"></span>
+                }
+              </button>
+            } @empty {
+              <div class="empty-list">
+                <span>📬</span>
+                <p>لا توجد رسائل تواصل مطابقة.</p>
+              </div>
+            }
+          }
+        </div>
+      </aside>
+
+      <!-- Contact Message Details View -->
+      <article class="contact-details-view">
+        @if (activeContactMessage(); as message) {
+          <header class="contact-details-header">
+            <div class="contact-sender-info">
+              <span class="header-avatar">{{ message.fullName.charAt(0) || 'ز' }}</span>
+              <div>
+                <h2>{{ message.fullName }}</h2>
+                <div class="contact-meta-tags">
+                  <span class="meta-tag">✉ {{ message.email }}</span>
+                  @if (message.phoneNumber) {
+                    <span class="meta-tag">📞 {{ message.phoneNumber }}</span>
+                  }
+                  <span class="meta-tag">⏱ {{ messageTime(message.createdAt) }}</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Action buttons -->
+            <div class="contact-actions">
+              <a
+                [href]="'mailto:' + message.email + '?subject=' + encodeURIComponent('رد جرين مايند: ' + (message.subject || 'استفسارك'))"
+                class="action-btn action-btn--primary"
+                target="_blank"
+                rel="noopener"
+              >
+                <span>✉</span>
+                <span>رد عبر البريد</span>
+              </a>
+
+              <button
+                type="button"
+                class="action-btn action-btn--secondary"
+                [disabled]="contactActionLoading() === message.id"
+                (click)="markContactAsRead(message)"
+              >
+                <span>{{ message.isRead ? '✓ مقروءة' : 'تمييز كمقروء' }}</span>
+              </button>
+
+              <button
+                type="button"
+                class="action-btn action-btn--danger"
+                [disabled]="contactActionLoading() === message.id"
+                (click)="deleteContactMessage(message)"
+                title="حذف الرسالة"
+              >
+                <span>🗑 حذف</span>
+              </button>
+            </div>
+          </header>
+
+          <div class="contact-body-content">
+            <div class="subject-box">
+              <small>الموضوع / نوع الاستفسار</small>
+              <h3>{{ message.subject || 'استفسار عام' }}</h3>
+            </div>
+
+            <div class="message-content-box">
+              <small>نص الرسالة</small>
+              <p>{{ message.message }}</p>
+            </div>
+
+            <div class="quick-reply-tip">
+              <span class="tip-icon">💡</span>
+              <p>
+                يمكنك التواصل المباشر مع صاحب الرسالة عبر البريد الإلكتروني (<strong>{{ message.email }}</strong>) أو عبر الهاتف/الواتساب (<strong>{{ message.phoneNumber || 'غير متوفر' }}</strong>).
+              </p>
+            </div>
+          </div>
+        } @else {
+          <div class="no-conversation">
+            <span>📬</span>
+            <h2>اختر رسالة تواصل</h2>
+            <p>اختر رسالة من القائمة لعرض كامل تفاصيلها والتواصل مع صاحب الاستفسار.</p>
+          </div>
+        }
+      </article>
+    </div>
+  }
 </section>

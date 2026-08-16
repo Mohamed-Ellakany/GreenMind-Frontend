@@ -53,7 +53,12 @@ export class AiAgent implements OnInit {
     this.api.budgetStatus()
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-        next: (status) => this.budgetStatus.set(status),
+        next: (status) => {
+          this.budgetStatus.set(status);
+          if (status.hasPendingRequest) {
+            this.limitRequestSubmitted.set(true);
+          }
+        },
         error: () => {},
       });
   }
@@ -176,6 +181,7 @@ export class AiAgent implements OnInit {
       }, images);
       this.loadMessages(session.id);
       this.loadSessions(false);
+      this.loadBudgetStatus();
     } catch {
       this.messageInput = content;
       this.selectedImages = selectedImageFiles;
@@ -183,6 +189,7 @@ export class AiAgent implements OnInit {
       this.messages.update((messages) => messages.filter((message) =>
         message.id !== userId && message.id !== assistantId));
       if (questionTitle) this.loadSessions(false);
+      this.loadBudgetStatus();
     } finally {
       this.sending.set(false);
     }

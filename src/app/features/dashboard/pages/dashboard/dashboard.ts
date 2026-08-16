@@ -10,6 +10,7 @@ import { AuthService } from '@features/auth/services/AuthService';
 import { ProductTourService } from '@core/tour/product-tour.service';
 import { toLocalIsoDate } from '@shared/utils/local-date';
 import { taskPriorityLabel, taskTypeLabel } from '@shared/utils/task-labels';
+import { PlantGrowthLoader } from '@shared/components/plant-growth-loader/plant-growth-loader';
 
 type SoilSnapshot = {
   measurementDate?: string;
@@ -25,7 +26,7 @@ type SoilSnapshot = {
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, RouterLink, DecimalPipe],
+  imports: [CommonModule, RouterLink, DecimalPipe, PlantGrowthLoader],
   templateUrl: './dashboard-view.html',
 })
 export class Dashboard {

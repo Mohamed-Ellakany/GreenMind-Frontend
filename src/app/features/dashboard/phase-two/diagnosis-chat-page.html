@@ -1,34 +1,38 @@
 <section class="plan-page diagnosis-page" dir="rtl">
-  <div class="page-crumbs">
-    <a routerLink="/export-plans">خطط التصدير</a><i>/</i
-    ><a [routerLink]="['/export-plans', planId, 'crop-health']">صحة المحصول</a><i>/</i
-    ><span>{{ diagnosis()?.summary?.title || 'جلسة التشخيص' }}</span>
-  </div>
   @if (error()) {
     <div class="error-banner" role="alert">
-      <span>{{ error() }}</span
-      ><button type="button" (click)="error.set(null)">×</button>
+      <span>{{ error() }}</span>
+      <button type="button" (click)="error.set(null)">×</button>
     </div>
   }
   @if (success()) {
     <div class="success-banner">
-      <span>{{ success() }}</span
-      ><button type="button" (click)="success.set(null)">×</button>
+      <span>{{ success() }}</span>
+      <button type="button" (click)="success.set(null)">×</button>
     </div>
   }
   @if (loading()) {
     <app-plant-growth-loader message="جارٍ تحميل جلسة التشخيص…" />
   } @else if (diagnosis(); as current) {
-    <header class="page-heading diagnosis-heading">
-      <div>
-        <span class="session-kicker">{{ plan()?.crop }} · {{ plan()?.name }}</span>
-        <h1>{{ current.summary.suspectedDisease || current.summary.title }}</h1>
-        <p>كل الصور والمعلومات والنتيجة محفوظة داخل هذه الجلسة فقط.</p>
+    <!-- Compact Unified Header -->
+    <header class="diagnosis-compact-header">
+      <div class="header-main-info">
+        <div class="page-crumbs">
+          <a routerLink="/export-plans">خطط التصدير</a>
+          <i>/</i>
+          <a [routerLink]="['/export-plans', planId, 'crop-health']">صحة المحصول</a>
+          <i>/</i>
+          <span>{{ current.summary.suspectedDisease || current.summary.title }}</span>
+        </div>
+        <div class="title-and-kicker">
+          <h1>{{ current.summary.suspectedDisease || current.summary.title }}</h1>
+          <span class="session-kicker">{{ plan()?.crop }} · {{ plan()?.name }}</span>
+        </div>
       </div>
       <div class="heading-actions">
         <span class="session-status">{{ current.summary.status }}</span>
         @if (isOpen()) {
-          <button type="button" class="danger-action" (click)="cancelDiagnosis()">
+          <button type="button" class="danger-action compact-btn" (click)="cancelDiagnosis()">
             إلغاء وأرشفة
           </button>
         }
@@ -36,12 +40,13 @@
     </header>
 
     <div class="diagnosis-layout">
+      <!-- Chat Shell (Right side in RTL) -->
       <article class="panel chat-shell">
         <header class="chat-header">
           <div class="assistant-identity">
             <span>خ</span>
             <div>
-              <h2>مساعد التشخيص</h2>
+              <h2>مساعد التشخيص (عم خضر)</h2>
               <p>
                 {{
                   isOpen()
@@ -51,10 +56,11 @@
               </p>
             </div>
           </div>
-          <i [class.offline]="!isOpen()"
-            ><span></span>{{ isOpen() ? 'الجلسة مفتوحة' : 'الجلسة مغلقة' }}</i
-          >
+          <i [class.offline]="!isOpen()">
+            <span></span>{{ isOpen() ? 'الجلسة مفتوحة' : 'الجلسة مغلقة' }}
+          </i>
         </header>
+
         <div #messagesViewport class="diagnosis-messages" aria-live="polite">
           @if (!current.messages.length) {
             <div class="empty-state">
@@ -68,8 +74,8 @@
               <span class="message-avatar">{{ isUser(messageItem) ? 'أنت' : 'خ' }}</span>
               <div class="message-stack">
                 <div class="message-meta">
-                  <b>{{ isUser(messageItem) ? 'أنت' : 'مساعد التشخيص' }}</b
-                  ><time>{{ formatDate(messageItem.createdAt) }}</time>
+                  <b>{{ isUser(messageItem) ? 'أنت' : 'مساعد التشخيص' }}</b>
+                  <time>{{ formatDate(messageItem.createdAt) }}</time>
                 </div>
                 <div class="message-bubble">
                   @if (messageItem.content) {
@@ -79,9 +85,9 @@
                     <div class="message-images">
                       @for (image of messageItem.images; track image.id) {
                         @if (imageUrl(image); as url) {
-                          <a [href]="url" target="_blank" rel="noopener"
-                            ><img [src]="url" [alt]="image.originalFileName"
-                          /></a>
+                          <a [href]="url" target="_blank" rel="noopener">
+                            <img [src]="url" [alt]="image.originalFileName" />
+                          </a>
                         } @else {
                           <span class="image-placeholder"></span>
                         }
@@ -89,9 +95,7 @@
                     </div>
                   }
                   @if (messageItem.status === 'فشل') {
-                    <small class="message-failed"
-                      >تعذر تحليل هذه الرسالة؛ الصور والنص محفوظان.</small
-                    >
+                    <small class="message-failed">تعذر تحليل هذه الرسالة؛ الصور والنص محفوظان.</small>
                   }
                 </div>
               </div>
@@ -134,30 +138,33 @@
             @if (selectedImages.length) {
               <div class="selected-images">
                 @for (file of selectedImages; track file.name; let index = $index) {
-                  <span
-                    ><b>📷 {{ file.name }}</b
-                    ><button type="button" (click)="removeSelected(index)">×</button></span
-                  >
+                  <span>
+                    <b>📷 {{ file.name }}</b>
+                    <button type="button" (click)="removeSelected(index)">×</button>
+                  </span>
                 }
               </div>
             }
             <form (ngSubmit)="send()">
-              <label class="attach-button" title="إضافة صور"
-                ><input
+              <label class="attach-button" title="إضافة صور">
+                <input
                   type="file"
                   multiple
                   accept="image/jpeg,image/png"
                   (change)="chooseImages($event)"
-                />＋<small>صورة</small></label
-              ><textarea
+                />
+                <span>＋</span>
+                <small>صورة</small>
+              </label>
+              <textarea
                 name="message"
                 [(ngModel)]="message"
                 (keydown)="onMessageKeydown($event)"
-                rows="2"
+                rows="1"
                 maxlength="4000"
                 placeholder="اكتب إجابتك أو أرسل صورًا إضافية…"
-              ></textarea
-              ><button
+              ></textarea>
+              <button
                 type="submit"
                 class="send-button"
                 [disabled]="!canSend() || (!message.trim() && !selectedImages.length)"
@@ -172,6 +179,7 @@
         }
       </article>
 
+      <!-- Diagnosis Side Pane (Left side in RTL) -->
       <aside class="diagnosis-side">
         @if (isOpen()) {
           <section class="panel readiness-card">
@@ -186,11 +194,11 @@
                   }}
                 </h2>
               </div>
-              <b
-                >{{ current.readiness.checklist.length - current.readiness.missingItems.length }}/{{
+              <b>
+                {{ current.readiness.checklist.length - current.readiness.missingItems.length }}/{{
                   current.readiness.checklist.length
-                }}</b
-              >
+                }}
+              </b>
             </header>
             <div class="readiness-progress">
               <span
@@ -201,11 +209,11 @@
                 "
               ></span>
             </div>
-            <ul>
+            <ul class="readiness-checklist">
               @for (item of current.readiness.checklist; track item.key) {
                 <li [class.complete]="item.isComplete">
-                  <span>{{ item.isComplete ? '✓' : '○' }}</span
-                  >{{ item.label }}
+                  <span>{{ item.isComplete ? '✓' : '○' }}</span>
+                  <p>{{ item.label }}</p>
                 </li>
               }
             </ul>
@@ -272,12 +280,8 @@
               <span>{{ current.summary.confidencePercentage }}%</span>
             </header>
             <div class="result-facts">
-              <span
-                ><small>الشدة</small><b>{{ current.summary.severity }}</b></span
-              ><span
-                ><small>المصادر</small
-                ><b>{{ current.sources.length ? 'موثقة' : 'غير متاحة' }}</b></span
-              >
+              <span><small>الشدة</small><b>{{ current.summary.severity }}</b></span>
+              <span><small>المصادر</small><b>{{ current.sources.length ? 'موثقة' : 'غير متاحة' }}</b></span>
             </div>
             <div class="result-copy">
               <small>ملخص الإجراء</small>
@@ -293,13 +297,11 @@
               <details class="sources">
                 <summary>عرض المصادر المستخدمة ({{ current.sources.length }})</summary>
                 @for (source of current.sources; track source.id) {
-                  <a [href]="source.sourceUrl" target="_blank" rel="noopener"
-                    ><b>{{ source.sourceName }}</b
-                    ><small
-                      >{{ source.publisher }} · {{ source.sectionReference || 'مرجع عام' }}</small
-                    >
-                    <p>{{ source.excerpt }}</p></a
-                  >
+                  <a [href]="source.sourceUrl" target="_blank" rel="noopener">
+                    <b>{{ source.sourceName }}</b>
+                    <small>{{ source.publisher }} · {{ source.sectionReference || 'مرجع عام' }}</small>
+                    <p>{{ source.excerpt }}</p>
+                  </a>
                 }
               </details>
             }
@@ -343,46 +345,49 @@
           @for (item of treatment.items; track item.id) {
             <article [class.excluded]="!item.isIncluded">
               <header>
-                <label
-                  ><input
+                <label>
+                  <input
                     type="checkbox"
                     [(ngModel)]="item.isIncluded"
                     [name]="'include-' + item.id"
                     [disabled]="treatment.reviewedAtUtc !== null"
                   />
-                  تنفيذ هذا البند</label
-                ><span>{{ item.operation }}</span>
+                  تنفيذ هذا البند
+                </label>
+                <span>{{ item.operation }}</span>
               </header>
               <p class="proposal-reason">{{ item.reason }}</p>
               <div class="proposal-form">
-                <label
-                  ><span>العنوان</span
-                  ><input
+                <label>
+                  <span>العنوان</span>
+                  <input
                     [(ngModel)]="item.proposedValues.title"
                     [name]="'title-' + item.id"
                     [disabled]="treatment.reviewedAtUtc !== null"
-                /></label>
-                <label class="wide"
-                  ><span>الوصف</span
-                  ><textarea
+                  />
+                </label>
+                <label class="wide">
+                  <span>الوصف</span>
+                  <textarea
                     rows="2"
                     [(ngModel)]="item.proposedValues.description"
                     [name]="'description-' + item.id"
                     [disabled]="treatment.reviewedAtUtc !== null"
                   ></textarea>
                 </label>
-                <label
-                  ><span>التاريخ</span
-                  ><input
+                <label>
+                  <span>التاريخ</span>
+                  <input
                     type="text"
                     appDatePicker
                     [(ngModel)]="item.proposedValues.plannedDate"
                     [name]="'date-' + item.id"
                     [disabled]="treatment.reviewedAtUtc !== null"
-                /></label>
-                <label
-                  ><span>الكمية</span
-                  ><input
+                  />
+                </label>
+                <label>
+                  <span>الكمية</span>
+                  <input
                     type="text"
                     appNumericInput
                     min="0.001"
@@ -390,18 +395,20 @@
                     [(ngModel)]="item.proposedValues.quantity"
                     [name]="'quantity-' + item.id"
                     [disabled]="treatment.reviewedAtUtc !== null"
-                /></label>
-                <label
-                  ><span>الوحدة</span
-                  ><input
+                  />
+                </label>
+                <label>
+                  <span>الوحدة</span>
+                  <input
                     maxlength="50"
                     [(ngModel)]="item.proposedValues.unit"
                     [name]="'unit-' + item.id"
                     [disabled]="treatment.reviewedAtUtc !== null"
-                /></label>
-                <label
-                  ><span>الأولوية</span
-                  ><select
+                  />
+                </label>
+                <label>
+                  <span>الأولوية</span>
+                  <select
                     [(ngModel)]="item.proposedValues.priority"
                     [name]="'priority-' + item.id"
                     [disabled]="treatment.reviewedAtUtc !== null"
@@ -410,8 +417,8 @@
                     <option value="Medium">متوسطة</option>
                     <option value="High">عالية</option>
                     <option value="Critical">حرجة</option>
-                  </select></label
-                >
+                  </select>
+                </label>
               </div>
             </article>
           }
@@ -424,15 +431,17 @@
               [disabled]="proposalLoading()"
               (click)="rejectProposal()"
             >
-              رفض</button
-            ><button
+              رفض
+            </button>
+            <button
               type="button"
               class="secondary-action"
               [disabled]="proposalLoading()"
               (click)="saveProposal()"
             >
-              حفظ التعديلات</button
-            ><button
+              حفظ التعديلات
+            </button>
+            <button
               type="button"
               class="primary-action"
               [disabled]="proposalLoading()"
