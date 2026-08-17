@@ -2,7 +2,7 @@ import { Component, DestroyRef, ElementRef, ViewChild, computed, inject, signal 
 import { FormsModule } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { finalize, forkJoin, switchMap, timer } from 'rxjs';
+import { Subscription, catchError, finalize, forkJoin, of, switchMap, timer } from 'rxjs';
 import { GreenmindApi } from '@core/api/greenmind-api.service';
 import { ExportPlanDetails } from '@core/api/api.models';
 import { PlantGrowthLoader } from '@shared/components/plant-growth-loader/plant-growth-loader';
@@ -52,8 +52,13 @@ export class DiagnosisChatPage {
     return !!item && (item.finalizedWithOverride || !item.knowledgeVerified || (item.confidencePercentage ?? 0) < 60);
   });
 
+  private pollingSubscription: Subscription | null = null;
+
   public constructor() {
-    this.destroyRef.onDestroy(() => Object.values(this.imageUrls()).forEach((url) => URL.revokeObjectURL(url)));
+    this.destroyRef.onDestroy(() => {
+      this.stopPolling();
+      Object.values(this.imageUrls()).forEach((url) => URL.revokeObjectURL(url));
+    });
     if (![this.planId, this.diagnosisId].every((value) => Number.isInteger(value) && value > 0)) {
       this.loading.set(false);
       this.error.set('رابط جلسة التشخيص غير صالح.');
@@ -205,22 +210,44 @@ export class DiagnosisChatPage {
     forkJoin({ plan: this.coreApi.exportPlan(this.planId), diagnosis: this.api.diagnosis(this.planId, this.diagnosisId) }).pipe(
       finalize(() => this.loading.set(false)), takeUntilDestroyed(this.destroyRef),
     ).subscribe({
-      next: ({ plan, diagnosis }) => { this.plan.set(plan); this.setDetail(diagnosis); this.startPolling(); },
+      next: ({ plan, diagnosis }) => { this.plan.set(plan); this.setDetail(diagnosis); },
       error: () => this.error.set('تعذر تحميل جلسة التشخيص.'),
     });
   }
 
-  private startPolling(): void {
-    timer(5000, 5000).pipe(
-      switchMap(() => this.api.diagnosis(this.planId, this.diagnosisId)),
+  private syncPolling(): void {
+    const shouldPoll = typeof document !== 'undefined' && !document.hidden && this.isProcessing();
+    if (!shouldPoll) {
+      this.stopPolling();
+      return;
+    }
+    if (this.pollingSubscription && !this.pollingSubscription.closed) return;
+
+    this.pollingSubscription = timer(5000, 5000).pipe(
+      switchMap(() => this.api.diagnosis(this.planId, this.diagnosisId).pipe(
+        catchError(() => of(null)),
+      )),
       takeUntilDestroyed(this.destroyRef),
-    ).subscribe({ next: (detail) => { if (this.isProcessing() || detail.summary.status !== this.diagnosis()?.summary.status) this.setDetail(detail); } });
+    ).subscribe({
+      next: (detail) => {
+        if (detail && (this.isProcessing() || detail.summary.status !== this.diagnosis()?.summary.status)) {
+          this.setDetail(detail);
+        }
+      },
+      error: () => this.stopPolling(),
+    });
+  }
+
+  private stopPolling(): void {
+    this.pollingSubscription?.unsubscribe();
+    this.pollingSubscription = null;
   }
 
   private setDetail(detail: DiagnosisDetail): void {
     this.diagnosis.set(detail);
     this.loadImages(detail.messages.flatMap((message) => message.images));
     this.scrollToEnd('auto');
+    this.syncPolling();
   }
 
   private loadImages(images: DiagnosisImage[]): void {
