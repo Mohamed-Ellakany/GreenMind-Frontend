@@ -64,14 +64,29 @@
             <div class="message-content">
               <span class="message-author">{{ isUserMessage(message) ? 'أنت' : 'عم خضر' }}</span>
               <div class="message-bubble" [class.message-bubble--user]="isUserMessage(message)">
-                @if (!message.content) {
-                  <span class="typing-indicator" aria-label="عم خضر يكتب"><i></i><i></i><i></i></span>
-                } @else if (isUserMessage(message)) {
-                  <p>{{ message.content }}</p>
+                @if (isUserMessage(message)) {
+                  @if (message.content) {
+                    <p>{{ message.content }}</p>
+                  }
+                  @if (getMessageImages(message); as imgs) {
+                    @if (imgs.length) {
+                      <div class="message-images">
+                        @for (img of imgs; track img.id ?? img.url) {
+                          <a [href]="img.url" target="_blank" rel="noopener" class="message-image-link" [title]="img.name">
+                            <img [src]="img.url" [alt]="img.name" />
+                          </a>
+                        }
+                      </div>
+                    }
+                  }
                 } @else {
-                  <div class="message-markdown" [innerHTML]="renderAssistantMessage(message.content)"></div>
+                  @if (!message.content) {
+                    <span class="typing-indicator" aria-label="عم خضر يكتب"><i></i><i></i><i></i></span>
+                  } @else {
+                    <div class="message-markdown" [innerHTML]="renderAssistantMessage(message.content)"></div>
+                  }
+                  @if (message.status === 'فشل') { <small class="message-failure">تعذر إكمال هذا الرد</small> }
                 }
-                @if (message.status === 'فشل') { <small class="message-failure">تعذر إكمال هذا الرد</small> }
               </div>
             </div>
           </div>
