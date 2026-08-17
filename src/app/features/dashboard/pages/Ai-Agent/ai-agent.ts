@@ -3,7 +3,7 @@ import { FormsModule } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { finalize } from 'rxjs/operators';
 import { PhaseTwoApi } from '../../phase-two/phase-two-api.service';
-import { ChatMessage, ChatSession } from '../../phase-two/phase-two.models';
+import { ChatAttachment, ChatMessage, ChatSession } from '../../phase-two/phase-two.models';
 import { markdownToHtml } from '../../../../shared/utils/markdown-to-html';
 import { UserBudgetStatus } from '../../../../core/api/api.models';
 
@@ -26,6 +26,7 @@ export class AiAgent implements OnInit {
   public readonly error = signal<string | null>(null);
   public readonly historyCollapsed = signal(false);
   public readonly budgetStatus = signal<UserBudgetStatus | null>(null);
+  public readonly imageUrls = signal<Record<number, string>>({});
 
   public readonly limitRequestSubmitted = signal(false);
   public readonly submittingLimitRequest = signal(false);
@@ -47,6 +48,10 @@ export class AiAgent implements OnInit {
   public ngOnInit(): void {
     this.loadSessions();
     this.loadBudgetStatus();
+
+    this.destroyRef.onDestroy(() => {
+      Object.values(this.imageUrls()).forEach((url) => URL.revokeObjectURL(url));
+    });
   }
 
   public loadBudgetStatus(): void {
@@ -124,6 +129,21 @@ export class AiAgent implements OnInit {
     return markdownToHtml(content);
   }
 
+  public getMessageImages(message: ChatMessage): Array<{ id?: number; url: string; name: string }> {
+    if (message.localImageUrls?.length) {
+      return message.localImageUrls.map((url, i) => ({ url, name: `صورة مرفقة ${i + 1}` }));
+    }
+    if (message.attachments?.length) {
+      return message.attachments
+        .map((att) => {
+          const url = this.imageUrls()[att.id];
+          return url ? { id: att.id, url, name: att.originalFileName } : null;
+        })
+        .filter((img): img is { id: number; url: string; name: string } => img !== null);
+    }
+    return [];
+  }
+
   public onComposerKeydown(event: KeyboardEvent): void {
     if (event.key !== 'Enter' || event.shiftKey || event.isComposing) return;
     event.preventDefault();
@@ -151,6 +171,8 @@ export class AiAgent implements OnInit {
     }
     this.selectedImages = [];
 
+    const localImageUrls = selectedImageFiles.map((file) => URL.createObjectURL(file));
+
     this.messageInput = '';
     this.sending.set(true);
     this.error.set(null);
@@ -159,8 +181,21 @@ export class AiAgent implements OnInit {
     const assistantId = userId - 1;
     this.messages.update((messages) => [
       ...messages,
-      { id: userId, role: 'المستخدم', content, status: 'مكتمل', createdAt: new Date().toISOString() },
-      { id: assistantId, role: 'المساعد', content: '', status: 'جارٍ الإرسال', createdAt: new Date().toISOString() },
+      {
+        id: userId,
+        role: 'المستخدم',
+        content,
+        status: 'مكتمل',
+        createdAt: new Date().toISOString(),
+        localImageUrls,
+      },
+      {
+        id: assistantId,
+        role: 'المساعد',
+        content: '',
+        status: 'جارٍ الإرسال',
+        createdAt: new Date().toISOString(),
+      },
     ]);
     this.scrollToNewestMessageStart();
 
@@ -283,10 +318,29 @@ export class AiAgent implements OnInit {
       .subscribe({
         next: (page) => {
           this.messages.set(page.items);
+          this.loadAttachmentImages(sessionId, page.items);
           this.scrollToNewestMessageStart();
         },
         error: () => this.error.set('تعذر تحميل سجل المحادثة.'),
       });
+  }
+
+  private loadAttachmentImages(sessionId: number, messages: ChatMessage[]): void {
+    const attachments = messages.flatMap((m) => m.attachments ?? []);
+    for (const attachment of attachments) {
+      if (this.imageUrls()[attachment.id]) continue;
+      this.api.farmAttachment(sessionId, attachment.id)
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe({
+          next: (blob) => {
+            this.imageUrls.update((current) => ({
+              ...current,
+              [attachment.id]: URL.createObjectURL(blob),
+            }));
+            this.scrollToNewestMessageStart();
+          },
+        });
+    }
   }
 
   private scrollToNewestMessageStart(): void {

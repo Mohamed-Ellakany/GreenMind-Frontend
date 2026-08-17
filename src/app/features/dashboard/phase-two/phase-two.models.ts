@@ -12,6 +12,15 @@ export interface ChatSession {
   updatedAtUtc: string | null;
 }
 
+export interface ChatAttachment {
+  id: number;
+  chatMessageId: number;
+  originalFileName: string;
+  contentType: string;
+  fileSize: number;
+  url?: string;
+}
+
 export interface ChatMessage {
   id: number;
   role: string;
@@ -19,6 +28,8 @@ export interface ChatMessage {
   status: string;
   createdAt: string;
   taskChangeProposalId?: number | null;
+  attachments?: ChatAttachment[];
+  localImageUrls?: string[];
 }
 
 export interface ChatHistoryPage {

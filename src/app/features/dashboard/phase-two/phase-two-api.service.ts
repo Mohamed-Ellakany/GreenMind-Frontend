@@ -63,6 +63,20 @@ export class PhaseTwoApi {
     return this.stream(`/api/farm/chat/sessions/${sessionId}/messages/stream`, content, onEvent, images);
   }
 
+  public farmAttachment(sessionId: number, attachmentId: number): Observable<Blob> {
+    return this.http.get(
+      this.buildUrl(`/api/farm/chat/sessions/${sessionId}/attachments/${attachmentId}`),
+      { responseType: 'blob' },
+    );
+  }
+
+  public planAttachment(planId: number, sessionId: number, attachmentId: number): Observable<Blob> {
+    return this.http.get(
+      this.buildUrl(`/api/export-plans/${planId}/chat/sessions/${sessionId}/attachments/${attachmentId}`),
+      { responseType: 'blob' },
+    );
+  }
+
   public budgetStatus(): Observable<UserBudgetStatus> {
     return this.get('/api/farm/ai-budget');
   }
