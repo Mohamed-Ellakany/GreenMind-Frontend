@@ -87,7 +87,7 @@ const DATE_VALIDATOR: Provider = {
   styles: `
     :host {
       position: fixed;
-      z-index: 250;
+      z-index: 1000;
       display: block;
       width: min(22rem, calc(100vw - 1.5rem));
     }
@@ -312,7 +312,6 @@ class CalendarPopoverComponent {
   providers: [DATE_VALIDATOR],
   host: {
     type: 'text',
-    readonly: 'true',
     autocomplete: 'off',
     'aria-haspopup': 'dialog',
     'aria-expanded': 'false',
@@ -331,21 +330,21 @@ export class DatePickerDirective implements Validator {
   private validatorChange: () => void = () => undefined;
 
   public constructor() {
-    this.element.readOnly = true;
     this.element.placeholder ||= 'YYYY-MM-DD';
   }
 
   @HostListener('click', ['$event'])
   public handleClick(event: MouseEvent): void {
-    event.preventDefault();
-    this.open();
+    if (!this.calendarRef) {
+      this.open();
+    }
   }
 
   @HostListener('keydown', ['$event'])
   public handleKeydown(event: KeyboardEvent): void {
     if (event.key === 'Escape') {
       this.close();
-    } else if (event.key === 'Enter' || event.key === ' ' || event.key === 'ArrowDown') {
+    } else if (event.key === 'ArrowDown' && event.altKey) {
       event.preventDefault();
       this.open();
     }
@@ -380,7 +379,8 @@ export class DatePickerDirective implements Validator {
     ref.instance.visibleMonth = startOfMonth(parseIsoDate(this.element.value) ?? new Date());
     ref.instance.selectDate = (value) => this.select(value);
     this.appRef.attachView(ref.hostView);
-    this.document.body.appendChild(ref.location.nativeElement);
+    const container = this.element.closest('dialog') ?? this.document.body;
+    container.appendChild(ref.location.nativeElement);
     this.calendarRef = ref;
     this.element.setAttribute('aria-expanded', 'true');
     this.position();

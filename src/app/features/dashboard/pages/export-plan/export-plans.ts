@@ -718,12 +718,16 @@ export class ExportPlans {
   }
 
   private validateDateSequence(): boolean {
-    if (!this.form.plantingDate || !this.form.expectedHarvestDate || !this.form.expectedExportDate) {
-      this.stepError.set('أكمل التواريخ الثلاثة قبل إعادة التقييم.');
+    if (!this.form.plantingDate) {
+      this.stepError.set('حدد تاريخ بداية الزراعة أولاً.');
       return false;
     }
-    if (this.form.plantingDate >= this.form.expectedHarvestDate || this.form.expectedHarvestDate > this.form.expectedExportDate) {
-      this.stepError.set('يجب أن يكون الحصاد بعد الزراعة، والتصدير في يوم الحصاد أو بعده.');
+    if (this.form.expectedHarvestDate && this.form.plantingDate >= this.form.expectedHarvestDate) {
+      this.stepError.set('يجب أن يكون الحصاد بعد الزراعة.');
+      return false;
+    }
+    if (this.form.expectedHarvestDate && this.form.expectedExportDate && this.form.expectedHarvestDate > this.form.expectedExportDate) {
+      this.stepError.set('يجب أن يكون التصدير في يوم الحصاد أو بعده.');
       return false;
     }
     return true;
